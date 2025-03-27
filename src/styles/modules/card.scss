@@ -1,0 +1,74 @@
+// 🌐 전역 스타일 설정
+$border-radius-default: 20px; // 기본 테두리 반지름
+$fill-transparent: transparent; // 투명 채우기
+$stroke-base: rgba(215, 215, 216, 0.137); // 기본 테두리 색상
+$stroke-width-base: 1.5px; // 기본 테두리 너비
+$stroke-linejoin-miter: miter; // 테두리 결합 방식
+$stroke-linecap-butt: butt; // 테두리 끝 모양
+$stroke-miterlimit-base: 4; // 테두리 미터리밋 설정
+$shape-rendering-auto: auto; // 모양 렌더링 방식
+$background-color-card: #edeef3; // 카드 배경색
+$box-shadow-card: 15px 15px 23px #0000001c, -15px -15px 23px #ffffffec; // 카드 박스 그림자
+$background-color-dark-box: #dadbe2; // 어두운 박스 배경색
+$border-card: solid 1.5px $stroke-base; // 카드 테두리 스타일
+
+// 🖌️ 믹스인 정의
+// 공통 카드 스타일 믹스인
+@mixin card-style {
+  border-radius: $border-radius-default !important;
+  fill: $fill-transparent !important;
+  stroke: $stroke-base !important;
+  stroke-width: $stroke-width-base !important;
+  stroke-linejoin: $stroke-linejoin-miter !important;
+  stroke-linecap: $stroke-linecap-butt !important;
+  stroke-miterlimit: $stroke-miterlimit-base !important;
+  shape-rendering: $shape-rendering-auto !important;
+  background-color: $background-color-card !important;
+  border: $border-card !important;
+  // box-shadow: $box-shadow-card !important;
+  box-shadow: none; // 초기 그림자를 없애고
+  animation: shadowFadeIn 3s ease-in-out forwards; // 애니메이션 적용
+}
+
+// 카드 스타일
+.wc-card,
+.wc-card-for-service,
+.nm-card {
+  @include card-style; // 공통 스타일 믹스인 적용
+}
+
+.wc-card-for-itme-list {
+  @include card-style; // 공통 스타일 믹스인 적용
+  // 모서리를 항상 둥글게 설정
+  border-radius: 100px !important;
+}
+
+// 어두운 박스 스타일
+.wc-dark-box {
+  border-radius: $border-radius-default !important;
+  fill: $fill-transparent !important;
+  shape-rendering: $shape-rendering-auto !important;
+  background-color: $background-color-dark-box !important;
+  // 추가적인 스타일이 필요하다면 여기에 작성
+}
+
+// 일반 카드 스타일
+.nm-card-plain {
+  background-color: $background-color-card !important; // 배경색만 지정
+}
+
+// 이미지 카드 스타일
+.nm-card-img {
+  border: 2px solid rgba(255, 255, 255, 0.517) !important;
+  margin-top: -10px !important;
+}
+
+// 그림자 애니메이션 정의
+@keyframes shadowFadeIn {
+  0% {
+    box-shadow: none;
+  }
+  100% {
+    box-shadow: $box-shadow-card;
+  }
+}

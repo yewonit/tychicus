@@ -1,0 +1,66 @@
+// 🌐 전역 스타일 설정
+// 버튼 및 관련 요소에 적용될 전역 변수 정의
+$border-radius-circle: 50%;                           // 원형 모양의 테두리 반지름
+$fill-transparent: transparent;                       // 투명한 채우기 색상
+$stroke-base: rgba(236, 237, 245, 0.302);             // 기본 테두리 색상
+$stroke-width-base: 1.5px;                            // 기본 테두리 너비
+$stroke-linejoin-miter: miter;                        // 테두리 결합 스타일
+$stroke-linecap-butt: butt;                           // 테두리 끝 모양
+$stroke-miterlimit-base: 4;                           // 테두리 미터리밋 설정
+$shape-rendering-auto: auto;                          // 모양 렌더링 방식
+$box-shadow-standard: 15px 15px 15px #00000012, -15px -15px 15px #ffffff; // 표준 박스 그림자
+$box-shadow-inset: inset 0 10px 16px 0 rgba(0, 0, 0, 0.16); // 내부 그림자
+$background-color-light-gray: #edeef3;                // 밝은 회색 배경색
+
+// ✒️ 공통 스타일 믹스인
+// 버튼 및 관련 요소에 공통으로 적용될 스타일 정의
+@mixin button-style {
+  border-radius: $border-radius-circle;
+  fill: $fill-transparent;
+  stroke: $stroke-base;
+  stroke-width: $stroke-width-base;
+  stroke-linejoin: $stroke-linejoin-miter;
+  stroke-linecap: $stroke-linecap-butt;
+  stroke-miterlimit: $stroke-miterlimit-base;
+  shape-rendering: $shape-rendering-auto;
+  box-shadow: $box-shadow-standard;
+}
+
+// 🔘 글로벌 배경색
+// 전체 배경색에 대한 스타일 정의
+.background-color {
+  background-color: $background-color-light-gray !important; // 밝은 회색 배경색 적용
+}
+
+// 🖼️ 이미지 홀더 레이어 스타일
+// .ih-layer-1 및 .ih-layer-2 클래스에 대한 스타일 정의
+.ih-layer-1, .ih-layer-2 {
+  @include button-style;
+  background-color: $background-color-light-gray; // 밝은 회색 배경색 적용
+}
+
+.ih-layer-1 {
+  border: solid 1.5px $stroke-base; // 테두리 색상과 두께 지정
+  box-shadow: $box-shadow-inset;    // 내부 그림자 스타일
+}
+
+.ih-layer-2 {
+  border: solid 1.5px rgba(236, 237, 245, 0.107); // 테두리 색상과 두께 조정
+  box-shadow: 10px 30px 30px 30px rgba(0, 0, 0, 0.16); // 그림자 스타일 변경
+}
+
+
+// 🎨 버튼 스타일
+// .nm 클래스에 대한 스타일 정의
+.nm {
+  @include button-style;
+  border: 1px solid white; // 하얀색 테두리
+}
+
+// 🛠️ 소형 부품 스타일
+// .nm-plate 클래스에 대한 스타일 정의
+.nm-plate {
+  @include button-style;
+  stroke: #ecedf54d; // 특정 색상으로 테두리 색상 변경
+  border-right: none; // 오른쪽 테두리 제거
+}

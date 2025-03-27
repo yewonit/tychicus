@@ -1,0 +1,28 @@
+// 애니메이션 관련 스타일 모듈
+@import "./modules/animation.scss";
+
+// 버튼 관련 스타일 모듈
+@import "./modules/button.scss";
+
+// 카드 컴포넌트 관련 스타일 모듈
+@import "./modules/card.scss";
+
+// 폰트 관련 스타일 모듈
+@import "./modules/font.scss";
+
+// 입력 필드 관련 스타일 모듈
+@import "./modules/input.scss";
+
+// 레이어 관련 스타일 모듈
+@import "./modules/layer.scss";
+
+// 간격 관련 스타일 모듈
+@import "./modules/spacing.scss";
+
+// 텍스트 관련 스타일 모듈
+@import "./modules/text.scss";
+
+// 음수 마진 - 요소를 위로 120px 이동
+.mt-_120 {
+  margin-top: -120px;
+}
