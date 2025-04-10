@@ -45,6 +45,7 @@ export default {
     }, 2000); // 2초 후에 '환영합니다.' 텍스트를 표시
 
     setTimeout(() => {
+      //this.$router.push("/login");
       this.$router.push("/name-input");
     }, 4000); // 4초 후에 /name-input 경로로 리다이렉트
   },

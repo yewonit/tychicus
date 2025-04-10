@@ -35,6 +35,7 @@ import ServiceSelectionView from "@/views/main/coreNavigation/ServiceSelectionVi
  * @section 인증 관련 뷰
  * @description 사용자 인증 및 정보 입력 관련 컴포넌트
  */
+import LoginView from "@/views/main/login/LoginView.vue";
 import NameInputView from "@/views/main/login/NameInputView.vue";
 import PhoneInputView from "@/views/main/login/PhoneInputView.vue";
 
@@ -124,6 +125,19 @@ const routes = [
       /**
        * @section 인증 관련 라우트
        */
+      {
+        path: "/login",
+        name: "LoginView",
+        component: LoginView,
+        meta: {
+          title: "로그인",
+          showIcon: false,
+          iconName: "mdi-account-edit",
+          showBackButton: false,
+          showHomeButton: false,
+          showCancelButton: false,
+        },
+      },
       {
         path: "/name-input",
         name: "NameInputView",

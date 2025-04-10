@@ -5,7 +5,7 @@ export const AuthCtrl = {
   data() {
     return {
       // URL List
-      User_EP: "users",
+      User_EP: "api/users",
 
       // Model List
       modelUser: {
@@ -209,6 +209,44 @@ export const AuthCtrl = {
         console.log(`%c[ return ] :`, `color: #6495ED;`, returnData);
       }
       return returnData;
+    },
+
+    // 로그인 API 호출
+    async authLogin(email, password) {
+      try {
+        const requestUrl = `${this.BASIC_URL}auth/login`;
+        const requestData = { email, password };
+        const res = await axios.post(requestUrl, requestData, {
+          timeout: 8000, // 8초 타임아웃 설정
+          headers: {
+            "Content-Type": "application/x-www-form-urlencoded",
+          },
+        });
+
+        console.log("응답 : " + res);
+
+        if (res.data) {
+          return {
+            success: true,
+            user: res.data.user,
+            message: "로그인에 성공했습니다.",
+          };
+        } else {
+          return { success: false, message: "관리자에게 문의 바랍니다." };
+        }
+      } catch (error) {
+        if (error.response.status === 400 || error.response.status === 401) {
+          return {
+            success: false,
+            message: error.response.data.error.message,
+            // error: message: "패스워드가 일치하지 않습니다." name: "AuthenticationError"
+          };
+        }
+        return {
+          success: false,
+          message: `서버 에러 (${error.response.status}): ${error.response.statusText}`,
+        };
+      }
     },
   },
 };
