@@ -129,7 +129,7 @@ export default {
   // 컴포넌트의 메서드를 정의합니다.
   methods: {
     // Vuex 저장소의 "auth" 모듈에서 "setUserName" 액션을 매핑합니다.
-    ...mapActions("auth", ["setUserName", "setUserList", "setUserData"]),
+    ...mapActions("auth", ["setUserName", "setUserList"]),
 
     // 사용자 이름 중복 체크를 수행하는 비동기 메서드입니다.
     async fnLogin() {
@@ -154,8 +154,6 @@ export default {
         // 로그인 API 호출
         const response = await this.authLogin(this.email, this.password);
         if (response.success) {
-          // 로그인 성공 시 사용자 정보 저장
-          this.setUserData(response.user);
           // 메인 페이지로 이동
           this.$router.push({ name: "ServiceSelectionView" });
         } else {
@@ -163,7 +161,7 @@ export default {
           alert(response.message);
         }
       } catch (error) {
-        console.error("Login error:", error);
+        console.error("Login error:", error.message);
         alert("로그인 중 오류가 발생했습니다.");
       }
     },

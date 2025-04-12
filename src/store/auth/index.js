@@ -8,6 +8,10 @@ const state = {
   userList: [],
   // 단일 사용자 데이터 (동명이인이 없는 경우)
   userData: null,
+  // AccessToken
+  userAccessToken: "",
+  // RefreshToken
+  userRefreshToken: "",
 };
 
 // auth 모듈의 변이 정의
@@ -34,6 +38,15 @@ const mutations = {
     state.userInfo = {};
     state.userList = [];
     state.userData = null;
+    state.userAccessToken = "";
+    state.userRefreshToken = "";
+  },
+  // AccessToken 설정
+  SET_ACCESSTOKEN(state, userAccessToken) {
+    state.userAccessToken = userAccessToken;
+  },
+  SET_REFRESHTOKEN(state, userRefreshToken) {
+    state.userRefreshToken = userRefreshToken;
   },
 };
 
@@ -64,6 +77,20 @@ const actions = {
     console.log(`[ Store : auth ] logout()`);
     commit("CLEAR_AUTH_STATE");
   },
+  setAccessToken({ commit }, userAccessToken) {
+    console.log(
+      `[ Store : auth ] setAccessToken() userAccessToken:`,
+      userAccessToken
+    );
+    commit("SET_ACCESSTOKEN", userAccessToken);
+  },
+  setRefreshToken({ commit }, userRefreshToken) {
+    console.log(
+      `[ Store : auth ] userRefreshToken() userRefreshToken:`,
+      userRefreshToken
+    );
+    commit("SET_REFRESHTOKEN", userRefreshToken);
+  },
 };
 
 // auth 모듈의 게터 정의
@@ -87,6 +114,12 @@ const getters = {
   // 동명이인 여부를 반환하는 게터
   hasDuplicateUsers(state) {
     return state.userList && state.userList.length > 1;
+  },
+  userAccessToken(state) {
+    return state.userAccessToken;
+  },
+  userRefreshToken(state) {
+    return state.userRefreshToken;
   },
 };
 

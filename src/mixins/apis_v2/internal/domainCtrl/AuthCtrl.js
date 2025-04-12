@@ -1,6 +1,6 @@
 import { ModelCtrl } from "@/mixins/apis_v2/internal/core/ModelCtrl";
 import axios from "axios";
-
+import { mapActions } from "vuex";
 export const AuthCtrl = {
   data() {
     return {
@@ -45,6 +45,7 @@ export const AuthCtrl = {
   created() {},
   mixins: [ModelCtrl],
   methods: {
+    ...mapActions("auth", ["setUserData", "setAccessToken", "setRefreshToken"]),
     /**
      * @description [인증된 사용자] 이름을 통한 사용자 존재 여부 확인 API
      * @param {String} name 확인할 사용자의 이름
@@ -211,7 +212,12 @@ export const AuthCtrl = {
       return returnData;
     },
 
-    // 로그인 API 호출
+    /**
+     * @description 로그인 API 호출
+     * @param {String} email 사용자 이메일
+     * @param {String} password 사용자 비밀번호
+     * @returns {Object} 조회 결과 (object: 성공, {result:0}: 실패)
+     */
     async authLogin(email, password) {
       try {
         const requestUrl = `${this.BASIC_URL}auth/login`;
@@ -223,16 +229,19 @@ export const AuthCtrl = {
           },
         });
 
-        console.log("응답 : " + res);
+        console.log("응답 : " + JSON.stringify(res.data));
 
         if (res.data) {
+          // 로그인 성공 시 사용자 정보 저장
+          this.setUserData(res.data.user);
+          this.setAccessToken(res.data.tokens.accessToken);
+          this.setRefreshToken(res.data.tokens.refreshToken);
           return {
             success: true,
-            user: res.data.user,
             message: "로그인에 성공했습니다.",
           };
         } else {
-          return { success: false, message: "관리자에게 문의 바랍니다." };
+          return { success: false, message: "로그인 오류" };
         }
       } catch (error) {
         if (error.response.status === 400 || error.response.status === 401) {
@@ -245,6 +254,69 @@ export const AuthCtrl = {
         return {
           success: false,
           message: `서버 에러 (${error.response.status}): ${error.response.statusText}`,
+        };
+      }
+    },
+
+    async authTokenCheck(accessToken, refreshToken) {
+      try {
+        const requestUrl = `${this.BASIC_URL}auth/login`;
+        const res = await axios.get(requestUrl, {
+          timeout: 8000, // 8초 타임아웃 설정
+          headers: {
+            Authorization: `Bearer ${accessToken}`,
+          },
+        });
+
+        console.log("authTokenCheck 리턴 : " + JSON.stringify(res.data));
+
+        if (res.data) {
+          // 테스트 주석
+          // throw new Error("강제 오류 호출");
+          return {
+            success: true,
+            user: res.data.user,
+            message: "로그인에 성공했습니다.",
+          };
+        } else {
+          throw new Error({ success: false, message: "사용불가능한 토큰" });
+        }
+      } catch (error) {
+        console.log("3. 만료된 토큰인가봐요. authRefreshToken 호출");
+        return await this.authRefreshToken(refreshToken);
+      }
+    },
+
+    async authRefreshToken(refreshToken) {
+      try {
+        const requestUrl = `${this.BASIC_URL}auth/refresh`;
+        const requestData = { refreshToken };
+        const res = await axios.post(requestUrl, requestData, {
+          timeout: 8000, // 8초 타임아웃 설정
+          headers: {
+            "Content-Type": "application/x-www-form-urlencoded",
+          },
+        });
+
+        console.log("authRefreshToken 리턴 : " + JSON.stringify(res.data));
+
+        if (res.data) {
+          console.log("3-1. 토큰 Refresh 성공");
+          this.setAccessToken(res.data.accessToken);
+          this.setRefreshToken(res.data.refreshToken);
+          return {
+            success: true,
+            message: "로그인에 성공했습니다.",
+          };
+        } else {
+          console.log("3-2. 토큰 Refresh 실패");
+          return { success: false, message: "Token Refresh Error" };
+        }
+      } catch (error) {
+        console.log("3-2. 토큰 Refresh 실패");
+        return {
+          success: false,
+          message: `서버 에러 (${error.response.status}): ${error.message}`,
         };
       }
     },
