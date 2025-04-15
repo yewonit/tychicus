@@ -537,7 +537,7 @@ export default {
     async fetchOrganizationsOnly() {
       try {
         this.loadingOrganizations = true;
-        console.log("조직 데이터 가져오기 시작...");
+        // console.log("조직 데이터 가져오기 시작...");
 
         // 캐시된 데이터가 있고 만료되지 않았다면 그것을 사용
         const now = new Date().getTime();
@@ -546,7 +546,7 @@ export default {
           this.organizationCacheExpiry &&
           now < this.organizationCacheExpiry
         ) {
-          console.log("캐시된 조직 데이터 사용 중...");
+          // console.log("캐시된 조직 데이터 사용 중...");
           this.organizations = this.cachedOrganizations;
 
           // 조직 트리 구성
@@ -559,7 +559,7 @@ export default {
         }
 
         // API에서 데이터 가져오기
-        console.log("API에서 조직 데이터 가져오기...");
+        // console.log("API에서 조직 데이터 가져오기...");
         const response = await this.getAllOrganizations(true);
 
         // API 응답 구조 확인 및 데이터 추출
@@ -567,21 +567,21 @@ export default {
         if (response && response.data && Array.isArray(response.data)) {
           // API 응답에서 data 배열을 추출
           organizations = response.data;
-          console.log("API 응답에서 data 배열 추출:", organizations.length);
+          // console.log("API 응답에서 data 배열 추출:", organizations.length);
         } else if (Array.isArray(response)) {
           // 응답이 직접 배열인 경우
           organizations = response;
-          console.log("API 응답이 직접 배열인 경우:", organizations.length);
+          // console.log("API 응답이 직접 배열인 경우:", organizations.length);
         } else {
           console.error("API 응답 형식이 예상과 다릅니다:", response);
           // 더미 데이터 사용
           organizations = this.getDummyOrganizations();
-          console.log("더미 데이터 사용:", organizations.length);
+          // console.log("더미 데이터 사용:", organizations.length);
         }
 
         // 유효한 조직 데이터가 있는지 확인
         if (!organizations || organizations.length === 0) {
-          console.log("조직 데이터가 없습니다. 더미 데이터를 사용합니다.");
+          // console.log("조직 데이터가 없습니다. 더미 데이터를 사용합니다.");
           organizations = this.getDummyOrganizations();
         }
 
@@ -691,7 +691,7 @@ export default {
         });
 
         this.organizationTree = rootOrgs;
-        console.log("조직 트리 구성 완료:", this.organizationTree);
+        // console.log("조직 트리 구성 완료:", this.organizationTree);
       } catch (error) {
         console.error("조직 트리 구성 중 오류 발생:", error);
         this.showDialog(
@@ -705,7 +705,7 @@ export default {
     // 각 조직의 멤버 수 계산 (OrganizationManagementView.vue 참고)
     async calculateMemberCounts() {
       try {
-        console.log("멤버 수 계산 시작");
+        // console.log("멤버 수 계산 시작");
 
         // 1. 리프 노드(하위 조직이 없는 노드) 찾기
         const leafOrgs = this.organizations.filter((org) => {
@@ -715,7 +715,7 @@ export default {
           return !hasChildren;
         });
 
-        console.log(`리프 노드 찾음: ${leafOrgs.length}개`);
+        // console.log(`리프 노드 찾음: ${leafOrgs.length}개`);
 
         // 2. 리프 노드의 멤버 수 가져오기
         for (const leafOrg of leafOrgs) {
@@ -734,9 +734,9 @@ export default {
               leafOrg.memberCount = 0;
             }
 
-            console.log(
-              `조직 ID ${leafOrg.id} (${leafOrg.organization_name}): 멤버 ${leafOrg.memberCount}명`
-            );
+            // console.log(
+            //   `조직 ID ${leafOrg.id} (${leafOrg.organization_name}): 멤버 ${leafOrg.memberCount}명`
+            // );
           } catch (err) {
             console.error(`조직 ID ${leafOrg.id}의 멤버 수 조회 중 오류:`, err);
             leafOrg.memberCount = 0;
@@ -765,7 +765,7 @@ export default {
         }
 
         // 4. 상향식으로 멤버 수 합산 (리프 노드부터 루트 노드까지)
-        console.log(`조직 레벨 수: ${orgLevels.length}`);
+        // console.log(`조직 레벨 수: ${orgLevels.length}`);
 
         // 첫 번째 레벨(리프 노드)은 이미 계산됨
         // 상위 레벨부터 시작하여 하위 조직의 멤버 수 합산
@@ -785,22 +785,22 @@ export default {
             });
 
             org.memberCount = totalMembers;
-            console.log(
-              `상위 조직 ID ${org.id} (${org.organization_name}): 멤버 ${org.memberCount}명 (하위 조직 ${childOrgs.length}개)`
-            );
+            // console.log(
+            //   `상위 조직 ID ${org.id} (${org.organization_name}): 멤버 ${org.memberCount}명 (하위 조직 ${childOrgs.length}개)`
+            // );
           }
         }
 
         // 5. 트리 다시 구성 (멤버 수 정보 반영)
         this.buildOrganizationTree();
-        console.log("멤버 수 계산 완료");
+        // console.log("멤버 수 계산 완료");
       } catch (error) {
         console.error("멤버 수 계산 중 오류 발생:", error);
       }
     },
 
     async fetchAllOrganizationsMeetings() {
-      console.log("모든 조직의 모임 데이터 가져오기 시작");
+      // console.log("모든 조직의 모임 데이터 가져오기 시작");
       // 모든 조직에 대해 병렬로 모임 데이터 가져오기
       const promises = this.organizations.map((org) =>
         this.fetchOrganizationMeetings(org.id)
@@ -829,12 +829,12 @@ export default {
 
       // 루트 조직부터 재귀적으로 업데이트
       this.organizationTree.forEach(updateChildCounts);
-      console.log("모임 카운트 업데이트 완료");
+      // console.log("모임 카운트 업데이트 완료");
     },
 
     async fetchOrganizationMeetings(orgId) {
       try {
-        console.log(`조직 ID ${orgId}의 모임 데이터 로딩 시작`);
+        // console.log(`조직 ID ${orgId}의 모임 데이터 로딩 시작`);
 
         // MeetingHistoryView.vue 참고: 활동 및 인스턴스 가져오기
         const response = await this.getOrganizationActivities(orgId, true);
@@ -845,15 +845,15 @@ export default {
           response.activities &&
           Array.isArray(response.activities)
         ) {
-          console.log(`${response.activities.length}개의 활동을 처리합니다.`);
+          // console.log(`${response.activities.length}개의 활동을 처리합니다.`);
 
           // 각 활동에서 인스턴스(모임) 가져오기
           meetings = response.activities.flatMap((activity) => {
-            console.log(`활동 "${activity.name}" 처리 중...`);
+            // console.log(`활동 "${activity.name}" 처리 중...`);
             if (activity.instances && activity.instances.length > 0) {
-              console.log(
-                `${activity.instances.length}개의 인스턴스를 발견했습니다.`
-              );
+              // console.log(
+              //   `${activity.instances.length}개의 인스턴스를 발견했습니다.`
+              // );
 
               return activity.instances.map((instance) => {
                 // 출석 및 결석 인원 계산
@@ -913,7 +913,7 @@ export default {
         const org = this.organizations.find((o) => o.id === orgId);
         if (org) {
           org.meetingCount = meetings.length;
-          console.log(`조직 ID ${orgId}의 모임 수: ${meetings.length}`);
+          // console.log(`조직 ID ${orgId}의 모임 수: ${meetings.length}`);
 
           // 현재 선택된 조직이라면 미팅 목록 업데이트
           if (
@@ -940,12 +940,7 @@ export default {
     },
 
     formatMeetingTime(dateTimeString) {
-      if (!dateTimeString) return "-";
-      try {
-        return moment(dateTimeString).format("HH:mm");
-      } catch (error) {
-        return "-";
-      }
+      return this.format(dateTimeString, "time");
     },
 
     // MeetingDetailView.vue 참고: 출결 정보 포맷팅
@@ -961,8 +956,7 @@ export default {
         if (status === "present") status = "출석";
         else if (status === "absent") status = "결석";
         else if (status === "late") status = "지각";
-        // 이미 한글 상태가 아닌 경우에만 미정으로 설정
-        else if (status !== "출석" && status !== "결석" && status !== "지각")
+        else if (!(status === "출석" || status === "결석" || status === "지각"))
           status = "미정";
 
         // MeetingDetailView.vue 참고: 출결 정보 포맷 통일
@@ -981,7 +975,7 @@ export default {
         };
       });
 
-      console.log("포맷팅된 출석 데이터:", result);
+      // console.log("포맷팅된 출석 데이터:", result);
       return result;
     },
 
@@ -989,7 +983,7 @@ export default {
     async viewMeetingDetails(meeting) {
       try {
         this.loadingMeetings = true;
-        console.log("모임 상세 정보 가져오기:", meeting);
+        // console.log("모임 상세 정보 가져오기:", meeting);
 
         // 먼저 기본 정보로 selectedMeeting 설정
         this.selectedMeeting = {
@@ -1009,7 +1003,7 @@ export default {
             meeting.id,
             true
           );
-          console.log("모임 상세 정보 응답:", response);
+          // console.log("모임 상세 정보 응답:", response);
         } catch (error) {
           console.warn(
             "상세 정보를 가져오는 중 오류 발생, 기존 데이터 사용:",
@@ -1020,9 +1014,9 @@ export default {
         if (response && response.activityInstance) {
           // 출석 데이터 가져오기 및 처리
           const attendances = response.activityInstance.attendances || [];
-          console.log("원본 출석 데이터:", attendances);
+          // console.log("원본 출석 데이터:", attendances);
           const formattedAttendances = this.formatAttendances(attendances);
-          console.log("포맷된 출석 데이터:", formattedAttendances);
+          // console.log("포맷된 출석 데이터:", formattedAttendances);
 
           // MeetingDetailView.vue 참고: 상세 데이터 포맷
           this.selectedMeeting = {
@@ -1038,7 +1032,7 @@ export default {
             attendances: formattedAttendances,
           };
         } else {
-          console.log("상세 정보를 가져오지 못해 기존 데이터 사용");
+          // console.log("상세 정보를 가져오지 못해 기존 데이터 사용");
           // 출석 데이터가 없는 경우 샘플 데이터 생성
           if (
             !this.selectedMeeting.attendances ||
@@ -1049,10 +1043,7 @@ export default {
             if (totalCount > 0) {
               this.selectedMeeting.attendances =
                 this.generateSampleAttendances(totalCount);
-              console.log(
-                "샘플 출석 데이터 생성:",
-                this.selectedMeeting.attendances
-              );
+              // console.log("샘플 출석 데이터 생성:", this.selectedMeeting.attendances);
             }
           }
         }
@@ -1347,30 +1338,40 @@ export default {
     },
 
     // 유틸리티 메소드
-    formatDateTime(dateTimeString) {
-      if (!dateTimeString) return "-";
+    format(value, type = "dateTime") {
+      if (!value) return "-";
       try {
-        return moment(dateTimeString).format("YYYY년 MM월 DD일");
+        switch (type) {
+          case "dateTime":
+            return moment(value).format("YYYY년 MM월 DD일");
+          case "time":
+            if (value.includes(":")) {
+              const [hours, minutes] = value.split(":");
+              const time = new Date();
+              time.setHours(parseInt(hours));
+              time.setMinutes(parseInt(minutes));
+              return time.toLocaleTimeString("ko-KR", {
+                hour: "2-digit",
+                minute: "2-digit",
+                hour12: true,
+              });
+            } else {
+              return moment(value).format("HH:mm");
+            }
+          default:
+            return value;
+        }
       } catch (error) {
         return "-";
       }
     },
 
+    formatDateTime(dateTimeString) {
+      return this.format(dateTimeString, "dateTime");
+    },
+
     formatTime(timeString) {
-      if (!timeString) return "-";
-      try {
-        const [hours, minutes] = timeString.split(":");
-        const time = new Date();
-        time.setHours(parseInt(hours));
-        time.setMinutes(parseInt(minutes));
-        return time.toLocaleTimeString("ko-KR", {
-          hour: "2-digit",
-          minute: "2-digit",
-          hour12: true,
-        });
-      } catch (error) {
-        return "-";
-      }
+      return this.format(timeString, "time");
     },
 
     showDialog(title, message) {
@@ -1389,7 +1390,7 @@ export default {
         this.selectedOrganization = this.selectedOrganizationIds[0];
 
         // 선택된 조직과 그 하위 조직의 모든 모임 데이터를 로드
-        console.log("선택된 조직:", this.selectedOrganization);
+        // console.log("선택된 조직:", this.selectedOrganization);
         this.loadAllMeetingsForSelectedOrganization();
       } else {
         this.selectedOrganization = null;
@@ -1408,16 +1409,16 @@ export default {
           return;
         }
 
-        console.log(
-          `조직 ID ${selectedOrg.id}(${selectedOrg.organization_name})의 모임 데이터 로드 시작`
-        );
+        // console.log(
+        //   `조직 ID ${selectedOrg.id}(${selectedOrg.organization_name})의 모임 데이터 로드 시작`
+        // );
 
         // 선택된 조직과 그 하위의 모든 조직 ID 찾기
         const allOrgIds = this.findAllChildOrganizationIds(selectedOrg);
-        console.log(
-          `총 ${allOrgIds.length}개 조직의 모임 데이터를 로드합니다:`,
-          allOrgIds
-        );
+        // console.log(
+        //   `총 ${allOrgIds.length}개 조직의 모임 데이터를 로드합니다:`,
+        //   allOrgIds
+        // );
 
         // 모든 조직의 모임 데이터 로드
         const allMeetingsPromises = allOrgIds.map((orgId) =>
@@ -1457,7 +1458,7 @@ export default {
         });
 
         this.meetings = allMeetings;
-        console.log(`총 ${this.meetings.length}개의 모임 데이터 로드 완료`);
+        // console.log(`총 ${this.meetings.length}개의 모임 데이터 로드 완료`);
       } catch (error) {
         console.error(`모임 데이터 로딩 중 오류 발생:`, error);
         this.showDialog(

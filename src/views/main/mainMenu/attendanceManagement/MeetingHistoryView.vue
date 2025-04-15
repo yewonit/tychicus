@@ -27,12 +27,25 @@
             :src="meeting.image || require('@/assets/images/basic_image.png')"
           >
           </v-img>
-          <div class="wc-h3 ma-3 mb-0 pa-0 pl-1">
+          <div class="wc-h3 ma-3 mb-0 pa-0 pl-1 d-flex align-center">
+            <v-chip
+              x-small
+              :color="getWeekTagColor(meeting.date)"
+              :dark="needsDarkText(meeting.date)"
+              class="week-tag font-weight-bold px-2"
+              v-if="meeting.date !== '날짜 미정'"
+            >
+              {{ getMonthWeekTag(meeting.date) }}
+            </v-chip>
             {{ meeting.activityName }}
           </div>
           <div class="wc-h4 ma-3 mt-0 pa-0 pl-1 mt-2">
             <v-icon small class="mr-1">mdi-calendar</v-icon>
             {{ formatDate(meeting.date) }}
+          </div>
+          <div class="created-at ma-3 mt-0 pa-0 pl-1">
+            <v-icon small class="mr-1">mdi-clock-outline</v-icon>
+            모임 기록일시: {{ formatDateTime(meeting.createdAt) }}
           </div>
           <v-card-actions class="justify-space-between">
             <div class="action-buttons">
@@ -182,12 +195,24 @@ export default {
                       ? instance.images[0].filePath
                       : this.basicImage,
                   category: activity.category,
+                  createdAt:
+                    instance.created_at ||
+                    instance.createdAt ||
+                    new Date().toISOString(),
                 };
               });
             }
             console.log(`⚠️ 활동 "${activity.name}"에 인스턴스가 없습니다.`);
             return [];
           });
+
+          // 최신순으로 정렬 (날짜 기준)
+          this.meetings.sort((a, b) => {
+            if (a.date === "날짜 미정") return 1;
+            if (b.date === "날짜 미정") return -1;
+            return new Date(b.date) - new Date(a.date);
+          });
+
           console.log(
             `✅ 총 ${this.meetings.length}개의 미팅 정보를 처리했습니다.`
           );
@@ -202,6 +227,112 @@ export default {
         this.loading = false;
         console.log("🏁 미팅 정보 조회를 완료했습니다.");
       }
+    },
+    getMonthWeekTag(dateString) {
+      if (dateString === "날짜 미정") return "";
+
+      const date = new Date(dateString);
+      if (isNaN(date.getTime())) return "";
+
+      const weekInfo = this.getWeekOfMonth(date);
+      return `${weekInfo.month}월 ${weekInfo.weekNumber}주차`;
+    },
+    getWeekOfMonth(date) {
+      // 현재 날짜의 연, 월 정보
+      const year = date.getFullYear();
+      const month = date.getMonth();
+
+      // 해당 날짜가 속한 주의 일요일 찾기
+      const sundayOfWeek = new Date(date);
+      while (sundayOfWeek.getDay() !== 0) {
+        sundayOfWeek.setDate(sundayOfWeek.getDate() - 1); // 해당 주의 일요일로 이동
+      }
+
+      // 이 날짜의 일요일이 현재 월에 속하는지 확인
+      if (sundayOfWeek.getMonth() !== month) {
+        // 일요일이 이전 달에 있으면 이전 달의 마지막 주차
+        return {
+          month: sundayOfWeek.getMonth() + 1, // 월은 0부터 시작하므로 +1
+          weekNumber: this.getLastWeekOfMonth(sundayOfWeek),
+        };
+      }
+
+      // 현재 월의 첫 일요일 찾기
+      const firstSundayOfMonth = new Date(year, month, 1);
+      while (firstSundayOfMonth.getDay() !== 0) {
+        firstSundayOfMonth.setDate(firstSundayOfMonth.getDate() + 1);
+      }
+
+      // 첫 일요일부터 몇 주가 지났는지 계산
+      const weekNumber =
+        Math.floor(
+          (sundayOfWeek - firstSundayOfMonth) / (7 * 24 * 60 * 60 * 1000)
+        ) + 1;
+      return {
+        month: month + 1,
+        weekNumber: Math.min(weekNumber, 5), // 5주차 상한 적용
+      };
+    },
+    getLastWeekOfMonth(date) {
+      // 이전 달의 마지막 주차 계산
+      const lastDayOfPrevMonth = new Date(
+        date.getFullYear(),
+        date.getMonth() + 1,
+        0
+      );
+
+      // 이전 달 마지막 일의 주차 계산
+      const lastSundayOfMonth = new Date(lastDayOfPrevMonth);
+      while (lastSundayOfMonth.getDay() !== 0) {
+        lastSundayOfMonth.setDate(lastSundayOfMonth.getDate() - 1);
+      }
+
+      const firstSundayOfMonth = new Date(
+        date.getFullYear(),
+        date.getMonth(),
+        1
+      );
+      while (firstSundayOfMonth.getDay() !== 0) {
+        firstSundayOfMonth.setDate(firstSundayOfMonth.getDate() + 1);
+      }
+
+      const weeksCount =
+        Math.floor(
+          (lastSundayOfMonth - firstSundayOfMonth) / (7 * 24 * 60 * 60 * 1000)
+        ) + 1;
+      return Math.min(weeksCount, 5);
+    },
+    getWeekTagColor(dateString) {
+      if (dateString === "날짜 미정") return "grey";
+
+      const date = new Date(dateString);
+      if (isNaN(date.getTime())) return "grey";
+
+      const weekInfo = this.getWeekOfMonth(date);
+      const weekNumber = weekInfo.weekNumber;
+
+      // 주차별로 다른 색상 반환
+      const colors = [
+        "primary", // 1주차: 기본 색상(파란색)
+        "success", // 2주차: 초록색
+        "warning", // 3주차: 주황색
+        "error", // 4주차: 빨간색
+        "purple", // 5주차: 보라색
+      ];
+
+      return colors[(weekNumber - 1) % colors.length];
+    },
+    needsDarkText(dateString) {
+      if (dateString === "날짜 미정") return false;
+
+      const date = new Date(dateString);
+      if (isNaN(date.getTime())) return false;
+
+      const weekInfo = this.getWeekOfMonth(date);
+      const weekNumber = weekInfo.weekNumber;
+
+      // 2주차, 3주차만 어두운 텍스트 사용 (true는 흰색, false는 검은색 텍스트)
+      return !(weekNumber === 2 || weekNumber === 3);
     },
     editMeeting(meeting) {
       this.$router.push({
@@ -313,6 +444,18 @@ export default {
         weekday: "long",
       });
     },
+    formatDateTime(dateString) {
+      if (!dateString) return "등록일 정보 없음";
+      const date = new Date(dateString);
+      if (isNaN(date.getTime())) return "날짜 오류";
+      return date.toLocaleString("ko-KR", {
+        year: "numeric",
+        month: "long",
+        day: "numeric",
+        hour: "2-digit",
+        minute: "2-digit",
+      });
+    },
   },
 };
 </script>
@@ -362,12 +505,27 @@ export default {
     height: 40px;
   }
 
+  .created-at {
+    font-size: 12px;
+    color: rgba(0, 0, 0, 0.6);
+  }
+
+  .week-tag {
+    font-size: 12px;
+    font-weight: 600;
+  }
+
   @media (max-width: 600px) {
     .action-buttons {
       .v-btn {
         height: 48px;
         width: 48px;
       }
+    }
+
+    .week-tag {
+      font-size: 10px;
+      padding: 0 4px !important;
     }
   }
 }

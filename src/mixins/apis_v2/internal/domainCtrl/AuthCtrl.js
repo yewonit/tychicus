@@ -37,8 +37,8 @@ export const AuthCtrl = {
       },
 
       // Base URL
-      // BASIC_URL: "https://attendance.icoramdeo.com/api/",
-      BASIC_URL: "https://attendance-dev.icoramdeo.com/api/",
+      BASIC_URL: "https://attendance.icoramdeo.com/api/",
+      // BASIC_URL: "https://attendance-dev.icoramdeo.com/api/",
       // BASIC_URL: "http://localhost:3000/api/",
     };
   },

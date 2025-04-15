@@ -80,18 +80,23 @@
         </v-select>
 
         <!-- 모임 날짜 선택 -->
+        <div class="section-label mb-2">모임 일정</div>
+
+        <!-- 모임 공식 날짜 -->
         <v-menu
-          v-model="menu"
+          v-model="meetingDateMenu"
           :close-on-content-click="false"
           :nudge-right="40"
           transition="scale-transition"
           offset-y
           min-width="290px"
+          class="mb-7"
+          width="100%"
         >
           <template v-slot:activator="{ on, attrs }">
             <v-text-field
               v-model="meetingDate"
-              label="모임 날짜 선택"
+              label="모임 날짜"
               color="#7EA394"
               background-color="#edeef3"
               readonly
@@ -102,14 +107,148 @@
               v-bind="attrs"
               v-on="on"
               class="mb-7 mx-auto"
+              style="width: 100%"
             ></v-text-field>
           </template>
           <v-date-picker
             v-model="meetingDate"
             no-title
-            @input="menu = false"
+            @input="onDateSelected"
           ></v-date-picker>
         </v-menu>
+
+        <!-- 권장 요일 안내 표시 -->
+        <div
+          v-if="selectedActivity && getRecommendedDayOfWeek()"
+          class="recommended-day-text mb-4"
+        >
+          <v-icon small color="info" class="mr-1">mdi-information</v-icon>
+          <span
+            >{{ getActivityName() }}은(는) {{ getRecommendedDayOfWeekText() }}에
+            진행되는 모임입니다.</span
+          >
+        </div>
+
+        <!-- 시작 날짜 및 시간 -->
+        <div class="date-time-section mb-7">
+          <div class="section-title mb-1">시작 일시</div>
+          <div>
+            <v-menu
+              v-model="startDateMenu"
+              :close-on-content-click="false"
+              :nudge-right="40"
+              transition="scale-transition"
+              offset-y
+              min-width="290px"
+              class="mb-7"
+              width="100%"
+            >
+              <template v-slot:activator="{ on, attrs }">
+                <v-text-field
+                  v-model="meetingStartDate"
+                  label="시작 날짜"
+                  color="#7EA394"
+                  background-color="#edeef3"
+                  readonly
+                  solo
+                  rounded
+                  flat
+                  dense
+                  v-bind="attrs"
+                  v-on="on"
+                  class="mb-7"
+                  style="width: 100%"
+                ></v-text-field>
+              </template>
+              <v-date-picker
+                v-model="meetingStartDate"
+                no-title
+                @input="startDateMenu = false"
+              ></v-date-picker>
+            </v-menu>
+            <v-text-field
+              v-model="meetingStartTime"
+              label="시작 시간"
+              type="time"
+              background-color="#edeef3"
+              color="#7EA394"
+              solo
+              rounded
+              flat
+              dense
+              hide-details="auto"
+              style="width: 100%"
+              @change="validateTimes"
+              @focus="startEditing('meetingStartTime')"
+              @blur="finishEditing"
+              ref="meetingStartTime"
+            ></v-text-field>
+          </div>
+        </div>
+
+        <!-- 종료 날짜 및 시간 -->
+        <div class="date-time-section mb-7">
+          <div class="section-title mb-1">종료 일시</div>
+          <div>
+            <v-menu
+              v-model="endDateMenu"
+              :close-on-content-click="false"
+              :nudge-right="40"
+              transition="scale-transition"
+              offset-y
+              min-width="290px"
+              class="mb-7"
+              width="100%"
+            >
+              <template v-slot:activator="{ on, attrs }">
+                <v-text-field
+                  v-model="meetingEndDate"
+                  label="종료 날짜"
+                  color="#7EA394"
+                  background-color="#edeef3"
+                  readonly
+                  solo
+                  rounded
+                  flat
+                  dense
+                  v-bind="attrs"
+                  v-on="on"
+                  class="mb-7"
+                  style="width: 100%"
+                ></v-text-field>
+              </template>
+              <v-date-picker
+                v-model="meetingEndDate"
+                no-title
+                @input="endDateMenu = false"
+              ></v-date-picker>
+            </v-menu>
+            <v-text-field
+              v-model="meetingEndTime"
+              label="종료 시간"
+              type="time"
+              background-color="#edeef3"
+              color="#7EA394"
+              solo
+              rounded
+              flat
+              dense
+              hide-details="auto"
+              style="width: 100%"
+              @change="validateTimes"
+              @focus="startEditing('meetingEndTime')"
+              @blur="finishEditing"
+              ref="meetingEndTime"
+            ></v-text-field>
+          </div>
+          <!-- 자정 넘김 알림 추가 -->
+          <div v-if="isOvernightMeeting" class="midnight-notice mt-3">
+            <v-icon small color="warning" class="mr-2"
+              >mdi-clock-alert-outline</v-icon
+            >
+            <span>이 모임은 다음 날 종료됩니다</span>
+          </div>
+        </div>
 
         <!-- 모임 참여자 수 입력 -->
         <v-dialog v-model="participantsDialog">
@@ -176,39 +315,7 @@
           </v-card>
         </v-dialog>
 
-        <!-- 시작 시간, 종료 시간, 장소, 메모 입력 -->
-        <v-text-field
-          v-model="meetingStartTime"
-          label="시작 시간"
-          type="time"
-          background-color="#edeef3"
-          color="#7EA394"
-          solo
-          rounded
-          flat
-          dense
-          hide-details="auto"
-          class="mb-7 mx-auto bg-transparent"
-          @focus="startEditing('meetingStartTime')"
-          @blur="finishEditing"
-          ref="meetingStartTime"
-        ></v-text-field>
-        <v-text-field
-          v-model="meetingEndTime"
-          label="종료 시간"
-          type="time"
-          background-color="#edeef3"
-          color="#7EA394"
-          solo
-          rounded
-          flat
-          dense
-          hide-details="auto"
-          class="mb-7 mx-auto bg-transparent"
-          @focus="startEditing('meetingEndTime')"
-          @blur="finishEditing"
-          ref="meetingEndTime"
-        ></v-text-field>
+        <!-- 시장소, 메모 입력 -->
         <v-text-field
           v-model="meetingLocation"
           label="모임 장소"
@@ -263,19 +370,99 @@
       </v-col>
     </v-row>
 
-    <!-- 확인 다이얼로그 추가 -->
-    <v-dialog v-model="confirmDialog" max-width="500px" v-if="isDevelopment">
+    <!-- 잘못된 요일 선택 경고 대화상자 -->
+    <v-dialog v-model="dayOfWeekWarningDialog" max-width="400">
       <v-card>
-        <v-card-title>모임 정보 확인 (개발용)</v-card-title>
+        <v-card-title class="headline">잘못된 요일 선택</v-card-title>
         <v-card-text>
-          <pre>{{ JSON.stringify(finalData, null, 2) }}</pre>
+          {{ selectedActivityName }}은(는) {{ recommendedDayOfWeekText }}에
+          진행되는 모임입니다. <br /><br />
+          선택한 날짜 {{ selectedDate }}는 {{ selectedDayOfWeekText }}입니다.
+          <br /><br />
+          권장되는 모임 날짜({{ recommendedDate }})로 변경하시겠습니까?
         </v-card-text>
         <v-card-actions>
           <v-spacer></v-spacer>
-          <v-btn color="blue darken-1" text @click="confirmDialog = false"
-            >취소</v-btn
+          <v-btn text color="error" @click="keepSelectedDate"
+            >아니오, 유지합니다</v-btn
           >
-          <v-btn color="blue darken-1" text @click="confirmSubmit">확인</v-btn>
+          <v-btn text color="primary" @click="changeDateToRecommended"
+            >예, 변경합니다</v-btn
+          >
+        </v-card-actions>
+      </v-card>
+    </v-dialog>
+
+    <!-- 모임 정보 저장 로딩 인디케이터 다이얼로그 -->
+    <v-dialog v-model="loadingState.isLoading" persistent max-width="400px">
+      <v-card>
+        <v-card-title class="headline">모임 정보 저장 중...</v-card-title>
+
+        <v-card-text>
+          <!-- 단계별 진행 상태 표시 -->
+          <v-stepper v-model="loadingState.currentStep" vertical>
+            <v-stepper-step step="1" :complete="loadingState.currentStep > 1">
+              입력 정보 검증
+            </v-stepper-step>
+
+            <v-stepper-step step="2" :complete="loadingState.currentStep > 2">
+              이미지 업로드
+              <small v-if="loadingState.currentStep === 2">
+                {{ getFileUploadStatus() }}
+              </small>
+            </v-stepper-step>
+
+            <v-stepper-step step="3" :complete="loadingState.currentStep > 3">
+              참석자 정보 준비
+            </v-stepper-step>
+
+            <v-stepper-step step="4" :complete="loadingState.currentStep > 4">
+              모임 정보 저장
+            </v-stepper-step>
+
+            <v-stepper-step step="5"> 완료 </v-stepper-step>
+          </v-stepper>
+
+          <!-- 현재 진행 상태 및 예상 시간 -->
+          <div class="loading-status pa-4">
+            <v-progress-linear
+              :value="loadingState.progressPercent"
+              height="10"
+              striped
+              color="primary"
+            ></v-progress-linear>
+
+            <div class="mt-2 text-center">
+              <div class="current-action">
+                {{ loadingState.currentStepText }}
+              </div>
+
+              <div
+                v-if="loadingState.estimatedTimeLeft"
+                class="estimated-time grey--text"
+              >
+                예상 소요 시간: {{ loadingState.estimatedTimeLeft }}초
+              </div>
+
+              <div
+                v-if="loadingState.hasLongDelay"
+                class="delay-notice amber--text text--darken-2 mt-2"
+              >
+                <v-icon small color="amber darken-2"
+                  >mdi-clock-alert-outline</v-icon
+                >
+                평소보다 시간이 더 소요되고 있습니다. 잠시만 기다려주세요.
+              </div>
+            </div>
+          </div>
+        </v-card-text>
+
+        <v-card-actions v-if="loadingState.hasLongDelay">
+          <v-spacer></v-spacer>
+          <v-btn text color="error" @click="cancelOperation"> 취소 </v-btn>
+          <v-btn text color="primary" @click="continueWaiting">
+            계속 기다리기
+          </v-btn>
         </v-card-actions>
       </v-card>
     </v-dialog>
@@ -290,6 +477,8 @@ import { Utility } from "@/mixins/apis_v2/utility/Utility";
 import { CurrentMemberCtrl } from "@/mixins/apis_v2/internal/domainCtrl/CurrentMemberCtrl";
 import { AttendanceCtrl } from "@/mixins/apis_v2/internal/domainCtrl/AttendanceCtrl";
 import { AWSS3Ctrl } from "@/mixins/apis_v2/external/AWSS3Ctrl.js";
+import moment from "moment-timezone";
+import { dateTimeUtils } from "@/utils/dateTimeUtils";
 
 export default {
   name: "MeetingRegistrationView",
@@ -311,33 +500,60 @@ export default {
         name: activity.name.split(" (")[0],
       }));
     },
+    // 자정을 넘어가는 모임인지 확인
+    isOvernightMeeting() {
+      return dateTimeUtils.isOvernightMeeting(
+        this.meetingStartTime,
+        this.meetingEndTime
+      );
+    },
   },
   data() {
+    // 오늘 날짜를 가져옴
+    const today = dateTimeUtils.getTodayString();
+
     return {
       menu: false,
+      meetingDateMenu: false,
+      meetingDate: today,
       photos: null,
       meetingImageUrl: null,
       selectedActivity: null,
       meetingName: "",
-      // 오늘 날짜로 초기화
-      meetingDate: new Date().toISOString().substr(0, 10),
+      // 날짜 관련 필드
+      meetingStartDate: today,
+      meetingEndDate: today,
+      startDateMenu: false,
+      endDateMenu: false,
+      meetingStartTime: "",
+      meetingEndTime: "",
+      // 내부 DateTime 객체
+      meetingStartDateTime: null,
+      meetingEndDateTime: null,
       numberOfParticipants: null,
       activities: [], // 조직의 모든 활동 목록
       participantsDialog: false,
       memberList: [],
-      meetingStartTime: "",
-      meetingEndTime: "",
       meetingLocation: "",
       meetingNotes: "",
-      confirmDialog: false,
       finalData: null,
-      isDevelopment: process.env.NODE_ENV === "development",
       roleInfo: {
         그룹장: { color: "#B3C6FF", priority: 1 }, // 파스텔 블루
         순장: { color: "#D6E0FF", priority: 1 }, // 연한 파스텔 블루
         EBS: { color: "#FFF4B3", priority: 2 }, // 파스텔 옐로우
         순원: { color: "#C2E0C2", priority: 3 }, // 파스텔 그린
         회원: { color: "#D6EAD6", priority: 3 }, // 연한 파스텔 그린
+      },
+      // 로딩 상태 관리
+      loadingState: {
+        isLoading: false,
+        currentStep: 0,
+        totalSteps: 5,
+        currentStepText: "",
+        progressPercent: 0,
+        startTime: null,
+        estimatedTimeLeft: null,
+        hasLongDelay: false,
       },
       // 활동별 기본값 정의
       activityDefaults: {
@@ -346,42 +562,49 @@ export default {
           endTime: "11:30",
           location: "커버넌트홀",
           notes: "예원교회 주일 2부예배",
+          dayOfWeek: 0, // 일요일
         },
         주일3부예배: {
           startTime: "12:00",
           endTime: "13:20",
           location: "커버넌트홀",
           notes: "예원교회 주일 3부예배",
+          dayOfWeek: 0, // 일요일
         },
         청년예배: {
           startTime: "14:30",
           endTime: "16:30",
           location: "커버넌트홀",
           notes: "예원교회 코람데오 청년선교회 예배",
+          dayOfWeek: 0, // 일요일
         },
         수요예배: {
           startTime: "20:00",
           endTime: "20:50",
           location: "드림홀",
           notes: "예원교회 수요예배",
+          dayOfWeek: 3, // 수요일
         },
         금요예배: {
           startTime: "20:20",
           endTime: "22:10",
           location: "커버넌트홀",
           notes: "예원교회 금요예배",
+          dayOfWeek: 5, // 금요일
         },
         수요제자기도회: {
           startTime: "21:20",
           endTime: "22:10",
           location: "스카이아트홀",
           notes: "그리스도의 제자로 복음을 더욱 깊이 각인하는 시간",
+          dayOfWeek: 3, // 수요일
         },
         현장치유팀사역: {
           startTime: "22:20",
           endTime: "23:20",
           location: "스카이아트홀",
           notes: "현장을 살리길 원하는 제자들을 위해 주시는 말씀을 받는 시간",
+          dayOfWeek: 5, // 금요일
         },
       },
       editingField: null,
@@ -401,6 +624,23 @@ export default {
       },
       isUploading: false,
       isSubmitting: false,
+      // 요일 경고 대화상자 관련 상태
+      dayOfWeekWarningDialog: false,
+      selectedActivityName: "",
+      recommendedDayOfWeekText: "",
+      selectedDayOfWeekText: "",
+      recommendedDate: "",
+      selectedDate: "",
+      // 요일 표시 텍스트 매핑
+      dayOfWeekTexts: [
+        "일요일",
+        "월요일",
+        "화요일",
+        "수요일",
+        "목요일",
+        "금요일",
+        "토요일",
+      ],
     };
   },
   mixins: [
@@ -412,9 +652,14 @@ export default {
     AWSS3Ctrl,
   ],
   created() {
+    // 내부 DateTime 객체 초기화
+    this.meetingStartDateTime = dateTimeUtils.createDateTime(
+      this.meetingStartDate
+    );
+    this.meetingEndDateTime = dateTimeUtils.createDateTime(this.meetingEndDate);
+
     this.fetchMemberList();
     this.fetchActivities();
-    // this.createActivityDataTest();
   },
   methods: {
     // 1. 초기화 및 데이터 로딩 (페이지 진입 시 실행되는 기능들)
@@ -518,27 +763,52 @@ export default {
      * 3. 참여자 정보 수집 (memberList에서 isParticipating이 true인 회원들)
      * 4. 모임 시간, 장소 등 인스턴스 데이터 준비
      * 5. 개발 모드면 확인 다이얼로그 표시, 아니면 바로 저장
-     * @related uploadImageToS3, confirmSubmit
+     * @related uploadImageToS3
      */
     async submitMeeting() {
       if (this.isSubmitting) return; // 중복 제출 방지
 
+      // 날짜 검증
+      if (!this.validateSelectedDate()) {
+        // 경고 대화상자가 표시되므로 여기서 함수 종료
+        return;
+      }
+
       try {
         this.isSubmitting = true;
+
+        // 로딩 인디케이터 초기화 및 시작
+        this.initLoadingState();
+        this.updateLoadingState(1, "입력 정보 검증 중...", 10);
+
         console.log("🚀 submitMeeting 함수 시작");
 
         // 필수 입력값 검증
         if (!this.selectedActivity || !this.meetingDate) {
           console.warn("⚠️ 필수 정보 누락");
-          alert("필수 정보를 모두 입력해주세요.");
+          alert("모임 종류와 날짜를 입력해주세요.");
+          this.isSubmitting = false;
+          this.loadingState.isLoading = false;
           return;
         }
+
+        // 내부 DateTime 객체 최종 업데이트
+        this.updateDateTime();
+
+        // 이미지 업로드 단계로 진행
+        this.updateLoadingState(2, "이미지 업로드 준비 중...", 20);
 
         // 이미지 업로드
         let imageInfo = null;
         if (this.photos) {
           try {
+            this.updateLoadingState(2, "이미지 업로드 중...", 30);
             this.isUploading = true;
+
+            // 파일 크기에 따른 예상 시간 계산
+            const fileSizeMB = this.photos.size / (1024 * 1024);
+            this.loadingState.estimatedTimeLeft = Math.round(fileSizeMB * 5); // 1MB당 약 5초 예상
+
             const uploadResult = await this.uploadImageToS3();
             if (uploadResult) {
               imageInfo = {
@@ -548,17 +818,26 @@ export default {
                 fileType: this.photos.type,
               };
               console.log("📸 업로드된 이미지 정보:", imageInfo);
+              this.updateLoadingState(2, "이미지 업로드 완료", 40);
             } else {
               throw new Error("이미지 업로드 실패");
             }
           } catch (error) {
             console.error("❌ 이미지 업로드 중 오류 발생:", error);
             alert("이미지 업로드 중 오류가 발생했습니다. 다시 시도해 주세요.");
+            this.isSubmitting = false;
+            this.isUploading = false;
+            this.loadingState.isLoading = false;
             return;
           } finally {
             this.isUploading = false;
           }
+        } else {
+          this.updateLoadingState(2, "이미지 없음, 다음 단계로 진행", 40);
         }
+
+        // 참여자 정보 준비 단계로 진행
+        this.updateLoadingState(3, "참여자 정보 준비 중...", 60);
 
         // 선택된 참여자 목록 가져오기
         const selectedParticipants = this.memberList.filter(
@@ -566,17 +845,22 @@ export default {
         );
         console.log("👥 선택된 참여자:", selectedParticipants);
 
-        // 인스턴스 데이터 준비
+        // UTC 시간으로 변환
         const instanceData = {
-          startDateTime: `${this.meetingDate}T${
-            this.meetingStartTime || "00:00"
-          }:00`,
-          endDateTime: `${this.meetingDate}T${
-            this.meetingEndTime || "00:00"
-          }:00`,
+          startDateTime: dateTimeUtils.toUTCString(this.meetingStartDateTime),
+          endDateTime: dateTimeUtils.toUTCString(this.meetingEndDateTime),
           location: this.meetingLocation || "",
           notes: this.meetingNotes || "",
         };
+
+        console.log(
+          "📅 시작 시간:",
+          this.meetingStartDateTime.format("YYYY-MM-DD HH:mm:ss")
+        );
+        console.log(
+          "📅 종료 시간:",
+          this.meetingEndDateTime.format("YYYY-MM-DD HH:mm:ss")
+        );
 
         // 전체 멤버 목록에 대한 출석 정보 생성
         const allAttendances = this.memberList.map((member) => ({
@@ -600,26 +884,38 @@ export default {
           imageInfo: imageInfo,
         };
 
-        // 데이터 저장
+        // 모임 정보 저장 단계로 진행
+        this.updateLoadingState(4, "모임 정보 저장 중...", 80);
+
+        // 개발 환경 체크 제거하고 바로 데이터 저장
         const response = await this.recordAttendance(
           this.finalData.organizationId,
           this.finalData.activityId,
           this.finalData.instanceData,
           this.finalData.attendances,
           this.finalData.imageInfo,
-          this.isDevelopment
+          process.env.NODE_ENV === "development" // showLog 파라미터는 유지
         );
 
         if (response.result === 0) {
           throw new Error("출석 정보 저장에 실패했습니다.");
         }
 
+        // 완료 단계로 진행
+        this.updateLoadingState(5, "모임 정보 저장 완료", 100);
+
         console.log("✅ 모임 정보 저장 성공");
-        alert("모임 정보가 성공적으로 저장되었습니다.");
-        this.resetForm();
-        this.$router.push({ name: "ServiceSelectionView" });
+
+        // 지연 후 로딩 다이얼로그 종료
+        setTimeout(() => {
+          this.loadingState.isLoading = false;
+          alert("모임 정보가 성공적으로 저장되었습니다.");
+          this.resetForm();
+          this.$router.push({ name: "ServiceSelectionView" });
+        }, 1000);
       } catch (error) {
         console.error("❌ 모임 정보 저장 중 오류 발생:", error);
+        this.loadingState.isLoading = false;
         alert("모임 정보 저장에 실패했습니다. 다시 시도해 주세요.");
       } finally {
         this.isSubmitting = false;
@@ -670,62 +966,23 @@ export default {
     },
 
     /**
-     * 확인 후 최종 제출하는 함수
-     * @async
-     * @returns {Promise<void>}
-     */
-    async confirmSubmit() {
-      if (this.isDevelopment) {
-        this.confirmDialog = false;
-      }
-
-      try {
-        console.log("📤 출석 기록 전 정보:", this.finalData);
-
-        const response = await this.recordAttendance(
-          this.finalData.organizationId,
-          this.finalData.activityId,
-          this.finalData.instanceData,
-          this.finalData.attendances,
-          this.finalData.imageInfo, // 이미지 정보 추가
-          this.isDevelopment // showLog
-        );
-
-        console.log("📥 출석 기록 후 응답:", response);
-
-        if (response.result === 0) {
-          console.error("❌ 출석 정보 저장 실패");
-          throw new Error("출석 정보 저장에 실패했습니다.");
-        }
-
-        // 이미지 정보가 있다면 추가 처리
-        if (this.finalData.imageInfo) {
-          console.log("📸 저장된 이미지 정보:", this.finalData.imageInfo);
-          // TODO: 이미지 정보를 서버에 추가로 저장하는 로직 구현
-        }
-
-        console.log("✅ 모임 정보 저장 성공");
-        alert("모임 정보가 성공적으로 저장되었습니다.");
-        this.resetForm();
-        this.$router.push({ name: "ServiceSelectionView" });
-      } catch (error) {
-        console.error("❌ 모임 정보 저장 중 오류 발생:", error);
-        alert("모임 정보 저장에 실패했습니다. 다시 시도해 주세요.");
-      }
-    },
-
-    /**
      * 폼을 초기화하는 함수
      * @returns {void}
      * @description 모든 입력 필드와 상태를 기본값으로 재설정합니다
      */
     resetForm() {
+      const today = dateTimeUtils.getTodayString();
       this.meetingImageUrl = null;
       this.selectedActivity = null;
       this.meetingName = "";
-      this.meetingDate = new Date().toISOString().substr(0, 10);
+      this.meetingStartDate = today;
+      this.meetingEndDate = today;
+      this.meetingStartTime = "";
+      this.meetingEndTime = "";
       this.numberOfParticipants = null;
       this.photos = null;
+      this.meetingLocation = "";
+      this.meetingNotes = "";
       this.memberList.forEach((member) => (member.isParticipating = false));
     },
 
@@ -930,20 +1187,176 @@ export default {
     },
 
     /**
-     * 선택된 모임 유형에 따라 모임 이름을 설정하는 함수
+     * 내부 DateTime 객체 업데이트
+     * @returns {void}
+     */
+    updateDateTime() {
+      // 시작 시간 확인 및 기본값 설정
+      const startTime = this.meetingStartTime || "00:00";
+      const endTime = this.meetingEndTime || "00:00";
+
+      // 내부 DateTime 객체 업데이트
+      this.meetingStartDateTime = dateTimeUtils.createDateTime(
+        this.meetingStartDate,
+        startTime
+      );
+
+      this.meetingEndDateTime = dateTimeUtils.createDateTime(
+        this.meetingEndDate,
+        endTime
+      );
+
+      // 종료 시간이 시작 시간보다 이전인 경우 (날짜가 다름에도 불구하고)
+      if (this.meetingEndDateTime.isBefore(this.meetingStartDateTime)) {
+        // 자정을 넘기는 모임인 경우 (같은 날짜에 시작 시간 > 종료 시간)
+        if (
+          this.meetingStartDate === this.meetingEndDate &&
+          startTime > endTime
+        ) {
+          // 종료 날짜를 다음날로 자동 설정
+          this.meetingEndDateTime = dateTimeUtils
+            .createDateTime(this.meetingStartDate, endTime)
+            .add(1, "day");
+
+          // UI 필드 업데이트
+          this.meetingEndDate = this.meetingEndDateTime.format("YYYY-MM-DD");
+        } else {
+          // 그 외의 경우 - 종료 시간을 시작 시간 이후로 자동 설정 (1시간 후)
+          this.meetingEndDateTime = this.meetingStartDateTime
+            .clone()
+            .add(1, "hour");
+
+          // UI 필드 업데이트
+          this.meetingEndDate = this.meetingEndDateTime.format("YYYY-MM-DD");
+          this.meetingEndTime = this.meetingEndDateTime.format("HH:mm");
+        }
+      }
+    },
+
+    /**
+     * 모임 날짜 변경 시 시작/종료 날짜 업데이트
+     * @returns {void}
+     */
+    updateDates() {
+      this.meetingDateMenu = false;
+
+      // 모임 날짜가 변경되면 시작 날짜도 변경
+      this.meetingStartDate = this.meetingDate;
+
+      // 날짜 선택 시 요일 검증
+      this.validateSelectedDate();
+
+      // 시작 시간과 종료 시간이 설정되어 있는 경우에만 자정 넘김 확인
+      if (this.meetingStartTime && this.meetingEndTime) {
+        if (
+          dateTimeUtils.isOvernightMeeting(
+            this.meetingStartTime,
+            this.meetingEndTime
+          )
+        ) {
+          // 자정을 넘기는 모임인 경우 종료일은 다음날로 설정
+          this.meetingEndDate = moment(this.meetingDate)
+            .add(1, "day")
+            .format("YYYY-MM-DD");
+        } else {
+          // 자정을 넘기지 않는 모임인 경우 종료일 = 시작일
+          this.meetingEndDate = this.meetingDate;
+        }
+      } else {
+        // 시간이 설정되지 않은 경우 기본적으로 종료일 = 시작일
+        this.meetingEndDate = this.meetingDate;
+      }
+
+      // 내부 DateTime 객체 업데이트
+      this.updateDateTime();
+    },
+
+    /**
+     * 주어진 요일에 해당하는 가장 최근 과거 날짜를 반환하는 함수
+     * @param {number} dayOfWeek - 요일 (0: 일요일, 1: 월요일, ... 6: 토요일)
+     * @returns {string} YYYY-MM-DD 형식의 날짜 문자열
+     */
+    getNearestPastDate(dayOfWeek) {
+      const today = moment();
+      const todayDayOfWeek = today.day(); // 현재 요일 (0-6)
+
+      let daysToSubtract;
+
+      if (todayDayOfWeek === dayOfWeek) {
+        // 오늘이 해당 요일이면 오늘 날짜 반환
+        daysToSubtract = 0;
+      } else if (todayDayOfWeek > dayOfWeek) {
+        // 찾는 요일이 현재 요일보다 앞에 있으면 (예: 오늘이 수요일이고 일요일을 찾는 경우)
+        daysToSubtract = todayDayOfWeek - dayOfWeek;
+      } else {
+        // 찾는 요일이 현재 요일보다 뒤에 있으면 (예: 오늘이 화요일이고 금요일을 찾는 경우)
+        // 이 경우 지난 주의 해당 요일을 계산
+        daysToSubtract = 7 - (dayOfWeek - todayDayOfWeek);
+      }
+
+      // 지정된 일수만큼 오늘 날짜에서 빼기
+      const targetDate = moment().subtract(daysToSubtract, "days");
+      return targetDate.format("YYYY-MM-DD");
+    },
+
+    /**
+     * 선택된 모임 유형에 따라 모임 이름과 날짜를 설정하는 함수
      * @returns {void}
      */
     setMeetingName() {
       const selectedActivity = this.activities.find(
         (a) => a.id === this.selectedActivity
       );
+
       if (selectedActivity && this.activityDefaults[selectedActivity.name]) {
         const defaults = this.activityDefaults[selectedActivity.name];
         this.meetingStartTime = defaults.startTime;
         this.meetingEndTime = defaults.endTime;
         this.meetingLocation = defaults.location;
         this.meetingNotes = defaults.notes;
+
+        // 요일 정보가 있으면 해당 요일의 가장 최근 과거 날짜로 설정
+        if (defaults.dayOfWeek !== undefined) {
+          this.meetingDate = this.getNearestPastDate(defaults.dayOfWeek);
+          this.meetingStartDate = this.meetingDate;
+
+          // 자정을 넘기는 모임인지 확인
+          if (
+            dateTimeUtils.isOvernightMeeting(
+              defaults.startTime,
+              defaults.endTime
+            )
+          ) {
+            // 자정을 넘기는 모임인 경우 종료일은 다음날로 설정
+            this.meetingEndDate = moment(this.meetingDate)
+              .add(1, "day")
+              .format("YYYY-MM-DD");
+          } else {
+            // 자정을 넘기지 않는 모임인 경우 종료일 = 시작일
+            this.meetingEndDate = this.meetingDate;
+          }
+        }
+
+        // 내부 DateTime 객체 업데이트
+        this.updateDateTime();
       }
+    },
+
+    /**
+     * 시간 입력값 변경 시 유효성 검증
+     */
+    validateTimes() {
+      // 필요한 입력값이 모두 있는지 확인
+      if (!this.meetingStartDate || !this.meetingEndDate) {
+        return;
+      }
+
+      // 시간이 입력되지 않은 경우 기본값 설정
+      if (!this.meetingStartTime) this.meetingStartTime = "00:00";
+      if (!this.meetingEndTime) this.meetingEndTime = "00:00";
+
+      // 내부 DateTime 객체 업데이트
+      this.updateDateTime();
     },
 
     // 5. 데이터 CRUD 작업 (API 통신 관련 기본 함수들)
@@ -1138,6 +1551,202 @@ export default {
     finishEditing() {
       this.editingField = null;
     },
+
+    /**
+     * 날짜의 요일이 활동의 권장 요일과 일치하는지 검증하는 함수
+     * @returns {boolean} 요일이 일치하면 true, 일치하지 않으면 false
+     */
+    validateSelectedDate() {
+      if (!this.selectedActivity) return true;
+
+      const activity = this.activities.find(
+        (a) => a.id === this.selectedActivity
+      );
+      if (!activity || !this.activityDefaults[activity.name]) return true;
+
+      const defaults = this.activityDefaults[activity.name];
+      if (defaults.dayOfWeek === undefined) return true;
+
+      const selectedDate = moment(this.meetingDate);
+      const dayOfWeek = selectedDate.day();
+
+      if (dayOfWeek !== defaults.dayOfWeek) {
+        // 불일치 - 경고 대화상자 정보 설정
+        this.selectedActivityName = activity.name;
+        this.recommendedDayOfWeekText = this.dayOfWeekTexts[defaults.dayOfWeek];
+        this.selectedDayOfWeekText = this.dayOfWeekTexts[dayOfWeek];
+        this.selectedDate = this.meetingDate;
+        this.recommendedDate = this.getNearestPastDate(defaults.dayOfWeek);
+
+        // 다이얼로그를 바로 표시하지 않고 UI에만 반영
+        // 시각적 피드백을 위해 CSS 클래스 적용 (date-picker가 열려있을 때는 표시하지 않음)
+        if (!this.meetingDateMenu) {
+          // 잘못된 요일 선택 경고 대화상자 표시
+          this.dayOfWeekWarningDialog = true;
+        }
+
+        return false;
+      }
+
+      return true;
+    },
+
+    /**
+     * 권장 날짜로 변경하는 함수
+     */
+    changeDateToRecommended() {
+      this.meetingDate = this.recommendedDate;
+      this.meetingStartDate = this.recommendedDate;
+
+      // 자정 넘김 처리
+      if (
+        dateTimeUtils.isOvernightMeeting(
+          this.meetingStartTime,
+          this.meetingEndTime
+        )
+      ) {
+        this.meetingEndDate = moment(this.recommendedDate)
+          .add(1, "day")
+          .format("YYYY-MM-DD");
+      } else {
+        this.meetingEndDate = this.recommendedDate;
+      }
+
+      // 내부 DateTime 객체 업데이트
+      this.updateDateTime();
+      this.dayOfWeekWarningDialog = false;
+    },
+
+    /**
+     * 선택한 날짜 유지 함수
+     */
+    keepSelectedDate() {
+      this.dayOfWeekWarningDialog = false;
+    },
+
+    /**
+     * 날짜 선택 시 호출되는 함수
+     */
+    onDateSelected() {
+      this.meetingDateMenu = false;
+      this.updateDates();
+    },
+
+    /**
+     * 선택된 활동의 권장 요일을 반환하는 함수
+     * @returns {number|null} 권장 요일 (0-6) 또는 null
+     */
+    getRecommendedDayOfWeek() {
+      if (!this.selectedActivity) return null;
+
+      const activity = this.activities.find(
+        (a) => a.id === this.selectedActivity
+      );
+      if (!activity || !this.activityDefaults[activity.name]) return null;
+
+      return this.activityDefaults[activity.name].dayOfWeek;
+    },
+
+    /**
+     * 권장 요일 텍스트를 반환하는 함수
+     * @returns {string} 요일 텍스트 (예: "일요일")
+     */
+    getRecommendedDayOfWeekText() {
+      const dayOfWeek = this.getRecommendedDayOfWeek();
+      return dayOfWeek !== null ? this.dayOfWeekTexts[dayOfWeek] : "";
+    },
+
+    /**
+     * 선택된 활동 이름을 반환하는 함수
+     * @returns {string} 활동 이름
+     */
+    getActivityName() {
+      if (!this.selectedActivity) return "";
+
+      const activity = this.activities.find(
+        (a) => a.id === this.selectedActivity
+      );
+      return activity ? activity.name : "";
+    },
+
+    /**
+     * 로딩 상태 초기화 함수
+     */
+    initLoadingState() {
+      this.loadingState = {
+        isLoading: true,
+        currentStep: 0,
+        totalSteps: 5,
+        currentStepText: "준비 중...",
+        progressPercent: 0,
+        startTime: Date.now(),
+        estimatedTimeLeft: null,
+        hasLongDelay: false,
+      };
+    },
+
+    /**
+     * 로딩 상태 업데이트 함수
+     * @param {number} step - 현재 단계 (1~5)
+     * @param {string} text - 현재 단계 설명 텍스트
+     * @param {number} progress - 진행률 (0~100)
+     */
+    updateLoadingState(step, text, progress) {
+      this.loadingState.currentStep = step;
+      this.loadingState.currentStepText = text;
+      this.loadingState.progressPercent = progress;
+
+      // 단계 전환 시 진동 피드백 (모바일에서만 동작)
+      if (window.navigator && window.navigator.vibrate) {
+        window.navigator.vibrate(100);
+      }
+
+      // 장시간 소요 감지
+      const currentTime = Date.now();
+      const elapsedTime = (currentTime - this.loadingState.startTime) / 1000;
+
+      if (elapsedTime > 15 && !this.loadingState.hasLongDelay) {
+        this.loadingState.hasLongDelay = true;
+
+        // 지연 감지 시 더 강한 진동 (모바일에서만 동작)
+        if (window.navigator && window.navigator.vibrate) {
+          window.navigator.vibrate([100, 50, 200]);
+        }
+      }
+    },
+
+    /**
+     * 파일 업로드 상태 텍스트 반환 함수
+     * @returns {string} 업로드 상태 설명 텍스트
+     */
+    getFileUploadStatus() {
+      if (!this.photos) return "이미지 없음";
+
+      const fileSizeMB = (this.photos.size / (1024 * 1024)).toFixed(1);
+      return `${fileSizeMB}MB 이미지 업로드 중`;
+    },
+
+    /**
+     * 작업 취소 함수
+     */
+    cancelOperation() {
+      if (
+        confirm(
+          "정말 작업을 취소하시겠습니까?\n입력한 정보는 저장되지 않습니다."
+        )
+      ) {
+        this.loadingState.isLoading = false;
+        this.isSubmitting = false;
+        this.isUploading = false;
+      }
+    },
+
+    /**
+     * 계속 기다리기 함수
+     */
+    continueWaiting() {
+      this.loadingState.hasLongDelay = false;
+    },
   },
 };
 </script>
@@ -1145,11 +1754,6 @@ export default {
 .attendance-custom-dialog {
   max-width: 500px;
   background-color: #edeef3;
-}
-
-.full-size {
-  width: 100%;
-  height: 100%;
 }
 
 .full-size {
@@ -1253,5 +1857,101 @@ pre {
 .v-btn.wc-btn:disabled {
   opacity: 0.7;
   cursor: not-allowed;
+}
+
+/* 새로 추가된 스타일 */
+.section-label {
+  font-weight: 600;
+  color: #7ea394;
+  font-size: 1.1rem;
+  text-align: left;
+  padding-left: 8px;
+}
+
+.section-title {
+  font-weight: 500;
+  color: #666;
+  font-size: 0.9rem;
+  text-align: left;
+  padding-left: 8px;
+}
+
+.date-time-section {
+  background-color: rgba(126, 163, 148, 0.05);
+  border-radius: 12px;
+  padding: 12px 16px;
+  border-left: 3px solid #7ea394;
+}
+
+.midnight-notice {
+  background-color: rgba(255, 193, 7, 0.1);
+  border-left: 3px solid #ffc107;
+  padding: 8px 12px;
+  margin: 10px 0;
+  border-radius: 4px;
+  display: flex;
+  align-items: center;
+}
+
+/* 권장 요일 안내 텍스트 스타일 */
+.recommended-day-text {
+  background-color: rgba(33, 150, 243, 0.1);
+  border-left: 3px solid #2196f3;
+  padding: 8px 12px;
+  border-radius: 4px;
+  font-size: 0.9rem;
+  color: #555;
+  text-align: left;
+}
+
+/* 잘못된 요일 선택 시 스타일 */
+.wrong-day-warning {
+  border: 1px solid #f44336 !important;
+}
+
+/* 로딩 상태 관련 스타일 */
+.loading-status {
+  background-color: rgba(245, 245, 245, 0.5);
+  border-radius: 8px;
+  margin-top: 16px;
+}
+
+.current-action {
+  font-weight: 500;
+  font-size: 1rem;
+  margin-bottom: 4px;
+}
+
+.estimated-time {
+  font-size: 0.85rem;
+}
+
+.delay-notice {
+  font-size: 0.9rem;
+  animation: pulse 2s infinite;
+  background-color: rgba(255, 193, 7, 0.1);
+  padding: 6px;
+  border-radius: 4px;
+}
+
+@keyframes pulse {
+  0% {
+    opacity: 0.6;
+  }
+  50% {
+    opacity: 1;
+  }
+  100% {
+    opacity: 0.6;
+  }
+}
+
+/* 스텝퍼 사용자 정의 스타일 */
+.v-stepper__step--active .v-stepper__step__step {
+  background-color: #7ea394 !important;
+}
+
+.v-stepper__step--complete .v-stepper__step__step {
+  background-color: #4caf50 !important;
 }
 </style>

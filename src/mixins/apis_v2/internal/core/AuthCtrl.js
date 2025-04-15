@@ -8,9 +8,9 @@ export const AuthCtrl = {
       // 인증이 필요한 API 요청을 위한 Axios 인스턴스
       AUTH_AXIOS: null,
       // API 서버 기본 URL (개발 서버)
-      // BASE_URL: "https://attendance.icoramdeo.com/api/",
+      BASE_URL: "https://attendance.icoramdeo.com/api/",
       // API 서버 기본 URL (테스트 서버)
-      BASE_URL: "https://attendance-dev.icoramdeo.com/api/",
+      // BASE_URL: "https://attendance-dev.icoramdeo.com/api/",
       // API 서버 기본 URL (로컬 서버)
       // BASE_URL: "http://localhost:3000/api/",
     };
