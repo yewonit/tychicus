@@ -22,9 +22,14 @@
             :append-icon="showPassword ? 'mdi-eye' : 'mdi-eye-off'"
             :type="showPassword ? 'text' : 'password'"
             @click:append="showPassword = !showPassword"
-            outlined
-            dense
+            background-color="#FFFFFF"
             color="#7EA394"
+            solo
+            rounded
+            flat
+            dense
+            hide-details="auto"
+            class="mb-7"
             :error-messages="passwordError"
             @input="passwordError = ''"
             @keyup.enter="checkPassword"
@@ -47,778 +52,404 @@
 
     <!-- 기존 조직관리 페이지 -->
     <v-card v-else rounded="lg" elevation="0">
-      <v-card-title class="d-flex justify-space-between align-center">
-        <span class="wc-bold-600 text-h5">조직 및 멤버 관리</span>
-        <div>
-          <v-btn
-            color="#7EA394"
-            small
-            rounded
-            class="mr-2 white--text"
-            @click="openOrganizationDialog()"
-          >
-            <v-icon left small>mdi-folder-plus</v-icon>
-            조직 추가
-          </v-btn>
-          <v-btn
-            color="#7EA394"
-            small
-            rounded
-            :disabled="
-              !selectedOrganization || !selectedOrganization.isLeafNode
-            "
-            @click="openMemberDialog()"
-            class="white--text"
-          >
-            <v-icon left small>mdi-account-plus</v-icon>
-            신규 인원 등록
-          </v-btn>
-          <v-btn
-            color="grey darken-1"
-            small
-            rounded
-            class="ml-2 white--text"
-            @click="logout"
-          >
-            <v-icon left small>mdi-logout</v-icon>
-            로그아웃
-          </v-btn>
+      <v-card-title class="d-flex flex-column align-start">
+        <span class="wc-bold-600 text-h5 mb-4">조직 및 멤버 관리</span>
+
+        <div class="d-flex justify-space-between align-center w-100">
+          <!-- 검색 기능 추가 -->
+          <div class="search-container d-flex align-center">
+            <v-text-field
+              v-model="searchQuery"
+              placeholder="조직/멤버 검색"
+              prepend-inner-icon="mdi-magnify"
+              background-color="#FFFFFF"
+              color="#7EA394"
+              solo
+              rounded
+              flat
+              dense
+              hide-details="auto"
+              class="search-input"
+              @input="debounceSearch"
+              @focus="showSearchResults = true"
+              @blur="hideSearchResultsDelayed"
+              @keyup.esc="showSearchResults = false"
+            ></v-text-field>
+            <v-btn-toggle
+              v-model="searchType"
+              mandatory
+              dense
+              color="#7EA394"
+              class="search-toggle rounded-lg ml-4"
+            >
+              <v-btn small value="all">전체</v-btn>
+              <v-btn small value="organization">조직</v-btn>
+              <v-btn small value="member">멤버</v-btn>
+            </v-btn-toggle>
+
+            <!-- 검색 결과 표시 영역 -->
+            <v-card
+              v-show="showSearchResults && searchResults.length > 0"
+              class="search-results elevation-5"
+              rounded
+            >
+              <v-list dense>
+                <v-subheader v-if="filteredOrganizationResults.length > 0"
+                  >조직</v-subheader
+                >
+                <v-list-item
+                  v-for="org in filteredOrganizationResults"
+                  :key="`org-${org.id}`"
+                  @click="selectSearchedOrganization(org)"
+                  dense
+                >
+                  <v-list-item-icon class="mr-2">
+                    <v-icon small>mdi-folder</v-icon>
+                  </v-list-item-icon>
+                  <v-list-item-content>
+                    <v-list-item-title>{{
+                      org.organization_name
+                    }}</v-list-item-title>
+                    <v-list-item-subtitle class="text-caption">
+                      멤버: {{ org.memberCount || 0 }}명
+                    </v-list-item-subtitle>
+                  </v-list-item-content>
+                </v-list-item>
+
+                <v-divider
+                  v-if="
+                    filteredOrganizationResults.length > 0 &&
+                    filteredMemberResults.length > 0
+                  "
+                ></v-divider>
+
+                <v-subheader v-if="filteredMemberResults.length > 0"
+                  >멤버</v-subheader
+                >
+                <v-list-item
+                  v-for="member in filteredMemberResults"
+                  :key="`member-${member.userId}`"
+                  @click="selectSearchedMember(member)"
+                  dense
+                >
+                  <v-list-item-icon class="mr-2">
+                    <v-icon small>mdi-account</v-icon>
+                  </v-list-item-icon>
+                  <v-list-item-content>
+                    <v-list-item-title>{{ member.name }}</v-list-item-title>
+                    <v-list-item-subtitle class="text-caption">
+                      {{ member.organizationName || "소속 정보 없음" }}
+                    </v-list-item-subtitle>
+                  </v-list-item-content>
+                </v-list-item>
+
+                <v-list-item v-if="searchResults.length === 0">
+                  <v-list-item-content class="text-center">
+                    <v-list-item-title>검색 결과가 없습니다.</v-list-item-title>
+                  </v-list-item-content>
+                </v-list-item>
+              </v-list>
+            </v-card>
+          </div>
+
+          <div>
+            <v-btn
+              color="#7EA394"
+              small
+              rounded
+              class="mr-2 white--text"
+              @click="openOrganizationDialog()"
+            >
+              <v-icon left small>mdi-folder-plus</v-icon>
+              조직 추가
+            </v-btn>
+            <v-btn
+              color="#7EA394"
+              small
+              rounded
+              :disabled="
+                !selectedOrganization || !selectedOrganization.isLeafNode
+              "
+              @click="openMemberDialog()"
+              class="white--text"
+            >
+              <v-icon left small>mdi-account-plus</v-icon>
+              신규 인원 등록
+            </v-btn>
+            <v-btn
+              color="grey darken-1"
+              small
+              rounded
+              class="ml-2 white--text"
+              @click="logout"
+            >
+              <v-icon left small>mdi-logout</v-icon>
+              로그아웃
+            </v-btn>
+          </div>
         </div>
       </v-card-title>
       <v-divider></v-divider>
       <v-card-text>
-        <v-row>
-          <v-col cols="12" md="4">
-            <v-card flat>
-              <v-card-title class="pb-0">
-                <span class="subtitle-1 font-weight-bold">조직 목록</span>
-              </v-card-title>
-              <v-card-text class="pt-0">
-                <v-treeview
-                  :items="organizationTree"
-                  item-key="id"
-                  open-all
-                  dense
-                  :active.sync="activeOrganization"
-                  return-object
-                  activatable
-                  @update:active="handleOrganizationSelect"
-                  :load-children="() => {}"
-                  @input="(val) => console.log('트리뷰 입력 이벤트:', val)"
-                >
-                  <template v-slot:prepend="{ item }">
-                    <v-icon small color="#7EA394">
-                      {{
-                        item.children && item.children.length > 0
-                          ? "mdi-folder"
-                          : "mdi-folder-outline"
-                      }}
-                    </v-icon>
-                  </template>
-                  <template v-slot:label="{ item }">
-                    <div
-                      class="d-flex align-center justify-space-between"
-                      style="width: 100%"
-                    >
-                      <div>
-                        <span class="font-weight-bold">{{
-                          item.organization_name
-                        }}</span>
-                        <div class="text-caption grey--text text--darken-1">
-                          ID: {{ item.id }} | 코드:
-                          {{ item.organization_code }} | 멤버:
-                          {{ item.memberCount || 0 }}명
-                        </div>
-                      </div>
-                      <v-menu bottom left>
-                        <template v-slot:activator="{ on, attrs }">
-                          <v-btn
-                            icon
-                            small
-                            v-bind="attrs"
-                            v-on="on"
-                            @click.stop
-                          >
-                            <v-icon small>mdi-dots-vertical</v-icon>
-                          </v-btn>
-                        </template>
-                        <v-list dense>
-                          <v-list-item
-                            @click.stop="openOrganizationDialog(item)"
-                          >
-                            <v-list-item-title>
-                              <v-icon left small color="#7EA394"
-                                >mdi-pencil</v-icon
-                              >
-                              수정
-                            </v-list-item-title>
-                          </v-list-item>
-                          <v-list-item
-                            @click.stop="confirmDeleteOrganization(item)"
-                          >
-                            <v-list-item-title>
-                              <v-icon left small color="red">mdi-delete</v-icon>
-                              삭제
-                            </v-list-item-title>
-                          </v-list-item>
-                        </v-list>
-                      </v-menu>
-                    </div>
-                  </template>
-                </v-treeview>
-              </v-card-text>
-            </v-card>
-          </v-col>
-          <v-col cols="12" md="8">
-            <v-card flat>
-              <v-card-title class="pb-0">
-                <span class="subtitle-1 font-weight-bold">
-                  {{
-                    selectedOrganization
-                      ? selectedOrganization.organization_name
-                      : "조직을 선택하세요"
-                  }}
-                  <span v-if="selectedOrganization" class="text-caption ml-2">
-                    (총 {{ members.length }}명)
-                  </span>
-                </span>
-              </v-card-title>
-              <v-card-text class="pt-0">
-                <v-alert
-                  v-if="
-                    selectedOrganization && !selectedOrganization.isLeafNode
-                  "
-                  type="info"
-                  dense
-                  text
-                  class="ma-2"
-                >
-                  최하위 조직만 멤버를 관리할 수 있습니다. 최하위 조직을
-                  선택해주세요.
-                </v-alert>
-                <v-data-table
-                  :headers="memberHeaders"
-                  :items="members"
-                  :items-per-page="-1"
+        <v-tabs
+          v-model="activeTab"
+          background-color="transparent"
+          color="#7EA394"
+          grow
+        >
+          <v-tab>조직 & 멤버 관리</v-tab>
+          <v-tab>새가족 관리(개발중)</v-tab>
+        </v-tabs>
+
+        <v-tabs-items v-model="activeTab">
+          <!-- 조직 & 멤버 관리 탭 -->
+          <v-tab-item>
+            <v-row>
+              <v-col cols="12" md="4">
+                <organization-tree
+                  :organization-tree="organizationTree"
+                  @organization-selected="handleOrganizationSelect"
+                  @edit-organization="openOrganizationDialog"
+                  @delete-organization="confirmDeleteOrganization"
+                  @tree-input="(val) => console.log('트리뷰 입력 이벤트:', val)"
+                  :expanded-org-ids="expandedOrganizationIds"
+                />
+              </v-col>
+              <v-col cols="12" md="8">
+                <member-list
+                  :selected-organization="selectedOrganization"
+                  :members="members"
                   :loading="loadingMembers"
-                  class="elevation-0"
-                  :footer-props="{
-                    'items-per-page-options': [10, 20, 50, 100, -1],
-                    'items-per-page-text': 'Rows per page:',
-                    'items-per-page-all-text': 'All',
-                  }"
-                  :no-data-text="
-                    selectedOrganization
-                      ? selectedOrganization.isLeafNode
-                        ? '멤버가 없습니다'
-                        : '최하위 조직만 멤버를 조회할 수 있습니다'
-                      : '조직을 선택하세요'
-                  "
-                >
-                  <template v-slot:item="{ item }">
-                    <tr>
-                      <td>
-                        <div class="d-flex align-center">
-                          <v-avatar size="32" class="mr-2 name-avatar">
-                            <span class="white--text">{{
-                              item.name.charAt(0)
-                            }}</span>
-                          </v-avatar>
-                          <div>
-                            <div class="member-name">{{ item.name }}</div>
-                            <div class="member-suffix">
-                              {{ item.nameSuffix || "구분자 없음" }}
-                            </div>
-                          </div>
-                        </div>
-                      </td>
-                      <td>{{ item.phoneNumber || "번호 없음" }}</td>
-                      <td>{{ item.email || "이메일 없음" }}</td>
-                      <td>{{ item.genderType === "M" ? "남성" : "여성" }}</td>
-                      <td>
-                        <v-chip
-                          v-if="item.roleName === '그룹장'"
-                          small
-                          :color="getRoleColor('그룹장')"
-                          text-color="black"
-                          class="mr-1"
+                  @edit-member="openMemberDialog"
+                  @delete-member="confirmDeleteMember"
+                />
+              </v-col>
+            </v-row>
+          </v-tab-item>
+
+          <!-- 새가족 관리 탭 -->
+          <v-tab-item>
+            <v-row>
+              <v-col cols="12">
+                <v-card flat>
+                  <v-card-title>
+                    <div class="d-flex align-center w-100">
+                      <span class="text-h6">새가족 목록</span>
+                      <v-spacer></v-spacer>
+
+                      <!-- 날짜 필터 개선 -->
+                      <div class="d-flex align-center">
+                        <!-- 시작일 -->
+                        <v-menu
+                          v-model="startDatePickerMenu"
+                          :close-on-content-click="false"
+                          transition="scale-transition"
+                          offset-y
+                          min-width="290px"
                         >
-                          그룹장
-                        </v-chip>
-                        <v-chip
-                          v-if="item.roleName === '부그룹장'"
-                          small
-                          :color="getRoleColor('부그룹장')"
-                          text-color="black"
-                          class="mr-1"
+                          <template v-slot:activator="{ on, attrs }">
+                            <v-text-field
+                              v-model="startDate"
+                              label="시작일"
+                              prepend-icon="mdi-calendar-start"
+                              readonly
+                              v-bind="attrs"
+                              v-on="on"
+                              background-color="#FFFFFF"
+                              color="#7EA394"
+                              solo
+                              rounded
+                              flat
+                              dense
+                              hide-details="auto"
+                              class="max-width-150 mr-2"
+                            ></v-text-field>
+                          </template>
+                          <v-date-picker
+                            v-model="startDate"
+                            @input="startDatePickerMenu = false"
+                          ></v-date-picker>
+                        </v-menu>
+
+                        <!-- 종료일 -->
+                        <v-menu
+                          v-model="endDatePickerMenu"
+                          :close-on-content-click="false"
+                          transition="scale-transition"
+                          offset-y
+                          min-width="290px"
                         >
-                          부그룹장
-                        </v-chip>
-                        <v-chip
-                          v-if="item.roleName === '순장'"
+                          <template v-slot:activator="{ on, attrs }">
+                            <v-text-field
+                              v-model="endDate"
+                              label="종료일"
+                              prepend-icon="mdi-calendar-end"
+                              readonly
+                              v-bind="attrs"
+                              v-on="on"
+                              background-color="#FFFFFF"
+                              color="#7EA394"
+                              solo
+                              rounded
+                              flat
+                              dense
+                              hide-details="auto"
+                              class="max-width-150"
+                            ></v-text-field>
+                          </template>
+                          <v-date-picker
+                            v-model="endDate"
+                            @input="endDatePickerMenu = false"
+                          ></v-date-picker>
+                        </v-menu>
+
+                        <v-btn
+                          text
                           small
-                          :color="getRoleColor('순장')"
-                          text-color="black"
-                          class="mr-1"
+                          color="#7EA394"
+                          class="ml-3"
+                          @click="clearDateFilter"
                         >
-                          순장
-                        </v-chip>
-                        <v-chip
-                          v-if="item.roleName === 'EBS'"
-                          small
-                          :color="getRoleColor('EBS')"
-                          text-color="black"
-                          class="mr-1"
-                        >
-                          EBS
-                        </v-chip>
-                        <v-chip
-                          v-if="item.isNewMember === 'Y'"
-                          small
-                          color="orange"
-                          text-color="black"
-                          class="mr-1"
-                        >
-                          새가족
-                        </v-chip>
-                        <v-chip
-                          v-if="item.isLongTermAbsentee === 'Y'"
-                          small
-                          color="red"
-                          text-color="black"
-                          class="mr-1"
-                        >
-                          장기결석
-                        </v-chip>
-                        <v-chip
-                          v-if="
-                            item.roleName === '순원' || item.roleName === '회원'
-                          "
-                          small
-                          :color="getRoleColor(item.roleName)"
-                          text-color="black"
-                        >
-                          {{ item.roleName }}
-                        </v-chip>
-                      </td>
-                      <td class="text-right">
-                        <v-btn icon small @click="openMemberDialog(item)">
-                          <v-icon small color="#7EA394">mdi-pencil</v-icon>
+                          전체 보기
                         </v-btn>
-                        <v-btn icon small @click="confirmDeleteMember(item)">
-                          <v-icon small color="red">mdi-delete</v-icon>
-                        </v-btn>
-                      </td>
-                    </tr>
-                  </template>
-                </v-data-table>
-              </v-card-text>
-            </v-card>
-          </v-col>
-        </v-row>
+                      </div>
+                    </div>
+                  </v-card-title>
+
+                  <!-- 그룹화 선택 -->
+                  <v-card-subtitle>
+                    <div class="d-flex align-center mb-2">
+                      <span class="font-weight-medium mr-4"
+                        >날짜별 그룹핑:</span
+                      >
+                      <v-btn-toggle
+                        v-model="dateGrouping"
+                        mandatory
+                        dense
+                        color="#7EA394"
+                        class="rounded-lg"
+                      >
+                        <v-btn small value="none">그룹화 없음</v-btn>
+                        <v-btn small value="week">주차별</v-btn>
+                        <v-btn small value="day">일별</v-btn>
+                        <v-btn small value="month">월별</v-btn>
+                        <v-btn small value="year">년도별</v-btn>
+                      </v-btn-toggle>
+                    </div>
+                  </v-card-subtitle>
+
+                  <!-- 날짜별 그룹화된 새가족 목록 -->
+                  <div v-if="dateGrouping !== 'none'">
+                    <div
+                      v-for="(group, groupKey) in groupedNewMembers"
+                      :key="groupKey"
+                      class="mb-6"
+                    >
+                      <v-divider></v-divider>
+                      <div class="group-header pa-2 pl-4">
+                        <span class="text-subtitle-1 font-weight-bold"
+                          >{{ groupKey }} ({{ group.length }}명)</span
+                        >
+                      </div>
+                      <v-data-table
+                        :headers="newMembersHeaders"
+                        :items="group"
+                        hide-default-footer
+                        disable-pagination
+                        class="elevation-0"
+                      >
+                        <template #[`item.registrationDate`]="{ item }">
+                          {{ formatDate(item.registrationDate) }}
+                        </template>
+                        <template #[`item.genderType`]="{ item }">
+                          {{ item.genderType === "M" ? "남성" : "여성" }}
+                        </template>
+                        <template #[`item.actions`]="{ item }">
+                          <v-icon
+                            small
+                            class="mr-2"
+                            @click="openMemberDialog(item)"
+                          >
+                            mdi-pencil
+                          </v-icon>
+                          <v-icon small @click="confirmDeleteMember(item)">
+                            mdi-delete
+                          </v-icon>
+                        </template>
+                      </v-data-table>
+                    </div>
+                  </div>
+
+                  <!-- 기존 테이블 (그룹화 없을 때) -->
+                  <v-data-table
+                    v-else
+                    :headers="newMembersHeaders"
+                    :items="filteredNewMembers"
+                    :loading="loadingAllMembers"
+                    :items-per-page="10"
+                    :footer-props="{
+                      'items-per-page-options': [10, 20, 50, 100],
+                    }"
+                    class="elevation-1"
+                  >
+                    <template #[`item.registrationDate`]="{ item }">
+                      {{ formatDate(item.registrationDate) }}
+                    </template>
+                    <template #[`item.genderType`]="{ item }">
+                      {{ item.genderType === "M" ? "남성" : "여성" }}
+                    </template>
+                    <template #[`item.actions`]="{ item }">
+                      <v-icon
+                        small
+                        class="mr-2"
+                        @click="openMemberDialog(item)"
+                      >
+                        mdi-pencil
+                      </v-icon>
+                      <v-icon small @click="confirmDeleteMember(item)">
+                        mdi-delete
+                      </v-icon>
+                    </template>
+                    <template #no-data>
+                      <div class="text-center pa-4">
+                        <p v-if="loadingAllMembers">
+                          새가족 정보를 불러오는 중입니다...
+                        </p>
+                        <p v-else>등록된 새가족이 없습니다.</p>
+                      </div>
+                    </template>
+                  </v-data-table>
+                </v-card>
+              </v-col>
+            </v-row>
+          </v-tab-item>
+        </v-tabs-items>
       </v-card-text>
     </v-card>
 
     <!-- 조직 추가/수정 다이얼로그 -->
-    <v-dialog v-model="organizationDialog" max-width="500px">
-      <v-card rounded="lg">
-        <v-card-title class="wc-bold-600">
-          <span class="text-h5">{{
-            editedOrganization.id ? "조직 수정" : "조직 추가"
-          }}</span>
-        </v-card-title>
-        <v-card-text>
-          <v-container>
-            <v-row>
-              <v-col cols="12">
-                <v-text-field
-                  v-model="editedOrganization.organization_name"
-                  label="조직명"
-                  required
-                  background-color="#edeef3"
-                  color="#7EA394"
-                  solo
-                  rounded
-                  flat
-                  dense
-                  hide-details="auto"
-                  class="mb-4 mx-auto bg-transparent"
-                ></v-text-field>
-              </v-col>
-              <v-col cols="12">
-                <v-text-field
-                  v-model="editedOrganization.organization_code"
-                  label="조직 코드"
-                  required
-                  background-color="#edeef3"
-                  color="#7EA394"
-                  solo
-                  rounded
-                  flat
-                  dense
-                  hide-details="auto"
-                  class="mb-4 mx-auto bg-transparent"
-                ></v-text-field>
-              </v-col>
-              <v-col cols="12">
-                <v-select
-                  v-model="editedOrganization.upper_organization_id"
-                  :items="organizationSelectItems"
-                  item-text="text"
-                  item-value="value"
-                  label="상위 조직"
-                  hint="상위 조직이 없으면 비워두세요"
-                  persistent-hint
-                  clearable
-                  background-color="#edeef3"
-                  color="#7EA394"
-                  solo
-                  rounded
-                  flat
-                  dense
-                  hide-details="auto"
-                  class="mb-4 mx-auto bg-transparent"
-                ></v-select>
-              </v-col>
-              <v-col cols="12">
-                <v-textarea
-                  v-model="editedOrganization.organization_description"
-                  label="설명"
-                  rows="3"
-                  background-color="#edeef3"
-                  color="#7EA394"
-                  solo
-                  rounded
-                  flat
-                  dense
-                  hide-details="auto"
-                  class="mb-4 mx-auto bg-transparent"
-                ></v-textarea>
-              </v-col>
-            </v-row>
-          </v-container>
-        </v-card-text>
-        <v-card-actions>
-          <v-spacer></v-spacer>
-          <v-btn color="#7EA394" text @click="closeOrganizationDialog"
-            >취소</v-btn
-          >
-          <v-btn color="#7EA394" text @click="saveOrganization">저장</v-btn>
-        </v-card-actions>
-      </v-card>
-    </v-dialog>
+    <organization-dialog
+      v-model="organizationDialog"
+      :organization="editedOrganization"
+      :organization-select-items="organizationSelectItems"
+      @save="saveOrganization"
+    />
 
     <!-- 멤버 추가/수정 다이얼로그 -->
-    <v-dialog v-model="memberDialog" max-width="600px">
-      <v-card rounded="lg">
-        <v-card-title class="wc-bold-600">
-          <span class="text-h5 font-weight-bold">{{
-            editedMember.userId ? "멤버 수정" : "새로운 인원 등록"
-          }}</span>
-          <v-row>
-            <v-col cols="12" class="pt-1 pb-0">
-              <span class="subtitle-2 grey--text text--darken-1">
-                {{
-                  editedMember.userId
-                    ? "기존 멤버의 정보를 수정합니다. 변경된 필드는 자동으로 저장됩니다."
-                    : "새로운 인원을 등록합니다. 필수 항목(*)을 모두 입력해야 저장이 가능합니다."
-                }}
-              </span>
-            </v-col>
-          </v-row>
-        </v-card-title>
-        <v-card-text>
-          <v-container>
-            <!-- 상태 토글 스위치 -->
-            <v-row class="ma-0 pa-0 pt-3 pb-5 px-5" v-if="editedMember.userId">
-              <!-- 카카오톡 단톡방 참여여부 -->
-              <v-col cols="12" md="4" class="d-flex align-center">
-                <v-icon size="22" class="mr-2" color="#262626">mdi-chat</v-icon>
-                <span class="subtitle-1 font-weight-medium"
-                  >카톡방 참여 여부</span
-                >
-                <v-spacer></v-spacer>
-                <label class="custom-switch mt-0 pt-0">
-                  <input
-                    type="checkbox"
-                    :checked="editedMember.isKakaotalkChatMember === 'Y'"
-                    @change="
-                      editedMember.isKakaotalkChatMember = $event.target.checked
-                        ? 'Y'
-                        : 'N'
-                    "
-                  />
-                  <span class="custom-slider"></span>
-                </label>
-              </v-col>
-
-              <!-- 장결자 여부 -->
-              <v-col cols="12" md="4" class="d-flex align-center">
-                <v-icon size="22" class="mr-2" color="#262626"
-                  >mdi-account-check</v-icon
-                >
-                <span class="subtitle-1 font-weight-medium">장결자 여부</span>
-                <v-spacer></v-spacer>
-                <label class="custom-switch mt-0 pt-0">
-                  <input
-                    type="checkbox"
-                    :checked="editedMember.isLongTermAbsentee === 'Y'"
-                    @change="
-                      editedMember.isLongTermAbsentee = $event.target.checked
-                        ? 'Y'
-                        : 'N'
-                    "
-                  />
-                  <span class="custom-slider"></span>
-                </label>
-              </v-col>
-
-              <!-- 새가족 여부 -->
-              <v-col cols="12" md="4" class="d-flex align-center">
-                <v-icon size="22" class="mr-2" color="#262626"
-                  >mdi-account-multiple-plus</v-icon
-                >
-                <span class="subtitle-1 font-weight-medium">새가족 여부</span>
-                <v-spacer></v-spacer>
-                <label class="custom-switch mt-0 pt-0">
-                  <input
-                    type="checkbox"
-                    :checked="editedMember.isNewMember === 'Y'"
-                    @change="
-                      editedMember.isNewMember = $event.target.checked
-                        ? 'Y'
-                        : 'N'
-                    "
-                  />
-                  <span class="custom-slider"></span>
-                </label>
-              </v-col>
-            </v-row>
-
-            <!-- 정보입력 -->
-            <v-row>
-              <v-col cols="12" class="text-center mt-5 px-15">
-                <!-- 이름 -->
-                <div class="field-title mb-1 text-left">
-                  이름 <span class="red--text">*</span>
-                </div>
-                <v-text-field
-                  v-model="editedMember.name"
-                  label="이름 (필수)"
-                  background-color="#edeef3"
-                  color="#7EA394"
-                  solo
-                  rounded
-                  flat
-                  dense
-                  hide-details="auto"
-                  class="mb-4 mx-auto bg-transparent org-custom-input"
-                  required
-                  persistent-hint
-                  :error="validationErrors.name"
-                  :error-messages="
-                    validationErrors.name ? '이름을 입력해주세요' : ''
-                  "
-                ></v-text-field>
-
-                <!-- 동명이인 구분자 -->
-                <div class="field-title mb-1 text-left">구분자</div>
-                <v-text-field
-                  v-model="editedMember.nameSuffix"
-                  label="구분자 (선택, 기본값: FFF)"
-                  background-color="#edeef3"
-                  color="#7EA394"
-                  solo
-                  rounded
-                  flat
-                  dense
-                  hide-details="auto"
-                  class="mb-4 mx-auto bg-transparent org-custom-input"
-                  persistent-hint
-                ></v-text-field>
-
-                <!-- 전화번호 -->
-                <div class="field-title mb-1 text-left">
-                  전화번호 <span class="red--text">*</span>
-                </div>
-                <v-text-field
-                  v-model="editedMember.phoneNumber"
-                  label="전화번호 (필수)"
-                  background-color="#edeef3"
-                  color="#7EA394"
-                  solo
-                  rounded
-                  flat
-                  dense
-                  hide-details="auto"
-                  class="mb-4 mx-auto bg-transparent org-custom-input"
-                  required
-                  persistent-hint
-                  :error="validationErrors.phoneNumber"
-                  :error-messages="
-                    validationErrors.phoneNumber
-                      ? '전화번호를 입력해주세요'
-                      : ''
-                  "
-                ></v-text-field>
-
-                <!-- 성별(드롭다운) -->
-                <div class="field-title mb-1 text-left">
-                  성별 <span class="red--text">*</span>
-                </div>
-                <v-select
-                  v-model="editedMember.genderType"
-                  :items="[
-                    { text: '남성', value: 'M' },
-                    { text: '여성', value: 'F' },
-                  ]"
-                  item-text="text"
-                  item-value="value"
-                  label="성별"
-                  background-color="#edeef3"
-                  color="#7EA394"
-                  solo
-                  rounded
-                  flat
-                  dense
-                  hide-details="auto"
-                  class="mb-4 mx-auto bg-transparent org-custom-input org-custom-select"
-                  persistent-hint
-                  :error="validationErrors.genderType"
-                  :error-messages="
-                    validationErrors.genderType ? '성별을 선택해주세요' : ''
-                  "
-                ></v-select>
-
-                <!-- 이메일 -->
-                <div class="field-title mb-1 text-left">이메일</div>
-                <v-text-field
-                  v-model="editedMember.email"
-                  label="이메일 (선택, 기본값: email@email.com)"
-                  background-color="#edeef3"
-                  color="#7EA394"
-                  solo
-                  rounded
-                  flat
-                  dense
-                  hide-details="auto"
-                  class="mb-4 mx-auto bg-transparent org-custom-input"
-                  persistent-hint
-                ></v-text-field>
-
-                <!-- 생년월일 -->
-                <div class="field-title mb-1 text-left">생년월일</div>
-                <v-menu
-                  v-model="birthDateMenu"
-                  :close-on-content-click="false"
-                  :nudge-right="40"
-                  transition="scale-transition"
-                  offset-y
-                  min-width="290px"
-                >
-                  <template v-slot:activator="{ on, attrs }">
-                    <v-text-field
-                      v-model="editedMember.birthDate"
-                      label="생년월일"
-                      color="#7EA394"
-                      background-color="#edeef3"
-                      readonly
-                      solo
-                      rounded
-                      flat
-                      dense
-                      v-bind="attrs"
-                      v-on="on"
-                      class="mb-4 mx-auto org-custom-input"
-                      persistent-hint
-                    ></v-text-field>
-                  </template>
-                  <v-date-picker
-                    v-model="editedMember.birthDate"
-                    no-title
-                    @input="birthDateMenu = false"
-                  ></v-date-picker>
-                </v-menu>
-
-                <!-- 교회 등록일 -->
-                <div class="field-title mb-1 text-left">교회 등록일</div>
-                <v-menu
-                  v-model="registrationDateMenu"
-                  :close-on-content-click="false"
-                  :nudge-right="40"
-                  transition="scale-transition"
-                  offset-y
-                  min-width="290px"
-                >
-                  <template v-slot:activator="{ on, attrs }">
-                    <v-text-field
-                      v-model="editedMember.registrationDate"
-                      label="교회 등록일"
-                      color="#7EA394"
-                      background-color="#edeef3"
-                      readonly
-                      solo
-                      rounded
-                      flat
-                      dense
-                      v-bind="attrs"
-                      v-on="on"
-                      class="mb-4 mx-auto org-custom-input"
-                      persistent-hint
-                    ></v-text-field>
-                  </template>
-                  <v-date-picker
-                    v-model="editedMember.registrationDate"
-                    no-title
-                    @input="registrationDateMenu = false"
-                  ></v-date-picker>
-                </v-menu>
-
-                <!-- 국적 -->
-                <div class="field-title mb-1 text-left">국적</div>
-                <v-select
-                  v-model="editedMember.countryCode"
-                  :items="countryItems"
-                  item-text="text"
-                  item-value="value"
-                  label="국적"
-                  background-color="#edeef3"
-                  color="#7EA394"
-                  solo
-                  rounded
-                  flat
-                  dense
-                  hide-details="auto"
-                  class="mb-4 mx-auto bg-transparent org-custom-input org-custom-select"
-                  persistent-hint
-                ></v-select>
-
-                <!-- 역할 선택 -->
-                <div class="field-title mb-1 text-left">
-                  역할 <span class="red--text">*</span>
-                </div>
-                <v-select
-                  v-model="editedMember.roleId"
-                  :items="roleItems"
-                  item-text="text"
-                  item-value="value"
-                  label="역할 (필수)"
-                  background-color="#edeef3"
-                  color="#7EA394"
-                  solo
-                  rounded
-                  flat
-                  dense
-                  hide-details="auto"
-                  class="mb-4 mx-auto bg-transparent org-custom-input org-custom-select"
-                  required
-                  persistent-hint
-                  :error="validationErrors.roleId"
-                  :error-messages="
-                    validationErrors.roleId ? '역할을 선택해주세요' : ''
-                  "
-                ></v-select>
-
-                <!-- 주소 관련 필드 주석 처리 시작 -->
-                <!--
-                <v-textarea
-                  v-model="editedMember.address"
-                  label="주소"
-                  rows="3"
-                  background-color="#edeef3"
-                  color="#7EA394"
-                  solo
-                  rounded
-                  flat
-                  dense
-                  hide-details="auto"
-                  class="mb-4 mx-auto bg-transparent"
-                ></v-textarea>
-
-                <v-textarea
-                  v-model="editedMember.addressDetail"
-                  label="상세주소"
-                  rows="3"
-                  background-color="#edeef3"
-                  color="#7EA394"
-                  solo
-                  rounded
-                  flat
-                  dense
-                  hide-details="auto"
-                  class="mb-4 mx-auto bg-transparent"
-                ></v-textarea>
-
-                <v-text-field
-                  v-model="editedMember.postcode"
-                  label="우편번호"
-                  background-color="#edeef3"
-                  color="#7EA394"
-                  solo
-                  rounded
-                  flat
-                  dense
-                  hide-details="auto"
-                  class="mb-4 mx-auto bg-transparent"
-                ></v-text-field>
-                -->
-                <!-- 주소 관련 필드 주석 처리 끝 -->
-
-                <!-- 취미 필드 주석 처리 시작 -->
-                <!--
-                <v-textarea
-                  v-model="editedMember.hobby"
-                  label="취미"
-                  rows="3"
-                  background-color="#edeef3"
-                  color="#7EA394"
-                  solo
-                  rounded
-                  flat
-                  dense
-                  hide-details="auto"
-                  class="mb-4 mx-auto bg-transparent"
-                ></v-textarea>
-                -->
-                <!-- 취미 필드 주석 처리 끝 -->
-
-                <v-col cols="12" class="pa-15 pt-4 pb-0">
-                  <v-btn
-                    class="mx-auto custom-save-btn"
-                    block
-                    color="#7EA394"
-                    text
-                    @click="saveMember"
-                    :loading="savingMember"
-                    ><span class="wc-h3">{{
-                      editedMember.userId ? "데이터 수정" : "데이터 저장"
-                    }}</span></v-btn
-                  >
-                </v-col>
-              </v-col>
-            </v-row>
-          </v-container>
-        </v-card-text>
-      </v-card>
-    </v-dialog>
+    <member-form
+      v-model="memberDialog"
+      :member="editedMember"
+      :saving-member="savingMember"
+      @save="saveMember"
+      @validation-failed="handleValidationFailure"
+    />
 
     <!-- 삭제 확인 다이얼로그 -->
-    <v-dialog v-model="deleteDialog" max-width="400px">
-      <v-card rounded="lg">
-        <v-card-title class="text-h5 wc-bold-600"
-          >정말 삭제하시겠습니까?</v-card-title
-        >
-        <v-card-text>
-          {{ deleteDialogText }}
-          <div class="red--text mt-2">이 작업은 되돌릴 수 없습니다.</div>
-        </v-card-text>
-        <v-card-actions>
-          <v-spacer></v-spacer>
-          <v-btn color="#7EA394" text @click="deleteDialog = false">취소</v-btn>
-          <v-btn color="red" text @click="deleteConfirm">삭제</v-btn>
-        </v-card-actions>
-      </v-card>
-    </v-dialog>
+    <delete-confirm-dialog
+      v-model="deleteDialog"
+      :text="deleteDialogText"
+      @confirm="deleteConfirm"
+    />
   </div>
 </template>
 
@@ -828,12 +459,41 @@ import { MasterCtrl } from "@/mixins/apis_v2/internal/MasterCtrl";
 import { CurrentMemberCtrl } from "@/mixins/apis_v2/internal/domainCtrl/CurrentMemberCtrl";
 import { OrganizationCtrl } from "@/mixins/apis_v2/internal/domainCtrl/OrganizationCtrl";
 
+// 분리된 컴포넌트 import
+import OrganizationTree from "@/components/admin/organization/OrganizationTree.vue";
+import MemberList from "@/components/admin/organization/MemberList.vue";
+import MemberForm from "@/components/admin/organization/MemberForm.vue";
+import OrganizationDialog from "@/components/admin/organization/OrganizationDialog.vue";
+import DeleteConfirmDialog from "@/components/admin/organization/DeleteConfirmDialog.vue";
+
 export default {
   name: "OrganizationManagementView",
   mixins: [MasterCtrl, CurrentMemberCtrl, OrganizationCtrl],
 
+  components: {
+    OrganizationTree,
+    MemberList,
+    MemberForm,
+    OrganizationDialog,
+    DeleteConfirmDialog,
+  },
+
   data() {
     return {
+      // 검색 관련 데이터 추가
+      searchQuery: "",
+      searchType: "all",
+      searchResults: [],
+      showSearchResults: false,
+      searchDebounceTimeout: null,
+      searchResultsTimeout: null,
+      highlightedMemberId: null,
+      expandedOrganizationIds: [],
+
+      // 전체 멤버 캐싱
+      memberCache: {},
+      allMembersLoaded: false,
+
       // 비밀번호 인증 관련
       isAuthenticated: false,
       password: "",
@@ -922,10 +582,206 @@ export default {
 
       // 국가 정보
       countryItems: [
+        { text: "가나", value: "GHA" },
+        { text: "가봉", value: "GAB" },
+        { text: "가이아나", value: "GUY" },
+        { text: "감비아", value: "GMB" },
+        { text: "과테말라", value: "GTM" },
+        { text: "그레나다", value: "GRD" },
+        { text: "그리스", value: "GRC" },
+        { text: "기니", value: "GIN" },
+        { text: "기니비사우", value: "GNB" },
+        { text: "나미비아", value: "NAM" },
+        { text: "나우루", value: "NRU" },
+        { text: "나이지리아", value: "NGA" },
+        { text: "남수단", value: "SSD" },
+        { text: "남아프리카공화국", value: "ZAF" },
+        { text: "네덜란드", value: "NLD" },
+        { text: "네팔", value: "NPL" },
+        { text: "노르웨이", value: "NOR" },
+        { text: "뉴질랜드", value: "NZL" },
+        { text: "니우에", value: "NIU" },
+        { text: "니제르", value: "NER" },
+        { text: "니카라과", value: "NIC" },
+        { text: "대만", value: "TWN" },
         { text: "대한민국", value: "KOR" },
+        { text: "덴마크", value: "DNK" },
+        { text: "도미니카공화국", value: "DOM" },
+        { text: "도미니카연방", value: "DMA" },
+        { text: "독일", value: "DEU" },
+        { text: "동티모르", value: "TLS" },
+        { text: "라오스", value: "LAO" },
+        { text: "라이베리아", value: "LBR" },
+        { text: "라트비아", value: "LVA" },
+        { text: "레바논", value: "LBN" },
+        { text: "레소토", value: "LSO" },
+        { text: "루마니아", value: "ROU" },
+        { text: "룩셈부르크", value: "LUX" },
+        { text: "르완다", value: "RWA" },
+        { text: "리비아", value: "LBY" },
+        { text: "리투아니아", value: "LTU" },
+        { text: "리히텐슈타인", value: "LIE" },
+        { text: "마다가스카르", value: "MDG" },
+        { text: "마셜제도", value: "MHL" },
+        { text: "마카오", value: "MAC" },
+        { text: "말라위", value: "MWI" },
+        { text: "말레이시아", value: "MYS" },
+        { text: "말리", value: "MLI" },
+        { text: "멕시코", value: "MEX" },
+        { text: "모나코", value: "MCO" },
+        { text: "모로코", value: "MAR" },
+        { text: "모리셔스", value: "MUS" },
+        { text: "모리타니아", value: "MRT" },
+        { text: "모잠비크", value: "MOZ" },
+        { text: "몬테네그로", value: "MNE" },
+        { text: "몰도바", value: "MDA" },
+        { text: "몰디브", value: "MDV" },
+        { text: "몰타", value: "MLT" },
+        { text: "몽골", value: "MNG" },
         { text: "미국", value: "USA" },
+        { text: "미얀마", value: "MMR" },
+        { text: "미크로네시아", value: "FSM" },
+        { text: "바누아투", value: "VUT" },
+        { text: "바레인", value: "BHR" },
+        { text: "바베이도스", value: "BRB" },
+        { text: "바티칸시국", value: "VAT" },
+        { text: "바하마", value: "BHS" },
+        { text: "방글라데시", value: "BGD" },
+        { text: "베냉", value: "BEN" },
+        { text: "베네수엘라", value: "VEN" },
+        { text: "베트남", value: "VNM" },
+        { text: "벨기에", value: "BEL" },
+        { text: "벨라루스", value: "BLR" },
+        { text: "벨리즈", value: "BLZ" },
+        { text: "보스니아헤르체고비나", value: "BIH" },
+        { text: "보츠와나", value: "BWA" },
+        { text: "볼리비아", value: "BOL" },
+        { text: "부룬디", value: "BDI" },
+        { text: "부르키나파소", value: "BFA" },
+        { text: "부탄", value: "BTN" },
+        { text: "북마케도니아", value: "MKD" },
+        { text: "북한", value: "PRK" },
+        { text: "불가리아", value: "BGR" },
+        { text: "브라질", value: "BRA" },
+        { text: "브루나이", value: "BRN" },
+        { text: "사모아", value: "WSM" },
+        { text: "사우디아라비아", value: "SAU" },
+        { text: "산마리노", value: "SMR" },
+        { text: "상투메프린시페", value: "STP" },
+        { text: "세네갈", value: "SEN" },
+        { text: "세르비아", value: "SRB" },
+        { text: "세이셸", value: "SYC" },
+        { text: "세인트루시아", value: "LCA" },
+        { text: "세인트빈센트그레나딘", value: "VCT" },
+        { text: "세인트키츠네비스", value: "KNA" },
+        { text: "소말리아", value: "SOM" },
+        { text: "솔로몬제도", value: "SLB" },
+        { text: "수단", value: "SDN" },
+        { text: "수리남", value: "SUR" },
+        { text: "스리랑카", value: "LKA" },
+        { text: "스웨덴", value: "SWE" },
+        { text: "스위스", value: "CHE" },
+        { text: "스페인", value: "ESP" },
+        { text: "슬로바키아", value: "SVK" },
+        { text: "슬로베니아", value: "SVN" },
+        { text: "시에라리온", value: "SLE" },
+        { text: "싱가포르", value: "SGP" },
+        { text: "아랍에미리트", value: "ARE" },
+        { text: "아르메니아", value: "ARM" },
+        { text: "아르헨티나", value: "ARG" },
+        { text: "아이슬란드", value: "ISL" },
+        { text: "아이티", value: "HTI" },
+        { text: "아일랜드", value: "IRL" },
+        { text: "아제르바이잔", value: "AZE" },
+        { text: "아프가니스탄", value: "AFG" },
+        { text: "안도라", value: "AND" },
+        { text: "알바니아", value: "ALB" },
+        { text: "알제리", value: "DZA" },
+        { text: "앙골라", value: "AGO" },
+        { text: "앤티가바부다", value: "ATG" },
+        { text: "에리트레아", value: "ERI" },
+        { text: "에스토니아", value: "EST" },
+        { text: "에스와티니", value: "SWZ" },
+        { text: "에콰도르", value: "ECU" },
+        { text: "에티오피아", value: "ETH" },
+        { text: "엘살바도르", value: "SLV" },
+        { text: "영국", value: "GBR" },
+        { text: "예멘", value: "YEM" },
+        { text: "오만", value: "OMN" },
+        { text: "오스트레일리아", value: "AUS" },
+        { text: "오스트리아", value: "AUT" },
+        { text: "온두라스", value: "HND" },
+        { text: "요르단", value: "JOR" },
+        { text: "우간다", value: "UGA" },
+        { text: "우루과이", value: "URY" },
+        { text: "우즈베키스탄", value: "UZB" },
+        { text: "우크라이나", value: "UKR" },
+        { text: "이라크", value: "IRQ" },
+        { text: "이란", value: "IRN" },
+        { text: "이스라엘", value: "ISR" },
+        { text: "이집트", value: "EGY" },
+        { text: "이탈리아", value: "ITA" },
+        { text: "인도", value: "IND" },
+        { text: "인도네시아", value: "IDN" },
         { text: "일본", value: "JPN" },
+        { text: "자메이카", value: "JAM" },
+        { text: "잠비아", value: "ZMB" },
+        { text: "적도기니", value: "GNQ" },
+        { text: "조지아", value: "GEO" },
         { text: "중국", value: "CHN" },
+        { text: "중앙아프리카공화국", value: "CAF" },
+        { text: "지부티", value: "DJI" },
+        { text: "짐바브웨", value: "ZWE" },
+        { text: "차드", value: "TCD" },
+        { text: "체코", value: "CZE" },
+        { text: "칠레", value: "CHL" },
+        { text: "카메룬", value: "CMR" },
+        { text: "카보베르데", value: "CPV" },
+        { text: "카자흐스탄", value: "KAZ" },
+        { text: "카타르", value: "QAT" },
+        { text: "캄보디아", value: "KHM" },
+        { text: "캐나다", value: "CAN" },
+        { text: "케냐", value: "KEN" },
+        { text: "코모로", value: "COM" },
+        { text: "코소보", value: "XKX" },
+        { text: "코스타리카", value: "CRI" },
+        { text: "코트디부아르", value: "CIV" },
+        { text: "콜롬비아", value: "COL" },
+        { text: "콩고공화국", value: "COG" },
+        { text: "콩고민주공화국", value: "COD" },
+        { text: "쿠바", value: "CUB" },
+        { text: "쿠웨이트", value: "KWT" },
+        { text: "쿡제도", value: "COK" },
+        { text: "크로아티아", value: "HRV" },
+        { text: "키르기스스탄", value: "KGZ" },
+        { text: "키리바시", value: "KIR" },
+        { text: "키프로스", value: "CYP" },
+        { text: "타지키스탄", value: "TJK" },
+        { text: "탄자니아", value: "TZA" },
+        { text: "태국", value: "THA" },
+        { text: "토고", value: "TGO" },
+        { text: "통가", value: "TON" },
+        { text: "투르크메니스탄", value: "TKM" },
+        { text: "투발루", value: "TUV" },
+        { text: "튀니지", value: "TUN" },
+        { text: "터키", value: "TUR" },
+        { text: "트리니다드토바고", value: "TTO" },
+        { text: "파나마", value: "PAN" },
+        { text: "파라과이", value: "PRY" },
+        { text: "파키스탄", value: "PAK" },
+        { text: "파푸아뉴기니", value: "PNG" },
+        { text: "팔라우", value: "PLW" },
+        { text: "팔레스타인", value: "PSE" },
+        { text: "페루", value: "PER" },
+        { text: "포르투갈", value: "PRT" },
+        { text: "폴란드", value: "POL" },
+        { text: "프랑스", value: "FRA" },
+        { text: "피지", value: "FJI" },
+        { text: "핀란드", value: "FIN" },
+        { text: "필리핀", value: "PHL" },
+        { text: "헝가리", value: "HUN" },
+        { text: "홍콩", value: "HKG" },
+        { text: "러시아", value: "RUS" },
         { text: "기타", value: "ETC" },
       ],
 
@@ -940,11 +796,40 @@ export default {
         genderType: false,
         roleId: false,
       },
+
+      activeTab: 0,
+      datePickerMenu: false,
+      selectedDate: null,
+      newMembersHeaders: [
+        { text: "이름", value: "name" },
+        { text: "성별", value: "genderType" },
+        { text: "조직", value: "organizationName" },
+        { text: "등록일", value: "registrationDate" },
+        { text: "관리", value: "actions", sortable: false, align: "right" },
+      ],
+      allNewMembers: [], // 모든 새가족 데이터
+      loadingAllMembers: false,
+      startDatePickerMenu: false,
+      startDate: null,
+      endDatePickerMenu: false,
+      endDate: null,
+      dateGrouping: "week",
     };
   },
 
   computed: {
     ...mapState("auth", ["userInfo"]),
+
+    // 필터링된 검색 결과
+    filteredOrganizationResults() {
+      if (this.searchType === "member") return [];
+      return this.searchResults.filter((item) => item.type === "organization");
+    },
+
+    filteredMemberResults() {
+      if (this.searchType === "organization") return [];
+      return this.searchResults.filter((item) => item.type === "member");
+    },
 
     // 조직 선택 드롭다운 아이템
     organizationSelectItems() {
@@ -962,6 +847,249 @@ export default {
         JSON.stringify(this.originalMember)
       );
     },
+
+    // 날짜별 필터링된 새가족 목록
+    filteredNewMembers() {
+      if (!this.allNewMembers || !Array.isArray(this.allNewMembers)) {
+        return [];
+      }
+
+      // 날짜 필터가 설정된 경우
+      if (this.startDate && this.endDate) {
+        return this.allNewMembers.filter((member) => {
+          if (!member.registrationDate) return false;
+
+          // YYYY-MM-DD 형식으로 변환
+          let memberDate = member.registrationDate;
+          if (memberDate.length === 8) {
+            // YYYYMMDD 형식을 YYYY-MM-DD로 변환
+            memberDate = `${memberDate.substring(0, 4)}-${memberDate.substring(
+              4,
+              6
+            )}-${memberDate.substring(6, 8)}`;
+          }
+
+          return memberDate >= this.startDate && memberDate <= this.endDate;
+        });
+      }
+
+      // 날짜 필터가 없는 경우 모든 새가족 목록 반환
+      return this.allNewMembers;
+    },
+
+    // 날짜별 그룹화된 새가족 목록
+    groupedNewMembers() {
+      const members = this.filteredNewMembers;
+      if (
+        !members ||
+        !Array.isArray(members) ||
+        !this.dateGrouping ||
+        this.dateGrouping === "none"
+      ) {
+        return {};
+      }
+
+      const grouped = {};
+
+      // 주차별 그룹핑을 위한 날짜 계산 함수
+      const getWeekGroup = (dateStr) => {
+        const today = new Date();
+        const targetDate = new Date(dateStr);
+
+        // 현재 날짜의 주의 시작일(일요일)과 종료일(토요일) 구하기
+        const currentWeekStart = new Date(today);
+        const dayOfWeek = today.getDay(); // 0: 일요일, 1: 월요일, ..., 6: 토요일
+        currentWeekStart.setDate(today.getDate() - dayOfWeek); // 이번주 일요일
+
+        const oneWeekAgo = new Date(currentWeekStart);
+        oneWeekAgo.setDate(oneWeekAgo.getDate() - 7); // 저번주 일요일
+
+        const twoWeeksAgo = new Date(oneWeekAgo);
+        twoWeeksAgo.setDate(twoWeeksAgo.getDate() - 7); // 저저번주 일요일
+
+        const threeWeeksAgo = new Date(twoWeeksAgo);
+        threeWeeksAgo.setDate(threeWeeksAgo.getDate() - 7); // 3주 전 일요일
+
+        const fourWeeksAgo = new Date(threeWeeksAgo);
+        fourWeeksAgo.setDate(fourWeeksAgo.getDate() - 7); // 4주 전 일요일
+
+        // 어느 주차에 속하는지 확인
+        if (targetDate >= currentWeekStart) {
+          return { key: "thisWeek", label: "이번 주" };
+        } else if (targetDate >= oneWeekAgo) {
+          return { key: "lastWeek", label: "지난 주" };
+        } else if (targetDate >= twoWeeksAgo) {
+          return { key: "twoWeeksAgo", label: "2주 전" };
+        } else if (targetDate >= threeWeeksAgo) {
+          return { key: "threeWeeksAgo", label: "3주 전" };
+        } else if (targetDate >= fourWeeksAgo) {
+          return { key: "fourWeeksAgo", label: "4주 전" };
+        } else {
+          // 4주 이전의 날짜는 월별로 그룹화
+          const month = targetDate.getMonth() + 1;
+          const year = targetDate.getFullYear();
+          return {
+            key: `${year}-${month.toString().padStart(2, "0")}`,
+            label: `${year}년 ${month}월`,
+          };
+        }
+      };
+
+      for (const member of members) {
+        if (!member.registrationDate) continue;
+
+        // YYYY-MM-DD 형식으로 변환
+        let dateStr = member.registrationDate;
+        if (dateStr.length === 8) {
+          // YYYYMMDD 형식을 YYYY-MM-DD로 변환
+          const year = dateStr.substring(0, 4);
+          const month = dateStr.substring(4, 6);
+          const day = dateStr.substring(6, 8);
+          dateStr = `${year}-${month}-${day}`;
+        }
+
+        // 그룹화 기준에 따라 키 생성
+        let groupKey = "";
+
+        if (this.dateGrouping === "week") {
+          // 주차별 그룹화
+          const weekGroup = getWeekGroup(dateStr);
+          groupKey = weekGroup.key;
+        } else if (this.dateGrouping === "day") {
+          // 일별 그룹화: YYYY-MM-DD
+          groupKey = dateStr;
+        } else if (this.dateGrouping === "month") {
+          // 월별 그룹화: YYYY-MM
+          groupKey = dateStr.substring(0, 7);
+        } else if (this.dateGrouping === "year") {
+          // 연별 그룹화: YYYY
+          groupKey = dateStr.substring(0, 4);
+        }
+
+        if (!groupKey) continue;
+
+        // 그룹에 추가
+        if (!grouped[groupKey]) {
+          grouped[groupKey] = [];
+        }
+        grouped[groupKey].push(member);
+      }
+
+      // 그룹 키 정렬 및 표시 이름 설정
+      const sortedGrouped = {};
+
+      // 주차별 그룹핑인 경우 특별 처리
+      if (this.dateGrouping === "week") {
+        // 주차 순서 정의
+        const weekOrder = [
+          "thisWeek",
+          "lastWeek",
+          "twoWeeksAgo",
+          "threeWeeksAgo",
+          "fourWeeksAgo",
+        ];
+
+        // 먼저 주차 그룹 정렬
+        weekOrder.forEach((weekKey) => {
+          if (grouped[weekKey]) {
+            // 주차별 라벨 설정
+            let label;
+            switch (weekKey) {
+              case "thisWeek":
+                label = "이번 주";
+                break;
+              case "lastWeek":
+                label = "지난 주";
+                break;
+              case "twoWeeksAgo":
+                label = "2주 전";
+                break;
+              case "threeWeeksAgo":
+                label = "3주 전";
+                break;
+              case "fourWeeksAgo":
+                label = "4주 전";
+                break;
+              default:
+                label = weekKey;
+            }
+
+            sortedGrouped[label] = grouped[weekKey];
+          }
+        });
+
+        // 그 다음 기타 월별 그룹 추가 (4주 이전 데이터)
+        const otherKeys = Object.keys(grouped)
+          .filter((key) => !weekOrder.includes(key))
+          .sort((a, b) => b.localeCompare(a));
+
+        otherKeys.forEach((key) => {
+          // 월별 포맷인 경우
+          if (key.match(/^\d{4}-\d{2}$/)) {
+            const [year, month] = key.split("-");
+            sortedGrouped[`${year}년 ${month}월`] = grouped[key];
+          } else {
+            sortedGrouped[key] = grouped[key];
+          }
+        });
+      } else {
+        // 기존 정렬 로직
+        Object.keys(grouped)
+          .sort((a, b) => b.localeCompare(a))
+          .forEach((key) => {
+            // 그룹 표시용 라벨 형식화
+            let displayKey = key;
+            if (this.dateGrouping === "month") {
+              const [year, month] = key.split("-");
+              displayKey = `${year}년 ${month}월`;
+            } else if (this.dateGrouping === "year") {
+              displayKey = `${key}년`;
+            } else if (this.dateGrouping === "day") {
+              const [year, month, day] = key.split("-");
+              displayKey = `${year}년 ${month}월 ${day}일`;
+            }
+
+            sortedGrouped[displayKey] = grouped[key];
+          });
+      }
+
+      return sortedGrouped;
+    },
+  },
+
+  watch: {
+    // 활성 탭 변경을 감지
+    activeTab(newVal) {
+      // 새가족 탭이 선택된 경우(index 1)
+      if (newVal === 1) {
+        this.loadAllNewMembers();
+      }
+    },
+
+    // 날짜 필터 변경 감지
+    startDate() {
+      // 시작일만 설정된 경우 종료일도 자동으로 설정
+      if (this.startDate && !this.endDate) {
+        this.endDate = this.startDate;
+      }
+    },
+
+    endDate() {
+      // 종료일만 설정된 경우 시작일도 자동으로 설정
+      if (this.endDate && !this.startDate) {
+        this.startDate = this.endDate;
+      }
+
+      // 종료일이 시작일보다 이전이면 시작일을 종료일로 조정
+      if (this.startDate && this.endDate && this.endDate < this.startDate) {
+        this.startDate = this.endDate;
+      }
+    },
+
+    // 날짜 그룹화 옵션 변경 감지
+    dateGrouping(newVal) {
+      console.log("날짜 그룹화 옵션 변경:", newVal);
+    },
   },
 
   created() {
@@ -974,9 +1102,9 @@ export default {
 
       // 사용자 정보 확인
       if (this.userInfo && this.userInfo.id) {
-        console.log("사용자 정보 확인:", this.userInfo.id);
+        // 사용자 정보 확인
       } else {
-        console.warn("사용자 정보가 없습니다.");
+        // 사용자 정보가 없습니다
       }
 
       // 조직 트리 초기화
@@ -989,45 +1117,38 @@ export default {
           // 조직 데이터 로드 및 멤버 수 계산
           this.fetchOrganizationsOnly()
             .then(() => {
-              console.log("조직 데이터 로드 완료, 멤버 수 계산 시작");
               this.calculateMemberCounts();
             })
-            .catch((error) => {
-              console.error("조직 데이터 로드 중 오류:", error);
+            .catch(() => {
+              // 조직 데이터 로드 중 오류
             });
         });
       }
-    } catch (error) {
-      console.error("초기화 중 오류 발생:", error);
+    } catch {
+      // 초기화 중 오류 발생
       this.organizations = [];
       this.organizationTree = [];
     }
   },
 
   mounted() {
-    console.log("OrganizationManagementView 마운트됨");
-
     // 인증된 상태인 경우에만 조직 데이터 로드
     if (this.isAuthenticated) {
       // 조직 데이터가 없으면 다시 로드
       if (!this.organizations || this.organizations.length === 0) {
-        console.log("마운트 시 조직 데이터 없음, 다시 로드");
         this.fetchOrganizationsOnly()
           .then(() => {
-            console.log("마운트 후 조직 데이터 로드 완료");
             // 첫 번째 조직 자동 선택
             this.$nextTick(() => {
               if (this.organizationTree && this.organizationTree.length > 0) {
-                console.log("첫 번째 조직 자동 선택");
                 this.selectFirstLeafNode(this.organizationTree);
               }
             });
           })
-          .catch((error) => {
-            console.error("마운트 후 조직 데이터 로드 중 오류:", error);
+          .catch(() => {
+            // 마운트 후 조직 데이터 로드 중 오류
           });
       } else {
-        console.log("마운트 시 조직 데이터 있음, 첫 번째 조직 선택");
         // 첫 번째 조직 자동 선택
         this.$nextTick(() => {
           if (this.organizationTree && this.organizationTree.length > 0) {
@@ -1048,6 +1169,221 @@ export default {
   },
 
   methods: {
+    // 검색 관련 메서드 추가
+    debounceSearch() {
+      clearTimeout(this.searchDebounceTimeout);
+      this.searchDebounceTimeout = setTimeout(() => {
+        this.searchItems();
+      }, 300); // 300ms 디바운싱
+    },
+
+    hideSearchResultsDelayed() {
+      clearTimeout(this.searchResultsTimeout);
+      this.searchResultsTimeout = setTimeout(() => {
+        this.showSearchResults = false;
+      }, 200);
+    },
+
+    searchItems() {
+      // 검색어가 없으면 검색 결과 초기화
+      if (!this.searchQuery.trim()) {
+        this.searchResults = [];
+        this.showSearchResults = false;
+        return;
+      }
+
+      const query = this.searchQuery.toLowerCase().trim();
+      const results = [];
+
+      // 검색 타입에 따라 다른 검색 로직 적용
+      if (this.searchType === "all" || this.searchType === "organization") {
+        // 조직 검색 로직
+        this.searchOrganizations(query, results);
+      }
+
+      if (this.searchType === "all" || this.searchType === "member") {
+        // 멤버 검색 로직
+        this.searchMembers(query, results);
+      }
+
+      this.searchResults = results;
+      this.showSearchResults = results.length > 0;
+    },
+
+    searchOrganizations(query, results) {
+      const searchInOrganizations = (orgs) => {
+        orgs.forEach((org) => {
+          if (org.organization_name.toLowerCase().includes(query)) {
+            // 최하위 조직(isLeafNode가 true)인 경우에만 결과에 추가
+            if (org.isLeafNode) {
+              results.push({
+                type: "organization",
+                id: org.id,
+                organization_name: org.organization_name,
+                organization_code: org.organization_code,
+                memberCount: org.memberCount,
+                isLeafNode: org.isLeafNode,
+                path: this.getOrganizationPath(org.id),
+              });
+            }
+          }
+
+          if (org.children && org.children.length > 0) {
+            searchInOrganizations(org.children);
+          }
+        });
+      };
+
+      searchInOrganizations(this.organizationTree);
+    },
+
+    searchMembers(query, results) {
+      // 아직 모든 멤버가 로드되지 않았다면 로드
+      if (!this.allMembersLoaded) {
+        this.loadAllMembers();
+      }
+
+      // 모든 멤버 검색
+      const allMembers = this.getAllCachedMembers();
+
+      allMembers.forEach((member) => {
+        if (
+          (member.name && member.name.toLowerCase().includes(query)) ||
+          (member.phoneNumber && member.phoneNumber.includes(query)) ||
+          (member.email &&
+            member.email &&
+            member.email.toLowerCase().includes(query))
+        ) {
+          results.push({
+            type: "member",
+            userId: member.userId,
+            name: member.name,
+            phoneNumber: member.phoneNumber,
+            organizationId: member.organizationId,
+            organizationName: member.organizationName,
+          });
+        }
+      });
+    },
+
+    getAllCachedMembers() {
+      // 모든 캐시된 멤버를 합쳐서 반환
+      let allMembers = [];
+
+      // 현재 선택된 조직의 멤버 추가
+      if (this.selectedOrganization && this.members.length > 0) {
+        allMembers = this.members.map((member) => ({
+          ...member,
+          organizationId: this.selectedOrganization.id,
+          organizationName: this.selectedOrganization.organization_name,
+        }));
+      }
+
+      // 캐시된 다른 조직의 멤버들 추가
+      Object.entries(this.memberCache).forEach(([orgId, data]) => {
+        // 현재 선택된 조직의 멤버는 이미 추가됨
+        if (
+          this.selectedOrganization &&
+          this.selectedOrganization.id === Number(orgId)
+        ) {
+          return;
+        }
+
+        if (data.members && Array.isArray(data.members)) {
+          const membersWithOrg = data.members.map((member) => ({
+            ...member,
+            organizationId: Number(orgId),
+            organizationName: data.organization_name,
+          }));
+          allMembers = allMembers.concat(membersWithOrg);
+        }
+      });
+
+      return allMembers;
+    },
+
+    getOrganizationPath(orgId) {
+      // 조직 ID로부터 경로 배열 구하기
+      const findPath = (orgs, targetId, currentPath = []) => {
+        for (const org of orgs) {
+          const newPath = [...currentPath, org.id];
+          if (org.id === targetId) {
+            return newPath;
+          }
+
+          if (org.children && org.children.length > 0) {
+            const found = findPath(org.children, targetId, newPath);
+            if (found) return found;
+          }
+        }
+        return null;
+      };
+
+      return findPath(this.organizationTree, orgId) || [];
+    },
+
+    selectSearchedOrganization(org) {
+      this.showSearchResults = false;
+      this.highlightedMemberId = null;
+
+      // 해당 조직의 경로 펼치기
+      if (org.path && org.path.length > 0) {
+        this.expandedOrganizationIds = org.path;
+
+        // OrganizationTree 컴포넌트에 확장 정보 전달
+        this.$nextTick(() => {
+          // 선택된 조직으로 이동 및 멤버 로드
+          if (org.isLeafNode) {
+            this.selectOrganization(org);
+          }
+        });
+      }
+    },
+
+    selectSearchedMember(member) {
+      this.showSearchResults = false;
+      this.highlightedMemberId = member.userId;
+
+      // 해당 멤버의 조직으로 이동
+      if (member.organizationId) {
+        const org = this.findOrganizationById(member.organizationId);
+        if (org) {
+          this.selectSearchedOrganization(org);
+
+          // 멤버 목록에서 해당 멤버 하이라이트
+          this.$nextTick(() => {
+            // 멤버 하이라이트 로직 (CSS 클래스 등으로 구현)
+          });
+        }
+      }
+    },
+
+    findOrganizationById(orgId) {
+      const findOrg = (orgs) => {
+        for (const org of orgs) {
+          if (org.id === orgId) {
+            return {
+              type: "organization",
+              id: org.id,
+              organization_name: org.organization_name,
+              organization_code: org.organization_code,
+              memberCount: org.memberCount,
+              isLeafNode: org.isLeafNode,
+              path: this.getOrganizationPath(org.id),
+            };
+          }
+
+          if (org.children && org.children.length > 0) {
+            const found = findOrg(org.children);
+            if (found) return found;
+          }
+        }
+        return null;
+      };
+
+      return findOrg(this.organizationTree);
+    },
+
     // 비밀번호 확인 메서드
     checkPassword() {
       this.loading = true;
@@ -1065,11 +1401,10 @@ export default {
           this.$nextTick(() => {
             this.fetchOrganizationsOnly()
               .then(() => {
-                console.log("조직 데이터 로드 완료, 멤버 수 계산 시작");
                 this.calculateMemberCounts();
               })
-              .catch((error) => {
-                console.error("조직 데이터 로드 중 오류:", error);
+              .catch(() => {
+                // 조직 데이터 로드 중 오류
               });
           });
         } else {
@@ -1106,7 +1441,6 @@ export default {
           this.organizationCacheExpiry &&
           now < this.organizationCacheExpiry
         ) {
-          console.log("캐시된 조직 데이터 사용 중...");
           this.organizations = this.cachedOrganizations;
 
           // 조직 트리 구성
@@ -1116,42 +1450,31 @@ export default {
 
           // 조직 정보를 가져온 후 멤버 수 계산
           this.calculateMemberCounts();
+
+          // 모든 조직 정보를 가져온 후, 멤버 캐시 초기화
+          this.memberCache = {};
+          this.allMembersLoaded = false;
+
           return;
         }
 
-        console.log("API에서 조직 데이터 가져오기 시작...");
         const response = await this.getAllOrganizations(true);
-        console.log("API에서 가져온 조직 데이터:", response);
 
         // API 응답 구조 확인 및 데이터 추출
         let organizations = [];
         if (response && response.data && Array.isArray(response.data)) {
           // API 응답에서 data 배열을 추출
           organizations = response.data;
-          console.log("API 응답에서 data 배열 추출:", organizations.length);
         } else if (Array.isArray(response)) {
           // 응답이 직접 배열인 경우
           organizations = response;
-          console.log("API 응답이 직접 배열인 경우:", organizations.length);
         } else {
-          console.error("API 응답 형식이 예상과 다릅니다:", response);
           // 더미 데이터 사용
           organizations = this.getDummyOrganizations();
-          console.log("더미 데이터 사용:", organizations.length);
         }
-
-        // 디버깅: 모든 조직 정보 출력
-        console.log("처리된 조직 데이터:", organizations);
-
-        // 각 조직 ID 출력
-        console.log(
-          "조직 ID 목록:",
-          organizations.map((org) => org.id)
-        );
 
         // 유효한 조직 데이터가 있는지 확인
         if (!organizations || organizations.length === 0) {
-          console.log("조직 데이터가 없습니다. 더미 데이터를 사용합니다.");
           organizations = this.getDummyOrganizations();
         }
 
@@ -1162,35 +1485,27 @@ export default {
 
         // 모든 조직 데이터 사용 (특정 ID 필터링 제거)
         this.organizations = organizations;
-        console.log("최종 조직 데이터 설정 완료:", this.organizations.length);
 
         // 조직 데이터 캐싱
         this.cachedOrganizations = JSON.parse(JSON.stringify(organizations)); // 깊은 복사
         this.organizationCacheExpiry =
           new Date().getTime() + this.organizationCacheDuration;
-        console.log(
-          "조직 데이터 캐싱 완료, 만료 시간:",
-          new Date(this.organizationCacheExpiry)
-        );
 
         // 조직 트리 구성
         this.organizationTree = this.buildOrganizationTree(this.organizations);
-
-        // 디버깅: 생성된 트리 구조 출력
-        console.log("생성된 조직 트리:", this.organizationTree);
-        console.log("조직 트리 항목 수:", this.organizationTree.length);
 
         // 조직 정보를 가져온 후 멤버 수 계산
         this.calculateMemberCounts();
-      } catch (error) {
-        console.error("조직 목록 조회 중 오류 발생:", error);
+
+        // 모든 조직 정보를 가져온 후, 멤버 캐시 초기화
+        this.memberCache = {};
+        this.allMembersLoaded = false;
+      } catch {
         // 오류 발생 시 더미 데이터 사용
         this.organizations = this.getDummyOrganizations();
-        console.log("오류로 인한 더미 데이터 사용:", this.organizations.length);
 
         // 조직 트리 구성
         this.organizationTree = this.buildOrganizationTree(this.organizations);
-        console.log("오류 후 생성된 조직 트리:", this.organizationTree);
       }
     },
 
@@ -1202,8 +1517,6 @@ export default {
       ) {
         return;
       }
-
-      console.log("멤버 수 계산 시작...");
 
       try {
         // 1. 먼저 모든 조직의 멤버 수를 0으로 초기화
@@ -1219,8 +1532,6 @@ export default {
             )
         );
 
-        console.log(`최하위 조직 ${leafOrgs.length}개 발견`);
-
         // 3. 각 최하위 조직의 멤버 수를 API로 가져옴
         for (const org of leafOrgs) {
           try {
@@ -1229,17 +1540,10 @@ export default {
             // 유효한 멤버 배열인 경우 멤버 수 설정
             if (members && Array.isArray(members)) {
               org.memberCount = members.length;
-              console.log(
-                `조직 ID ${org.id} (${org.organization_name}): 멤버 ${org.memberCount}명`
-              );
             } else {
               org.memberCount = 0;
-              console.log(
-                `조직 ID ${org.id} (${org.organization_name}): 멤버 없음`
-              );
             }
-          } catch (error) {
-            console.error(`조직 ID ${org.id} 멤버 조회 오류:`, error);
+          } catch {
             org.memberCount = 0;
           }
         }
@@ -1288,13 +1592,7 @@ export default {
         }
 
         // 레벨별로 멤버 수 계산 (낮은 레벨부터)
-        console.log(`조직 레벨 수: ${orgLevels.length}`);
-
-        orgLevels.forEach((levelOrgs, level) => {
-          console.log(
-            `레벨 ${level + 1} 조직 처리 중... (${levelOrgs.length}개)`
-          );
-
+        orgLevels.forEach((levelOrgs) => {
           levelOrgs.forEach((org) => {
             // 하위 조직 찾기
             const childOrgs = this.organizations.filter(
@@ -1308,17 +1606,13 @@ export default {
             });
 
             org.memberCount = totalMembers;
-            console.log(
-              `상위 조직 ID ${org.id} (${org.organization_name}): 멤버 ${org.memberCount}명 (하위 조직 ${childOrgs.length}개)`
-            );
           });
         });
 
         // 5. 트리 다시 구성 (멤버 수 정보 반영)
         this.organizationTree = this.buildOrganizationTree(this.organizations);
-        console.log("멤버 수 계산 완료");
-      } catch (error) {
-        console.error("멤버 수 계산 중 오류 발생:", error);
+      } catch {
+        // 멤버 수 계산 중 오류 발생
       }
     },
 
@@ -1447,8 +1741,7 @@ export default {
         this.$nextTick(() => {
           this.calculateMemberCounts();
         });
-      } catch (error) {
-        console.error("조직 저장 중 오류 발생:", error);
+      } catch (_) {
         alert("조직 저장 중 오류가 발생했습니다. 관리자에게 문의하세요.");
       }
     },
@@ -1463,14 +1756,35 @@ export default {
     // 멤버 관련 메서드
     async fetchMembers(organizationId) {
       if (!organizationId) {
-        console.error("유효하지 않은 조직 ID입니다.");
         this.members = [];
         return;
       }
 
       this.loadingMembers = true;
       try {
-        const members = await this.getMembersWithRoles(organizationId, true);
+        let members;
+
+        // 이미 캐시된 데이터가 있으면 사용
+        if (
+          this.memberCache[organizationId] &&
+          this.memberCache[organizationId].members
+        ) {
+          members = this.memberCache[organizationId].members;
+        } else {
+          members = await this.getMembersWithRoles(organizationId, true);
+
+          // 유효한 멤버 배열인 경우 캐시에 저장
+          if (members && Array.isArray(members)) {
+            // 조직 정보 찾기
+            const organization = this.findOrganizationById(organizationId);
+            this.memberCache[organizationId] = {
+              members,
+              organization_name: organization
+                ? organization.organization_name
+                : `조직 ID: ${organizationId}`,
+            };
+          }
+        }
 
         // 404 에러 처리 - 해당 조직에 소속된 멤버가 없는 경우
         if (
@@ -1482,63 +1796,28 @@ export default {
               members.error.response &&
               members.error.response.status === 404))
         ) {
-          console.log(`조직 ID ${organizationId}에 소속된 멤버가 없습니다.`);
           this.members = [];
           return;
         }
 
         // API 호출 결과가 유효하지 않은 경우 빈 배열 사용 (더미 데이터 대신)
         if (!members || members.error || !Array.isArray(members)) {
-          console.log(
-            `조직 ID ${organizationId}의 멤버 데이터를 가져오지 못했습니다.`
-          );
           this.members = [];
           return;
         }
 
-        // 멤버 데이터 정렬 (MemberListView.vue 참고)
-        members.sort((a, b) => {
-          // 역할 우선순위에 따른 정렬
-          const roleOrder = {
-            그룹장: 1,
-            부그룹장: 2,
-            순장: 3,
-            EBS: 4,
-          };
+        // 멤버 데이터 정렬
+        this.members = this.sortMembers(members);
 
-          // 역할 우선순위 확인 (지정된 역할이 없으면 높은 값 할당)
-          const roleA =
-            roleOrder[a.roleName] !== undefined ? roleOrder[a.roleName] : 10;
-          const roleB =
-            roleOrder[b.roleName] !== undefined ? roleOrder[b.roleName] : 10;
-
-          // 역할 우선순위가 다르면 그에 따라 정렬
-          if (roleA !== roleB) {
-            return roleA - roleB;
-          }
-
-          // 역할 우선순위가 같거나 지정되지 않은 역할인 경우
-          // 새가족 여부로 정렬 (새가족이 위에)
-          if (a.isNewMember === "Y" && b.isNewMember !== "Y") return -1;
-          if (a.isNewMember !== "Y" && b.isNewMember === "Y") return 1;
-
-          // 장기결석자 정렬
-          if (a.isLongTermAbsentee === "Y" && b.isLongTermAbsentee !== "Y")
-            return -1;
-          if (a.isLongTermAbsentee !== "Y" && b.isLongTermAbsentee === "Y")
-            return 1;
-
-          // 이름 알파벳 순 정렬
-          return a.name.localeCompare(b.name);
-        });
-
-        this.members = members;
+        // 멤버 목록이 로드된 후 하이라이트된 멤버가 있으면 강조 표시
+        if (this.highlightedMemberId) {
+          this.$nextTick(() => {
+            this.highlightMember(this.highlightedMemberId);
+          });
+        }
       } catch (error) {
-        console.error("멤버 목록 조회 중 오류 발생:", error);
-
         // 404 에러인 경우 - 해당 조직에 소속된 멤버가 없는 경우
         if (error.response && error.response.status === 404) {
-          console.log(`조직 ID ${organizationId}에 소속된 멤버가 없습니다.`);
           this.members = [];
         } else {
           // 다른 오류 발생 시 빈 배열 사용 (더미 데이터 대신)
@@ -1549,6 +1828,46 @@ export default {
       }
     },
 
+    // 멤버 데이터 정렬 메서드
+    sortMembers(members) {
+      if (!members || !Array.isArray(members)) return [];
+
+      return [...members].sort((a, b) => {
+        // 역할 우선순위에 따른 정렬
+        const roleOrder = {
+          그룹장: 1,
+          부그룹장: 2,
+          순장: 3,
+          EBS: 4,
+        };
+
+        // 역할 우선순위 확인 (지정된 역할이 없으면 높은 값 할당)
+        const roleA =
+          roleOrder[a.roleName] !== undefined ? roleOrder[a.roleName] : 10;
+        const roleB =
+          roleOrder[b.roleName] !== undefined ? roleOrder[b.roleName] : 10;
+
+        // 역할 우선순위가 다르면 그에 따라 정렬
+        if (roleA !== roleB) {
+          return roleA - roleB;
+        }
+
+        // 역할 우선순위가 같거나 지정되지 않은 역할인 경우
+        // 새가족 여부로 정렬 (새가족이 위에)
+        if (a.isNewMember === "Y" && b.isNewMember !== "Y") return -1;
+        if (a.isNewMember !== "Y" && b.isNewMember === "Y") return 1;
+
+        // 장기결석자 정렬
+        if (a.isLongTermAbsentee === "Y" && b.isLongTermAbsentee !== "Y")
+          return -1;
+        if (a.isLongTermAbsentee !== "Y" && b.isLongTermAbsentee === "Y")
+          return 1;
+
+        // 이름 알파벳 순 정렬
+        return a.name.localeCompare(b.name);
+      });
+    },
+
     openMemberDialog(member = null) {
       if (member) {
         // 기존 멤버 수정
@@ -1557,23 +1876,30 @@ export default {
         this.originalMember = { ...member };
         console.log("멤버 수정 모드:", this.editedMember);
       } else {
+        // 오늘 날짜를 YYYYMMDD 형식으로 가져오기
+        const today = new Date();
+        const year = today.getFullYear();
+        const month = String(today.getMonth() + 1).padStart(2, "0");
+        const day = String(today.getDate()).padStart(2, "0");
+        const todayFormatted = `${year}${month}${day}`;
+
         // 새 멤버 추가
         console.group("🆕 [Debug] 새 멤버 기본값 설정");
         this.editedMember = {
           userId: null,
-          name: "",
+          name: "", // 이름은 빈 값으로 시작 (사용자 입력 필요)
           nameSuffix: "FFF", // 기본값 FFF로 설정
           phoneNumber: "00000000000", // 기본값 00000000000으로 설정
-          genderType: "M",
+          genderType: "M", // 기본값 M으로 설정
           email: "email@email.com", // 기본값 email@email.com으로 설정
           birthDate: null,
           isNewMember: "Y", // 신규 멤버는 자동으로 새가족으로 설정
           isLongTermAbsentee: "N",
           isKakaotalkChatMember: "N",
-          roleId: 74,
+          roleId: 74, // 기본값 74 (순원)로 설정
           roleName: "순원",
           memberNumber: "",
-          registrationDate: null,
+          registrationDate: todayFormatted, // 오늘 날짜로 설정
           countryCode: "KOR",
           address: "",
           addressDetail: "",
@@ -1594,6 +1920,7 @@ export default {
           isNewMember: this.editedMember.isNewMember,
           roleId: this.editedMember.roleId,
           roleName: this.editedMember.roleName,
+          registrationDate: this.editedMember.registrationDate, // 교회 등록일 표시 추가
         });
         console.groupEnd();
 
@@ -1640,15 +1967,10 @@ export default {
 
     // 임의의 데이터 생성 메서드 추가
     generateRandomData(name) {
-      // 이름에 기반한 랜덤 문자열 생성 (중복 방지)
       const randomSuffix = Math.floor(Math.random() * 9000 + 1000);
-      // name 매개변수 사용 (memberNumber에 이름 첫 글자 활용)
       const firstChar = name ? name.charAt(0).toUpperCase() : "M";
 
-      console.group("🎲 [Debug] 임의 데이터 생성");
-      console.log("이름 파라미터:", name || "없음");
-
-      const randomData = {
+      return {
         birthDate: "1990-01-01",
         memberNumber: `${firstChar}${randomSuffix}`,
         address: "서울특별시 강남구",
@@ -1656,509 +1978,306 @@ export default {
         postcode: `0${randomSuffix}`,
         hobby: "독서",
       };
-      console.log("생성된 임의 데이터:", randomData);
-      console.groupEnd();
-
-      return randomData;
     },
 
     // 필드 유효성 검사 메서드 추가
     validateFields() {
-      // 초기화
+      // 디버깅을 위한 로그 추가
+      console.group("필드 유효성 검사 결과");
+      console.log("이름:", this.editedMember.name);
+      console.log("전화번호:", this.editedMember.phoneNumber);
+      console.log("성별:", this.editedMember.genderType);
+      console.log("역할ID:", this.editedMember.roleId);
+
+      // 00000000000은 유효한 전화번호로 인정
       this.validationErrors = {
-        name: false,
-        phoneNumber: false,
-        genderType: false,
-        roleId: false,
+        name: !this.editedMember.name || this.editedMember.name.trim() === "",
+        phoneNumber:
+          !this.editedMember.phoneNumber ||
+          this.editedMember.phoneNumber.trim() === "",
+        genderType: !this.editedMember.genderType,
+        roleId: !this.editedMember.roleId,
       };
 
-      // 필수 필드 검사
-      let isValid = true;
+      console.log("유효성 검사 오류:", this.validationErrors);
+      console.groupEnd();
 
-      if (!this.editedMember.name || this.editedMember.name.trim() === "") {
-        this.validationErrors.name = true;
-        isValid = false;
-      }
-
-      if (
-        !this.editedMember.phoneNumber ||
-        this.editedMember.phoneNumber.trim() === ""
-      ) {
-        this.validationErrors.phoneNumber = true;
-        isValid = false;
-      }
-
-      if (!this.editedMember.genderType) {
-        this.validationErrors.genderType = true;
-        isValid = false;
-      }
-
-      if (!this.editedMember.roleId) {
-        this.validationErrors.roleId = true;
-        isValid = false;
-      }
-
-      return isValid;
+      return !Object.values(this.validationErrors).some((v) => v === true);
     },
 
-    async saveMember() {
-      if (this.savingMember) {
-        console.log(
-          "🚫 [Save/Update Member] 이미 저장 중입니다. 중복 요청을 방지합니다."
-        );
-        return; // 이미 저장 중이면 중복 호출 방지
-      }
+    async saveMember(memberData) {
+      if (this.savingMember) return; // 중복 호출 방지
 
-      this.savingMember = true; // 저장 시작 표시
-      console.time("멤버 저장 작업 시간");
+      this.savingMember = true;
 
       try {
-        console.group("🔄 [Debug] 멤버 저장 시작");
-        console.log(
-          "🛠️ [Save/Update Member] 멤버 정보 저장/업데이트를 시작합니다."
-        );
-        console.log("현재 멤버 데이터:", this.editedMember);
-        console.log(
-          "작업 유형:",
-          this.editedMember.userId ? "멤버 수정" : "신규 멤버 추가"
-        );
+        // 전달받은 멤버 데이터로 업데이트
+        if (memberData) {
+          this.editedMember = { ...memberData };
+        }
+
+        // 디버깅 로그 추가
+        console.group("멤버 저장 시도");
+        console.log("멤버 데이터:", JSON.stringify(this.editedMember, null, 2));
         console.groupEnd();
 
+        // 기본 검증
         if (!this.selectedOrganization) {
-          console.error("선택된 조직이 없습니다.");
-          alert("선택된 조직이 없습니다. 조직을 먼저 선택해주세요.");
+          this.showErrorMessage(
+            "선택된 조직이 없습니다. 조직을 먼저 선택해주세요."
+          );
           this.savingMember = false;
           return;
         }
 
-        // 유효성 검사 실행
+        // 유효성 검사
         if (!this.validateFields()) {
-          console.warn("⚠️ [Validation] 필수 정보가 누락되었습니다.");
-
-          // 스낵바와 알럿 모두 표시
-          this.$store.dispatch("snackbar/showMessage", {
-            message: `필수 항목을 입력해주세요.`,
-            color: "error",
-          });
-
-          alert("모든 필수 항목(*)을 입력해주세요.");
+          this.showErrorMessage("모든 필수 항목(*)을 입력해주세요.");
           this.savingMember = false;
           return;
         }
 
-        // 역할 ID가 없는 경우 기본값 설정 (순원: 74)
+        // 역할 ID 기본값 설정
         if (!this.editedMember.roleId) {
-          console.log("역할 ID가 없어서 기본값 74(순원)으로 설정합니다.");
-          this.editedMember.roleId = 74;
+          this.editedMember.roleId = 74; // 기본값: 순원
         }
 
-        // 데이터 변경 감지 (수정 모드일 경우)
+        // 데이터 변경 감지 (수정 모드)
         if (this.editedMember.userId && !this.isDataChanged) {
-          console.log("🔍 [Change Detection] 변경된 데이터가 없습니다.");
-
-          // 스낵바와 알럿 모두 표시
-          this.$store.dispatch("snackbar/showMessage", {
-            message: "변경된 데이터가 없습니다.",
-            color: "info",
-          });
-
-          alert("변경된 데이터가 없습니다. 데이터를 수정하거나 취소하세요.");
+          this.showMessage("변경된 데이터가 없습니다.", "info");
           this.closeMemberDialog();
           this.savingMember = false;
           return;
         }
 
-        // 임의의 데이터 생성
-        const randomData = this.generateRandomData(this.editedMember.name);
-
-        // 현재 날짜를 YYYY-MM-DD 형식으로 가져오기
-        const today = new Date().toISOString().split("T")[0];
-
-        // API 요청 데이터 형식 맞추기 (snake_case로 통일)
-        const apiUserData = {
-          id: this.editedMember.userId, // ID 필드 추가
-          name: this.editedMember.name,
-          name_suffix: this.editedMember.nameSuffix || "FFF", // 구분자가 없으면 "FFF"로 설정
-          email: this.editedMember.email || "email@email.com", // 이메일이 없으면 "email@email.com"으로 설정
-          phone_number: this.editedMember.phoneNumber,
-          password: this.editedMember.phoneNumber || "1234",
-          gender_type: this.editedMember.genderType,
-          birth_date: this.editedMember.birthDate || randomData.birthDate,
-          church_member_number:
-            this.editedMember.memberNumber || randomData.memberNumber,
-          church_registration_date: this.editedMember.registrationDate || today,
-          country: this.editedMember.countryCode || "KOR",
-          address: this.editedMember.address || randomData.address,
-          address_detail:
-            this.editedMember.addressDetail || randomData.addressDetail,
-          zip_postal_code: this.editedMember.postcode || randomData.postcode,
-          hobby: this.editedMember.hobby || randomData.hobby,
-          is_long_term_absentee: this.editedMember.isLongTermAbsentee,
-          is_new_member: this.editedMember.isNewMember,
-          is_kakaotalk_chat_member: this.editedMember.isKakaotalkChatMember,
-          is_address_public: this.editedMember.isAddressPublic,
-          is_phone_number_public: this.editedMember.isPhoneNumberPublic,
-          sns_url: this.editedMember.snsUrl,
-          city: this.editedMember.city,
-          state_province: this.editedMember.stateProvince,
-          role_id: this.editedMember.roleId, // 필수 필드로 포함
-        };
-
+        // API 데이터 준비
+        const apiUserData = this.prepareApiUserData();
         const organizationId = this.selectedOrganization.id;
         const organizationCode = this.selectedOrganization.organization_code;
+        const creatingUserId = this.userInfo?.id || null;
 
-        // 상세 디버깅 정보 - 원본 멤버 데이터
-        console.group("🔍 [Debug] 원본 멤버 데이터 (상세)");
-        console.log("editedMember 객체:", this.editedMember);
-        console.log("originalMember 객체:", this.originalMember);
-        console.groupEnd();
-
-        // 상세 디버깅 정보 - 변환된 API 데이터
-        console.group("🔄 [Debug] 변환된 API 데이터 (상세)");
-        console.log("apiUserData:", apiUserData);
-        console.table({
-          id: apiUserData.id,
-          name: apiUserData.name,
-          name_suffix: apiUserData.name_suffix,
-          email: apiUserData.email,
-          phone_number: apiUserData.phone_number,
-          password: apiUserData.password,
-          gender_type: apiUserData.gender_type,
-          birth_date: apiUserData.birth_date,
-          church_member_number: apiUserData.church_member_number,
-          church_registration_date: apiUserData.church_registration_date,
-          country: apiUserData.country,
-          role_id: apiUserData.role_id,
-          is_new_member: apiUserData.is_new_member,
-          is_long_term_absentee: apiUserData.is_long_term_absentee,
-          is_kakaotalk_chat_member: apiUserData.is_kakaotalk_chat_member,
-        });
-        console.groupEnd();
-
-        // 조직 정보 디버깅
-        console.group("🏢 [Debug] 조직 정보 (상세)");
-        console.log("selectedOrganization:", this.selectedOrganization);
-        console.table({
-          id: organizationId,
-          organization_code: organizationCode,
-          organization_name: this.selectedOrganization.organization_name,
-        });
-        console.groupEnd();
-
-        // 사용자 정보 디버깅
-        console.group("👤 [Debug] 작업자 정보 (상세)");
-        console.log("userInfo:", this.userInfo);
-        console.table({
-          id: this.userInfo && this.userInfo.id ? this.userInfo.id : "없음",
-          email:
-            this.userInfo && this.userInfo.email ? this.userInfo.email : "없음",
-          roles:
-            this.userInfo && this.userInfo.roles
-              ? JSON.stringify(this.userInfo.roles)
-              : "없음",
-        });
-        console.groupEnd();
-
-        // API 요청 형식 디버깅 로그
-        console.group("📡 [Debug] API 요청 데이터 (최종)");
-        const finalRequestData = {
-          userData: apiUserData,
-          organizationId,
-          organizationCode,
-          idOfCreatingUser:
-            this.userInfo && this.userInfo.id ? this.userInfo.id : null,
-        };
-        console.log("API 요청 형식:", finalRequestData);
-        console.log(
-          "API 엔드포인트:",
-          `${this.BASIC_URL}${this.CurrentMember_EP}`
-        );
-        console.log("HTTP 메서드:", "POST");
-        console.groupEnd();
-
-        let response;
-
+        // 멤버 수정 또는 추가
         if (this.editedMember.userId) {
-          // 멤버 수정 API 호출
-          console.log(
-            "🔄 [Update Member] 멤버 수정 시작:",
-            this.editedMember.name,
-            "유저 ID:",
-            this.editedMember.userId
-          );
-
-          try {
-            // MasterCtrl의 openUpdateData 메서드 사용 (MemberUpdateView.vue 방식으로 변경)
-            response = await this.openUpdateData(
-              this.User, // "/users" URL 사용
-              this.editedMember.userId, // 수정할 회원 ID
-              apiUserData, // 수정할 데이터
-              true // 로그 표시
-            );
-
-            console.log("✅ [Update Member] 업데이트 응답:", response);
-
-            // 성공적으로 수정된 경우 UI 업데이트
-            const index = this.members.findIndex(
-              (m) => m.userId === this.editedMember.userId
-            );
-
-            if (index !== -1) {
-              // UI에 표시할 데이터 형식으로 변환 (camelCase로)
-              const updatedMember = {
-                userId: this.editedMember.userId,
-                name: apiUserData.name,
-                nameSuffix: apiUserData.name_suffix,
-                phoneNumber: apiUserData.phone_number,
-                genderType: apiUserData.gender_type,
-                email: apiUserData.email,
-                birthDate: apiUserData.birth_date,
-                isNewMember: apiUserData.is_new_member,
-                isLongTermAbsentee: apiUserData.is_long_term_absentee,
-                isKakaotalkChatMember: apiUserData.is_kakaotalk_chat_member,
-                roleId: apiUserData.role_id,
-                roleName: this.getRoleName(apiUserData.role_id), // 역할 이름 유지
-                memberNumber: apiUserData.church_member_number,
-                registrationDate: apiUserData.church_registration_date,
-                countryCode: apiUserData.country,
-                address: apiUserData.address,
-                addressDetail: apiUserData.address_detail,
-                postcode: apiUserData.zip_postal_code,
-                hobby: apiUserData.hobby,
-              };
-
-              this.members.splice(index, 1, updatedMember);
-            }
-
-            // 성공 메시지 표시
-            this.$nextTick(() => {
-              try {
-                this.$store.dispatch("snackbar/showMessage", {
-                  message: `멤버 ${this.editedMember.name}님의 정보가 수정되었습니다.`,
-                  color: "success",
-                });
-              } catch (e) {
-                console.warn("스낵바 메시지 표시 오류:", e);
-                alert(
-                  `멤버 ${this.editedMember.name}님의 정보가 수정되었습니다.`
-                );
-              }
-            });
-
-            console.log(
-              "✅ [Update Member] 멤버 수정 완료:",
-              this.editedMember.name
-            );
-
-            // 대화 상자 닫기
-            this.closeMemberDialog();
-          } catch (error) {
-            console.error("❌ [API Error] 멤버 수정 실패:", error);
-
-            // 작업 실패 메시지 표시
-            try {
-              this.$store.dispatch("snackbar/showMessage", {
-                message: `멤버 수정 중 오류가 발생했습니다: ${error.message}`,
-                color: "error",
-              });
-            } catch (e) {
-              console.warn("스낵바 메시지 표시 오류:", e);
-              alert(`멤버 수정 중 오류가 발생했습니다: ${error.message}`);
-            }
-          }
+          await this.updateExistingMember(apiUserData);
         } else {
-          // 멤버 추가 API 호출
-          console.log(
-            "➕ [Create Member] 신규 멤버 추가 시작:",
-            this.editedMember.name
+          await this.createNewMember(
+            apiUserData,
+            organizationId,
+            organizationCode,
+            creatingUserId
           );
-
-          try {
-            console.log("💡 [Debug] createMember 함수 호출 전");
-            console.log("- userData:", JSON.stringify(apiUserData));
-            console.log("- organizationId:", organizationId);
-            console.log("- organizationCode:", organizationCode);
-            console.log(
-              "- idOfCreatingUser:",
-              this.userInfo && this.userInfo.id ? this.userInfo.id : null
-            );
-
-            // 브라우저 개발자 도구 중단점 설정 (디버깅 용도)
-            console.log(
-              "%c API 호출 직전 - 개발자 도구에서 중단점을 설정할 수 있습니다",
-              "background: #ff0000; color: #ffffff; font-size: 16px;"
-            );
-
-            // API 호출 전 네트워크 탭 확인 메시지
-            console.log(
-              "%c 개발자 도구의 네트워크 탭에서 API 요청을 확인하세요",
-              "background: #00ff00; color: #000000; font-size: 16px;"
-            );
-
-            response = await this.createMember(
-              apiUserData,
-              organizationId,
-              organizationCode,
-              this.userInfo && this.userInfo.id ? this.userInfo.id : null,
-              true
-            );
-
-            console.log("💡 [Debug] createMember 함수 호출 후");
-            console.group("✅ [Debug] API 응답 데이터 (상세)");
-            console.log("응답 원본:", response);
-            if (response && typeof response === "object") {
-              console.table(response);
-            }
-            console.groupEnd();
-
-            if (!response) {
-              console.error("❌ [API Error] 응답이 없습니다.");
-              throw new Error("API 응답이 없습니다.");
-            }
-
-            if (response && response.error) {
-              console.error(
-                "❌ [API Error] 멤버 추가 API 오류:",
-                response.error
-              );
-              throw new Error(response.error);
-            }
-
-            // 새로 생성된 멤버의 ID 가져오기
-            const memberId = response.userId || response.id;
-
-            if (memberId) {
-              // UI에 표시할 데이터 형식으로 변환 (camelCase로)
-              const newMember = {
-                userId: memberId,
-                name: apiUserData.name,
-                nameSuffix: apiUserData.name_suffix,
-                phoneNumber: apiUserData.phone_number,
-                genderType: apiUserData.gender_type,
-                email: apiUserData.email,
-                birthDate: apiUserData.birth_date,
-                isNewMember: apiUserData.is_new_member,
-                isLongTermAbsentee: apiUserData.is_long_term_absentee,
-                isKakaotalkChatMember: apiUserData.is_kakaotalk_chat_member,
-                roleId: apiUserData.role_id,
-                roleName: this.getRoleName(apiUserData.role_id), // 역할 ID로부터 이름 가져오기
-                memberNumber: apiUserData.church_member_number,
-                registrationDate: apiUserData.church_registration_date,
-                countryCode: apiUserData.country,
-                address: apiUserData.address,
-                addressDetail: apiUserData.address_detail,
-                postcode: apiUserData.zip_postal_code,
-                hobby: apiUserData.hobby,
-              };
-
-              this.members.push(newMember);
-              console.log(
-                "✅ [Create Member] 멤버 목록에 추가된 데이터:",
-                newMember
-              );
-
-              // 성공 메시지 표시
-              this.$nextTick(() => {
-                try {
-                  this.$store.dispatch("snackbar/showMessage", {
-                    message: `멤버 ${this.editedMember.name}님이 추가되었습니다.`,
-                    color: "success",
-                  });
-                } catch (e) {
-                  console.warn("스낵바 메시지 표시 오류:", e);
-                  alert(`멤버 ${this.editedMember.name}님이 추가되었습니다.`);
-                }
-              });
-
-              // 대화 상자 닫기
-              this.closeMemberDialog();
-            } else {
-              console.error(
-                "❌ [API Error] API 응답에 사용자 ID가 없습니다:",
-                response
-              );
-              throw new Error("API 응답에 사용자 ID가 없습니다.");
-            }
-          } catch (error) {
-            console.error("❌ [API Error] 멤버 추가 실패:", error);
-
-            // 더 자세한 오류 정보 출력
-            if (error.response) {
-              console.error(
-                "❌ [API Error Details] 상태:",
-                error.response.status
-              );
-              console.error(
-                "❌ [API Error Details] 헤더:",
-                error.response.headers
-              );
-              console.error(
-                "❌ [API Error Details] 데이터:",
-                error.response.data
-              );
-
-              // 응답에 메시지가 있으면 표시
-              const errorMessage =
-                error.response.data && error.response.data.message
-                  ? error.response.data.message
-                  : error.message;
-
-              alert(
-                `멤버 추가 실패 (${error.response.status}): ${errorMessage}`
-              );
-            } else if (error.request) {
-              // 요청은 보냈지만 응답을 받지 못한 경우
-              console.error("❌ [API Error Details] 요청만 됨:", error.request);
-              alert(`멤버 추가 요청 후 응답 없음: ${error.message}`);
-            } else {
-              // 요청 설정 중 오류 발생
-              console.error("❌ [API Error Details] 설정 오류:", error.message);
-              alert(`멤버 추가 요청 설정 중 오류: ${error.message}`);
-            }
-
-            // 작업 실패 메시지 표시
-            try {
-              this.$store.dispatch("snackbar/showMessage", {
-                message: `멤버 추가 중 오류가 발생했습니다: ${error.message}`,
-                color: "error",
-              });
-            } catch (e) {
-              console.warn("스낵바 메시지 표시 오류:", e);
-            }
-          }
         }
 
-        // 정렬 다시 수행
-        this.members.sort((a, b) => {
-          // 역할 우선순위에 따른 정렬
-          const roleOrder = {
-            그룹장: 1,
-            부그룹장: 2,
-            순장: 3,
-            EBS: 4,
-          };
-
-          // 역할 우선순위 확인 (지정된 역할이 없으면 높은 값 할당)
-          const roleA =
-            roleOrder[a.roleName] !== undefined ? roleOrder[a.roleName] : 10;
-          const roleB =
-            roleOrder[b.roleName] !== undefined ? roleOrder[b.roleName] : 10;
-
-          // 역할 우선순위가 다르면 그에 따라 정렬
-          if (roleA !== roleB) {
-            return roleA - roleB;
-          }
-
-          // 역할이 같으면 이름으로 정렬
-          return a.name.localeCompare(b.name);
-        });
+        // 목록 정렬 적용
+        this.members = this.sortMembers(this.members);
       } catch (error) {
-        console.error("❌ [Error] 멤버 저장 중 예상치 못한 오류:", error);
-        alert(`멤버 저장 중 오류가 발생했습니다: ${error.message}`);
+        this.showErrorMessage(
+          `멤버 저장 중 오류가 발생했습니다: ${error.message}`
+        );
       } finally {
-        this.savingMember = false; // 저장 작업 완료 표시
-        console.timeEnd("멤버 저장 작업 시간");
+        this.savingMember = false;
       }
+    },
+
+    // API 데이터 준비
+    prepareApiUserData() {
+      // 현재 날짜 (YYYYMMDD)
+      const today = new Date().toISOString().split("T")[0].replace(/-/g, "");
+      // 임의 데이터 생성
+      const randomData = this.generateRandomData(this.editedMember.name);
+
+      // 생년월일이 있으면 사용, 없으면 기본값 사용
+      let birthDate = this.editedMember.birthDate || randomData.birthDate;
+      // 데이터베이스나 API에서 YYYY-MM-DD 형식이 필요한 경우 변환
+      if (birthDate && birthDate.length === 8) {
+        birthDate = `${birthDate.substring(0, 4)}-${birthDate.substring(
+          4,
+          6
+        )}-${birthDate.substring(6, 8)}`;
+      }
+
+      // 교회 등록일이 있으면 사용, 없으면 오늘 날짜 사용
+      let registrationDate = this.editedMember.registrationDate || today;
+      // 데이터베이스나 API에서 YYYY-MM-DD 형식이 필요한 경우 변환
+      if (registrationDate && registrationDate.length === 8) {
+        registrationDate = `${registrationDate.substring(
+          0,
+          4
+        )}-${registrationDate.substring(4, 6)}-${registrationDate.substring(
+          6,
+          8
+        )}`;
+      }
+
+      return {
+        id: this.editedMember.userId,
+        name: this.editedMember.name,
+        name_suffix: this.editedMember.nameSuffix || "FFF",
+        email: this.editedMember.email || "email@email.com",
+        phone_number: this.editedMember.phoneNumber,
+        password: this.editedMember.phoneNumber || "1234",
+        gender_type: this.editedMember.genderType,
+        birth_date: birthDate,
+        church_member_number:
+          this.editedMember.memberNumber || randomData.memberNumber,
+        church_registration_date: registrationDate,
+        country: this.editedMember.countryCode || "KOR",
+        country_name: this.editedMember.countryName || "대한민국", // 국가 이름 추가
+        address: this.editedMember.address || randomData.address,
+        address_detail:
+          this.editedMember.addressDetail || randomData.addressDetail,
+        zip_postal_code: this.editedMember.postcode || randomData.postcode,
+        hobby: this.editedMember.hobby || randomData.hobby,
+        is_long_term_absentee: this.editedMember.isLongTermAbsentee,
+        is_new_member: this.editedMember.isNewMember,
+        is_kakaotalk_chat_member: this.editedMember.isKakaotalkChatMember,
+        is_address_public: this.editedMember.isAddressPublic,
+        is_phone_number_public: this.editedMember.isPhoneNumberPublic,
+        sns_url: this.editedMember.snsUrl,
+        city: this.editedMember.city,
+        state_province: this.editedMember.stateProvince,
+        role_id: this.editedMember.roleId,
+      };
+    },
+
+    // 메시지 표시 도우미 메서드들
+    showMessage(message, color = "success") {
+      try {
+        this.$store.dispatch("snackbar/showMessage", { message, color });
+      } catch (e) {
+        if (color === "error") {
+          alert(message);
+        }
+      }
+    },
+
+    showErrorMessage(message) {
+      this.showMessage(message, "error");
+      alert(message);
+    },
+
+    // 멤버 수정 처리
+    async updateExistingMember(apiUserData) {
+      try {
+        await this.openUpdateData(
+          this.User,
+          this.editedMember.userId,
+          apiUserData,
+          true
+        );
+
+        // UI 업데이트
+        const index = this.members.findIndex(
+          (m) => m.userId === this.editedMember.userId
+        );
+        if (index !== -1) {
+          const updatedMember = this.convertToUiMember(
+            apiUserData,
+            this.editedMember.userId
+          );
+          this.members.splice(index, 1, updatedMember);
+        }
+
+        // 성공 메시지
+        this.showMessage(
+          `멤버 ${this.editedMember.name}님의 정보가 수정되었습니다.`
+        );
+        this.closeMemberDialog();
+      } catch (error) {
+        this.showErrorMessage(
+          `멤버 수정 중 오류가 발생했습니다: ${error.message}`
+        );
+      }
+    },
+
+    // 새 멤버 생성 처리
+    async createNewMember(
+      apiUserData,
+      organizationId,
+      organizationCode,
+      creatingUserId
+    ) {
+      try {
+        const response = await this.createMember(
+          apiUserData,
+          organizationId,
+          organizationCode,
+          creatingUserId,
+          true
+        );
+
+        if (!response) {
+          throw new Error("API 응답이 없습니다.");
+        }
+
+        if (response.error) {
+          throw new Error(response.error);
+        }
+
+        // 새로 생성된 멤버의 ID 가져오기
+        const memberId = response.userId || response.id;
+        if (!memberId) {
+          throw new Error("API 응답에 사용자 ID가 없습니다.");
+        }
+
+        // UI에 멤버 추가
+        const newMember = this.convertToUiMember(apiUserData, memberId);
+        this.members.push(newMember);
+
+        // 성공 메시지
+        this.showMessage(`멤버 ${this.editedMember.name}님이 추가되었습니다.`);
+        this.closeMemberDialog();
+      } catch (error) {
+        // 오류 정보 표시
+        if (error.response) {
+          const errorMessage = error.response.data?.message || error.message;
+          this.showErrorMessage(
+            `멤버 추가 실패 (${error.response.status}): ${errorMessage}`
+          );
+        } else if (error.request) {
+          this.showErrorMessage(
+            `멤버 추가 요청 후 응답 없음: ${error.message}`
+          );
+        } else {
+          this.showErrorMessage(
+            `멤버 추가 요청 설정 중 오류: ${error.message}`
+          );
+        }
+      }
+    },
+
+    // API 데이터를 UI 표시용 데이터로 변환
+    convertToUiMember(apiData, userId) {
+      return {
+        userId,
+        name: apiData.name,
+        nameSuffix: apiData.name_suffix,
+        phoneNumber: apiData.phone_number,
+        genderType: apiData.gender_type,
+        email: apiData.email,
+        birthDate: apiData.birth_date,
+        isNewMember: apiData.is_new_member,
+        isLongTermAbsentee: apiData.is_long_term_absentee,
+        isKakaotalkChatMember: apiData.is_kakaotalk_chat_member,
+        roleId: apiData.role_id,
+        roleName: this.getRoleName(apiData.role_id),
+        memberNumber: apiData.church_member_number,
+        registrationDate: apiData.church_registration_date,
+        countryCode: apiData.country,
+        countryName:
+          apiData.country_name || this.getCountryNameByCode(apiData.country),
+        address: apiData.address,
+        addressDetail: apiData.address_detail,
+        postcode: apiData.zip_postal_code,
+        hobby: apiData.hobby,
+      };
+    },
+
+    // 국가 코드로 국가명 가져오기
+    getCountryNameByCode(code) {
+      if (!code) return "";
+      const country = this.countryItems.find((item) => item.value === code);
+      return country ? country.text : "기타";
     },
 
     confirmDeleteMember(member) {
@@ -2215,18 +2334,10 @@ export default {
               });
             });
 
-            console.log(`멤버 ${this.deleteItem.name} 삭제 완료`);
-
             // 멤버 삭제 후 멤버 수 다시 계산
             this.$nextTick(() => {
               this.calculateMemberCounts();
             });
-
-            // 선택된 조직이 있으면 멤버 목록 새로고침
-            if (this.selectedOrganization) {
-              console.log(`🔄 멤버 리스트 새로고침`);
-              await this.fetchMembers(this.selectedOrganization.id);
-            }
           } catch (error) {
             console.error("멤버 삭제 중 오류 발생:", error);
 
@@ -2268,17 +2379,11 @@ export default {
 
     // 조직 트리 관련 메서드
     buildOrganizationTree(organizations) {
-      console.log(
-        "buildOrganizationTree 호출됨, 조직 데이터:",
-        organizations ? organizations.length : 0
-      );
-
       if (
         !organizations ||
         !Array.isArray(organizations) ||
         organizations.length === 0
       ) {
-        console.warn("유효한 조직 데이터가 없습니다.");
         return [];
       }
 
@@ -2289,7 +2394,6 @@ export default {
       for (const org of organizations) {
         try {
           if (!org || !org.id) {
-            console.warn("유효하지 않은 조직 데이터 무시:", org);
             continue;
           }
 
@@ -2302,20 +2406,10 @@ export default {
             isLeafNode: true,
           };
           organizationMap.set(org.id, mappedOrg);
-          console.log(
-            `조직 매핑: ID ${org.id} - ${
-              org.organization_name || org.name || "unnamed"
-            }`
-          );
-        } catch (error) {
-          console.error(
-            `조직 데이터 매핑 중 오류 발생 (ID: ${org?.id || "unknown"}):`,
-            error
-          );
+        } catch {
+          // 조직 데이터 매핑 중 오류 발생
         }
       }
-
-      console.log("조직 매핑 완료, 총 조직 수:", organizationMap.size);
 
       // 조직 객체를 트리 구조로 변환
       for (const org of organizations) {
@@ -2324,11 +2418,6 @@ export default {
 
           if (!org.upper_organization_id) {
             // 상위 조직이 없는 경우 최상위 조직으로 추가
-            console.log(
-              `최상위 조직 추가: ${org.id} - ${
-                org.organization_name || org.name || "unnamed"
-              }`
-            );
             tree.push(organizationMap.get(org.id));
           } else {
             // 상위 조직이 있는 경우
@@ -2337,50 +2426,20 @@ export default {
               // 부모 조직이 있으면 부모는 최하위 노드가 아님
               parent.isLeafNode = false;
               parent.children.push(organizationMap.get(org.id));
-              console.log(
-                `하위 조직 추가: ${org.id} - ${
-                  org.organization_name || org.name || "unnamed"
-                } -> 상위: ${org.upper_organization_id}`
-              );
             } else {
               // 상위 조직ID가 있지만 맵에 없는 경우 최상위로 처리
-              console.log(
-                `상위 조직 없음, 최상위로 처리: ${org.id} - ${
-                  org.organization_name || org.name || "unnamed"
-                }`
-              );
               tree.push(organizationMap.get(org.id));
             }
           }
-        } catch (error) {
-          console.error(
-            `조직 트리 구성 중 오류 발생 (ID: ${org?.id || "unknown"}):`,
-            error
-          );
+        } catch {
+          // 조직 트리 구성 중 오류 발생
         }
       }
 
-      console.log("최종 트리 구성 완료, 최상위 조직 수:", tree.length);
-      if (tree.length > 0) {
-        console.log(
-          "최상위 조직 목록:",
-          tree.map(
-            (org) =>
-              `${org.id} - ${org.organization_name || org.name || "unnamed"}`
-          )
-        );
-      } else {
-        console.warn(
-          "최상위 조직이 없습니다. 모든 조직을 최상위로 처리합니다."
-        );
-        // 트리가 비어있으면 모든 조직을 최상위로 처리
-        for (const [id, org] of organizationMap.entries()) {
+      // 트리가 비어있으면 모든 조직을 최상위로 처리
+      if (tree.length === 0) {
+        for (const [, org] of organizationMap.entries()) {
           tree.push(org);
-          console.log(
-            `강제 최상위 조직 추가: ${id} - ${
-              org.organization_name || org.name || "unnamed"
-            }`
-          );
         }
       }
 
@@ -2426,9 +2485,7 @@ export default {
 
     // 첫 번째 최하위 조직 선택 메서드
     selectFirstLeafNode(tree) {
-      console.log("첫 번째 최하위 조직 선택 시도...");
       if (!tree || !Array.isArray(tree) || tree.length === 0) {
-        console.warn("조직 트리가 비어있어 선택할 수 없습니다.");
         return;
       }
 
@@ -2436,11 +2493,6 @@ export default {
       const findFirstLeafNode = (nodes) => {
         for (const node of nodes) {
           if (node.isLeafNode) {
-            console.log(
-              `최하위 조직 발견: ${node.id} - ${
-                node.organization_name || node.name || "unnamed"
-              }`
-            );
             return node;
           }
 
@@ -2456,18 +2508,12 @@ export default {
       const leafNode = findFirstLeafNode(tree);
 
       if (leafNode) {
-        console.log(
-          `최하위 조직 선택: ${leafNode.id} - ${
-            leafNode.organization_name || leafNode.name || "unnamed"
-          }`
-        );
         this.selectedOrganization = leafNode;
 
         // 선택된 조직의 멤버 목록 조회
         this.fetchMembers(leafNode.id);
       } else {
         // 최하위 조직이 없으면 첫 번째 조직 선택
-        console.log("최하위 조직이 없어 첫 번째 조직 선택");
         this.selectedOrganization = tree[0];
 
         // 선택된 조직이 최하위 조직이 아니므로 멤버 목록은 비움
@@ -2596,6 +2642,251 @@ export default {
         });
       }
     },
+
+    // 1156번 라인 근처의 level 변수 오류 수정
+    getFilteredOrganizations() {
+      if (!this.organizationSearchTerm) {
+        return this.organizationTree;
+      }
+
+      const searchTerm = this.organizationSearchTerm.toLowerCase();
+      const filtered = [];
+
+      const searchInTree = (items) => {
+        items.forEach((org) => {
+          if (org.name.toLowerCase().includes(searchTerm)) {
+            filtered.push(org);
+          }
+          if (org.children && org.children.length > 0) {
+            searchInTree(org.children);
+          }
+        });
+      };
+
+      searchInTree(this.organizationTree);
+      return filtered;
+    },
+
+    // 모든 최하위 조직의 멤버 로드 메서드 추가
+    async loadAllMembers() {
+      if (this.allMembersLoaded) return;
+
+      try {
+        // 최하위 조직 찾기 (children이 없는 조직)
+        const findLeafOrganizations = (orgs) => {
+          let leaves = [];
+          orgs.forEach((org) => {
+            if (!org.children || org.children.length === 0 || org.isLeafNode) {
+              leaves.push(org);
+            } else if (org.children && org.children.length > 0) {
+              leaves = leaves.concat(findLeafOrganizations(org.children));
+            }
+          });
+          return leaves;
+        };
+
+        const leafOrgs = findLeafOrganizations(this.organizationTree);
+
+        // 각 최하위 조직의 멤버 캐싱
+        for (const org of leafOrgs) {
+          await this.cacheOrganizationMembers(org.id);
+        }
+
+        this.allMembersLoaded = true;
+      } catch (error) {
+        console.error("모든 멤버 로드 중 오류:", error);
+      }
+    },
+
+    // 조직의 멤버 정보를 캐시하는 메서드 추가
+    async cacheOrganizationMembers(organizationId) {
+      // 이미 캐시된 데이터가 있으면 다시 가져오지 않음
+      if (
+        this.memberCache[organizationId] &&
+        this.memberCache[organizationId].members
+      ) {
+        return this.memberCache[organizationId].members;
+      }
+
+      try {
+        const members = await this.getMembersWithRoles(organizationId, false);
+
+        // 유효한 멤버 배열인 경우 캐시에 저장
+        if (members && Array.isArray(members)) {
+          // 조직 정보 찾기
+          const organization = this.findOrganizationById(organizationId);
+          this.memberCache[organizationId] = {
+            members,
+            organization_name: organization
+              ? organization.organization_name
+              : `조직 ID: ${organizationId}`,
+          };
+          return members;
+        }
+        return [];
+      } catch {
+        return [];
+      }
+    },
+
+    // 멤버 강조 표시 메서드 추가
+    highlightMember(memberId) {
+      // 이전 강조 표시 제거
+      const previousHighlighted = document.querySelector(".highlighted-member");
+      if (previousHighlighted) {
+        previousHighlighted.classList.remove("highlighted-member");
+      }
+
+      // 새 멤버 강조 표시
+      const memberRow = document.querySelector(
+        `[data-member-id="${memberId}"]`
+      );
+      if (memberRow) {
+        memberRow.classList.add("highlighted-member");
+        // 화면에 보이도록 스크롤
+        memberRow.scrollIntoView({ behavior: "smooth", block: "center" });
+      }
+
+      // 3초 후 강조 표시 제거
+      setTimeout(() => {
+        const el = document.querySelector(".highlighted-member");
+        if (el) {
+          el.classList.remove("highlighted-member");
+        }
+        this.highlightedMemberId = null;
+      }, 3000);
+    },
+
+    // 검증 실패 처리 메서드 추가
+    handleValidationFailure(errors) {
+      console.group("검증 실패 처리");
+      console.log("필드별 오류:", errors);
+
+      // 어떤 필드가 오류인지 구체적인 메시지 표시
+      let errorMessage = "";
+
+      // 필수 입력 필드 오류 확인
+      const requiredFieldsErrors = [];
+      if (errors.name) requiredFieldsErrors.push("이름");
+      if (errors.phoneNumber) requiredFieldsErrors.push("전화번호");
+      if (errors.genderType) requiredFieldsErrors.push("성별");
+      if (errors.roleId) requiredFieldsErrors.push("역할");
+
+      if (requiredFieldsErrors.length > 0) {
+        errorMessage = `다음 필수 항목을 확인해주세요: ${requiredFieldsErrors.join(
+          ", "
+        )}`;
+      }
+
+      // 날짜 형식 오류 확인
+      if (errors.dateError) {
+        errorMessage = errorMessage
+          ? `${errorMessage}. 또한, ${errors.dateErrorMessage}`
+          : errors.dateErrorMessage;
+      }
+
+      console.log("표시할 오류 메시지:", errorMessage);
+      console.groupEnd();
+
+      this.showErrorMessage(errorMessage || "입력 정보를 확인해주세요.");
+    },
+
+    formatDate(dateString) {
+      if (!dateString) return "-";
+
+      // YYYYMMDD 형식일 경우 변환
+      if (dateString.length === 8) {
+        const year = dateString.substring(0, 4);
+        const month = dateString.substring(4, 6);
+        const day = dateString.substring(6, 8);
+        return `${year}-${month}-${day}`;
+      }
+
+      // 이미 YYYY-MM-DD 형식이면 그대로 반환
+      return dateString;
+    },
+
+    clearDateFilter() {
+      this.startDate = null;
+      this.endDate = null;
+    },
+
+    // 모든 새가족 로드
+    async loadAllNewMembers() {
+      this.loadingAllMembers = true;
+
+      try {
+        // 새가족 데이터가 이미 있는 경우 다시 로드하지 않음
+        if (this.allNewMembers && this.allNewMembers.length > 0) {
+          this.loadingAllMembers = false;
+          return;
+        }
+
+        // 새가족 데이터 초기화
+        this.allNewMembers = [];
+
+        // 각 조직의 새가족 로드
+        await this.loadAllLeafOrganizationsNewMembers();
+      } catch (error) {
+        console.error("새가족 로드 중 오류 발생:", error);
+        this.$store.dispatch("snackbar/showMessage", {
+          message: "새가족 정보를 불러오는 중 오류가 발생했습니다.",
+          color: "error",
+        });
+      } finally {
+        this.loadingAllMembers = false;
+      }
+    },
+
+    // 모든 최하위 조직의 새가족 로드
+    async loadAllLeafOrganizationsNewMembers() {
+      // 최하위 조직 찾기
+      const findLeafOrganizations = (orgs) => {
+        let leaves = [];
+        orgs.forEach((org) => {
+          if (!org.children || org.children.length === 0 || org.isLeafNode) {
+            leaves.push(org);
+          } else if (org.children && org.children.length > 0) {
+            leaves = leaves.concat(findLeafOrganizations(org.children));
+          }
+        });
+        return leaves;
+      };
+
+      const leafOrgs = findLeafOrganizations(this.organizationTree);
+
+      // 각 최하위 조직의 새가족 멤버 로드
+      for (const org of leafOrgs) {
+        try {
+          const members = await this.getMembersWithRoles(org.id, false);
+
+          if (members && Array.isArray(members)) {
+            // 새가족 필터링 (isNewMember === 'Y')
+            const newMembers = members.filter(
+              (member) => member.isNewMember === "Y"
+            );
+
+            // 조직 정보 추가
+            newMembers.forEach((member) => {
+              member.organizationId = org.id;
+              member.organizationName = org.organization_name;
+            });
+
+            // 새가족 목록에 추가
+            this.allNewMembers = [...this.allNewMembers, ...newMembers];
+          }
+        } catch (error) {
+          console.error(`조직 ${org.id}의 새가족 로드 중 오류:`, error);
+        }
+      }
+
+      // 등록일 기준으로 정렬
+      this.allNewMembers.sort((a, b) => {
+        if (!a.registrationDate) return 1;
+        if (!b.registrationDate) return -1;
+        return b.registrationDate.localeCompare(a.registrationDate);
+      });
+    },
   },
 };
 </script>
@@ -2605,18 +2896,20 @@ export default {
   overflow-x: auto;
 }
 
-.v-data-table ::v-deep table {
-  border-collapse: collapse;
-}
+.v-data-table ::v-deep {
+  table {
+    border-collapse: collapse;
+  }
 
-.v-data-table ::v-deep th {
-  background-color: #f5f5f5;
-  font-weight: bold;
-  color: rgba(0, 0, 0, 0.87);
-}
+  th {
+    background-color: #f5f5f5;
+    font-weight: bold;
+    color: rgba(0, 0, 0, 0.87);
+  }
 
-.v-data-table ::v-deep td {
-  border-bottom: thin solid rgba(0, 0, 0, 0.12);
+  td {
+    border-bottom: thin solid rgba(0, 0, 0, 0.12);
+  }
 }
 
 /* 이름 아바타 스타일 */
@@ -2625,7 +2918,7 @@ export default {
   font-weight: bold;
 }
 
-/* MemberRegistrationView.vue에서 가져온 스타일 */
+/* 텍스트 스타일 */
 .wc-bold-600 {
   font-weight: 600;
 }
@@ -2640,109 +2933,16 @@ export default {
   margin-bottom: 20px;
 }
 
-.switch {
-  position: relative;
-  display: inline-block;
-  width: 60px;
-  height: 34px;
-}
-
-.switch input {
-  opacity: 0;
-  width: 0;
-  height: 0;
-}
-
-.slider {
-  position: absolute;
-  cursor: pointer;
-  top: 0;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  background-color: #ccc;
-  -webkit-transition: 0.4s;
-  transition: 0.4s;
-}
-
-.slider:before {
-  position: absolute;
-  content: "";
-  height: 26px;
-  width: 26px;
-  left: 4px;
-  bottom: 4px;
-  background-color: white;
-  -webkit-transition: 0.4s;
-  transition: 0.4s;
-}
-
-input:checked + .slider {
-  background-color: #7ea394;
-}
-
-input:focus + .slider {
-  box-shadow: 0 0 1px #7ea394;
-}
-
-input:checked + .slider:before {
-  -webkit-transform: translateX(26px);
-  -ms-transform: translateX(26px);
-  transform: translateX(26px);
-}
-
-/* Rounded sliders */
-.slider.round {
-  border-radius: 34px;
-}
-
-.slider.round:before {
-  border-radius: 50%;
-}
-
-.fadeIn {
-  animation: fadeIn 0.5s;
-}
-
-@keyframes fadeIn {
-  from {
-    opacity: 0;
+/* 멤버 정보 표시 스타일 */
+.member {
+  &-name {
+    font-weight: 600;
   }
-  to {
-    opacity: 1;
+
+  &-suffix {
+    opacity: 0.7;
+    font-size: 0.85em;
   }
-}
-
-.bg-transparent {
-  background-color: transparent !important;
-}
-
-/* 특정 페이지에서만 헤더와 메뉴 버튼 숨기기 (조직관리 페이지) */
-.organization-management-page :deep(.v-app-bar__nav-icon) {
-  display: none !important;
-}
-
-.organization-management-page :deep(.v-toolbar__content > .v-btn.v-btn--icon) {
-  display: none !important;
-}
-
-.organization-management-page :deep(.v-toolbar__items) {
-  display: none !important;
-}
-
-/* 조직 트리뷰 아이템 간격 조정 */
-.v-treeview-node__root {
-  margin-bottom: 4px;
-}
-
-/* 이름 볼드 처리 및 구분자 스타일 */
-.member-name {
-  font-weight: 600;
-}
-
-.member-suffix {
-  opacity: 0.7;
-  font-size: 0.85em;
 }
 
 /* 필드 제목 스타일 */
@@ -2753,22 +2953,21 @@ input:checked + .slider:before {
   margin-left: 5px;
 }
 
-/* 커스텀 입력 필드 스타일 */
-.org-custom-input {
+/* 커스텀 입력 필드 공통 스타일 */
+%input-common {
   height: 50px !important;
   border-radius: 20px !important;
-  border: 2px solid rgb(240, 238, 238) !important;
-  box-shadow: 5px 5px 15px #00000012, -5px -5px 15px #ffffff !important;
   transition: all 0.3s ease;
 }
 
-.org-custom-input:focus-within {
-  box-shadow: 7px 7px 20px #00000015, -7px -7px 20px #ffffff !important;
-  border-color: #7ea394 !important;
+/* 커스텀 입력 필드 스타일 */
+.org-custom-input {
+  @extend %input-common;
 }
 
+/* 커스텀 셀렉트 스타일 */
 .org-custom-select .v-input__slot {
-  border-radius: a20px !important;
+  border-radius: 20px !important;
   box-shadow: 5px 5px 15px #00000012, -5px -5px 15px #ffffff !important;
 }
 
@@ -2778,12 +2977,12 @@ input:checked + .slider:before {
   display: inline-block;
   width: 60px;
   height: 34px;
-}
 
-.custom-switch input {
-  opacity: 0;
-  width: 0;
-  height: 0;
+  input {
+    opacity: 0;
+    width: 0;
+    height: 0;
+  }
 }
 
 .custom-slider {
@@ -2796,36 +2995,54 @@ input:checked + .slider:before {
   background-color: #ccc;
   transition: 0.4s;
   border-radius: 34px;
+
+  &:before {
+    position: absolute;
+    content: "";
+    height: 26px;
+    width: 26px;
+    left: 4px;
+    bottom: 4px;
+    background-color: white;
+    transition: 0.4s;
+    border-radius: 50%;
+  }
+
+  input:checked + & {
+    background-color: #7ea394;
+  }
+
+  input:focus + & {
+    box-shadow: 0 0 1px #7ea394;
+  }
+
+  input:checked + &:before {
+    transform: translateX(26px);
+  }
 }
 
-.custom-slider:before {
-  position: absolute;
-  content: "";
-  height: 26px;
-  width: 26px;
-  left: 4px;
-  bottom: 4px;
-  background-color: white;
-  transition: 0.4s;
-  border-radius: 50%;
+/* 애니메이션 효과 */
+.fadeIn {
+  animation: fadeIn 0.5s;
+
+  @keyframes fadeIn {
+    from {
+      opacity: 0;
+    }
+    to {
+      opacity: 1;
+    }
+  }
 }
 
-input:checked + .custom-slider {
-  background-color: #7ea394;
+.bg-transparent {
+  background-color: transparent !important;
 }
 
-input:focus + .custom-slider {
-  box-shadow: 0 0 1px #7ea394;
+/* 조직 트리뷰 아이템 간격 조정 */
+.v-treeview-node__root {
+  margin-bottom: 4px;
 }
-
-input:checked + .custom-slider:before {
-  transform: translateX(26px);
-}
-
-/* 왼쪽 메뉴와 상단 헤더 숨기기 - 이 부분을 제거합니다 */
-/* :global(.v-navigation-drawer) {
-  display: none !important;
-} */
 
 /* 커스텀 저장 버튼 스타일 */
 .custom-save-btn {
@@ -2836,15 +3053,80 @@ input:checked + .custom-slider:before {
   font-weight: 500 !important;
   box-shadow: 3px 3px 10px rgba(0, 0, 0, 0.1) !important;
   transition: all 0.3s ease !important;
+
+  &:hover {
+    background-color: #6a8d82 !important;
+    box-shadow: 4px 4px 12px rgba(0, 0, 0, 0.15) !important;
+  }
+
+  &:disabled {
+    background-color: #cccccc !important;
+    color: #888888 !important;
+  }
 }
 
-.custom-save-btn:hover {
-  background-color: #6a8d82 !important;
-  box-shadow: 4px 4px 12px rgba(0, 0, 0, 0.15) !important;
+/* 검색 관련 스타일 */
+.search-container {
+  position: relative;
+  min-width: 500px;
+  flex-grow: 1;
+  margin-right: 20px;
 }
 
-.custom-save-btn:disabled {
-  background-color: #cccccc !important;
-  color: #888888 !important;
+.search-input {
+  max-width: 400px;
+  width: 100%;
+}
+
+.search-toggle {
+  height: 40px;
+  margin-left: 16px;
+}
+
+.search-results {
+  position: absolute;
+  top: 50px;
+  left: 0;
+  width: 400px;
+  max-height: 400px;
+  overflow-y: auto;
+  z-index: 100;
+}
+
+.highlighted-member {
+  background-color: rgba(126, 163, 148, 0.2);
+  transition: background-color 0.3s;
+}
+
+/* 날짜 그룹 관련 스타일 */
+.max-width-150 {
+  max-width: 150px !important;
+}
+
+.max-width-200 {
+  max-width: 200px !important;
+}
+
+.group-header {
+  background-color: #f5f7f9;
+  border-left: 4px solid #7ea394;
+}
+
+/* 반응형 스타일 */
+@media (max-width: 960px) {
+  .search-container {
+    margin-bottom: 10px;
+    flex-direction: column;
+    width: 100%;
+  }
+
+  .search-input {
+    max-width: 100%;
+    width: 100%;
+  }
+
+  .search-results {
+    width: 100%;
+  }
 }
 </style>

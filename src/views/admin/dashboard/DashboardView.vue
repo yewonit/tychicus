@@ -480,6 +480,8 @@ import {
   ToolboxComponent,
 } from "echarts/components";
 import VChart from "vue-echarts";
+import { MasterCtrl } from "@/mixins/apis_v2/internal/MasterCtrl";
+import { OrganizationCtrl } from "@/mixins/apis_v2/internal/domainCtrl/OrganizationCtrl";
 
 use([
   CanvasRenderer,
@@ -495,6 +497,7 @@ export default {
   components: {
     VChart,
   },
+  mixins: [MasterCtrl, OrganizationCtrl],
   data() {
     return {
       // 더미 데이터
@@ -558,6 +561,13 @@ export default {
         "8월",
         "9월",
       ],
+
+      // 조직 정보 관련 변수 추가
+      organizations: [],
+      organizationTree: [],
+      cachedOrganizations: null,
+      organizationCacheExpiry: null,
+      organizationCacheDuration: 30 * 60 * 1000, // 30분 캐시 지속 시간
     };
   },
   computed: {
@@ -671,6 +681,200 @@ export default {
           },
         ],
       };
+    },
+  },
+  created() {
+    // 페이지 로드 시 조직 정보 가져오기
+    this.fetchOrganizationsOnly();
+  },
+  methods: {
+    // 조직 정보만 불러오는 메서드
+    async fetchOrganizationsOnly() {
+      try {
+        console.log("조직 정보를 가져오는 중...");
+
+        // 캐시된 데이터가 있고 만료되지 않았다면 그것을 사용
+        const now = new Date().getTime();
+        if (
+          this.cachedOrganizations &&
+          this.organizationCacheExpiry &&
+          now < this.organizationCacheExpiry
+        ) {
+          this.organizations = this.cachedOrganizations;
+          console.log("캐시된 조직 정보 사용:", this.organizations);
+
+          // 조직 트리 구성
+          this.organizationTree = this.buildOrganizationTree(
+            this.organizations
+          );
+          console.log("조직 트리:", this.organizationTree);
+
+          return;
+        }
+
+        // API에서 조직 정보 가져오기
+        const response = await this.getAllOrganizations(true);
+        console.log("API 응답:", response);
+
+        // API 응답 구조 확인 및 데이터 추출
+        let organizations = [];
+        if (response && response.data && Array.isArray(response.data)) {
+          // API 응답에서 data 배열을 추출
+          organizations = response.data;
+        } else if (Array.isArray(response)) {
+          // 응답이 직접 배열인 경우
+          organizations = response;
+        } else {
+          // 더미 데이터 사용
+          organizations = this.getDummyOrganizations();
+        }
+
+        // 유효한 조직 데이터가 있는지 확인
+        if (!organizations || organizations.length === 0) {
+          organizations = this.getDummyOrganizations();
+        }
+
+        // 각 조직의 멤버 수 초기화
+        organizations.forEach((org) => {
+          org.memberCount = 0;
+        });
+
+        // 모든 조직 데이터 사용
+        this.organizations = organizations;
+        console.log("조직 정보:", this.organizations);
+
+        // 조직 데이터 캐싱
+        this.cachedOrganizations = JSON.parse(JSON.stringify(organizations)); // 깊은 복사
+        this.organizationCacheExpiry =
+          new Date().getTime() + this.organizationCacheDuration;
+
+        // 조직 트리 구성
+        this.organizationTree = this.buildOrganizationTree(this.organizations);
+        console.log("조직 트리:", this.organizationTree);
+      } catch (error) {
+        console.error("조직 정보 가져오기 오류:", error);
+        // 오류 발생 시 더미 데이터 사용
+        this.organizations = this.getDummyOrganizations();
+        // 조직 트리 구성
+        this.organizationTree = this.buildOrganizationTree(this.organizations);
+        console.log("더미 조직 정보 사용:", this.organizations);
+      }
+    },
+
+    // 조직 트리 구성 메서드
+    buildOrganizationTree(organizations) {
+      if (
+        !organizations ||
+        !Array.isArray(organizations) ||
+        organizations.length === 0
+      ) {
+        return [];
+      }
+
+      const tree = [];
+      const organizationMap = new Map();
+
+      // 조직 객체를 맵에 저장
+      for (const org of organizations) {
+        try {
+          if (!org || !org.id) {
+            continue;
+          }
+
+          // API 응답 필드 매핑 (organization_description -> description)
+          const mappedOrg = {
+            ...org,
+            description: org.organization_description || org.description || "",
+            children: [],
+            // 최하위 조직 여부를 저장할 속성 추가
+            isLeafNode: true,
+          };
+          organizationMap.set(org.id, mappedOrg);
+        } catch (error) {
+          console.error("조직 데이터 매핑 중 오류 발생:", error);
+        }
+      }
+
+      // 조직 객체를 트리 구조로 변환
+      for (const org of organizations) {
+        try {
+          if (!org || !org.id) continue;
+
+          if (!org.upper_organization_id) {
+            // 상위 조직이 없는 경우 최상위 조직으로 추가
+            tree.push(organizationMap.get(org.id));
+          } else {
+            // 상위 조직이 있는 경우
+            const parent = organizationMap.get(org.upper_organization_id);
+            if (parent) {
+              // 부모 조직이 있으면 부모는 최하위 노드가 아님
+              parent.isLeafNode = false;
+              parent.children.push(organizationMap.get(org.id));
+            } else {
+              // 상위 조직ID가 있지만 맵에 없는 경우 최상위로 처리
+              tree.push(organizationMap.get(org.id));
+            }
+          }
+        } catch (error) {
+          console.error("조직 트리 구성 중 오류 발생:", error);
+        }
+      }
+
+      // 트리가 비어있으면 모든 조직을 최상위로 처리
+      if (tree.length === 0) {
+        for (const [, org] of organizationMap.entries()) {
+          tree.push(org);
+        }
+      }
+
+      return tree;
+    },
+
+    // 더미 조직 데이터 생성 메서드
+    getDummyOrganizations() {
+      return [
+        {
+          id: 1,
+          organization_name: "코람데오 청년선교회",
+          organization_code: "CORAMDEO",
+          description:
+            "코람데오 청년선교회는 청년들의 신앙과 교제를 위한 조직입니다.",
+          upper_organization_id: null,
+          memberCount: 0,
+        },
+        {
+          id: 2,
+          organization_name: "코람데오_1국",
+          organization_code: "CORAMDEO_DEPT1",
+          description: "코람데오 청년선교회 1국입니다.",
+          upper_organization_id: 1,
+          memberCount: 0,
+        },
+        {
+          id: 3,
+          organization_name: "코람데오_2국",
+          organization_code: "CORAMDEO_DEPT2",
+          description: "코람데오 청년선교회 2국입니다.",
+          upper_organization_id: 1,
+          memberCount: 0,
+        },
+        {
+          id: 4,
+          organization_name: "코람데오_3국",
+          organization_code: "CORAMDEO_DEPT3",
+          description: "코람데오 청년선교회 3국입니다.",
+          upper_organization_id: 1,
+          memberCount: 0,
+        },
+        {
+          id: 5,
+          organization_name: "코람데오_1국_1팀",
+          organization_code: "CORAMDEO_DEPT1_TEAM1",
+          description: "코람데오 청년선교회 1국 1팀입니다.",
+          upper_organization_id: 2,
+          memberCount: 0,
+        },
+      ];
     },
   },
 };

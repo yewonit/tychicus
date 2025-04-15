@@ -5,8 +5,8 @@ export const VisitManagementCtrl = {
   data() {
     return {
       // Base URL
-      // BASIC_URL: "https://attendance.icoramdeo.com/api/",
-      BASIC_URL: "https://attendance-dev.icoramdeo.com/api/",
+      BASIC_URL: "https://attendance.icoramdeo.com/api/",
+      // BASIC_URL: "https://attendance-dev.icoramdeo.com/api/",
       // BASIC_URL: "http://localhost:3001/api/",
       // BASIC_URL: "http://27#.117.185.240:3001/api/",
       // Endpoint for Visitation information

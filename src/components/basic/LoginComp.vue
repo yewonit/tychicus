@@ -42,10 +42,10 @@
               flat
               outlined
               dense
-              label="Email 계정을 입력하세요"
-              :rules="[rules.requiredId]"
               hide-details="auto"
               class="mb-7"
+              label="Email 계정을 입력하세요"
+              :rules="[rules.requiredId]"
             ></v-text-field>
 
             <v-text-field
