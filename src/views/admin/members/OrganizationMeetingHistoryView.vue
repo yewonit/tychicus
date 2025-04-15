@@ -466,9 +466,6 @@ export default {
         title: "",
         message: "",
       },
-
-      // API 엔드포인트
-      API_BASE_URL: API_BASE_URL,
     };
   },
   computed: {
