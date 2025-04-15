@@ -1,5 +1,5 @@
 import axios from "axios";
-import { AUTH_BASE_URL } from "@/config/environments.js"
+import { AUTH_BASE_URL } from "@/config/environments.js";
 
 export const AuthCtrl = {
   data() {

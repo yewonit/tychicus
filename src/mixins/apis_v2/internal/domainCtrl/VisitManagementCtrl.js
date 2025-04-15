@@ -1,6 +1,6 @@
 import { ModelCtrl } from "@/mixins/apis_v2/internal/core/ModelCtrl";
 import axios from "axios";
-import { API_BASE_URL } from "@/config/environments.js"
+import { API_BASE_URL } from "@/config/environments.js";
 
 export const VisitManagementCtrl = {
   data() {

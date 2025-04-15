@@ -385,7 +385,6 @@
 <script>
 import moment from "moment";
 import "moment/locale/ko";
-import { API_BASE_URL } from "@/config/environments";
 import { mapGetters } from "vuex";
 
 // OrganizationManagementView.vue에서 사용하는 믹스인 참조
