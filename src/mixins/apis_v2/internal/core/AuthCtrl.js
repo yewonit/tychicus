@@ -1,4 +1,5 @@
 import axios from "axios";
+import { AUTH_BASE_URL } from "@/config/environments.js";
 
 export const AuthCtrl = {
   data() {
@@ -7,12 +8,6 @@ export const AuthCtrl = {
       OPEN_AXIOS: null,
       // 인증이 필요한 API 요청을 위한 Axios 인스턴스
       AUTH_AXIOS: null,
-      // API 서버 기본 URL (개발 서버)
-      BASE_URL: "https://attendance.icoramdeo.com/api/",
-      // API 서버 기본 URL (테스트 서버)
-      // BASE_URL: "https://attendance-dev.icoramdeo.com/api/",
-      // API 서버 기본 URL (로컬 서버)
-      // BASE_URL: "http://localhost:3000/api/",
     };
   },
   methods: {
@@ -69,7 +64,7 @@ export const AuthCtrl = {
     // 로그인이 필요한 API 를 호출할 때 사용
     async getAuthAxios() {
       const baseAxios = await axios.create({
-        baseURL: this.BASE_URL,
+        baseURL: AUTH_BASE_URL,
         headers: {
           authorization: "Bearer " + localStorage.getItem("access_token"),
         },
@@ -79,7 +74,7 @@ export const AuthCtrl = {
     // 로그인이 필요 없는 API를 호출할 때 사용
     async getOpenAxios() {
       const baseAxios = await axios.create({
-        baseURL: this.BASE_URL,
+        baseURL: AUTH_BASE_URL,
       });
       return baseAxios;
     },
@@ -90,7 +85,7 @@ export const AuthCtrl = {
       console.log("refreshToken", refreshToken);
       if (refreshToken) {
         axios
-          .post(this.BASE_URL_ + "refresh", {
+          .post(AUTH_BASE_URL + "refresh", {
             refreshToken: localStorage.getItem("refresh_token"),
           })
           .then((res) => {

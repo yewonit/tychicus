@@ -1,6 +1,6 @@
 import { ModelCtrl } from "@/mixins/apis_v2/internal/core/ModelCtrl";
 import axios from "axios";
-import { API_BASE_URL } from "@/config/constants";
+import { API_BASE_URL } from "@/config/environments";
 
 export const AttendanceCtrl = {
   data() {
@@ -23,9 +23,6 @@ export const AttendanceCtrl = {
         creator_ip: "",
         updater_ip: "",
       },
-
-      // Base URL
-      BASIC_URL: API_BASE_URL,
     };
   },
   mixins: [ModelCtrl],
@@ -45,7 +42,7 @@ export const AttendanceCtrl = {
       }
       try {
         const res = await axios.get(
-          `${this.BASIC_URL}${this.Organization_EP}/${organizationId}/${this.Activity_EP}`
+          `${API_BASE_URL}/${this.Organization_EP}/${organizationId}/${this.Activity_EP}`
         );
         let returnData = res.data;
         if (showLog) {
@@ -75,7 +72,7 @@ export const AttendanceCtrl = {
       }
       try {
         const res = await axios.post(
-          `${this.BASIC_URL}${this.Activity_EP}`,
+          `${API_BASE_URL}/${this.Activity_EP}`,
           activityData
         );
         let returnData = res.data;
@@ -125,7 +122,7 @@ export const AttendanceCtrl = {
         console.log(`🎯 activityId: ${activityId}`);
       }
       try {
-        const instanceUrl = `${this.BASIC_URL}${this.Organization_EP}/${organizationId}/${this.Activity_EP}/${activityId}/attendance`;
+        const instanceUrl = `${API_BASE_URL}/${this.Organization_EP}/${organizationId}/${this.Activity_EP}/${activityId}/attendance`;
         console.log("🌐 활동 인스턴스 생성 URL:", instanceUrl);
         console.log("📦 instanceData:", instanceData);
         console.log("👥 attendances:", attendances);
@@ -197,7 +194,7 @@ export const AttendanceCtrl = {
       }
 
       try {
-        const deleteUrl = `${this.BASIC_URL}organizations/${organizationId}/activities/${activityId}/instances/${activityInstanceId}`;
+        const deleteUrl = `${API_BASE_URL}/organizations/${organizationId}/activities/${activityId}/instances/${activityInstanceId}`;
         console.log("🌐 활동 인스턴스 삭제 URL:", deleteUrl);
 
         const res = await axios.delete(deleteUrl);
@@ -249,7 +246,7 @@ export const AttendanceCtrl = {
       }
 
       try {
-        const updateUrl = `${this.BASIC_URL}organizations/${organizationId}/activities/${activityId}/instances/${activityInstanceId}/attendance`;
+        const updateUrl = `${API_BASE_URL}/organizations/${organizationId}/activities/${activityId}/instances/${activityInstanceId}/attendance`;
         console.log("🌐 출석 정보 업데이트 URL:", updateUrl);
         console.log("📦 instanceData:", instanceData);
         console.log("👥 attendances:", attendances);
@@ -291,7 +288,7 @@ export const AttendanceCtrl = {
       }
 
       try {
-        const url = `${this.BASIC_URL}organizations/${organizationId}/activities/${activityId}/instances/${activityInstanceId}`;
+        const url = `${API_BASE_URL}/organizations/${organizationId}/activities/${activityId}/instances/${activityInstanceId}`;
         const res = await axios.get(url);
         let returnData = res.data;
 
@@ -318,7 +315,7 @@ export const AttendanceCtrl = {
       }
 
       try {
-        const url = `${this.BASIC_URL}organizations/${organizationId}/members`;
+        const url = `${API_BASE_URL}/organizations/${organizationId}/members`;
         const res = await axios.get(url);
         let returnData = res.data;
 
