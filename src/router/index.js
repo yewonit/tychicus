@@ -38,6 +38,8 @@ import ServiceSelectionView from "@/views/main/coreNavigation/ServiceSelectionVi
 import LoginView from "@/views/main/login/LoginView.vue";
 import NameInputView from "@/views/main/login/NameInputView.vue";
 import PhoneInputView from "@/views/main/login/PhoneInputView.vue";
+import EmailInputView from "@/views/main/login/EmailInputView.vue";
+import PasswordInputView from "@/views/main/login/PasswordInputView.vue";
 
 /**
  * @section 교회 관리 시스템
@@ -159,6 +161,32 @@ const routes = [
           title: "전화번호 입력",
           showIcon: false,
           iconName: "mdi-phone",
+          showBackButton: true,
+          showHomeButton: false,
+          showCancelButton: true,
+        },
+      },
+      {
+        path: "/email-input",
+        name: "EmailInputView",
+        component: EmailInputView,
+        meta: {
+          title: "이메일 입력",
+          showIcon: false,
+          iconName: "mdi-email",
+          showBackButton: true,
+          showHomeButton: false,
+          showCancelButton: true,
+        },
+      },
+      {
+        path: "/password-input",
+        name: "PasswordInputView",
+        component: PasswordInputView,
+        meta: {
+          title: "비밀번호 입력",
+          showIcon: false,
+          iconName: "mdi-password",
           showBackButton: true,
           showHomeButton: false,
           showCancelButton: true,
