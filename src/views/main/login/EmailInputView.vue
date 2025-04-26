@@ -4,22 +4,23 @@
       <v-col cols="12" sm="8" md="6" lg="4" class="text-center">
         <v-card flat class="pa-6 transparent">
           <v-icon size="150" class="mb-10" color="#262626"
-            >mdi-phone-dial</v-icon
+            >mdi-email-open-outline</v-icon
           >
           <v-text-field
-            v-model="userEmail"
+            v-model="userInputEmail"
             background-color="#edeef3"
             color="#7EA394"
             solo
             rounded
             flat
             dense
-            type="tel"
+            type="email"
             label="터치해서 이메일을 입력하세요"
             hide-details="auto"
             class="mb-7 mx-auto bg-transparent"
             style="max-width: 400px"
             @input="formatEmail"
+            :disabled="isPasswordRecovery"
           ></v-text-field>
 
           <transition name="slide">
@@ -55,7 +56,10 @@
             {{ emailCheckMessage }}
           </div>
 
-          <div v-if="!emailCheckMessage" class="ma-auto grey--text mb-7">
+          <div
+            v-if="!emailCheckMessage && !isPasswordRecovery"
+            class="ma-auto grey--text mb-7"
+          >
             이메일을 입력해주세요.
           </div>
 
@@ -68,7 +72,7 @@
             style="max-width: 400px"
             @click="sendVerifyCode"
           >
-            <span class="wc-h3">다음으로</span>
+            <span class="wc-h3">인증코드 전송하기</span>
           </v-btn>
 
           <v-btn
@@ -80,7 +84,7 @@
             style="max-width: 400px"
             @click="verifyCodeCheck"
           >
-            <span class="wc-h3">다음으로</span>
+            <span class="wc-h3">인증코드 확인</span>
           </v-btn>
 
           <v-btn
@@ -92,7 +96,7 @@
             style="max-width: 400px"
             @click="sendVerifyCode"
           >
-            <span class="wc-h3">인증 코드 재전송</span>
+            <span class="wc-h3">인증코드 재전송</span>
           </v-btn>
         </v-card>
       </v-col>
@@ -112,31 +116,61 @@ export default {
   name: "PhoneInputView",
   mixins: [AuthCtrl, Utility],
   data: () => ({
-    userEmail: "",
+    userInputEmail: "",
     verifyCode: "",
     emailCheckMessage: "",
     emailCheckClass: "",
     sendedVerifyCode: false,
+    isPasswordRecovery: "",
   }),
   computed: {
-    ...mapState("auth", ["userName", "userInfo", "userList", "userData"]),
+    ...mapState("auth", ["userName", "userEmail"]),
   },
   created() {
     if (!this.userName) {
       this.$router.push({ name: "NameInputView" });
     }
     console.log("사용자 이름:", this.userName);
+    console.log("사용자 이메일:", this.userEmail);
+    console.log("isPasswordRecovery:", this.$route.query.isPasswordRecovery);
+
+    if (this.userEmail) {
+      this.isPasswordRecovery = true;
+      console.log("저장된 이메일:", this.userEmail);
+      this.userInputEmail = this.userEmail;
+    }
   },
   methods: {
     ...mapActions("auth", ["setUserInfo"]),
 
     formatEmail() {
-      this.userEmail = this.userEmail.replace(/[^a-zA-Z0-9@._-]/g, "");
+      this.userInputEmail = this.userInputEmail.replace(
+        /[^a-zA-Z0-9@._-]/g,
+        ""
+      );
     },
 
     isValidEmail() {
       const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-      return emailRegex.test(this.userEmail);
+      return emailRegex.test(this.userInputEmail);
+    },
+
+    async checkEmailDuplication(email) {
+      // TODO api에 맞게 수정 필요
+      try {
+        const response = await this.authCheckEmailDuplication(email);
+        if (response.result === 1) {
+          return { isDuplicate: true, message: "이미 등록된 이메일입니다." };
+        } else {
+          return { isDuplicate: false, message: "사용 가능한 이메일입니다." };
+        }
+      } catch (error) {
+        console.error("이메일 중복 확인 오류:", error);
+        return {
+          isDuplicate: false,
+          message: "이메일 중복 확인 중 오류가 발생했습니다.",
+        };
+      }
     },
 
     async sendVerifyCode() {
@@ -148,10 +182,22 @@ export default {
         return;
       }
 
+      if (!this.isPasswordRecovery) {
+        // 이메일 중복 체크
+        const duplicateCheck = await this.checkEmailDuplication(
+          this.userInputEmail
+        );
+        if (duplicateCheck.isDuplicate) {
+          this.emailCheckMessage = duplicateCheck.message;
+          this.emailCheckClass = "error--text";
+          return;
+        }
+      }
+
       try {
         this.emailCheckMessage = "이메일 인증 코드 전송중...";
         this.emailCheckClass = "";
-        const response = await this.authCheckEmail(this.userEmail);
+        const response = await this.authCheckEmail(this.userInputEmail);
         console.log("response : " + response);
 
         if (response.result === 1) {
@@ -172,16 +218,21 @@ export default {
     async verifyCodeCheck() {
       try {
         const response = await this.authVerifyCode(
-          this.userEmail,
+          this.userInputEmail,
           this.verifyCode
         );
 
         if (response.result) {
           this.emailCheckMessage = "인증이 완료되었습니다.";
           this.emailCheckClass = "success--text";
-          // 새 비밀번호 입력 화면으로
-          // this.$router.push({ name: "Password" });
-          this.$router.push({ name: "LoginView" });
+          // alert("인증이 완료되었습니다.");
+          // this.$router.push({ name: "LoginView" });
+          setTimeout(() => {
+            this.$router.push({
+              name: "PasswordInputView",
+              query: { isPasswordRecovery: this.isPasswordRecovery },
+            });
+          }, 2000);
         } else {
           this.emailCheckMessage = "인증 코드가 일치하지 않습니다.";
           this.emailCheckClass = "error--text";

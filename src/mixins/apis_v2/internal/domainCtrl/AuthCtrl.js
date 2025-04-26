@@ -5,7 +5,7 @@ export const AuthCtrl = {
   data() {
     return {
       // URL List
-      User_EP: "api/users",
+      User_EP: "users",
 
       // Model List
       modelUser: {
@@ -155,7 +155,7 @@ export const AuthCtrl = {
           });
 
           if (error.response.status === 404) {
-            console.log(`${logPrefix} �� 사용자를 찾을 수 없습니다.`);
+            console.log(`${logPrefix} 사용자를 찾을 수 없습니다.`);
             return { result: 0, message: "사용자를 찾을 수 없습니다." };
           }
 
@@ -220,7 +220,8 @@ export const AuthCtrl = {
      */
     async authLogin(email, password) {
       try {
-        const requestUrl = `${this.BASIC_URL}auth/login`;
+        // const requestUrl = `${this.BASIC_URL}auth/login`;
+        const requestUrl = `https://attendance.icoramdeo.com/auth/login`;
         const requestData = { email, password };
         const res = await axios.post(requestUrl, requestData, {
           timeout: 8000, // 8초 타임아웃 설정
@@ -260,7 +261,8 @@ export const AuthCtrl = {
 
     async authTokenCheck(accessToken, refreshToken) {
       try {
-        const requestUrl = `${this.BASIC_URL}auth/login`;
+        // const requestUrl = `${this.BASIC_URL}auth/login`;
+        const requestUrl = `https://attendance.icoramdeo.com/auth/login`;
         const res = await axios.get(requestUrl, {
           timeout: 8000, // 8초 타임아웃 설정
           headers: {
@@ -289,7 +291,8 @@ export const AuthCtrl = {
 
     async authRefreshToken(refreshToken) {
       try {
-        const requestUrl = `${this.BASIC_URL}auth/refresh`;
+        // const requestUrl = `${this.BASIC_URL}auth/refresh`;
+        const requestUrl = `https://attendance.icoramdeo.com/auth/refresh`;
         const requestData = { refreshToken };
         const res = await axios.post(requestUrl, requestData, {
           timeout: 8000, // 8초 타임아웃 설정
@@ -318,6 +321,131 @@ export const AuthCtrl = {
           success: false,
           message: `서버 에러 (${error.response.status}): ${error.message}`,
         };
+      }
+    },
+
+    async authCheckEmail(email) {
+      try {
+        // const requestUrl = `${this.BASIC_URL}auth/code`;
+        const requestUrl = `https://attendance.icoramdeo.com/auth/code`;
+        const res = await axios.post(requestUrl, { email });
+
+        if (res.status === 204) {
+          return { result: 1, message: "인증번호 전송 완료" };
+        } else {
+          return { result: 0, message: "인증번호 전송 오류" };
+        }
+      } catch (error) {
+        console.error("인증번호 전송 오류:", error);
+        return { result: 0, message: "인증번호 전송 중 오류가 발생했습니다." };
+      }
+    },
+
+    async authVerifyCode(email, code) {
+      try {
+        // const requestUrl = `${this.BASIC_URL}auth/verify-code`;
+        const requestUrl = `https://attendance.icoramdeo.com/auth/verify`;
+        const res = await axios.post(requestUrl, { email, code });
+
+        if (res.data) {
+          return { result: 1, message: "인증 코드가 유효합니다." };
+        } else {
+          return { result: 0, message: "인증 코드가 유효하지 않습니다." };
+        }
+      } catch (error) {
+        console.error("인증 코드 확인 중 오류 발생:", error);
+        return { result: 0, message: "인증 코드 확인 중 오류가 발생했습니다." };
+      }
+    },
+
+    /**
+     * @description 이메일 중복 확인 API
+     * @param {String} email 확인할 이메일 주소
+     * @returns {Object} 조회 결과 (result: 1-중복, 0-사용가능)
+     */
+    async authCheckEmailDuplication(email) {
+      try {
+        // TODO api에 맞게 수정 필요
+        const requestUrl = `https://attendance.icoramdeo.com/auth/check-email`;
+        const res = await axios.post(
+          requestUrl,
+          { email },
+          {
+            headers: {
+              "Content-Type": "application/json",
+            },
+          }
+        );
+
+        if (res.data) {
+          return { result: 1, message: "이미 등록된 이메일입니다." };
+        } else {
+          return { result: 0, message: "사용 가능한 이메일입니다." };
+        }
+      } catch (error) {
+        console.error("이메일 중복 확인 오류:", error);
+        if (error.response && error.response.status === 404) {
+          return { result: 0, message: "사용 가능한 이메일입니다." };
+        }
+        return {
+          result: 0,
+          message: "이메일 중복 확인 중 오류가 발생했습니다.",
+        };
+      }
+    },
+
+    /**
+     * @description 사용자 등록 API
+     * @param {Object} userData 사용자 등록 정보 (id: 사용자 ID, email: 이메일, password: 비밀번호)
+     * @returns {Object} 등록 결과 (success: true/false, message: 결과 메시지)
+     */
+    async authRegister(userData) {
+      try {
+        // const requestUrl = `${this.BASIC_URL}auth/register`;
+        const requestUrl = `https://attendance.icoramdeo.com/auth/register`;
+        const res = await axios.post(requestUrl, userData, {
+          headers: {
+            "Content-Type": "application/json",
+          },
+        });
+
+        if (res.data) {
+          return {
+            success: true,
+            message: "사용자 등록이 완료되었습니다.",
+            data: res.data,
+          };
+        } else {
+          return {
+            success: false,
+            message: "사용자 등록 중 오류가 발생했습니다.",
+          };
+        }
+      } catch (error) {
+        console.error("사용자 등록 오류:", error);
+
+        if (error.response) {
+          // 서버에서 응답을 받은 경우
+          return {
+            success: false,
+            message:
+              error.response.data.message ||
+              "사용자 등록 중 오류가 발생했습니다.",
+            error: error.response.data,
+          };
+        } else if (error.request) {
+          // 요청은 보냈지만 응답을 받지 못한 경우
+          return {
+            success: false,
+            message: "서버에 연결할 수 없습니다.",
+          };
+        } else {
+          // 요청 설정 중 에러가 발생한 경우
+          return {
+            success: false,
+            message: "요청 준비 중 오류가 발생했습니다.",
+          };
+        }
       }
     },
   },

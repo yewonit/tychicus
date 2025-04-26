@@ -2,6 +2,8 @@
 const state = {
   // 사용자 이름을 저장할 상태
   userName: "",
+  // 사용자 이메일을 저장할 상태
+  userEmail: "",
   // 사용자 정보
   userInfo: {},
   // 동명이인 리스트
@@ -20,6 +22,10 @@ const mutations = {
   SET_USER_NAME(state, userName) {
     state.userName = userName;
   },
+  // 사용자 이름을 설정하는 변이
+  SET_USER_EMAIL(state, userEmail) {
+    state.userEmail = userEmail;
+  },
   // 사용자 정보를 설정하는 변이
   SET_USER_INFO(state, userInfo) {
     state.userInfo = userInfo;
@@ -35,6 +41,7 @@ const mutations = {
   // 로그아웃 시 모든 상태 초기화
   CLEAR_AUTH_STATE(state) {
     state.userName = "";
+    state.userEmail = "";
     state.userInfo = {};
     state.userList = [];
     state.userData = null;
@@ -56,6 +63,11 @@ const actions = {
   setUserName({ commit }, userName) {
     console.log(`[ Store : auth ] setUserName() userName: ${userName}`);
     commit("SET_USER_NAME", userName);
+  },
+  // 사용자 이름을 설정하는 액션
+  setUserEmail({ commit }, userEmail) {
+    console.log(`[ Store : auth ] setUserEmail() userEmail: ${userEmail}`);
+    commit("SET_USER_EMAIL", userEmail);
   },
   // 사용자 정보를 설정하는 액션
   setUserInfo({ commit }, userInfo) {
@@ -98,6 +110,10 @@ const getters = {
   // 사용자 이름을 반환하는 게터
   userName(state) {
     return state.userName;
+  },
+  // 사용자 이메일을 반환하는 게터
+  userEmail(state) {
+    return state.userEmail;
   },
   // 사용자 정보를 반환하는 게터
   userInfo(state) {

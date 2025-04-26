@@ -40,6 +40,34 @@
           @click:append="showPassword = !showPassword"
         ></v-text-field>
 
+        <v-row class="mt-2">
+          <v-col cols="6" class="pa-0">
+            <v-btn
+              text
+              class="text-decoration-none"
+              color="primary"
+              @click="$router.push('/name-input')"
+            >
+              이메일과 비밀번호가 없나요?
+            </v-btn>
+          </v-col>
+          <v-col cols="6" class="pa-0">
+            <v-btn
+              text
+              class="text-decoration-none"
+              color="primary"
+              @click="
+                $router.push({
+                  name: 'NameInputView',
+                  query: { isPasswordRecovery: true },
+                })
+              "
+            >
+              비밀번호를 잃어버렸어요.
+            </v-btn>
+          </v-col>
+        </v-row>
+        <br />
         <!-- 안내 텍스트 -->
         <div class="ma-auto grey--text mb-0 fadeIn">
           <strong>믿음의 눈</strong>으로 <strong>약속의 땅</strong>을 차지할

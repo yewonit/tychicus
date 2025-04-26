@@ -149,8 +149,6 @@ export default {
           // 동명이인 리스트를 Vuex 스토어에 저장
           this.setUserName(this.name);
           this.setUserList(response.userList);
-          // 전화번호 입력 화면으로 이동
-          this.$router.push({ name: "PhoneInputView" });
         }
         // 단일 사용자 처리
         else if (!response.hasDuplicates && response.userData) {
@@ -158,8 +156,6 @@ export default {
           // 사용자 정보를 Vuex 스토어에 저장
           this.setUserName(this.name);
           this.setUserData(response.userData);
-          // 전화번호 입력 화면으로 이동
-          this.$router.push({ name: "PhoneInputView" });
         }
         // 기존 로직 (하위 호환성 유지)
         else {
@@ -167,8 +163,9 @@ export default {
           this.setUserName(this.name);
           console.log("스토어에 저장된 이름:", this.userName);
           // 전화번호 입력을 위한 페이지로 이동합니다.
-          this.$router.push({ name: "PhoneInputView" });
         }
+        // 전화번호 입력 화면으로 이동
+        this.$router.push({ name: "PhoneInputView" });
       } else if (response.message === "이름이 없습니다.") {
         // 이름이 데이터베이스에 없음. 관리자에게 문의하세요 알럿을 띄웁니다.
         this.userNameCheckMessage = "이름이 없습니다. 관리자에게 문의하세요.";

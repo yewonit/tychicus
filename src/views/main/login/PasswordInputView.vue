@@ -4,95 +4,61 @@
       <v-col cols="12" sm="8" md="6" lg="4" class="text-center">
         <v-card flat class="pa-6 transparent">
           <v-icon size="150" class="mb-10" color="#262626"
-            >mdi-phone-dial</v-icon
+            >mdi-lock-outline</v-icon
           >
           <v-text-field
-            v-model="userEmail"
+            v-model="password"
             background-color="#edeef3"
             color="#7EA394"
             solo
             rounded
             flat
             dense
-            type="tel"
-            label="터치해서 이메일을 입력하세요"
+            label="터치해서 비밀번호를 입력하세요"
             hide-details="auto"
-            class="mb-7 mx-auto bg-transparent"
+            class="mb-4 mx-auto bg-transparent"
             style="max-width: 400px"
-            @input="formatEmail"
+            :type="showPassword ? 'text' : 'password'"
+            :append-icon="showPassword ? 'mdi-eye' : 'mdi-eye-off'"
+            @click:append="showPassword = !showPassword"
           ></v-text-field>
 
-          <transition name="slide">
-            <div v-if="sendedVerifyCode">
-              <v-text-field
-                v-model="verifyCode"
-                background-color="#edeef3"
-                color="#7EA394"
-                solo
-                rounded
-                flat
-                dense
-                type="tel"
-                label="터치해서 인증코드를 입력하세요"
-                hide-details="auto"
-                class="mb-7 mx-auto bg-transparent"
-                style="max-width: 400px"
-              ></v-text-field>
-            </div>
-          </transition>
-
-          <div v-if="userName" class="ma-auto black--text mb-7">
-            <span class="wc-bold-900">{{ userName }}</span
-            >님, 반갑습니다!
+          <v-text-field
+            v-model="confirmPassword"
+            background-color="#edeef3"
+            color="#7EA394"
+            solo
+            rounded
+            flat
+            dense
+            label="터치해서 비밀번호를 다시 입력하세요"
+            hide-details="auto"
+            class="mb-4 mx-auto bg-transparent"
+            style="max-width: 400px"
+            :type="showPassword ? 'text' : 'password'"
+            :append-icon="showPassword ? 'mdi-eye' : 'mdi-eye-off'"
+            @click:append="showPassword = !showPassword"
+          ></v-text-field>
+          <div>
+            {{ passwordDefault }}
           </div>
-
-          <!-- 이메일 일치 여부 메시지 -->
           <div
-            v-if="emailCheckMessage"
-            class="ma-auto"
-            :class="emailCheckClass"
+            v-if="passwordMessage"
+            class="ma-auto mb-7"
+            :class="messageClass"
           >
-            {{ emailCheckMessage }}
-          </div>
-
-          <div v-if="!emailCheckMessage" class="ma-auto grey--text mb-7">
-            이메일을 입력해주세요.
+            {{ passwordMessage }}
           </div>
 
           <v-btn
-            v-if="!sendedVerifyCode"
             class="mx-auto wc-btn mt-8"
             rounded
             block
             large
             style="max-width: 400px"
-            @click="sendVerifyCode"
+            @click="setNewPassword"
           >
             <span class="wc-h3">다음으로</span>
-          </v-btn>
-
-          <v-btn
-            v-if="sendedVerifyCode"
-            class="mx-auto wc-btn mt-8"
-            rounded
-            block
-            large
-            style="max-width: 400px"
-            @click="verifyCodeCheck"
-          >
-            <span class="wc-h3">다음으로</span>
-          </v-btn>
-
-          <v-btn
-            v-if="sendedVerifyCode"
-            class="mx-auto wc-btn mt-8"
-            rounded
-            block
-            large
-            style="max-width: 400px"
-            @click="sendVerifyCode"
-          >
-            <span class="wc-h3">인증 코드 재전송</span>
           </v-btn>
         </v-card>
       </v-col>
@@ -109,87 +75,115 @@ import { AuthCtrl } from "@/mixins/apis_v2/internal/domainCtrl/AuthCtrl";
 import { Utility } from "@/mixins/apis_v2/utility/Utility";
 
 export default {
-  name: "PhoneInputView",
+  name: "PasswordInputView",
   mixins: [AuthCtrl, Utility],
   data: () => ({
-    userEmail: "",
-    verifyCode: "",
-    emailCheckMessage: "",
-    emailCheckClass: "",
-    sendedVerifyCode: false,
+    password: "",
+    confirmPassword: "",
+    showPassword: false,
+    passwordDefault: "8자리 이상, 특수문자, 영어 소문자, 숫자 포함",
+    passwordMessage: "",
+    messageClass: "",
+    isPasswordRecovery: false,
   }),
   computed: {
-    ...mapState("auth", ["userName", "userInfo", "userList", "userData"]),
+    ...mapState("auth", ["userName", "userInfo", "userData"]),
   },
   created() {
     if (!this.userName) {
       this.$router.push({ name: "NameInputView" });
     }
     console.log("사용자 이름:", this.userName);
+
+    if (this.$route.query.isPasswordRecovery) {
+      this.isPasswordRecovery = this.$route.query.isPasswordRecovery;
+    }
+  },
+  watch: {
+    password() {
+      this.checkPasswordMatch();
+    },
+    confirmPassword() {
+      this.checkPasswordMatch();
+    },
   },
   methods: {
     ...mapActions("auth", ["setUserInfo"]),
 
-    formatEmail() {
-      this.userEmail = this.userEmail.replace(/[^a-zA-Z0-9@._-]/g, "");
+    checkPasswordMatch() {
+      if (this.password !== this.confirmPassword) {
+        this.passwordMessage = "비밀번호가 일치하지 않습니다.";
+        this.messageClass = "error--text";
+        return;
+      }
+
+      this.passwordMessage = "비밀번호가 일치합니다.";
+      this.messageClass = "success--text";
     },
 
-    isValidEmail() {
-      const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-      return emailRegex.test(this.userEmail);
+    isValidPassword(password) {
+      const passwordRegex =
+        /^(?=.*[a-z])(?=.*[0-9])(?=.*[!@#$%^&*])[a-zA-Z0-9!@#$%^&*]{8,}$/;
+      return passwordRegex.test(password);
     },
 
-    async sendVerifyCode() {
-      console.log("sendVerifyCode called");
-      // 이메일 유효성 검사
-      if (!this.isValidEmail()) {
-        this.emailCheckMessage = "유효한 이메일을 입력해주세요.";
-        this.emailCheckClass = "error--text";
+    async setNewPassword() {
+      if (!this.password || !this.confirmPassword) {
+        this.passwordMessage = "비밀번호를 입력해주세요.";
+        this.messageClass = "error--text";
+        return;
+      }
+
+      if (this.password !== this.confirmPassword) {
+        this.passwordMessage = "비밀번호가 일치하지 않습니다.";
+        this.messageClass = "error--text";
+        return;
+      }
+
+      if (!this.isValidPassword(this.password)) {
+        this.passwordMessage =
+          "비밀번호는 8자리 이상, 특수문자, 영어 소문자, 숫자를 포함해야 합니다.";
+        this.messageClass = "error--text";
         return;
       }
 
       try {
-        this.emailCheckMessage = "이메일 인증 코드 전송중...";
-        this.emailCheckClass = "";
-        const response = await this.authCheckEmail(this.userEmail);
-        console.log("response : " + response);
-
-        if (response.result === 1) {
-          this.emailCheckMessage = "이메일 인증 코드 전송 완료";
-          this.emailCheckClass = "success--text";
-          this.sendedVerifyCode = true;
-        } else if (response.result === 0) {
-          this.emailCheckMessage = "오류가 발생했습니다. 다시 시도해주세요.";
-          this.emailCheckClass = "error--text";
-        }
-      } catch (error) {
-        console.error("이메일 인증 코드 발송 오류:", error);
-        this.emailCheckMessage = "오류가 발생했습니다. 다시 시도해주세요.";
-        this.emailCheckClass = "error--text";
-      }
-    },
-
-    async verifyCodeCheck() {
-      try {
-        const response = await this.authVerifyCode(
-          this.userEmail,
-          this.verifyCode
-        );
-
-        if (response.result) {
-          this.emailCheckMessage = "인증이 완료되었습니다.";
-          this.emailCheckClass = "success--text";
-          this.$router.push({ name: "PasswordInputView" });
-          // 새 비밀번호 입력 화면으로
-          // this.$router.push({ name: "LoginView" });
+        if (this.isPasswordRecovery) {
+          // 비밀번호만 재설정
+          // const registerData = {
+          //   id: this.userInfo.id,
+          //   password: this.password,
+          // };
+          // const response = await this.authRegister(registerData);
+          // if (response.success) {
+          //   this.passwordMessage = "비밀번호가 설정되었습니다.";
+          //   this.messageClass = "success--text";
+          //   this.$router.push({ name: "LoginView" });
+          // } else {
+          //   this.passwordMessage = response.message;
+          //   this.messageClass = "error--text";
+          // }
         } else {
-          this.emailCheckMessage = "인증 코드가 일치하지 않습니다.";
-          this.emailCheckClass = "error--text";
+          const registerData = {
+            id: this.userInfo.id,
+            email: this.userInfo.email,
+            password: this.password,
+          };
+
+          const response = await this.authRegister(registerData);
+          if (response.success) {
+            this.passwordMessage = "비밀번호가 설정되었습니다.";
+            this.messageClass = "success--text";
+            this.$router.push({ name: "LoginView" });
+          } else {
+            this.passwordMessage = response.message;
+            this.messageClass = "error--text";
+          }
         }
       } catch (error) {
-        console.error("검증 오류:", error);
-        this.emailCheckMessage = "검증 오류가 발생했습니다. 다시 시도해주세요.";
-        this.emailCheckClass = "error--text";
+        console.error("비밀번호 설정 오류:", error);
+        this.passwordMessage = "비밀번호 설정 중 오류가 발생했습니다.";
+        this.messageClass = "error--text";
       }
     },
   },
