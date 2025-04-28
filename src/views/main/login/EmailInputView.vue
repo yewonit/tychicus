@@ -121,7 +121,7 @@ export default {
     emailCheckMessage: "",
     emailCheckClass: "",
     sendedVerifyCode: false,
-    isPasswordRecovery: "",
+    isPasswordRecovery: false,
   }),
   computed: {
     ...mapState("auth", ["userName", "userEmail"]),
@@ -132,8 +132,8 @@ export default {
     }
     console.log("사용자 이름:", this.userName);
     console.log("사용자 이메일:", this.userEmail);
-    console.log("isPasswordRecovery:", this.$route.query.isPasswordRecovery);
 
+    // 테스트 주석
     if (this.userEmail) {
       this.isPasswordRecovery = true;
       console.log("저장된 이메일:", this.userEmail);
@@ -156,19 +156,21 @@ export default {
     },
 
     async checkEmailDuplication(email) {
-      // TODO api에 맞게 수정 필요
       try {
         const response = await this.authCheckEmailDuplication(email);
-        if (response.result === 1) {
-          return { isDuplicate: true, message: "이미 등록된 이메일입니다." };
+        if (response) {
+          return { isDuplicate: response.result, message: response.message };
         } else {
-          return { isDuplicate: false, message: "사용 가능한 이메일입니다." };
+          return {
+            isDuplicate: true,
+            message: "이메일 중복 체크 오류입니다.",
+          };
         }
       } catch (error) {
         console.error("이메일 중복 확인 오류:", error);
         return {
-          isDuplicate: false,
-          message: "이메일 중복 확인 중 오류가 발생했습니다.",
+          isDuplicate: true,
+          message: error.message,
         };
       }
     },

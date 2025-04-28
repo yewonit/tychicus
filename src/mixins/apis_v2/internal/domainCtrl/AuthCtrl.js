@@ -361,15 +361,16 @@ export const AuthCtrl = {
     /**
      * @description 이메일 중복 확인 API
      * @param {String} email 확인할 이메일 주소
-     * @returns {Object} 조회 결과 (result: 1-중복, 0-사용가능)
+     * @returns {Object} 조회 결과 ({"message": "이메일 사용 가능","email": "icetime963@gmail.com"})
      */
     async authCheckEmailDuplication(email) {
       try {
-        // TODO api에 맞게 수정 필요
         const requestUrl = `https://attendance.icoramdeo.com/auth/check-email`;
-        const res = await axios.post(
+        const res = await axios.get(
           requestUrl,
-          { email },
+          {
+            params: { email },
+          },
           {
             headers: {
               "Content-Type": "application/json",
@@ -378,19 +379,22 @@ export const AuthCtrl = {
         );
 
         if (res.data) {
-          return { result: 1, message: "이미 등록된 이메일입니다." };
+          return { result: 0, message: res.data.message };
         } else {
-          return { result: 0, message: "사용 가능한 이메일입니다." };
+          return { result: 1, message: "이메일 중복 체크 오류입니다." };
         }
       } catch (error) {
-        console.error("이메일 중복 확인 오류:", error);
-        if (error.response && error.response.status === 404) {
-          return { result: 0, message: "사용 가능한 이메일입니다." };
+        if (error.response.data.error.name === "DataConflictError") {
+          return {
+            result: 1,
+            message: "이미 같은 email로 등록된 유저가 있습니다.",
+          };
+        } else {
+          return {
+            result: 1,
+            message: "이메일 중복 체크 오류입니다.",
+          };
         }
-        return {
-          result: 0,
-          message: "이메일 중복 확인 중 오류가 발생했습니다.",
-        };
       }
     },
 
