@@ -1,6 +1,6 @@
 import { ModelCtrl } from "@/mixins/apis_v2/internal/core/ModelCtrl";
 import axios from "axios";
-import { API_BASE_URL } from "@/config/environments.js";
+import env from "@/config/environments.js";
 
 export const VisitManagementCtrl = {
   data() {
@@ -24,7 +24,7 @@ export const VisitManagementCtrl = {
         );
       }
       const res = await axios.get(
-        `${API_BASE_URL}/get-visit-post/${visiteeId}`
+        `${env.API_BASE_URL}/get-visit-post/${visiteeId}`
       );
       let returnData = res.data;
       if (showLog) {

@@ -1,6 +1,6 @@
 import { ModelCtrl } from "@/mixins/apis_v2/internal/core/ModelCtrl";
 import axios from "axios";
-import { API_BASE_URL } from "@/config/environments";
+import env from "@/config/environments";
 
 export const AttendanceCtrl = {
   data() {
@@ -42,7 +42,7 @@ export const AttendanceCtrl = {
       }
       try {
         const res = await axios.get(
-          `${API_BASE_URL}/${this.Organization_EP}/${organizationId}/${this.Activity_EP}`
+          `${env.API_BASE_URL}/${this.Organization_EP}/${organizationId}/${this.Activity_EP}`
         );
         let returnData = res.data;
         if (showLog) {
@@ -72,7 +72,7 @@ export const AttendanceCtrl = {
       }
       try {
         const res = await axios.post(
-          `${API_BASE_URL}/${this.Activity_EP}`,
+          `${env.API_BASE_URL}/${this.Activity_EP}`,
           activityData
         );
         let returnData = res.data;
@@ -122,7 +122,7 @@ export const AttendanceCtrl = {
         console.log(`🎯 activityId: ${activityId}`);
       }
       try {
-        const instanceUrl = `${API_BASE_URL}/${this.Organization_EP}/${organizationId}/${this.Activity_EP}/${activityId}/attendance`;
+        const instanceUrl = `${env.API_BASE_URL}/${this.Organization_EP}/${organizationId}/${this.Activity_EP}/${activityId}/attendance`;
         console.log("🌐 활동 인스턴스 생성 URL:", instanceUrl);
         console.log("📦 instanceData:", instanceData);
         console.log("👥 attendances:", attendances);
@@ -194,7 +194,7 @@ export const AttendanceCtrl = {
       }
 
       try {
-        const deleteUrl = `${API_BASE_URL}/organizations/${organizationId}/activities/${activityId}/instances/${activityInstanceId}`;
+        const deleteUrl = `${env.API_BASE_URL}/organizations/${organizationId}/activities/${activityId}/instances/${activityInstanceId}`;
         console.log("🌐 활동 인스턴스 삭제 URL:", deleteUrl);
 
         const res = await axios.delete(deleteUrl);
@@ -246,7 +246,7 @@ export const AttendanceCtrl = {
       }
 
       try {
-        const updateUrl = `${API_BASE_URL}/organizations/${organizationId}/activities/${activityId}/instances/${activityInstanceId}/attendance`;
+        const updateUrl = `${env.API_BASE_URL}/organizations/${organizationId}/activities/${activityId}/instances/${activityInstanceId}/attendance`;
         console.log("🌐 출석 정보 업데이트 URL:", updateUrl);
         console.log("📦 instanceData:", instanceData);
         console.log("👥 attendances:", attendances);
@@ -288,7 +288,7 @@ export const AttendanceCtrl = {
       }
 
       try {
-        const url = `${API_BASE_URL}/organizations/${organizationId}/activities/${activityId}/instances/${activityInstanceId}`;
+        const url = `${env.API_BASE_URL}/organizations/${organizationId}/activities/${activityId}/instances/${activityInstanceId}`;
         const res = await axios.get(url);
         let returnData = res.data;
 
@@ -315,7 +315,7 @@ export const AttendanceCtrl = {
       }
 
       try {
-        const url = `${API_BASE_URL}/organizations/${organizationId}/members`;
+        const url = `${env.API_BASE_URL}/organizations/${organizationId}/members`;
         const res = await axios.get(url);
         let returnData = res.data;
 

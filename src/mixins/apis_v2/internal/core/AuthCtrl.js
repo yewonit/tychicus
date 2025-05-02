@@ -1,5 +1,5 @@
 import axios from "axios";
-import { AUTH_BASE_URL } from "@/config/environments.js";
+import env from "@/config/environments.js";
 
 export const AuthCtrl = {
   data() {
@@ -64,7 +64,7 @@ export const AuthCtrl = {
     // 로그인이 필요한 API 를 호출할 때 사용
     async getAuthAxios() {
       const baseAxios = await axios.create({
-        baseURL: AUTH_BASE_URL,
+        baseURL: env.AUTH_BASE_URL,
         headers: {
           authorization: "Bearer " + localStorage.getItem("access_token"),
         },
@@ -74,7 +74,7 @@ export const AuthCtrl = {
     // 로그인이 필요 없는 API를 호출할 때 사용
     async getOpenAxios() {
       const baseAxios = await axios.create({
-        baseURL: AUTH_BASE_URL,
+        baseURL: env.AUTH_BASE_URL,
       });
       return baseAxios;
     },
@@ -85,7 +85,7 @@ export const AuthCtrl = {
       console.log("refreshToken", refreshToken);
       if (refreshToken) {
         axios
-          .post(AUTH_BASE_URL + "refresh", {
+          .post(env.AUTH_BASE_URL + "refresh", {
             refreshToken: localStorage.getItem("refresh_token"),
           })
           .then((res) => {

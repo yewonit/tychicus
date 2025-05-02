@@ -1,5 +1,5 @@
 import axios from "axios";
-import { API_BASE_URL } from "@/config/environments.js";
+import env from "@/config/environments.js";
 
 export const CurrentMemberCtrl = {
   data() {
@@ -26,7 +26,7 @@ export const CurrentMemberCtrl = {
 
       try {
         const res = await axios.get(
-          `${API_BASE_URL}/${this.CurrentMember_EP}`,
+          `${env.API_BASE_URL}/${this.CurrentMember_EP}`,
           {
             params: {
               organizationId: organizationId,
@@ -63,7 +63,7 @@ export const CurrentMemberCtrl = {
       showLog
     ) {
       // API 엔드포인트 구성
-      const apiEndpoint = `${API_BASE_URL}/${this.CurrentMember_EP}`;
+      const apiEndpoint = `${env.API_BASE_URL}/${this.CurrentMember_EP}`;
 
       if (showLog) {
         console.group(
@@ -220,7 +220,7 @@ export const CurrentMemberCtrl = {
 
       try {
         const res = await axios.delete(
-          `${API_BASE_URL}/${this.CurrentMember_EP}/${userId}`
+          `${env.API_BASE_URL}/${this.CurrentMember_EP}/${userId}`
         );
 
         let returnData = res.data;
@@ -254,7 +254,7 @@ export const CurrentMemberCtrl = {
 
       try {
         const res = await axios.put(
-          `${API_BASE_URL}/${this.CurrentMember_EP}/${userId}`,
+          `${env.API_BASE_URL}/${this.CurrentMember_EP}/${userId}`,
           userData
         );
 

@@ -1,6 +1,6 @@
 import { ModelCtrl } from "@/mixins/apis_v2/internal/core/ModelCtrl";
 import axios from "axios";
-import { API_BASE_URL } from "@/config/environments.js";
+import env from "@/config/environments.js";
 
 export const AuthCtrl = {
   data() {
@@ -62,7 +62,7 @@ export const AuthCtrl = {
       try {
         // 2. API 요청 준비 로깅
         const encodedName = encodeURIComponent(name);
-        const requestUrl = `${API_BASE_URL}/${this.User_EP}/name`;
+        const requestUrl = `${env.API_BASE_URL}/${this.User_EP}/name`;
 
         console.log(`${logPrefix} 📡 API 요청 정보:`, {
           url: requestUrl,
@@ -195,7 +195,7 @@ export const AuthCtrl = {
         );
       }
       const res = await axios.post(
-        `${API_BASE_URL}/${this.User_EP}/phone-number`,
+        `${env.API_BASE_URL}/${this.User_EP}/phone-number`,
         userInfo
       );
       let returnData = res.data;
