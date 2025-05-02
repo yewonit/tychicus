@@ -1,4 +1,4 @@
-import axios from "axios";
+import axiosApiClient from "@/utils/axiosApiClient";
 import env from "@/config/environments.js";
 
 export const CurrentMemberCtrl = {
@@ -25,7 +25,7 @@ export const CurrentMemberCtrl = {
       }
 
       try {
-        const res = await axios.get(
+        const res = await axiosApiClient.get(
           `${env.API_BASE_URL}/${this.CurrentMember_EP}`,
           {
             params: {
@@ -117,7 +117,7 @@ export const CurrentMemberCtrl = {
           console.log("요청 헤더:", {
             "Content-Type": "application/json",
             Authorization:
-              axios.defaults.headers.common["Authorization"] ||
+              axiosApiClient.defaults.headers.common["Authorization"] ||
               "인증 정보 없음",
           });
           console.log("요청 본문:", requestBody);
@@ -126,7 +126,7 @@ export const CurrentMemberCtrl = {
 
         // API 요청 실행
         console.time("API 요청 시간");
-        const res = await axios.post(apiEndpoint, requestBody);
+        const res = await axiosApiClient.post(apiEndpoint, requestBody);
         console.timeEnd("API 요청 시간");
 
         // 응답 처리
@@ -219,7 +219,7 @@ export const CurrentMemberCtrl = {
       }
 
       try {
-        const res = await axios.delete(
+        const res = await axiosApiClient.delete(
           `${env.API_BASE_URL}/${this.CurrentMember_EP}/${userId}`
         );
 
@@ -253,7 +253,7 @@ export const CurrentMemberCtrl = {
       }
 
       try {
-        const res = await axios.put(
+        const res = await axiosApiClient.put(
           `${env.API_BASE_URL}/${this.CurrentMember_EP}/${userId}`,
           userData
         );

@@ -1,5 +1,5 @@
 import { ModelCtrl } from "@/mixins/apis_v2/internal/core/ModelCtrl";
-import axios from "axios";
+import axiosApiClient from "@/utils/axiosApiClient";
 import env from "@/config/environments";
 
 export const AttendanceCtrl = {
@@ -41,7 +41,7 @@ export const AttendanceCtrl = {
         );
       }
       try {
-        const res = await axios.get(
+        const res = await axiosApiClient.get(
           `${env.API_BASE_URL}/${this.Organization_EP}/${organizationId}/${this.Activity_EP}`
         );
         let returnData = res.data;
@@ -71,7 +71,7 @@ export const AttendanceCtrl = {
         );
       }
       try {
-        const res = await axios.post(
+        const res = await axiosApiClient.post(
           `${env.API_BASE_URL}/${this.Activity_EP}`,
           activityData
         );
@@ -134,7 +134,7 @@ export const AttendanceCtrl = {
           imageInfo,
         };
 
-        const res = await axios.post(instanceUrl, requestData);
+        const res = await axiosApiClient.post(instanceUrl, requestData);
         let returnData = res.data;
 
         if (showLog) {
@@ -197,7 +197,7 @@ export const AttendanceCtrl = {
         const deleteUrl = `${env.API_BASE_URL}/organizations/${organizationId}/activities/${activityId}/instances/${activityInstanceId}`;
         console.log("🌐 활동 인스턴스 삭제 URL:", deleteUrl);
 
-        const res = await axios.delete(deleteUrl);
+        const res = await axiosApiClient.delete(deleteUrl);
         let returnData = res.data;
 
         if (showLog) {
@@ -253,7 +253,7 @@ export const AttendanceCtrl = {
         console.log("📸 imageInfo:", imageInfo);
 
         const requestData = { instanceData, attendances, imageInfo };
-        const res = await axios.put(updateUrl, requestData);
+        const res = await axiosApiClient.put(updateUrl, requestData);
         let returnData = res.data;
 
         if (showLog) {
@@ -289,7 +289,7 @@ export const AttendanceCtrl = {
 
       try {
         const url = `${env.API_BASE_URL}/organizations/${organizationId}/activities/${activityId}/instances/${activityInstanceId}`;
-        const res = await axios.get(url);
+        const res = await axiosApiClient.get(url);
         let returnData = res.data;
 
         if (showLog) {
@@ -316,7 +316,7 @@ export const AttendanceCtrl = {
 
       try {
         const url = `${env.API_BASE_URL}/organizations/${organizationId}/members`;
-        const res = await axios.get(url);
+        const res = await axiosApiClient.get(url);
         let returnData = res.data;
 
         if (showLog) {

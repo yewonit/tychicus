@@ -1,5 +1,5 @@
 import { ModelCtrl } from "@/mixins/apis_v2/internal/core/ModelCtrl";
-import axios from "axios";
+import axiosApiClient from "@/utils/axiosApiClient";
 import env from "@/config/environments.js";
 
 export const AuthCtrl = {
@@ -76,7 +76,7 @@ export const AuthCtrl = {
         console.log(`${logPrefix} ⏳ API 요청 시작...`);
         const startTime = performance.now();
 
-        const res = await axios.get(requestUrl, {
+        const res = await axiosApiClient.get(requestUrl, {
           params: { name: encodedName },
           timeout: 8000, // 8초 타임아웃 설정
         });
@@ -194,7 +194,7 @@ export const AuthCtrl = {
           `color: #6495ED;`
         );
       }
-      const res = await axios.post(
+      const res = await axiosApiClient.post(
         `${env.API_BASE_URL}/${this.User_EP}/phone-number`,
         userInfo
       );

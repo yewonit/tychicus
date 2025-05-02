@@ -1,5 +1,5 @@
 import { ModelCtrl } from "@/mixins/apis_v2/internal/core/ModelCtrl";
-import axios from "axios";
+import axiosApiClient from "@/utils/axiosApiClient";
 import env from "@/config/environments.js";
 
 export const VisitManagementCtrl = {
@@ -23,7 +23,7 @@ export const VisitManagementCtrl = {
           "color: #6495ED;"
         );
       }
-      const res = await axios.get(
+      const res = await axiosApiClient.get(
         `${env.API_BASE_URL}/get-visit-post/${visiteeId}`
       );
       let returnData = res.data;

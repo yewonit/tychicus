@@ -1,4 +1,4 @@
-import axios from "axios";
+import axiosApiClient from "@/utils/axiosApiClient";
 import env from "@/config/environments.js";
 
 export const OrganizationCtrl = {
@@ -24,7 +24,7 @@ export const OrganizationCtrl = {
       }
 
       try {
-        const res = await axios.get(
+        const res = await axiosApiClient.get(
           `${env.API_BASE_URL}/${this.Organization_EP}`
         );
 
@@ -66,7 +66,7 @@ export const OrganizationCtrl = {
       }
 
       try {
-        const res = await axios.get(
+        const res = await axiosApiClient.get(
           `${env.API_BASE_URL}/${this.Organization_EP}/${organizationId}`
         );
 
@@ -100,7 +100,7 @@ export const OrganizationCtrl = {
       }
 
       try {
-        const res = await axios.post(
+        const res = await axiosApiClient.post(
           `${env.API_BASE_URL}/${this.Organization_EP}`,
           organizationData
         );
@@ -136,7 +136,7 @@ export const OrganizationCtrl = {
       }
 
       try {
-        const res = await axios.put(
+        const res = await axiosApiClient.put(
           `${env.API_BASE_URL}/${this.Organization_EP}/${organizationId}`,
           organizationData
         );
@@ -169,7 +169,7 @@ export const OrganizationCtrl = {
       }
 
       try {
-        const res = await axios.delete(
+        const res = await axiosApiClient.delete(
           `${env.API_BASE_URL}/${this.Organization_EP}/${organizationId}`
         );
 
