@@ -4,9 +4,9 @@ export const AWSS3Ctrl = {
   data() {
     return {
       // AWS S3 버킷 정보
-      albumBucketName: "church-attendance", // S3 버킷 이름
+      albumBucketName: "tychicus", // S3 버킷 이름
       bucketRegion: "ap-northeast-2", // AWS 리전 (서울)
-      IdentityPoolId: "ap-northeast-2:5e8b852b-4649-4451-a8e1-a831049355a1", // Cognito Identity Pool ID
+      IdentityPoolId: "ap-northeast-2:bfd26cc6-669c-4afb-a4d3-580c5f35f776", // Cognito Identity Pool ID
       s3: null, // AWS S3 인스턴스를 저장할 변수
     };
   },
