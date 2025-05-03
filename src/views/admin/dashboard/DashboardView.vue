@@ -2379,9 +2379,9 @@ export default {
     var(--mint-color) 100%
   );
   --background-color: #f8fafb;
-  --card-color: #ffffff;
+  --card-color: #f9fbfd;
   --text-primary: #2c3e50;
-  --text-secondary: #546e7a;
+  --text-secondary: #455a64;
   --text-tertiary: #78909c;
   --border-color: #e0f2f1;
 }
@@ -2402,56 +2402,96 @@ export default {
   border-color: var(--mint-light) !important;
 }
 
+/* 주요 데이터 영역 배경색 강화 */
+.attendance-data-card .v-card-text,
+.attendance-chart-card .v-card-text {
+  background-color: var(--card-color);
+}
+
 .search-btn {
   margin-left: 4px;
   min-width: 80px;
   font-weight: 500;
   background: linear-gradient(135deg, #4ecdc4 0%, #38b6ff 100%) !important;
   color: white !important;
-  box-shadow: 0 3px 6px rgba(76, 175, 180, 0.2) !important;
+  box-shadow: 0 4px 8px rgba(76, 175, 180, 0.25) !important;
   transition: all 0.3s ease;
+  letter-spacing: 0.3px;
+  height: 40px;
 }
 
 .search-btn:hover {
-  box-shadow: 0 5px 10px rgba(76, 175, 180, 0.3) !important;
-  transform: translateY(-1px);
+  box-shadow: 0 6px 12px rgba(76, 175, 180, 0.35) !important;
+  transform: translateY(-2px);
 }
 
 .update-btn {
   background-color: #8cd6ff !important;
   color: #2c3e50 !important;
-  box-shadow: 0 3px 6px rgba(56, 182, 255, 0.15) !important;
+  box-shadow: 0 4px 8px rgba(56, 182, 255, 0.25) !important;
   transition: all 0.3s ease;
+  font-weight: 500;
+  letter-spacing: 0.3px;
+  height: 40px;
 }
 
 .update-btn:hover {
-  box-shadow: 0 5px 10px rgba(56, 182, 255, 0.25) !important;
-  transform: translateY(-1px);
+  box-shadow: 0 6px 12px rgba(56, 182, 255, 0.35) !important;
+  transform: translateY(-2px);
 }
 
 .excel-download-btn {
   background-color: #a6e7e2 !important;
   color: #2c3e50 !important;
-  box-shadow: 0 3px 6px rgba(78, 205, 196, 0.15) !important;
+  box-shadow: 0 4px 8px rgba(78, 205, 196, 0.25) !important;
   transition: all 0.3s ease;
+  font-weight: 500;
+  letter-spacing: 0.3px;
+  height: 40px;
 }
 
 .excel-download-btn:hover {
-  box-shadow: 0 5px 10px rgba(78, 205, 196, 0.25) !important;
-  transform: translateY(-1px);
+  box-shadow: 0 6px 12px rgba(78, 205, 196, 0.35) !important;
+  transform: translateY(-2px);
 }
 
 /* 카드 디자인 개선 */
-.dashboard-header-card,
-.attendance-chart-card,
-.attendance-data-card {
+/* 데이터 표시 카드 */
+.attendance-data-card,
+.attendance-chart-card {
+  border-radius: 12px !important;
+  overflow: hidden;
+  box-shadow: 0 6px 16px rgba(0, 0, 0, 0.08) !important;
+  margin-bottom: 24px;
+  background-color: #ffffff !important;
+  border: 1px solid rgba(78, 205, 196, 0.2) !important;
+  transition: all 0.3s ease;
+}
+
+/* 필터링 및 컨트롤 카드 */
+.dashboard-header-card {
   border-radius: 12px !important;
   overflow: hidden;
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05) !important;
   margin-bottom: 24px;
   background-color: #ffffff !important;
-  border: 1px solid #e0f2f1 !important;
+  border: 1px solid rgba(224, 242, 241, 0.7) !important;
   transition: all 0.3s ease;
+}
+
+.dashboard-cards-container {
+  margin-top: 32px;
+}
+
+.dashboard-cards-container .v-row {
+  margin-bottom: 32px;
+}
+
+.card-section-divider {
+  height: 1px;
+  background: rgba(224, 242, 241, 0.7);
+  margin: 16px 0 24px;
+  width: 100%;
 }
 
 .dashboard-header-card:hover,
@@ -2473,11 +2513,11 @@ export default {
 }
 
 .dashboard-header {
-  padding: 20px 24px;
   display: flex;
   flex-wrap: wrap;
-  align-items: center;
+  justify-content: space-between;
   gap: 20px;
+  padding: 20px 24px;
   position: relative;
   background: linear-gradient(
     to right,
@@ -2491,6 +2531,19 @@ export default {
   align-items: flex-end;
   gap: 12px;
   flex-wrap: nowrap;
+}
+
+.date-controls-wrapper {
+  display: flex;
+  align-items: flex-end;
+  min-width: 360px;
+  gap: 12px;
+}
+
+.action-buttons-container {
+  display: flex;
+  align-items: center;
+  gap: 12px;
 }
 
 .date-field-container {
@@ -3208,25 +3261,27 @@ export default {
 }
 
 .attendance-present {
-  background-color: rgba(166, 231, 226, 0.5);
+  background-color: rgba(166, 231, 226, 0.7);
   color: #155724;
-  border: 1px solid rgba(78, 205, 196, 0.3);
+  border: 1px solid rgba(78, 205, 196, 0.4);
+  font-weight: 600;
 }
 
 .attendance-present:hover {
-  background-color: rgba(166, 231, 226, 0.7);
+  background-color: rgba(166, 231, 226, 0.8);
   transform: scale(1.05);
   box-shadow: 0 2px 4px rgba(78, 205, 196, 0.15);
 }
 
 .attendance-absent {
-  background-color: rgba(248, 215, 218, 0.5);
+  background-color: rgba(248, 215, 218, 0.7);
   color: #721c24;
-  border: 1px solid rgba(220, 53, 69, 0.3);
+  border: 1px solid rgba(220, 53, 69, 0.4);
+  font-weight: 600;
 }
 
 .attendance-absent:hover {
-  background-color: rgba(248, 215, 218, 0.7);
+  background-color: rgba(248, 215, 218, 0.8);
   transform: scale(1.05);
   box-shadow: 0 2px 4px rgba(220, 53, 69, 0.15);
 }
@@ -3237,14 +3292,32 @@ export default {
   box-shadow: var(--shadow-sm) !important;
 }
 
+.v-data-table {
+  border-radius: 8px;
+  overflow: hidden;
+  border: 1px solid rgba(224, 242, 241, 0.5);
+}
+
+.v-data-table thead {
+  background: linear-gradient(to right, #f8fbfc, #ecf7fa) !important;
+}
+
+.v-data-table tbody tr:nth-child(even) {
+  background-color: rgba(248, 250, 251, 0.5);
+}
+
+.v-data-table tbody tr:hover {
+  background-color: rgba(166, 231, 226, 0.1) !important;
+}
+
 .v-data-table thead th {
-  color: #2c3e50 !important;
+  color: var(--text-primary) !important;
   font-weight: 600 !important;
-  background: linear-gradient(to right, #f8f9fa, #f2f9fc) !important;
+  background: linear-gradient(to right, #f8fbfc, #ecf7fa) !important;
   line-height: 1.3 !important;
   padding-top: 12px !important;
   padding-bottom: 12px !important;
-  border-bottom: 2px solid rgba(78, 205, 196, 0.2) !important;
+  border-bottom: 2px solid rgba(78, 205, 196, 0.3) !important;
 }
 
 .v-data-table tbody tr:hover {
@@ -3289,6 +3362,21 @@ export default {
 .dashboard-active .v-toolbar-title {
   margin-left: 0 !important;
   padding-left: 16px !important;
+}
+
+/* 카드 내부 패딩 통일 */
+.dashboard-header,
+.filter-header,
+.chart-header,
+.v-card-text,
+.v-card-actions {
+  padding: 16px 24px !important;
+}
+
+/* 버튼 간격 통일 */
+.header-actions .v-btn + .v-btn,
+.table-filter-controls .v-btn + .v-btn {
+  margin-left: 12px;
 }
 
 /* 반응형 스타일 */
@@ -3510,15 +3598,32 @@ export default {
 }
 
 .text-h5 {
+  font-size: 22px !important;
   font-weight: 600 !important;
   letter-spacing: 0.3px !important;
-  color: #2c3e50 !important;
+  color: var(--text-primary) !important;
 }
 
 .text-h6 {
+  font-size: 18px !important;
   font-weight: 600 !important;
   letter-spacing: 0.2px !important;
-  color: #2c3e50 !important;
+  color: var(--text-primary) !important;
+}
+
+/* 본문 텍스트 */
+.v-data-table tbody td {
+  font-size: 14px !important;
+  color: var(--text-secondary) !important;
+}
+
+/* 테이블 헤더 */
+.v-data-table thead th {
+  font-size: 14px !important;
+  font-weight: 600 !important;
+  color: var(--text-primary) !important;
+  letter-spacing: 0.2px !important;
+  border-bottom: 2px solid rgba(78, 205, 196, 0.3) !important;
 }
 
 /* 애니메이션 효과 */
@@ -3627,6 +3732,17 @@ export default {
 .organization-select {
   min-width: 180px;
   max-width: 300px;
+}
+
+.organization-select.v-input,
+.search-field.v-input {
+  border-radius: 6px;
+  overflow: hidden;
+}
+
+.organization-select .v-input__slot,
+.search-field .v-input__slot {
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.05) !important;
 }
 
 .search-field {
@@ -3929,9 +4045,9 @@ export default {
 
 /* 비밀번호 대화상자 스타일 */
 .password-dialog {
-  border-radius: 12px !important;
+  border-radius: 16px !important;
   overflow: hidden;
-  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.12) !important;
+  box-shadow: 0 12px 30px rgba(0, 0, 0, 0.15) !important;
   animation: fadeInAndSlideDown 0.4s ease-out;
 }
 
@@ -3949,7 +4065,7 @@ export default {
 .password-header {
   display: flex;
   align-items: center;
-  padding: 24px;
+  padding: 28px 24px;
   background: linear-gradient(
     135deg,
     var(--mint-color) 0%,
@@ -3972,33 +4088,34 @@ export default {
 }
 
 .password-header .lock-icon {
-  font-size: 32px;
-  margin-right: 16px;
-  background: rgba(255, 255, 255, 0.2);
+  font-size: 36px;
+  margin-right: 18px;
+  background: rgba(255, 255, 255, 0.25);
   border-radius: 50%;
-  padding: 8px;
-  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+  padding: 10px;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.15);
 }
 
 .password-header .headline {
   font-weight: 600;
-  font-size: 20px;
+  font-size: 22px;
   margin: 0;
-  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.1);
+  text-shadow: 0 2px 4px rgba(0, 0, 0, 0.15);
 }
 
 .password-content {
-  padding: 32px 24px !important;
+  padding: 36px 28px !important;
 }
 
 .password-message {
   display: flex;
   align-items: center;
-  padding: 12px 16px;
-  background-color: rgba(56, 182, 255, 0.1);
+  padding: 14px 18px;
+  background-color: rgba(56, 182, 255, 0.12);
   border-radius: 8px;
-  margin-bottom: 24px;
+  margin-bottom: 28px;
   border-left: 4px solid var(--skyblue-color);
+  box-shadow: 0 2px 6px rgba(56, 182, 255, 0.08);
 }
 
 .password-input {
@@ -4073,7 +4190,7 @@ export default {
 .absence-risk-card {
   border-radius: 12px !important;
   overflow: hidden;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05) !important;
+  box-shadow: 0 6px 16px rgba(244, 67, 54, 0.08) !important;
   margin-bottom: 24px;
   background-color: #ffffff !important;
   border: 1px solid rgba(244, 67, 54, 0.2) !important;
@@ -4119,6 +4236,31 @@ export default {
   letter-spacing: 0.3px !important;
 }
 
+/* 아이콘 크기 및 색상 일관성 */
+.dashboard-header .v-icon,
+.filter-header .v-icon,
+.absence-header .v-icon {
+  font-size: 24px !important;
+}
+
+.dashboard-title .v-icon {
+  color: var(--mint-color) !important;
+}
+
+.filter-header .v-icon {
+  color: var(--skyblue-color) !important;
+}
+
+.absence-header .v-icon {
+  color: #f44336 !important;
+}
+
+/* 버튼 내 아이콘 일관성 */
+.v-btn .v-icon {
+  font-size: 20px !important;
+  margin-right: 6px !important;
+}
+
 /* 로딩 인디케이터 스타일 */
 .loading-overlay {
   backdrop-filter: blur(8px);
@@ -4133,14 +4275,14 @@ export default {
   display: flex;
   flex-direction: column;
   align-items: center;
-  background-color: rgba(30, 40, 50, 0.8);
+  background-color: rgba(30, 40, 50, 0.85);
   border-radius: 16px;
-  padding: 24px 32px;
-  box-shadow: 0 12px 30px rgba(0, 0, 0, 0.25);
-  max-width: 450px;
+  padding: 28px 32px;
+  box-shadow: 0 16px 32px rgba(0, 0, 0, 0.25);
+  max-width: 420px;
   width: 90%;
   animation: fadeIn 0.4s ease-out;
-  border: 1px solid rgba(255, 255, 255, 0.1);
+  border: 1px solid rgba(255, 255, 255, 0.15);
   position: relative;
   overflow: hidden;
   will-change: transform, opacity;
@@ -4148,10 +4290,12 @@ export default {
 
 .loading-spinner-wrapper {
   position: relative;
-  margin-bottom: 24px;
+  margin-bottom: 28px;
   display: flex;
   justify-content: center;
   align-items: center;
+  width: 80px;
+  height: 80px;
 }
 
 .loading-spinner {
@@ -4170,8 +4314,8 @@ export default {
   border-radius: 50%;
   background: radial-gradient(
     circle,
-    rgba(78, 205, 196, 0.3) 0%,
-    rgba(78, 205, 196, 0.1) 40%,
+    rgba(78, 205, 196, 0.4) 0%,
+    rgba(78, 205, 196, 0.2) 40%,
     transparent 70%
   );
   animation: pulse 2s infinite;
@@ -4184,11 +4328,11 @@ export default {
 }
 
 .loading-title {
-  font-size: 18px;
+  font-size: 20px;
   font-weight: 600;
   color: white;
-  margin-bottom: 16px;
-  text-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+  margin-bottom: 20px;
+  text-shadow: 0 2px 5px rgba(0, 0, 0, 0.3);
 }
 
 .loading-progress-bar {
