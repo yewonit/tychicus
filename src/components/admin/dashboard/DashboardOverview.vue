@@ -885,7 +885,7 @@ export default {
           (item) => item.value === this.selectedMeetingType
         )?.text || "";
 
-      ctx.fillStyle = "rgba(78, 205, 196, 1)";
+      ctx.fillStyle = "rgba(126, 163, 148, 1)";
       ctx.font = "14px Arial";
       ctx.textAlign = "center";
       ctx.fillText(
@@ -981,7 +981,7 @@ export default {
         );
         ctx.closePath();
 
-        ctx.fillStyle = "rgba(78, 205, 196, 0.2)";
+        ctx.fillStyle = "rgba(126, 163, 148, 0.2)";
         ctx.fill();
 
         // 선 그리기 (데이터가 있는 부분만)
@@ -992,7 +992,7 @@ export default {
           ctx.lineTo(validPoints[i].x, validPoints[i].y);
         }
 
-        ctx.strokeStyle = "rgba(78, 205, 196, 1)";
+        ctx.strokeStyle = "rgba(126, 163, 148, 1)";
         ctx.lineWidth = 2;
         ctx.stroke();
       }
@@ -1005,7 +1005,7 @@ export default {
         ctx.beginPath();
         ctx.arc(point.x, point.y, hasData ? 5 : 3, 0, Math.PI * 2);
         ctx.fillStyle = hasData
-          ? "rgba(78, 205, 196, 1)"
+          ? "rgba(126, 163, 148, 1)"
           : "rgba(200, 200, 200, 0.7)";
         ctx.fill();
 
@@ -1041,14 +1041,14 @@ export default {
     // 인덱스에 따른 색상 생성
     getColorForIndex(index) {
       const colors = [
-        "rgba(78, 205, 196, 0.7)",
-        "rgba(46, 134, 193, 0.7)",
-        "rgba(72, 201, 176, 0.7)",
-        "rgba(41, 128, 185, 0.7)",
-        "rgba(69, 183, 175, 0.7)",
-        "rgba(52, 152, 219, 0.7)",
-        "rgba(40, 116, 166, 0.7)",
-        "rgba(26, 188, 156, 0.7)",
+        "rgba(126, 163, 148, 0.7)", // 메인 색상 (코람데오 민트색)
+        "rgba(142, 181, 166, 0.7)", // 메인 색상 밝은 변형
+        "rgba(108, 139, 126, 0.7)", // 메인 색상 어두운 변형
+        "rgba(165, 194, 182, 0.7)", // 더 밝은 변형
+        "rgba(93, 121, 109, 0.7)", // 더 어두운 변형
+        "rgba(183, 206, 196, 0.7)", // 가장 밝은 변형
+        "rgba(80, 104, 94, 0.7)", // 가장 어두운 변형
+        "rgba(201, 219, 211, 0.7)", // 매우 밝은 변형
       ];
 
       return colors[index % colors.length];
@@ -1139,19 +1139,19 @@ export default {
 
 /* 그라데이션 색상 변형들 */
 .mint-blue-gradient-1 {
-  background: linear-gradient(135deg, #4ecdc4 0%, #2e86c1 100%);
+  background: linear-gradient(135deg, #7ea394 0%, #5d776d 100%);
 }
 
 .mint-blue-gradient-2 {
-  background: linear-gradient(135deg, #48c9b0 0%, #3498db 100%);
+  background: linear-gradient(135deg, #8eb5a6 0%, #7ea394 100%);
 }
 
 .mint-blue-gradient-3 {
-  background: linear-gradient(135deg, #45b7af 0%, #2874a6 100%);
+  background: linear-gradient(135deg, #6c8b7e 0%, #5d776d 100%);
 }
 
 .mint-blue-gradient-horizontal {
-  background: linear-gradient(90deg, #4ecdc4 0%, #2e86c1 100%);
+  background: linear-gradient(90deg, #7ea394 0%, #5d776d 100%);
   padding: 16px;
   display: flex;
   align-items: center;
@@ -1160,7 +1160,7 @@ export default {
 }
 
 .mint-blue-gradient-chip {
-  background: linear-gradient(90deg, #4ecdc4 0%, #2e86c1 100%) !important;
+  background: linear-gradient(90deg, #7ea394 0%, #5d776d 100%) !important;
   border: none !important;
 }
 
@@ -1242,19 +1242,19 @@ export default {
 
 /* 그라데이션 프로그레스 바 색상 */
 :deep(.gradient-success) {
-  background: linear-gradient(90deg, #43a047 0%, #2e7d32 100%) !important;
+  background: linear-gradient(90deg, #7ea394 0%, #6c8b7e 100%) !important;
 }
 
 :deep(.gradient-info) {
-  background: linear-gradient(90deg, #4ecdc4 0%, #2e86c1 100%) !important;
+  background: linear-gradient(90deg, #8eb5a6 0%, #7ea394 100%) !important;
 }
 
 :deep(.gradient-warning) {
-  background: linear-gradient(90deg, #ffa726 0%, #f57c00 100%) !important;
+  background: linear-gradient(90deg, #c9a689 0%, #b08e6f 100%) !important;
 }
 
 :deep(.gradient-error) {
-  background: linear-gradient(90deg, #ef5350 0%, #c62828 100%) !important;
+  background: linear-gradient(90deg, #c98b89 0%, #b06f6f 100%) !important;
 }
 
 /* 미팅 타입 선택 스타일 */
