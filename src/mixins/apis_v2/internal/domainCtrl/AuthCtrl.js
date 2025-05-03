@@ -1,14 +1,6 @@
 import { ModelCtrl } from "@/mixins/apis_v2/internal/core/ModelCtrl";
-<<<<<<< HEAD
 import axiosClient from "@/utils/axiosClient";
 import { mapActions } from "vuex";
-=======
-import axios from "axios";
-<<<<<<< HEAD
-=======
-import env from "@/config/environments.js";
->>>>>>> 4a14e94125fc9e2240d9e3bf2e4b43530e72f46b
->>>>>>> 914baf4 (초기 커밋)
 
 export const AuthCtrl = {
   data() {
@@ -44,26 +36,12 @@ export const AuthCtrl = {
         updater_ip: "",
         access_service_id: "",
       },
-<<<<<<< HEAD
-=======
-<<<<<<< HEAD
-
-      // Base URL
-      BASIC_URL: "https://attendance.icoramdeo.com/api/",
-      // BASIC_URL: "https://attendance-dev.icoramdeo.com/api/",
-      // BASIC_URL: "http://localhost:3000/api/",
-=======
->>>>>>> 4a14e94125fc9e2240d9e3bf2e4b43530e72f46b
->>>>>>> 914baf4 (초기 커밋)
     };
   },
   created() {},
   mixins: [ModelCtrl],
   methods: {
-<<<<<<< HEAD
     ...mapActions("auth", ["setUserData", "setAccessToken", "setRefreshToken"]),
-=======
->>>>>>> 914baf4 (초기 커밋)
     /**
      * @description [인증된 사용자] 이름을 통한 사용자 존재 여부 확인 API
      * @param {String} name 확인할 사용자의 이름
@@ -85,15 +63,7 @@ export const AuthCtrl = {
       try {
         // 2. API 요청 준비 로깅
         const encodedName = encodeURIComponent(name);
-<<<<<<< HEAD
         const requestUrl = `/${this.User_EP}/name`;
-=======
-<<<<<<< HEAD
-        const requestUrl = `${this.BASIC_URL}${this.User_EP}/name`;
-=======
-        const requestUrl = `${env.API_BASE_URL}/${this.User_EP}/name`;
->>>>>>> 4a14e94125fc9e2240d9e3bf2e4b43530e72f46b
->>>>>>> 914baf4 (초기 커밋)
 
         console.log(`${logPrefix} 📡 API 요청 정보:`, {
           url: requestUrl,
@@ -107,11 +77,7 @@ export const AuthCtrl = {
         console.log(`${logPrefix} ⏳ API 요청 시작...`);
         const startTime = performance.now();
 
-<<<<<<< HEAD
         const res = await axiosClient.auth.get(requestUrl, {
-=======
-        const res = await axios.get(requestUrl, {
->>>>>>> 914baf4 (초기 커밋)
           params: { name: encodedName },
           timeout: 8000, // 8초 타임아웃 설정
         });
@@ -185,11 +151,7 @@ export const AuthCtrl = {
           });
 
           if (error.response.status === 404) {
-<<<<<<< HEAD
             console.log(`${logPrefix} 사용자를 찾을 수 없습니다.`);
-=======
-            console.log(`${logPrefix} �� 사용자를 찾을 수 없습니다.`);
->>>>>>> 914baf4 (초기 커밋)
             return { result: 0, message: "사용자를 찾을 수 없습니다." };
           }
 
@@ -233,17 +195,8 @@ export const AuthCtrl = {
           `color: #6495ED;`
         );
       }
-<<<<<<< HEAD
       const res = await axiosClient.auth.post(
         `/${this.User_EP}/phone-number`,
-=======
-      const res = await axios.post(
-<<<<<<< HEAD
-        `${this.BASIC_URL}/${this.User_EP}/phone-number`,
-=======
-        `${env.API_BASE_URL}/${this.User_EP}/phone-number`,
->>>>>>> 4a14e94125fc9e2240d9e3bf2e4b43530e72f46b
->>>>>>> 914baf4 (초기 커밋)
         userInfo
       );
       let returnData = res.data;
@@ -254,7 +207,6 @@ export const AuthCtrl = {
       }
       return returnData;
     },
-<<<<<<< HEAD
 
     /**
      * @description 로그인 API 호출
@@ -498,7 +450,5 @@ export const AuthCtrl = {
         return { result: false, message: e.error.message };
       }
     },
-=======
->>>>>>> 914baf4 (초기 커밋)
   },
 };
