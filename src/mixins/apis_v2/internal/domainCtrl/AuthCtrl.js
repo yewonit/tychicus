@@ -41,7 +41,7 @@ export const AuthCtrl = {
   created() {},
   mixins: [ModelCtrl],
   methods: {
-    ...mapActions("auth", ["setUserData", "setAccessToken", "setRefreshToken"]),
+    // ...mapActions("auth", ["setUserData", "setAccessToken", "setRefreshToken"]),
     /**
      * @description [인증된 사용자] 이름을 통한 사용자 존재 여부 확인 API
      * @param {String} name 확인할 사용자의 이름
@@ -216,8 +216,7 @@ export const AuthCtrl = {
      */
     async authLogin(email, password) {
       try {
-        // const requestUrl = `${this.BASIC_URL}auth/login`;
-        const requestUrl = `https://attendance.icoramdeo.com/auth/login`;
+        const requestUrl = `${env.AUTH_BASE_URL}/login`;
         const requestData = { email, password };
         const res = await axios.post(requestUrl, requestData, {
           timeout: 8000, // 8초 타임아웃 설정
@@ -257,8 +256,7 @@ export const AuthCtrl = {
 
     async authTokenCheck(accessToken, refreshToken) {
       try {
-        // const requestUrl = `${this.BASIC_URL}auth/login`;
-        const requestUrl = `https://attendance.icoramdeo.com/auth/login`;
+        const requestUrl = `${env.AUTH_BASE_URL}/login`;
         const res = await axios.get(requestUrl, {
           timeout: 8000, // 8초 타임아웃 설정
           headers: {
@@ -277,7 +275,7 @@ export const AuthCtrl = {
             message: "로그인에 성공했습니다.",
           };
         } else {
-          throw new Error({ success: false, message: "사용불가능한 토큰" });
+          throw new Error({ success: false, message: "사용불가능한 토큰" });
         }
       } catch (error) {
         console.log("3. 만료된 토큰인가봐요. authRefreshToken 호출");
@@ -287,8 +285,7 @@ export const AuthCtrl = {
 
     async authRefreshToken(refreshToken) {
       try {
-        // const requestUrl = `${this.BASIC_URL}auth/refresh`;
-        const requestUrl = `https://attendance.icoramdeo.com/auth/refresh`;
+        const requestUrl = `${env.AUTH_BASE_URL}/refresh`;
         const requestData = { refreshToken };
         const res = await axios.post(requestUrl, requestData, {
           timeout: 8000, // 8초 타임아웃 설정
@@ -322,8 +319,7 @@ export const AuthCtrl = {
 
     async authCheckEmail(email) {
       try {
-        // const requestUrl = `${this.BASIC_URL}auth/code`;
-        const requestUrl = `https://attendance.icoramdeo.com/auth/code`;
+        const requestUrl = `${env.AUTH_BASE_URL}/code`;
         const res = await axios.post(requestUrl, { email });
 
         if (res.status === 204) {
@@ -339,8 +335,7 @@ export const AuthCtrl = {
 
     async authVerifyCode(email, code) {
       try {
-        // const requestUrl = `${this.BASIC_URL}auth/verify-code`;
-        const requestUrl = `https://attendance.icoramdeo.com/auth/verify`;
+        const requestUrl = `${env.AUTH_BASE_URL}/verify`;
         const res = await axios.post(requestUrl, { email, code });
 
         if (res.data) {
@@ -361,7 +356,7 @@ export const AuthCtrl = {
      */
     async authCheckEmailDuplication(email) {
       try {
-        const requestUrl = `https://attendance.icoramdeo.com/auth/check-email`;
+        const requestUrl = `${env.AUTH_BASE_URL}/check-email`;
         const res = await axios.get(
           requestUrl,
           {
@@ -401,8 +396,7 @@ export const AuthCtrl = {
      */
     async authRegister(userData) {
       try {
-        // const requestUrl = `${this.BASIC_URL}auth/register`;
-        const requestUrl = `https://attendance.icoramdeo.com/auth/register`;
+        const requestUrl = `${env.AUTH_BASE_URL}/register`;
         const res = await axios.post(requestUrl, userData, {
           headers: {
             "Content-Type": "application/json",
@@ -446,6 +440,25 @@ export const AuthCtrl = {
             message: "요청 준비 중 오류가 발생했습니다.",
           };
         }
+      }
+    },
+
+    async authResetPassword(userData) {
+      try {
+        const requestUrl = `${env.AUTH_BASE_URL}/reset-password`;
+        const res = await axios.post(requestUrl, userData, {
+          headers: {
+            "Content-Type": "application/json",
+          },
+        });
+
+        if (res) {
+          return { result: true, message: "비밀번호가 설정되었습니다." };
+        }
+      } catch (e) {
+        console.error(e);
+        console.error(e.error.message);
+        return { result: false, message: e.error.message };
       }
     },
   },
