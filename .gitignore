@@ -21,10 +21,3 @@ pnpm-debug.log*
 *.njsproj
 *.sln
 *.sw?
-<<<<<<< HEAD
-=======
-
-package-lock.json
-*.cache
-.firebase
->>>>>>> 4a14e94125fc9e2240d9e3bf2e4b43530e72f46b

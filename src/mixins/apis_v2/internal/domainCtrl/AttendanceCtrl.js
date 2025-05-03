@@ -1,10 +1,6 @@
 import { ModelCtrl } from "@/mixins/apis_v2/internal/core/ModelCtrl";
 import axios from "axios";
-<<<<<<< HEAD
 import { API_BASE_URL } from "@/config/constants";
-=======
-import env from "@/config/environments";
->>>>>>> 4a14e94125fc9e2240d9e3bf2e4b43530e72f46b
 
 export const AttendanceCtrl = {
   data() {
@@ -27,12 +23,9 @@ export const AttendanceCtrl = {
         creator_ip: "",
         updater_ip: "",
       },
-<<<<<<< HEAD
 
       // Base URL
       BASIC_URL: API_BASE_URL,
-=======
->>>>>>> 4a14e94125fc9e2240d9e3bf2e4b43530e72f46b
     };
   },
   mixins: [ModelCtrl],
@@ -52,11 +45,7 @@ export const AttendanceCtrl = {
       }
       try {
         const res = await axios.get(
-<<<<<<< HEAD
           `${this.BASIC_URL}${this.Organization_EP}/${organizationId}/${this.Activity_EP}`
-=======
-          `${env.API_BASE_URL}/${this.Organization_EP}/${organizationId}/${this.Activity_EP}`
->>>>>>> 4a14e94125fc9e2240d9e3bf2e4b43530e72f46b
         );
         let returnData = res.data;
         if (showLog) {
@@ -86,11 +75,7 @@ export const AttendanceCtrl = {
       }
       try {
         const res = await axios.post(
-<<<<<<< HEAD
           `${this.BASIC_URL}${this.Activity_EP}`,
-=======
-          `${env.API_BASE_URL}/${this.Activity_EP}`,
->>>>>>> 4a14e94125fc9e2240d9e3bf2e4b43530e72f46b
           activityData
         );
         let returnData = res.data;
@@ -140,11 +125,7 @@ export const AttendanceCtrl = {
         console.log(`🎯 activityId: ${activityId}`);
       }
       try {
-<<<<<<< HEAD
         const instanceUrl = `${this.BASIC_URL}${this.Organization_EP}/${organizationId}/${this.Activity_EP}/${activityId}/attendance`;
-=======
-        const instanceUrl = `${env.API_BASE_URL}/${this.Organization_EP}/${organizationId}/${this.Activity_EP}/${activityId}/attendance`;
->>>>>>> 4a14e94125fc9e2240d9e3bf2e4b43530e72f46b
         console.log("🌐 활동 인스턴스 생성 URL:", instanceUrl);
         console.log("📦 instanceData:", instanceData);
         console.log("👥 attendances:", attendances);
@@ -216,11 +197,7 @@ export const AttendanceCtrl = {
       }
 
       try {
-<<<<<<< HEAD
         const deleteUrl = `${this.BASIC_URL}organizations/${organizationId}/activities/${activityId}/instances/${activityInstanceId}`;
-=======
-        const deleteUrl = `${env.API_BASE_URL}/organizations/${organizationId}/activities/${activityId}/instances/${activityInstanceId}`;
->>>>>>> 4a14e94125fc9e2240d9e3bf2e4b43530e72f46b
         console.log("🌐 활동 인스턴스 삭제 URL:", deleteUrl);
 
         const res = await axios.delete(deleteUrl);
@@ -272,11 +249,7 @@ export const AttendanceCtrl = {
       }
 
       try {
-<<<<<<< HEAD
         const updateUrl = `${this.BASIC_URL}organizations/${organizationId}/activities/${activityId}/instances/${activityInstanceId}/attendance`;
-=======
-        const updateUrl = `${env.API_BASE_URL}/organizations/${organizationId}/activities/${activityId}/instances/${activityInstanceId}/attendance`;
->>>>>>> 4a14e94125fc9e2240d9e3bf2e4b43530e72f46b
         console.log("🌐 출석 정보 업데이트 URL:", updateUrl);
         console.log("📦 instanceData:", instanceData);
         console.log("👥 attendances:", attendances);
@@ -318,11 +291,7 @@ export const AttendanceCtrl = {
       }
 
       try {
-<<<<<<< HEAD
         const url = `${this.BASIC_URL}organizations/${organizationId}/activities/${activityId}/instances/${activityInstanceId}`;
-=======
-        const url = `${env.API_BASE_URL}/organizations/${organizationId}/activities/${activityId}/instances/${activityInstanceId}`;
->>>>>>> 4a14e94125fc9e2240d9e3bf2e4b43530e72f46b
         const res = await axios.get(url);
         let returnData = res.data;
 
@@ -349,11 +318,7 @@ export const AttendanceCtrl = {
       }
 
       try {
-<<<<<<< HEAD
         const url = `${this.BASIC_URL}organizations/${organizationId}/members`;
-=======
-        const url = `${env.API_BASE_URL}/organizations/${organizationId}/members`;
->>>>>>> 4a14e94125fc9e2240d9e3bf2e4b43530e72f46b
         const res = await axios.get(url);
         let returnData = res.data;
 

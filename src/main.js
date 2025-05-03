@@ -4,7 +4,6 @@ import "./registerServiceWorker";
 import router from "./router";
 import store from "./store";
 import vuetify from "./plugins/vuetify";
-<<<<<<< HEAD
 
 // ECharts 관련 import
 import VChart from "vue-echarts";
@@ -30,9 +29,6 @@ use([
 
 // VChart를 전역 컴포넌트로 등록
 Vue.component("v-chart", VChart);
-=======
-import "./registerServiceWorker";
->>>>>>> 4a14e94125fc9e2240d9e3bf2e4b43530e72f46b
 
 Vue.config.productionTip = false;
 

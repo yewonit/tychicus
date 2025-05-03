@@ -1,22 +1,15 @@
 import axios from "axios";
-<<<<<<< HEAD
-=======
-import env from "@/config/environments.js";
->>>>>>> 4a14e94125fc9e2240d9e3bf2e4b43530e72f46b
 
 export const CurrentMemberCtrl = {
   data() {
     return {
       // URL List
       CurrentMember_EP: "current-members",
-<<<<<<< HEAD
 
       // Base URL
       // BASIC_URL: "https://attendance.icoramdeo.com/api/",
       BASIC_URL: "https://attendance-dev.icoramdeo.com/api/",
       // BASIC_URL: "http://localhost:3000/api/",
-=======
->>>>>>> 4a14e94125fc9e2240d9e3bf2e4b43530e72f46b
     };
   },
   created() {},
@@ -37,11 +30,7 @@ export const CurrentMemberCtrl = {
 
       try {
         const res = await axios.get(
-<<<<<<< HEAD
           `${this.BASIC_URL}${this.CurrentMember_EP}`,
-=======
-          `${env.API_BASE_URL}/${this.CurrentMember_EP}`,
->>>>>>> 4a14e94125fc9e2240d9e3bf2e4b43530e72f46b
           {
             params: {
               organizationId: organizationId,
@@ -78,11 +67,7 @@ export const CurrentMemberCtrl = {
       showLog
     ) {
       // API 엔드포인트 구성
-<<<<<<< HEAD
       const apiEndpoint = `${this.BASIC_URL}${this.CurrentMember_EP}`;
-=======
-      const apiEndpoint = `${env.API_BASE_URL}/${this.CurrentMember_EP}`;
->>>>>>> 4a14e94125fc9e2240d9e3bf2e4b43530e72f46b
 
       if (showLog) {
         console.group(
@@ -239,11 +224,7 @@ export const CurrentMemberCtrl = {
 
       try {
         const res = await axios.delete(
-<<<<<<< HEAD
           `${this.BASIC_URL}${this.CurrentMember_EP}/${userId}`
-=======
-          `${env.API_BASE_URL}/${this.CurrentMember_EP}/${userId}`
->>>>>>> 4a14e94125fc9e2240d9e3bf2e4b43530e72f46b
         );
 
         let returnData = res.data;
@@ -277,11 +258,7 @@ export const CurrentMemberCtrl = {
 
       try {
         const res = await axios.put(
-<<<<<<< HEAD
           `${this.BASIC_URL}${this.CurrentMember_EP}/${userId}`,
-=======
-          `${env.API_BASE_URL}/${this.CurrentMember_EP}/${userId}`,
->>>>>>> 4a14e94125fc9e2240d9e3bf2e4b43530e72f46b
           userData
         );
 

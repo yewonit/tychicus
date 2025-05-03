@@ -1,9 +1,5 @@
 import { ModelCtrl } from "@/mixins/apis_v2/internal/core/ModelCtrl";
 import axios from "axios";
-<<<<<<< HEAD
-=======
-import env from "@/config/environments.js";
->>>>>>> 4a14e94125fc9e2240d9e3bf2e4b43530e72f46b
 
 export const AuthCtrl = {
   data() {
@@ -39,14 +35,11 @@ export const AuthCtrl = {
         updater_ip: "",
         access_service_id: "",
       },
-<<<<<<< HEAD
 
       // Base URL
       BASIC_URL: "https://attendance.icoramdeo.com/api/",
       // BASIC_URL: "https://attendance-dev.icoramdeo.com/api/",
       // BASIC_URL: "http://localhost:3000/api/",
-=======
->>>>>>> 4a14e94125fc9e2240d9e3bf2e4b43530e72f46b
     };
   },
   created() {},
@@ -73,11 +66,7 @@ export const AuthCtrl = {
       try {
         // 2. API 요청 준비 로깅
         const encodedName = encodeURIComponent(name);
-<<<<<<< HEAD
         const requestUrl = `${this.BASIC_URL}${this.User_EP}/name`;
-=======
-        const requestUrl = `${env.API_BASE_URL}/${this.User_EP}/name`;
->>>>>>> 4a14e94125fc9e2240d9e3bf2e4b43530e72f46b
 
         console.log(`${logPrefix} 📡 API 요청 정보:`, {
           url: requestUrl,
@@ -210,11 +199,7 @@ export const AuthCtrl = {
         );
       }
       const res = await axios.post(
-<<<<<<< HEAD
         `${this.BASIC_URL}/${this.User_EP}/phone-number`,
-=======
-        `${env.API_BASE_URL}/${this.User_EP}/phone-number`,
->>>>>>> 4a14e94125fc9e2240d9e3bf2e4b43530e72f46b
         userInfo
       );
       let returnData = res.data;

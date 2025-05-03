@@ -1,27 +1,17 @@
 <template>
-<<<<<<< HEAD
   <v-app class="admin-page">
     <!-- 헤더 -->
     <admin-header
       @toggle-drawer="toggleDrawer"
       :is-menu-disabled="isMenuDisabled"
     />
-=======
-  <v-app>
-    <!-- 헤더 -->
-    <admin-header @toggle-drawer="toggleDrawer" />
->>>>>>> 4a14e94125fc9e2240d9e3bf2e4b43530e72f46b
 
     <!-- 사이드바 -->
     <admin-sidebar v-if="!isOrganizationManagementView" v-model="drawer" />
 
     <!-- 메인 컨텐츠 영역 -->
     <v-main>
-<<<<<<< HEAD
       <v-container fluid class="admin-container pa-4">
-=======
-      <v-container fluid class="pa-6">
->>>>>>> 4a14e94125fc9e2240d9e3bf2e4b43530e72f46b
         <router-view></router-view>
       </v-container>
     </v-main>
@@ -47,10 +37,7 @@ export default {
 
   data: () => ({
     drawer: true,
-<<<<<<< HEAD
     isMenuDisabled: false, // 메뉴 버튼 비활성화 상태
-=======
->>>>>>> 4a14e94125fc9e2240d9e3bf2e4b43530e72f46b
   }),
 
   computed: {
@@ -72,7 +59,6 @@ export default {
   created() {
     // 화면 크기에 따라 사이드바 초기 상태 설정
     this.drawer = window.innerWidth >= 1264;
-<<<<<<< HEAD
 
     // body에 admin-view 클래스 추가
     document.body.classList.add("admin-view");
@@ -126,13 +112,10 @@ export default {
 
     // 이벤트 리스너 제거
     this.$root.$off("dashboard-menu-state");
-=======
->>>>>>> 4a14e94125fc9e2240d9e3bf2e4b43530e72f46b
   },
 };
 </script>
 
-<<<<<<< HEAD
 <style>
 /* 전역 스타일 - 어드민 페이지 내에서 스타일 재정의 */
 .admin-page .v-main {
@@ -180,14 +163,5 @@ body.dashboard-active .v-navigation-drawer {
 
 body.dashboard-active .v-main {
   padding-left: 0 !important;
-=======
-<style scoped>
-.v-main {
-  background-color: #f8f9fa;
-}
-
-.v-container {
-  max-width: 1440px;
->>>>>>> 4a14e94125fc9e2240d9e3bf2e4b43530e72f46b
 }
 </style>

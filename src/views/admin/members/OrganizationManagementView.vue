@@ -458,10 +458,7 @@ import { mapState } from "vuex";
 import { MasterCtrl } from "@/mixins/apis_v2/internal/MasterCtrl";
 import { CurrentMemberCtrl } from "@/mixins/apis_v2/internal/domainCtrl/CurrentMemberCtrl";
 import { OrganizationCtrl } from "@/mixins/apis_v2/internal/domainCtrl/OrganizationCtrl";
-<<<<<<< HEAD
 import moment from "moment-timezone";
-=======
->>>>>>> 4a14e94125fc9e2240d9e3bf2e4b43530e72f46b
 
 // 분리된 컴포넌트 import
 import OrganizationTree from "@/components/admin/organization/OrganizationTree.vue";
@@ -2085,7 +2082,6 @@ export default {
 
     // API 데이터 준비
     prepareApiUserData() {
-<<<<<<< HEAD
       // 생년월일 형식 변환
       const birthDate = this.editedMember.birthDate
         ? moment(this.editedMember.birthDate).format("YYYY-MM-DD")
@@ -2111,64 +2107,6 @@ export default {
           this.editedMember.memberNumber || randomData.memberNumber,
         church_registration_date: registrationDate,
         is_new_member: this.editedMember.isNewMember,
-=======
-      // 현재 날짜 (YYYYMMDD)
-      const today = new Date().toISOString().split("T")[0].replace(/-/g, "");
-      // 임의 데이터 생성
-      const randomData = this.generateRandomData(this.editedMember.name);
-
-      // 생년월일이 있으면 사용, 없으면 기본값 사용
-      let birthDate = this.editedMember.birthDate || randomData.birthDate;
-      // 데이터베이스나 API에서 YYYY-MM-DD 형식이 필요한 경우 변환
-      if (birthDate && birthDate.length === 8) {
-        birthDate = `${birthDate.substring(0, 4)}-${birthDate.substring(
-          4,
-          6
-        )}-${birthDate.substring(6, 8)}`;
-      }
-
-      // 교회 등록일이 있으면 사용, 없으면 오늘 날짜 사용
-      let registrationDate = this.editedMember.registrationDate || today;
-      // 데이터베이스나 API에서 YYYY-MM-DD 형식이 필요한 경우 변환
-      if (registrationDate && registrationDate.length === 8) {
-        registrationDate = `${registrationDate.substring(
-          0,
-          4
-        )}-${registrationDate.substring(4, 6)}-${registrationDate.substring(
-          6,
-          8
-        )}`;
-      }
-
-      return {
-        id: this.editedMember.userId,
-        name: this.editedMember.name,
-        name_suffix: this.editedMember.nameSuffix || "FFF",
-        email: this.editedMember.email || "email@email.com",
-        phone_number: this.editedMember.phoneNumber,
-        password: this.editedMember.phoneNumber || "1234",
-        gender_type: this.editedMember.genderType,
-        birth_date: birthDate,
-        church_member_number:
-          this.editedMember.memberNumber || randomData.memberNumber,
-        church_registration_date: registrationDate,
-        country: this.editedMember.countryCode || "KOR",
-        country_name: this.editedMember.countryName || "대한민국", // 국가 이름 추가
-        address: this.editedMember.address || randomData.address,
-        address_detail:
-          this.editedMember.addressDetail || randomData.addressDetail,
-        zip_postal_code: this.editedMember.postcode || randomData.postcode,
-        hobby: this.editedMember.hobby || randomData.hobby,
-        is_long_term_absentee: this.editedMember.isLongTermAbsentee,
-        is_new_member: this.editedMember.isNewMember,
-        is_kakaotalk_chat_member: this.editedMember.isKakaotalkChatMember,
-        is_address_public: this.editedMember.isAddressPublic,
-        is_phone_number_public: this.editedMember.isPhoneNumberPublic,
-        sns_url: this.editedMember.snsUrl,
-        city: this.editedMember.city,
-        state_province: this.editedMember.stateProvince,
-        role_id: this.editedMember.roleId,
->>>>>>> 4a14e94125fc9e2240d9e3bf2e4b43530e72f46b
       };
     },
 

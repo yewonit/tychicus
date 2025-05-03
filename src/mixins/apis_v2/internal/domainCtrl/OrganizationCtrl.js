@@ -1,22 +1,15 @@
 import axios from "axios";
-<<<<<<< HEAD
-=======
-import env from "@/config/environments.js";
->>>>>>> 4a14e94125fc9e2240d9e3bf2e4b43530e72f46b
 
 export const OrganizationCtrl = {
   data() {
     return {
       // URL List
       Organization_EP: "organizations",
-<<<<<<< HEAD
 
       // Base URL
       BASIC_URL: "https://attendance.icoramdeo.com/api/",
       // BASIC_URL: "https://attendance-dev.icoramdeo.com/api/"
       // BASIC_URL: "http://localhost:3000/api/",
-=======
->>>>>>> 4a14e94125fc9e2240d9e3bf2e4b43530e72f46b
     };
   },
   created() {},
@@ -35,13 +28,7 @@ export const OrganizationCtrl = {
       }
 
       try {
-<<<<<<< HEAD
         const res = await axios.get(`${this.BASIC_URL}${this.Organization_EP}`);
-=======
-        const res = await axios.get(
-          `${env.API_BASE_URL}/${this.Organization_EP}`
-        );
->>>>>>> 4a14e94125fc9e2240d9e3bf2e4b43530e72f46b
 
         let returnData = res.data;
 
@@ -82,11 +69,7 @@ export const OrganizationCtrl = {
 
       try {
         const res = await axios.get(
-<<<<<<< HEAD
           `${this.BASIC_URL}${this.Organization_EP}/${organizationId}`
-=======
-          `${env.API_BASE_URL}/${this.Organization_EP}/${organizationId}`
->>>>>>> 4a14e94125fc9e2240d9e3bf2e4b43530e72f46b
         );
 
         let returnData = res.data;
@@ -120,11 +103,7 @@ export const OrganizationCtrl = {
 
       try {
         const res = await axios.post(
-<<<<<<< HEAD
           `${this.BASIC_URL}${this.Organization_EP}`,
-=======
-          `${env.API_BASE_URL}/${this.Organization_EP}`,
->>>>>>> 4a14e94125fc9e2240d9e3bf2e4b43530e72f46b
           organizationData
         );
 
@@ -160,11 +139,7 @@ export const OrganizationCtrl = {
 
       try {
         const res = await axios.put(
-<<<<<<< HEAD
           `${this.BASIC_URL}${this.Organization_EP}/${organizationId}`,
-=======
-          `${env.API_BASE_URL}/${this.Organization_EP}/${organizationId}`,
->>>>>>> 4a14e94125fc9e2240d9e3bf2e4b43530e72f46b
           organizationData
         );
 
@@ -197,11 +172,7 @@ export const OrganizationCtrl = {
 
       try {
         const res = await axios.delete(
-<<<<<<< HEAD
           `${this.BASIC_URL}${this.Organization_EP}/${organizationId}`
-=======
-          `${env.API_BASE_URL}/${this.Organization_EP}/${organizationId}`
->>>>>>> 4a14e94125fc9e2240d9e3bf2e4b43530e72f46b
         );
 
         let returnData = res.data;

@@ -3,16 +3,11 @@
     <!-- 좌측: 메뉴 토글 버튼 & 로고 -->
     <v-app-bar-nav-icon
       @click="$emit('toggle-drawer')"
-<<<<<<< HEAD
       :disabled="isOrganizationManagementView || isMenuDisabled"
       :class="{
         'grey--text text--lighten-1':
           isOrganizationManagementView || isMenuDisabled,
       }"
-=======
-      :disabled="isOrganizationManagementView"
-      :class="{ 'grey--text text--lighten-1': isOrganizationManagementView }"
->>>>>>> 4a14e94125fc9e2240d9e3bf2e4b43530e72f46b
     ></v-app-bar-nav-icon>
 
     <v-toolbar-title class="ml-2">
@@ -82,7 +77,6 @@ import { mapState } from "vuex";
 export default {
   name: "AdminHeader",
 
-<<<<<<< HEAD
   props: {
     isMenuDisabled: {
       type: Boolean,
@@ -90,8 +84,6 @@ export default {
     },
   },
 
-=======
->>>>>>> 4a14e94125fc9e2240d9e3bf2e4b43530e72f46b
   data: () => ({
     notificationCount: 0,
   }),
@@ -155,7 +147,6 @@ export default {
   min-height: 35px;
 }
 </style>
-<<<<<<< HEAD
 
 <!-- 전역 스타일 -->
 <style>
@@ -169,5 +160,3 @@ body.dashboard-active .v-toolbar-title {
   padding-left: 16px !important;
 }
 </style>
-=======
->>>>>>> 4a14e94125fc9e2240d9e3bf2e4b43530e72f46b

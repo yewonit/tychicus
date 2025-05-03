@@ -1,6 +1,5 @@
 <template>
   <div class="attendance-stats">
-<<<<<<< HEAD
     <!-- 조직별 출결 테이블 -->
     <v-card class="neumorphic mb-4">
       <v-card-title>
@@ -217,14 +216,10 @@
         </template>
       </v-data-table>
     </v-card>
-=======
-    <h1>출석 통계</h1>
->>>>>>> 4a14e94125fc9e2240d9e3bf2e4b43530e72f46b
   </div>
 </template>
 
 <script>
-<<<<<<< HEAD
 import { MasterCtrl } from "@/mixins/apis_v2/internal/MasterCtrl";
 import { OrganizationCtrl } from "@/mixins/apis_v2/internal/domainCtrl/OrganizationCtrl";
 import { AttendanceCtrl } from "@/mixins/apis_v2/internal/domainCtrl/AttendanceCtrl";
@@ -424,9 +419,3 @@ export default {
   font-weight: 600;
 }
 </style>
-=======
-export default {
-  name: "AdminAttendanceStats",
-};
-</script>
->>>>>>> 4a14e94125fc9e2240d9e3bf2e4b43530e72f46b

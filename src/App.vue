@@ -1,6 +1,5 @@
 <template>
   <div>
-<<<<<<< HEAD
     <router-view :class="{ 'admin-route': isAdminRoute }" />
     <update-notification />
     <v-snackbar
@@ -15,10 +14,6 @@
         <v-btn text v-bind="attrs" @click="snackbar.show = false"> 닫기 </v-btn>
       </template>
     </v-snackbar>
-=======
-    <router-view />
-    <update-notification />
->>>>>>> 4a14e94125fc9e2240d9e3bf2e4b43530e72f46b
   </div>
 </template>
 
@@ -31,7 +26,6 @@ export default {
     UpdateNotification,
   },
   data: () => ({
-<<<<<<< HEAD
     isAdminRoute: false,
     snackbar: {
       show: false,
@@ -79,12 +73,3 @@ export default {
   /* 어드민 경로에만 적용되는 스타일 */
 }
 </style>
-=======
-    //
-  }),
-  methods: {
-    testFunction: () => {},
-  },
-};
-</script>
->>>>>>> 4a14e94125fc9e2240d9e3bf2e4b43530e72f46b

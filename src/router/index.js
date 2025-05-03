@@ -76,10 +76,7 @@ import AWSImageCRUDTest from "@/views/main/mainMenu/attendanceManagement/AWSImag
 import DashboardView from "@/views/admin/dashboard/DashboardView.vue";
 import OrganizationManagementView from "@/views/admin/members/OrganizationManagementView.vue";
 import OrganizationMeetingHistoryView from "@/views/admin/members/OrganizationMeetingHistoryView.vue";
-<<<<<<< HEAD
 import AdminAttendanceStats from "@/views/admin/attendance/AttendanceStatsView.vue";
-=======
->>>>>>> 4a14e94125fc9e2240d9e3bf2e4b43530e72f46b
 // import AdminMemberList from "@/views/admin/members/MemberListView.vue";
 // import AdminMemberDetail from "@/views/admin/members/MemberDetailView.vue";
 // import AdminAttendanceList from "@/views/admin/attendance/AttendanceListView.vue";
@@ -434,7 +431,6 @@ const routes = [
         path: "",
         name: "AdminDashboard",
         component: DashboardView,
-<<<<<<< HEAD
         meta: {
           title: "대시보드",
           requiresAuth: true,
@@ -450,9 +446,6 @@ const routes = [
           requiresAuth: true,
           isAdmin: true,
         },
-=======
-        meta: { title: "대시보드" },
->>>>>>> 4a14e94125fc9e2240d9e3bf2e4b43530e72f46b
       },
       {
         path: "organizations",
@@ -466,15 +459,12 @@ const routes = [
         component: OrganizationMeetingHistoryView,
         meta: { title: "조직별 모임 관리" },
       },
-<<<<<<< HEAD
       {
         path: "attendance/stats",
         name: "AdminAttendanceStats",
         component: AdminAttendanceStats,
         meta: { title: "출결 통계" },
       },
-=======
->>>>>>> 4a14e94125fc9e2240d9e3bf2e4b43530e72f46b
       /*
       {
         path: "members",
@@ -507,15 +497,6 @@ const routes = [
         meta: { title: "출석 현황" },
       },
       {
-<<<<<<< HEAD
-=======
-        path: "attendance/stats",
-        name: "AdminAttendanceStats",
-        component: AdminAttendanceStats,
-        meta: { title: "출석 통계" },
-      },
-      {
->>>>>>> 4a14e94125fc9e2240d9e3bf2e4b43530e72f46b
         path: "visitation",
         name: "AdminVisitation",
         component: AdminVisitation,
@@ -548,7 +529,6 @@ const router = new VueRouter({
   routes,
 });
 
-<<<<<<< HEAD
 // 대시보드 화면 관련 네비게이션 가드 추가
 router.beforeEach((to, from, next) => {
   // 대시보드로 진입하는 경우 처리
@@ -579,9 +559,6 @@ router.beforeEach((to, from, next) => {
 });
 
 // 인증 관련 네비게이션 가드 (주석 처리된 부분은 그대로 유지)
-=======
-// 네비게이션 가드 추가
->>>>>>> 4a14e94125fc9e2240d9e3bf2e4b43530e72f46b
 // router.beforeEach((to, from, next) => {
 //   const requiresAuth = to.matched.some((record) => record.meta.requiresAuth);
 //   const isAdmin = to.matched.some((record) => record.meta.isAdmin);
