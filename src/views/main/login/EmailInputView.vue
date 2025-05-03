@@ -20,7 +20,7 @@
             class="mb-7 mx-auto bg-transparent"
             style="max-width: 400px"
             @input="formatEmail"
-            :disabled="isPasswordRecovery"
+            :disabled="isEmailDisabled"
           ></v-text-field>
 
           <transition name="slide">
@@ -122,6 +122,7 @@ export default {
     emailCheckClass: "",
     sendedVerifyCode: false,
     isPasswordRecovery: false,
+    isEmailDisabled: false,
   }),
   computed: {
     ...mapState("auth", ["userName", "userEmail"]),
@@ -136,12 +137,13 @@ export default {
     // 테스트 주석
     if (this.userEmail) {
       this.isPasswordRecovery = true;
+      this.isEmailDisabled = true;
       console.log("저장된 이메일:", this.userEmail);
       this.userInputEmail = this.userEmail;
     }
   },
   methods: {
-    ...mapActions("auth", ["setUserInfo"]),
+    ...mapActions("auth", ["setUserEmail", "setUserInfo"]),
 
     formatEmail() {
       this.userInputEmail = this.userInputEmail.replace(
@@ -197,21 +199,23 @@ export default {
       }
 
       try {
+        this.isEmailDisabled = true;
         this.emailCheckMessage = "이메일 인증 코드 전송중...";
         this.emailCheckClass = "";
         const response = await this.authCheckEmail(this.userInputEmail);
-        console.log("response : " + response);
 
         if (response.result === 1) {
           this.emailCheckMessage = "이메일 인증 코드 전송 완료";
           this.emailCheckClass = "success--text";
           this.sendedVerifyCode = true;
         } else if (response.result === 0) {
+          this.isEmailDisabled = false;
           this.emailCheckMessage = "오류가 발생했습니다. 다시 시도해주세요.";
           this.emailCheckClass = "error--text";
         }
       } catch (error) {
         console.error("이메일 인증 코드 발송 오류:", error);
+        this.isEmailDisabled = false;
         this.emailCheckMessage = "오류가 발생했습니다. 다시 시도해주세요.";
         this.emailCheckClass = "error--text";
       }
@@ -227,8 +231,10 @@ export default {
         if (response.result) {
           this.emailCheckMessage = "인증이 완료되었습니다.";
           this.emailCheckClass = "success--text";
-          // alert("인증이 완료되었습니다.");
-          // this.$router.push({ name: "LoginView" });
+          // 이메일 처음 등록시, 저장된 이메일이 없으므로 지금 세팅
+          if (!this.userEmail) {
+            this.setUserEmail(this.userInputEmail);
+          }
           setTimeout(() => {
             this.$router.push({
               name: "PasswordInputView",

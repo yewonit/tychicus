@@ -40,6 +40,10 @@
           @click:append="showPassword = !showPassword"
         ></v-text-field>
 
+        <div v-if="loginCheckMessage" class="ma-auto error--text">
+          {{ loginCheckMessage }}
+        </div>
+
         <v-row class="mt-2">
           <v-col cols="6" class="pa-0">
             <v-btn
@@ -137,6 +141,8 @@ export default {
       password: "",
       // 비밀번호 표시 여부를 저장할 변수입니다.
       showPassword: false,
+      // 로그인 관련 안내 메세지
+      loginCheckMessage: "",
     };
   },
 
@@ -165,16 +171,16 @@ export default {
 
       // 이메일이 비어있는 경우 알림을 표시하고 함수를 종료합니다.
       if (this.email.trim() === "") {
-        alert("이메일을 입력해주세요.");
+        this.loginCheckMessage = "이메일을 입력해주세요.";
         return;
       } else if (!emailRegex.test(this.email)) {
-        alert("올바른 이메일 형식을 입력해주세요.");
+        this.loginCheckMessage = "올바른 이메일 형식을 입력해주세요.";
         return;
       }
 
       // 비밀번호가 비어있는 경우 알림을 표시하고 함수를 종료합니다.
       if (this.password.trim() === "") {
-        alert("비밀번호를 입력해주세요.");
+        this.loginCheckMessage = "비밀번호를 입력해주세요.";
         return;
       }
 
@@ -186,11 +192,11 @@ export default {
           this.$router.push({ name: "ServiceSelectionView" });
         } else {
           // 로그인 실패 시 에러 메시지 표시
-          alert(response.message);
+          this.loginCheckMessage = response.message;
         }
       } catch (error) {
         console.error("Login error:", error.message);
-        alert("로그인 중 오류가 발생했습니다.");
+        this.loginCheckMessage = "로그인 중 오류가 발생했습니다.";
       }
     },
   },

@@ -187,7 +187,7 @@ const routes = [
           title: "비밀번호 입력",
           showIcon: false,
           iconName: "mdi-password",
-          showBackButton: true,
+          showBackButton: false,
           showHomeButton: false,
           showCancelButton: false,
         },

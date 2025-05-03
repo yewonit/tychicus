@@ -1,6 +1,7 @@
 import { ModelCtrl } from "@/mixins/apis_v2/internal/core/ModelCtrl";
 import axios from "axios";
 import env from "@/config/environments.js";
+import { mapActions } from "vuex";
 
 export const AuthCtrl = {
   data() {
@@ -41,7 +42,7 @@ export const AuthCtrl = {
   created() {},
   mixins: [ModelCtrl],
   methods: {
-    // ...mapActions("auth", ["setUserData", "setAccessToken", "setRefreshToken"]),
+    ...mapActions("auth", ["setUserData", "setAccessToken", "setRefreshToken"]),
     /**
      * @description [인증된 사용자] 이름을 통한 사용자 존재 여부 확인 API
      * @param {String} name 확인할 사용자의 이름
@@ -229,7 +230,7 @@ export const AuthCtrl = {
 
         if (res.data) {
           // 로그인 성공 시 사용자 정보 저장
-          this.setUserData(res.data.user);
+          this.setUserData(res.data.userData);
           this.setAccessToken(res.data.tokens.accessToken);
           this.setRefreshToken(res.data.tokens.refreshToken);
           return {
@@ -247,10 +248,7 @@ export const AuthCtrl = {
             // error: message: "패스워드가 일치하지 않습니다." name: "AuthenticationError"
           };
         }
-        return {
-          success: false,
-          message: `서버 에러 (${error.response.status}): ${error.response.statusText}`,
-        };
+        return { success: false, message: "로그인 오류입니다." };
       }
     },
 
