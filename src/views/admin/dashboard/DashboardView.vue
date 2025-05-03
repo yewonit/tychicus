@@ -27,8 +27,6 @@
             :type="showPassword ? 'text' : 'password'"
             label="비밀번호"
             color="primary"
-            outlined
-            dense
             class="password-input"
             prepend-inner-icon="mdi-key"
             @click:append="showPassword = !showPassword"
@@ -36,6 +34,11 @@
             autofocus
             :error="passwordError"
             :error-messages="passwordErrorMessage"
+            background-color="white"
+            solo
+            flat
+            hide-details="auto"
+            single-line
           ></v-text-field>
 
           <v-alert
@@ -4167,14 +4170,77 @@ export default {
 
 .password-input {
   margin-top: 16px;
+  border-radius: 8px;
+  overflow: hidden;
+  width: 100%;
+}
+
+.password-input.v-input {
+  font-size: 16px;
+  font-weight: normal;
+}
+
+.password-input .v-input__slot {
+  box-shadow: none !important;
+  border: 1px solid rgba(0, 0, 0, 0.12) !important;
+  background-color: white !important;
+  min-height: 48px !important;
+  display: flex !important;
+  align-items: center !important;
+  border-radius: 8px !important;
+  padding: 0 12px !important;
+}
+
+.password-input.v-text-field--solo .v-input__control {
+  min-height: 48px !important;
+}
+
+.password-input.v-text-field--solo .v-input__slot {
+  border: 1px solid rgba(0, 0, 0, 0.12) !important;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05) !important;
+}
+
+.password-input.v-text-field--solo.v-input--is-focused .v-input__slot {
+  border-color: var(--skyblue-color) !important;
+  box-shadow: 0 0 0 1px var(--skyblue-color) !important;
 }
 
 .password-input .v-input__prepend-inner {
-  margin-top: 12px !important;
+  margin-top: 0 !important;
   margin-right: 8px !important;
+  align-self: center;
 }
 
-.password-input .v-input__prepend-inner i {
+.password-input .v-input__append-inner {
+  margin-top: 0 !important;
+  align-self: center;
+}
+
+.password-input .v-text-field__slot {
+  display: flex !important;
+  align-items: center !important;
+  height: 100% !important;
+}
+
+.password-input input {
+  height: 100% !important;
+  padding: 0 !important;
+  font-size: 16px !important;
+}
+
+.password-input .v-label {
+  top: 50% !important;
+  transform: translateY(-50%) !important;
+  transition: all 0.3s ease;
+  font-size: 16px !important;
+}
+
+.password-input.v-text-field--solo .v-label--active {
+  transform: translateY(-50%) scale(0.75) !important;
+}
+
+.password-input .v-input__prepend-inner i,
+.password-input .v-input__append-inner i {
   color: var(--mint-color);
 }
 
