@@ -1,15 +1,11 @@
 import axios from "axios";
+import env from "@/config/environments.js";
 
 export const OrganizationCtrl = {
   data() {
     return {
       // URL List
       Organization_EP: "organizations",
-
-      // Base URL
-      BASIC_URL: "https://attendance.icoramdeo.com/api/",
-      // BASIC_URL: "https://attendance-dev.icoramdeo.com/api/"
-      // BASIC_URL: "http://localhost:3000/api/",
     };
   },
   created() {},
@@ -28,7 +24,9 @@ export const OrganizationCtrl = {
       }
 
       try {
-        const res = await axios.get(`${this.BASIC_URL}${this.Organization_EP}`);
+        const res = await axios.get(
+          `${env.API_BASE_URL}/${this.Organization_EP}`
+        );
 
         let returnData = res.data;
 
@@ -69,7 +67,7 @@ export const OrganizationCtrl = {
 
       try {
         const res = await axios.get(
-          `${this.BASIC_URL}${this.Organization_EP}/${organizationId}`
+          `${env.API_BASE_URL}/${this.Organization_EP}/${organizationId}`
         );
 
         let returnData = res.data;
@@ -103,7 +101,7 @@ export const OrganizationCtrl = {
 
       try {
         const res = await axios.post(
-          `${this.BASIC_URL}${this.Organization_EP}`,
+          `${env.API_BASE_URL}/${this.Organization_EP}`,
           organizationData
         );
 
@@ -139,7 +137,7 @@ export const OrganizationCtrl = {
 
       try {
         const res = await axios.put(
-          `${this.BASIC_URL}${this.Organization_EP}/${organizationId}`,
+          `${env.API_BASE_URL}/${this.Organization_EP}/${organizationId}`,
           organizationData
         );
 
@@ -172,7 +170,7 @@ export const OrganizationCtrl = {
 
       try {
         const res = await axios.delete(
-          `${this.BASIC_URL}${this.Organization_EP}/${organizationId}`
+          `${env.API_BASE_URL}/${this.Organization_EP}/${organizationId}`
         );
 
         let returnData = res.data;

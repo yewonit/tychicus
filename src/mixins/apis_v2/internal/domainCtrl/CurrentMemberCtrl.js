@@ -1,15 +1,11 @@
 import axios from "axios";
+import env from "@/config/environments.js";
 
 export const CurrentMemberCtrl = {
   data() {
     return {
       // URL List
       CurrentMember_EP: "current-members",
-
-      // Base URL
-      // BASIC_URL: "https://attendance.icoramdeo.com/api/",
-      BASIC_URL: "https://attendance-dev.icoramdeo.com/api/",
-      // BASIC_URL: "http://localhost:3000/api/",
     };
   },
   created() {},
@@ -30,7 +26,7 @@ export const CurrentMemberCtrl = {
 
       try {
         const res = await axios.get(
-          `${this.BASIC_URL}${this.CurrentMember_EP}`,
+          `${env.API_BASE_URL}/${this.CurrentMember_EP}`,
           {
             params: {
               organizationId: organizationId,
@@ -67,7 +63,7 @@ export const CurrentMemberCtrl = {
       showLog
     ) {
       // API 엔드포인트 구성
-      const apiEndpoint = `${this.BASIC_URL}${this.CurrentMember_EP}`;
+      const apiEndpoint = `${env.API_BASE_URL}/${this.CurrentMember_EP}`;
 
       if (showLog) {
         console.group(
@@ -224,7 +220,7 @@ export const CurrentMemberCtrl = {
 
       try {
         const res = await axios.delete(
-          `${this.BASIC_URL}${this.CurrentMember_EP}/${userId}`
+          `${env.API_BASE_URL}/${this.CurrentMember_EP}/${userId}`
         );
 
         let returnData = res.data;
@@ -258,7 +254,7 @@ export const CurrentMemberCtrl = {
 
       try {
         const res = await axios.put(
-          `${this.BASIC_URL}${this.CurrentMember_EP}/${userId}`,
+          `${env.API_BASE_URL}/${this.CurrentMember_EP}/${userId}`,
           userData
         );
 

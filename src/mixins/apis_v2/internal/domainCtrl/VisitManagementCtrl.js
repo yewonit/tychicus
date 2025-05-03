@@ -1,15 +1,10 @@
 import { ModelCtrl } from "@/mixins/apis_v2/internal/core/ModelCtrl";
 import axios from "axios";
+import env from "@/config/environments.js";
 
 export const VisitManagementCtrl = {
   data() {
     return {
-      // Base URL
-      BASIC_URL: "https://attendance.icoramdeo.com/api/",
-      // BASIC_URL: "https://attendance-dev.icoramdeo.com/api/",
-      // BASIC_URL: "http://localhost:3001/api/",
-      // BASIC_URL: "http://27#.117.185.240:3001/api/",
-      // Endpoint for Visitation information
       Visitation_EP: "visitation",
     };
   },
@@ -29,7 +24,7 @@ export const VisitManagementCtrl = {
         );
       }
       const res = await axios.get(
-        `${this.BASIC_URL}get-visit-post/${visiteeId}`
+        `${env.API_BASE_URL}/get-visit-post/${visiteeId}`
       );
       let returnData = res.data;
       if (showLog) {
