@@ -87,7 +87,7 @@ export default {
     isPasswordRecovery: false,
   }),
   computed: {
-    ...mapState("auth", ["userName", "userInfo", "userData"]),
+    ...mapState("auth", ["userName", "userEmail", "userInfo", "userData"]),
   },
   created() {
     if (!this.userName) {
@@ -150,31 +150,37 @@ export default {
       try {
         if (this.isPasswordRecovery) {
           // 비밀번호만 재설정
-          // const registerData = {
-          //   id: this.userInfo.id,
-          //   password: this.password,
-          // };
-          // const response = await this.authRegister(registerData);
-          // if (response.success) {
-          //   this.passwordMessage = "비밀번호가 설정되었습니다.";
-          //   this.messageClass = "success--text";
-          //   this.$router.push({ name: "LoginView" });
-          // } else {
-          //   this.passwordMessage = response.message;
-          //   this.messageClass = "error--text";
-          // }
+          const registerData = {
+            id: this.userInfo.id,
+            password: this.password,
+          };
+          const response = await this.authResetPassword(registerData);
+          if (response.result) {
+            // "비밀번호가 설정되었습니다."
+            this.passwordMessage = response.message;
+            this.messageClass = "success--text";
+            setTimeout(() => {
+              this.$router.push({ name: "LoginView" });
+            }, 2000);
+          } else {
+            this.passwordMessage = "비밀번호 설정 오류입니다.";
+            this.messageClass = "error--text";
+          }
         } else {
           const registerData = {
             id: this.userInfo.id,
-            email: this.userInfo.email,
+            email: this.userEmail,
             password: this.password,
           };
 
           const response = await this.authRegister(registerData);
           if (response.success) {
-            this.passwordMessage = "비밀번호가 설정되었습니다.";
+            // "사용자 등록이 완료되었습니다."
+            this.passwordMessage = response.message;
             this.messageClass = "success--text";
-            this.$router.push({ name: "LoginView" });
+            setTimeout(() => {
+              this.$router.push({ name: "LoginView" });
+            }, 2000);
           } else {
             this.passwordMessage = response.message;
             this.messageClass = "error--text";
