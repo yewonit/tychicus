@@ -254,6 +254,10 @@ export default {
       type: Object,
       default: () => ({}),
     },
+    isDarkTheme: {
+      type: Boolean,
+      default: true,
+    },
   },
   data() {
     return {
@@ -677,8 +681,8 @@ export default {
       const innerWidth = width - margin.left - margin.right;
       const innerHeight = height - margin.top - margin.bottom;
 
-      // 배경 채우기
-      ctx.fillStyle = "#ffffff";
+      // 배경 채우기 - 다크 테마에 따라 배경색 설정
+      ctx.fillStyle = this.isDarkTheme ? "#1e1e1e" : "#ffffff";
       ctx.fillRect(0, 0, width, height);
 
       // 그리드 라인 그리기
@@ -688,7 +692,10 @@ export default {
         ctx.moveTo(margin.left, y);
         ctx.lineTo(width - margin.right, y);
       }
-      ctx.strokeStyle = "rgba(0, 0, 0, 0.1)";
+      // 다크 테마에 따라 그리드 라인 색상 조정
+      ctx.strokeStyle = this.isDarkTheme
+        ? "rgba(255, 255, 255, 0.1)"
+        : "rgba(0, 0, 0, 0.1)";
       ctx.stroke();
 
       // Y축 타이틀
@@ -696,7 +703,8 @@ export default {
       ctx.translate(15, height / 2);
       ctx.rotate(-Math.PI / 2);
       ctx.textAlign = "center";
-      ctx.fillStyle = "#666";
+      // 다크 테마에 따라 글자 색상 조정
+      ctx.fillStyle = this.isDarkTheme ? "#b0bec5" : "#666";
       ctx.font = "12px Arial";
       ctx.fillText("출석률 (%)", 0, 0);
       ctx.restore();
@@ -705,14 +713,16 @@ export default {
       ctx.beginPath();
       ctx.moveTo(margin.left, margin.top);
       ctx.lineTo(margin.left, height - margin.bottom);
-      ctx.strokeStyle = "#999";
+      // 다크 테마에 따라 선 색상 조정
+      ctx.strokeStyle = this.isDarkTheme ? "#555" : "#999";
       ctx.stroke();
 
       // X축 그리기
       ctx.beginPath();
       ctx.moveTo(margin.left, height - margin.bottom);
       ctx.lineTo(width - margin.right, height - margin.bottom);
-      ctx.strokeStyle = "#999";
+      // 다크 테마에 따라 선 색상 조정
+      ctx.strokeStyle = this.isDarkTheme ? "#555" : "#999";
       ctx.stroke();
 
       // Y축 눈금 그리기
@@ -722,10 +732,12 @@ export default {
         ctx.beginPath();
         ctx.moveTo(margin.left - 5, y);
         ctx.lineTo(margin.left, y);
-        ctx.strokeStyle = "#999";
+        // 다크 테마에 따라 선 색상 조정
+        ctx.strokeStyle = this.isDarkTheme ? "#555" : "#999";
         ctx.stroke();
 
-        ctx.fillStyle = "#666";
+        // 다크 테마에 따라 글자 색상 조정
+        ctx.fillStyle = this.isDarkTheme ? "#b0bec5" : "#666";
         ctx.font = "10px Arial";
         ctx.textAlign = "right";
         ctx.fillText(`${i * 10}%`, margin.left - 10, y + 3);
@@ -733,7 +745,8 @@ export default {
 
       // 데이터가 없으면 메시지 표시
       if (this.chartData.length === 0) {
-        ctx.fillStyle = "#999";
+        // 다크 테마에 따라 글자 색상 조정
+        ctx.fillStyle = this.isDarkTheme ? "#b0bec5" : "#999";
         ctx.font = "14px Arial";
         ctx.textAlign = "center";
         ctx.fillText(
@@ -745,7 +758,8 @@ export default {
       }
 
       // 출석률 설명 추가
-      ctx.fillStyle = "#666";
+      // 다크 테마에 따라 글자 색상 조정
+      ctx.fillStyle = this.isDarkTheme ? "#b0bec5" : "#666";
       ctx.font = "11px Arial";
       ctx.textAlign = "center";
       ctx.fillText(
@@ -779,7 +793,8 @@ export default {
 
         // 레이블 그리기
         ctx.save();
-        ctx.fillStyle = "#333";
+        // 다크 테마에 따라 글자 색상 조정
+        ctx.fillStyle = this.isDarkTheme ? "#e0e0e0" : "#333";
         ctx.font = "10px Arial";
         ctx.textAlign = "center";
         ctx.translate(x + barWidth / 2, height - margin.bottom + 10);
@@ -788,7 +803,15 @@ export default {
         ctx.restore();
 
         // 값 표시 (원본 값 표시 유지, 100% 초과 시 표시 강조)
-        ctx.fillStyle = item.value > 100 ? "#FF5252" : "#333";
+        // 다크 테마에 따라 글자 색상 조정
+        ctx.fillStyle =
+          item.value > 100
+            ? this.isDarkTheme
+              ? "#ff7b7b"
+              : "#FF5252"
+            : this.isDarkTheme
+            ? "#e0e0e0"
+            : "#333";
         ctx.font = "12px Arial";
         ctx.textAlign = "center";
         ctx.fillText(
@@ -820,8 +843,8 @@ export default {
       // 캔버스 지우기
       ctx.clearRect(0, 0, width, height);
 
-      // 배경 채우기
-      ctx.fillStyle = "#ffffff";
+      // 배경 채우기 - 다크 테마에 따라 배경색 설정
+      ctx.fillStyle = this.isDarkTheme ? "#1e1e1e" : "#ffffff";
       ctx.fillRect(0, 0, width, height);
 
       // 마진 설정
@@ -836,7 +859,10 @@ export default {
         ctx.moveTo(margin.left, y);
         ctx.lineTo(width - margin.right, y);
       }
-      ctx.strokeStyle = "rgba(0, 0, 0, 0.1)";
+      // 다크 테마에 따라 그리드 라인 색상 조정
+      ctx.strokeStyle = this.isDarkTheme
+        ? "rgba(255, 255, 255, 0.1)"
+        : "rgba(0, 0, 0, 0.1)";
       ctx.stroke();
 
       // Y축 타이틀
@@ -844,7 +870,8 @@ export default {
       ctx.translate(15, height / 2);
       ctx.rotate(-Math.PI / 2);
       ctx.textAlign = "center";
-      ctx.fillStyle = "#666";
+      // 다크 테마에 따라 글자 색상 조정
+      ctx.fillStyle = this.isDarkTheme ? "#b0bec5" : "#666";
       ctx.font = "12px Arial";
       ctx.fillText("출석률 (%)", 0, 0);
       ctx.restore();
@@ -853,14 +880,16 @@ export default {
       ctx.beginPath();
       ctx.moveTo(margin.left, margin.top);
       ctx.lineTo(margin.left, height - margin.bottom);
-      ctx.strokeStyle = "#999";
+      // 다크 테마에 따라 선 색상 조정
+      ctx.strokeStyle = this.isDarkTheme ? "#555" : "#999";
       ctx.stroke();
 
       // X축 그리기
       ctx.beginPath();
       ctx.moveTo(margin.left, height - margin.bottom);
       ctx.lineTo(width - margin.right, height - margin.bottom);
-      ctx.strokeStyle = "#999";
+      // 다크 테마에 따라 선 색상 조정
+      ctx.strokeStyle = this.isDarkTheme ? "#555" : "#999";
       ctx.stroke();
 
       // Y축 눈금 그리기
@@ -870,10 +899,12 @@ export default {
         ctx.beginPath();
         ctx.moveTo(margin.left - 5, y);
         ctx.lineTo(margin.left, y);
-        ctx.strokeStyle = "#999";
+        // 다크 테마에 따라 선 색상 조정
+        ctx.strokeStyle = this.isDarkTheme ? "#555" : "#999";
         ctx.stroke();
 
-        ctx.fillStyle = "#666";
+        // 다크 테마에 따라 글자 색상 조정
+        ctx.fillStyle = this.isDarkTheme ? "#b0bec5" : "#666";
         ctx.font = "11px Arial";
         ctx.textAlign = "right";
         ctx.fillText(`${i * 10}%`, margin.left - 10, y + 3);
@@ -885,7 +916,10 @@ export default {
           (item) => item.value === this.selectedMeetingType
         )?.text || "";
 
-      ctx.fillStyle = "rgba(126, 163, 148, 1)";
+      // 다크 테마에 따라 글자 색상 조정
+      ctx.fillStyle = this.isDarkTheme
+        ? "rgba(126, 163, 148, 1)"
+        : "rgba(126, 163, 148, 1)";
       ctx.font = "14px Arial";
       ctx.textAlign = "center";
       ctx.fillText(
@@ -914,7 +948,8 @@ export default {
       console.log("hasValidData:", hasValidData, "trendData:", this.trendData);
 
       if (!hasValidData) {
-        ctx.fillStyle = "#999";
+        // 다크 테마에 따라 글자 색상 조정
+        ctx.fillStyle = this.isDarkTheme ? "#b0bec5" : "#999";
         ctx.font = "14px Arial";
         ctx.textAlign = "center";
         ctx.fillText(
@@ -924,6 +959,24 @@ export default {
         );
         return;
       }
+
+      // X축 레이블 그리기
+      ctx.save();
+      this.trendData.forEach((item, index) => {
+        const x =
+          margin.left + (innerWidth * index) / (this.trendData.length - 1 || 1);
+
+        // 다크 테마에 따라 글자 색상 조정
+        ctx.fillStyle = this.isDarkTheme ? "#e0e0e0" : "#333";
+        ctx.font = "10px Arial";
+        ctx.textAlign = "center";
+        ctx.translate(x, height - margin.bottom + 12);
+        ctx.rotate(Math.PI / 4); // 45도 회전
+        ctx.fillText(item.label, 0, 0);
+        ctx.rotate(-Math.PI / 4); // 회전 복원
+        ctx.translate(-x, -(height - margin.bottom + 12));
+      });
+      ctx.restore();
 
       // 라인 차트 그리기
       const points = this.trendData.map((item, index) => {
@@ -943,23 +996,6 @@ export default {
           noData: item.noData, // 데이터 없음 표시
         };
       });
-
-      // X축 레이블 그리기
-      ctx.save();
-      this.trendData.forEach((item, index) => {
-        const x =
-          margin.left + (innerWidth * index) / (this.trendData.length - 1 || 1);
-
-        ctx.fillStyle = "#333";
-        ctx.font = "10px Arial";
-        ctx.textAlign = "center";
-        ctx.translate(x, height - margin.bottom + 12);
-        ctx.rotate(Math.PI / 4); // 45도 회전
-        ctx.fillText(item.label, 0, 0);
-        ctx.rotate(-Math.PI / 4); // 회전 복원
-        ctx.translate(-x, -(height - margin.bottom + 12));
-      });
-      ctx.restore();
 
       // 영역 채우기 (데이터가 없는 부분은 건너뛰기)
       const validPoints = points.filter(
@@ -981,7 +1017,10 @@ export default {
         );
         ctx.closePath();
 
-        ctx.fillStyle = "rgba(126, 163, 148, 0.2)";
+        // 다크 테마에 따라 영역 색상 조정
+        ctx.fillStyle = this.isDarkTheme
+          ? "rgba(126, 163, 148, 0.3)"
+          : "rgba(126, 163, 148, 0.2)";
         ctx.fill();
 
         // 선 그리기 (데이터가 있는 부분만)
@@ -1004,18 +1043,22 @@ export default {
 
         ctx.beginPath();
         ctx.arc(point.x, point.y, hasData ? 5 : 3, 0, Math.PI * 2);
+        // 다크 테마에 따라 포인트 색상 조정
         ctx.fillStyle = hasData
           ? "rgba(126, 163, 148, 1)"
+          : this.isDarkTheme
+          ? "rgba(150, 150, 150, 0.7)"
           : "rgba(200, 200, 200, 0.7)";
         ctx.fill();
 
         if (hasData) {
-          ctx.strokeStyle = "#fff";
+          ctx.strokeStyle = this.isDarkTheme ? "#1e1e1e" : "#fff";
           ctx.lineWidth = 2;
           ctx.stroke();
 
           // 값 표시 (데이터가 있는 경우만)
-          ctx.fillStyle = "#333";
+          // 다크 테마에 따라 글자 색상 조정
+          ctx.fillStyle = this.isDarkTheme ? "#e0e0e0" : "#333";
           ctx.font = "12px Arial";
           ctx.textAlign = "center";
           ctx.fillText(`${point.value}%`, point.x, point.y - 12);
@@ -1028,7 +1071,8 @@ export default {
       });
 
       // 범례 추가
-      ctx.fillStyle = "#666";
+      // 다크 테마에 따라 글자 색상 조정
+      ctx.fillStyle = this.isDarkTheme ? "#b0bec5" : "#666";
       ctx.font = "11px Arial";
       ctx.textAlign = "center";
       ctx.fillText(
@@ -1040,7 +1084,8 @@ export default {
 
     // 인덱스에 따른 색상 생성
     getColorForIndex(index) {
-      const colors = [
+      // 다크 테마 색상
+      const darkColors = [
         "rgba(126, 163, 148, 0.7)", // 메인 색상 (코람데오 민트색)
         "rgba(142, 181, 166, 0.7)", // 메인 색상 밝은 변형
         "rgba(108, 139, 126, 0.7)", // 메인 색상 어두운 변형
@@ -1051,6 +1096,19 @@ export default {
         "rgba(201, 219, 211, 0.7)", // 매우 밝은 변형
       ];
 
+      // 라이트 테마 색상
+      const lightColors = [
+        "rgba(126, 163, 148, 0.7)", // 메인 색상 (코람데오 민트색)
+        "rgba(142, 181, 166, 0.7)", // 메인 색상 밝은 변형
+        "rgba(108, 139, 126, 0.7)", // 메인 색상 어두운 변형
+        "rgba(165, 194, 182, 0.7)", // 더 밝은 변형
+        "rgba(93, 121, 109, 0.7)", // 더 어두운 변형
+        "rgba(183, 206, 196, 0.7)", // 가장 밝은 변형
+        "rgba(80, 104, 94, 0.7)", // 가장 어두운 변형
+        "rgba(201, 219, 211, 0.7)", // 매우 밝은 변형
+      ];
+
+      const colors = this.isDarkTheme ? darkColors : lightColors;
       return colors[index % colors.length];
     },
 
@@ -1084,6 +1142,13 @@ export default {
   background-image: linear-gradient(135deg, #f0f8ff 0%, #f9fdfe 100%);
 }
 
+/* 다크 테마 배경 */
+:deep(.dark-theme) .gradient-bg,
+.dashboard-overview.dark-theme {
+  background-color: #1a202c;
+  background-image: linear-gradient(135deg, #1a202c 0%, #2d3748 100%);
+}
+
 /* 툴크 스타일 */
 :deep(.attendance-tooltip) {
   width: 400px !important;
@@ -1096,6 +1161,13 @@ export default {
 :deep(.attendance-tooltip-content) {
   display: block;
   width: 100%;
+}
+
+/* 다크 테마 툴팁 */
+:deep(.dark-theme) .attendance-tooltip {
+  background-color: #2d3748 !important;
+  color: #e0e0e0 !important;
+  border: 1px solid #4a5568 !important;
 }
 
 /* 통계 카드 스타일 */
@@ -1159,9 +1231,25 @@ export default {
   height: 64px !important;
 }
 
+/* 다크 테마 그라데이션 */
+:deep(.dark-theme) .mint-blue-gradient-1,
+:deep(.dark-theme) .mint-blue-gradient-2,
+:deep(.dark-theme) .mint-blue-gradient-3 {
+  opacity: 0.85;
+}
+
+:deep(.dark-theme) .mint-blue-gradient-horizontal {
+  background: linear-gradient(90deg, #5d776d 0%, #4a5d57 100%);
+}
+
 .mint-blue-gradient-chip {
   background: linear-gradient(90deg, #7ea394 0%, #5d776d 100%) !important;
   border: none !important;
+}
+
+/* 다크 테마 칩 */
+:deep(.dark-theme) .mint-blue-gradient-chip {
+  background: linear-gradient(90deg, #5d776d 0%, #4a5d57 100%) !important;
 }
 
 /* 차트 관련 스타일 */
@@ -1193,6 +1281,18 @@ export default {
   box-shadow: 0 12px 24px rgba(0, 0, 0, 0.15) !important;
 }
 
+/* 다크 테마 카드 */
+:deep(.dark-theme) .chart-card,
+:deep(.dark-theme) .table-card {
+  background-color: #1e1e1e !important;
+  box-shadow: 0 8px 16px rgba(0, 0, 0, 0.25) !important;
+}
+
+:deep(.dark-theme) .chart-card:hover,
+:deep(.dark-theme) .table-card:hover {
+  box-shadow: 0 12px 24px rgba(0, 0, 0, 0.3) !important;
+}
+
 .chart-content,
 .table-content {
   padding: 20px !important;
@@ -1200,6 +1300,13 @@ export default {
   flex-grow: 1;
   display: flex;
   flex-direction: column;
+}
+
+/* 다크 테마 컨텐츠 */
+:deep(.dark-theme) .chart-content,
+:deep(.dark-theme) .table-content {
+  background-color: #1e1e1e !important;
+  color: #e0e0e0 !important;
 }
 
 .chart-container {
@@ -1226,6 +1333,19 @@ export default {
   height: 36px !important;
 }
 
+/* 다크 테마 버튼 토글 */
+:deep(.dark-theme) .trend-toggle {
+  background-color: rgba(255, 255, 255, 0.1) !important;
+}
+
+:deep(.dark-theme) .trend-btn {
+  color: #e0e0e0 !important;
+}
+
+:deep(.dark-theme) .trend-btn.v-btn--active {
+  background-color: rgba(126, 163, 148, 0.7) !important;
+}
+
 /* 테이블 스타일 */
 .custom-data-table {
   border-radius: 0 0 12px 12px !important;
@@ -1233,6 +1353,25 @@ export default {
 
 .custom-data-table >>> .v-data-table__wrapper {
   border-radius: 0 0 12px 12px !important;
+}
+
+/* 다크 테마 테이블 */
+:deep(.dark-theme) .custom-data-table {
+  background-color: #1e1e1e !important;
+}
+
+:deep(.dark-theme) .custom-data-table th {
+  background-color: #2d3748 !important;
+  color: #e0e0e0 !important;
+}
+
+:deep(.dark-theme) .custom-data-table td {
+  color: #e0e0e0 !important;
+  border-bottom: 1px solid #333 !important;
+}
+
+:deep(.dark-theme) .custom-data-table tr:hover {
+  background-color: #2d3748 !important;
 }
 
 .attendance-progress {
@@ -1257,6 +1396,23 @@ export default {
   background: linear-gradient(90deg, #c98b89 0%, #b06f6f 100%) !important;
 }
 
+/* 다크 테마 프로그레스 바 */
+:deep(.dark-theme) .gradient-success {
+  background: linear-gradient(90deg, #5d776d 0%, #4c635a 100%) !important;
+}
+
+:deep(.dark-theme) .gradient-info {
+  background: linear-gradient(90deg, #6d897e 0%, #5d776d 100%) !important;
+}
+
+:deep(.dark-theme) .gradient-warning {
+  background: linear-gradient(90deg, #a98969 0%, #8c6e4f 100%) !important;
+}
+
+:deep(.dark-theme) .gradient-error {
+  background: linear-gradient(90deg, #a96b69 0%, #8c4f4f 100%) !important;
+}
+
 /* 미팅 타입 선택 스타일 */
 .meeting-type-select {
   border-radius: 8px;
@@ -1267,6 +1423,23 @@ export default {
   min-height: 40px !important;
 }
 
+/* 다크 테마 셀렉트 */
+:deep(.dark-theme) .meeting-type-select {
+  background-color: #2d3748 !important;
+}
+
+:deep(.dark-theme) .meeting-type-select .v-select__selection {
+  color: #e0e0e0 !important;
+}
+
+:deep(.dark-theme) .meeting-type-select .v-label {
+  color: #b0bec5 !important;
+}
+
+:deep(.dark-theme) .meeting-type-select .v-icon {
+  color: #b0bec5 !important;
+}
+
 .search-field {
   max-width: 260px;
   border-radius: 20px;
@@ -1275,6 +1448,27 @@ export default {
 
 .search-field :deep(.v-input__slot) {
   min-height: 40px !important;
+}
+
+/* 다크 테마 검색필드 */
+:deep(.dark-theme) .search-field {
+  background-color: rgba(255, 255, 255, 0.1) !important;
+}
+
+:deep(.dark-theme) .search-field .v-input__slot {
+  border-color: rgba(255, 255, 255, 0.2) !important;
+}
+
+:deep(.dark-theme) .search-field input {
+  color: #e0e0e0 !important;
+}
+
+:deep(.dark-theme) .search-field .v-label {
+  color: #b0bec5 !important;
+}
+
+:deep(.dark-theme) .search-field .v-icon {
+  color: #b0bec5 !important;
 }
 
 @media (max-width: 600px) {

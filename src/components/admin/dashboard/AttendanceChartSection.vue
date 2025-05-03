@@ -1372,6 +1372,11 @@ export default {
 
       return annotations;
     },
+
+    formatDate(dateString) {
+      const [, month, day] = dateString.split("-"); // 'year' 변수 제거 (미사용 변수)
+      return `${month}/${day}`;
+    },
   },
 };
 </script>

@@ -66,60 +66,63 @@
         </v-card-actions>
       </v-card>
     </v-dialog>
+
     <!-- 로딩 인디케이터 -->
-    <v-overlay :value="isLoading" opacity="0.92">
-      <div class="loading-container">
-        <div class="loading-spinner-wrapper">
-          <v-progress-circular
-            indeterminate
-            size="80"
-            width="5"
-            color="primary"
-            class="loading-spinner"
-          >
-            <v-icon size="36" color="white">mdi-database-sync</v-icon>
-          </v-progress-circular>
-        </div>
-
-        <div class="loading-content">
-          <div class="loading-title">{{ loadingStepText }}</div>
-
-          <v-progress-linear
-            :value="loadingProgress"
-            height="8"
-            rounded
-            striped
-            color="primary"
-            background-color="rgba(255, 255, 255, 0.2)"
-            class="loading-progress-bar"
-          ></v-progress-linear>
-
-          <div class="loading-percentage">{{ loadingProgress }}% 완료</div>
-
-          <div v-if="loadingDetails" class="loading-details">
-            <v-icon small color="white" class="mr-1"
-              >mdi-information-outline</v-icon
+    <v-fade-transition>
+      <v-overlay v-if="isLoading" opacity="0.85" class="loading-overlay">
+        <div class="loading-container">
+          <div class="loading-spinner-wrapper">
+            <v-progress-circular
+              indeterminate
+              size="80"
+              width="5"
+              color="primary"
+              class="loading-spinner"
             >
-            {{ loadingDetails }}
+              <v-icon size="36" color="white">mdi-database-sync</v-icon>
+            </v-progress-circular>
           </div>
 
-          <div v-if="loadingError" class="loading-error">
-            <v-icon color="error" small class="mr-1">mdi-alert-circle</v-icon>
-            {{ loadingError }}
-            <v-btn
-              small
-              color="error"
-              outlined
-              class="retry-btn"
-              @click="retryLoading"
-            >
-              <v-icon small left>mdi-refresh</v-icon>
-              다시 시도
-            </v-btn>
+          <div class="loading-content">
+            <div class="loading-title">{{ loadingStepText }}</div>
+
+            <v-progress-linear
+              :value="loadingProgress"
+              height="8"
+              rounded
+              striped
+              color="primary"
+              background-color="rgba(255, 255, 255, 0.2)"
+              class="loading-progress-bar"
+            ></v-progress-linear>
+
+            <div class="loading-percentage">{{ loadingProgress }}% 완료</div>
+
+            <div v-if="loadingDetails" class="loading-details">
+              <v-icon small color="white" class="mr-1"
+                >mdi-information-outline</v-icon
+              >
+              {{ loadingDetails }}
+            </div>
+
+            <div v-if="loadingError" class="loading-error">
+              <v-icon color="error" small class="mr-1">mdi-alert-circle</v-icon>
+              {{ loadingError }}
+              <v-btn
+                small
+                color="error"
+                outlined
+                class="retry-btn"
+                @click="retryLoading"
+              >
+                <v-icon small left>mdi-refresh</v-icon>
+                다시 시도
+              </v-btn>
+            </div>
           </div>
         </div>
-      </div>
-    </v-overlay>
+      </v-overlay>
+    </v-fade-transition>
 
     <!-- 대시보드 메인 컨텐츠 -->
     <v-container fluid class="dashboard-container pa-4">
@@ -299,6 +302,7 @@
             <AttendanceChartSection
               :meetingDates="meetingDates"
               :memberAttendanceData="filteredMemberAttendanceData"
+              :isDarkTheme="isDarkTheme"
             />
           </v-col>
         </v-row>
@@ -571,6 +575,9 @@ export default {
       isAuthenticated: false, // 인증 여부
       loggingIn: false, // 로그인 진행 중 상태
 
+      // 테마 관련
+      isDarkTheme: true, // 기본 테마는 다크 테마로 변경
+
       // 기본 UI 상태
       activeTab: 0,
       isLoading: false,
@@ -665,6 +672,14 @@ export default {
   },
   created() {
     // 페이지 로드 시 데이터 초기화
+    this.loadSavedTheme(); // 저장된 테마 설정 불러오기
+
+    // 다크 테마가 기본값인지 확인하고, 로컬 스토리지에 없으면 저장
+    if (localStorage.getItem("dashboardTheme") === null) {
+      localStorage.setItem("dashboardTheme", "dark");
+      this.isDarkTheme = true;
+    }
+
     this.initializeDashboard();
   },
   mounted() {
@@ -909,10 +924,13 @@ export default {
       } finally {
         this.completedOperations = this.loadingOperations;
         this.loadingProgress = 100;
+        this.loadingStepText = "데이터 로딩 완료!";
 
+        // 데이터를 전부 표시한 후 로딩 화면을 천천히 사라지게 합니다
         setTimeout(() => {
+          // 로딩 화면이 페이드 아웃되도록 설정
           this.isLoading = false;
-        }, 500);
+        }, 800);
       }
     },
 
@@ -1915,6 +1933,14 @@ export default {
       this.loadingProgress = Math.round(
         (this.completedOperations / this.loadingOperations) * 100
       );
+
+      // 로딩이 완료되면 잠시 후 로딩 인디케이터를 닫음
+      if (this.completedOperations >= this.loadingOperations) {
+        // 100%에 도달한 후 0.5초 후에 로딩 상태 해제
+        setTimeout(() => {
+          this.isLoading = false;
+        }, 500);
+      }
     },
 
     // 빠른 날짜 범위 설정 메서드
@@ -2299,6 +2325,17 @@ export default {
     // 위험군 데이터 초기화 (데이터 업데이트 시 호출)
     resetAbsenceRiskData() {
       this.absenceRiskData = {};
+    },
+
+    // 저장된 테마 설정 불러오기
+    loadSavedTheme() {
+      const savedTheme = localStorage.getItem("dashboardTheme");
+      if (savedTheme) {
+        this.isDarkTheme = savedTheme === "dark";
+      } else {
+        // 저장된 설정이 없으면 다크 테마를 기본값으로 설정하고 저장
+        localStorage.setItem("dashboardTheme", "dark");
+      }
     },
   },
   beforeDestroy() {
@@ -2711,15 +2748,32 @@ export default {
 
 .loading-spinner-wrapper {
   position: relative;
-  width: 90px;
-  height: 90px;
-  margin-bottom: 24px;
+  margin-bottom: 16px;
+  z-index: 1;
+  width: 80px;
+  height: 80px;
 }
 
 .loading-spinner {
-  position: relative;
-  box-shadow: 0 0 20px rgba(78, 205, 196, 0.5);
-  animation: glowing 2s infinite alternate;
+  filter: drop-shadow(0 0 8px rgba(78, 205, 196, 0.5));
+}
+
+.loading-spinner::before {
+  content: "";
+  position: absolute;
+  width: 80px;
+  height: 80px;
+  top: 0;
+  left: 0;
+  border-radius: 50%;
+  background: radial-gradient(
+    circle,
+    rgba(78, 205, 196, 0.3) 0%,
+    rgba(78, 205, 196, 0.1) 40%,
+    transparent 70%
+  );
+  animation: pulse 2s infinite;
+  z-index: -1;
 }
 
 @keyframes glowing {
@@ -4063,5 +4117,170 @@ export default {
   font-size: 14px !important;
   font-weight: 500 !important;
   letter-spacing: 0.3px !important;
+}
+
+/* 로딩 인디케이터 스타일 */
+.loading-overlay {
+  backdrop-filter: blur(8px);
+  transition: all 0.3s ease-in-out !important;
+}
+
+.v-overlay__scrim {
+  transition: opacity 0.3s ease-in-out !important;
+}
+
+.loading-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  background-color: rgba(30, 40, 50, 0.8);
+  border-radius: 16px;
+  padding: 24px 32px;
+  box-shadow: 0 12px 30px rgba(0, 0, 0, 0.25);
+  max-width: 450px;
+  width: 90%;
+  animation: fadeIn 0.4s ease-out;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  position: relative;
+  overflow: hidden;
+  will-change: transform, opacity;
+}
+
+.loading-spinner-wrapper {
+  position: relative;
+  margin-bottom: 24px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.loading-spinner {
+  position: relative;
+  z-index: 2;
+  filter: drop-shadow(0 0 10px rgba(78, 205, 196, 0.5));
+}
+
+.loading-spinner::before {
+  content: "";
+  position: absolute;
+  width: 80px;
+  height: 80px;
+  top: 0;
+  left: 0;
+  border-radius: 50%;
+  background: radial-gradient(
+    circle,
+    rgba(78, 205, 196, 0.3) 0%,
+    rgba(78, 205, 196, 0.1) 40%,
+    transparent 70%
+  );
+  animation: pulse 2s infinite;
+  z-index: 1;
+}
+
+.loading-content {
+  width: 100%;
+  text-align: center;
+}
+
+.loading-title {
+  font-size: 18px;
+  font-weight: 600;
+  color: white;
+  margin-bottom: 16px;
+  text-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+}
+
+.loading-progress-bar {
+  position: relative;
+  overflow: hidden;
+  border-radius: 10px !important;
+  margin-bottom: 12px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2) inset;
+}
+
+.loading-percentage {
+  font-size: 14px;
+  font-weight: 500;
+  color: rgba(255, 255, 255, 0.9);
+  margin-bottom: 16px;
+}
+
+.loading-details {
+  background-color: rgba(255, 255, 255, 0.1);
+  padding: 10px 16px;
+  border-radius: 8px;
+  font-size: 14px;
+  margin-bottom: 16px;
+  color: rgba(255, 255, 255, 0.85);
+  text-align: left;
+  display: flex;
+  align-items: flex-start;
+  transition: all 0.3s;
+  backdrop-filter: blur(4px);
+  border-left: 3px solid rgba(78, 205, 196, 0.7);
+}
+
+.loading-error {
+  background-color: rgba(244, 67, 54, 0.15);
+  padding: 12px 16px;
+  border-radius: 8px;
+  margin-top: 8px;
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  color: rgba(255, 255, 255, 0.9);
+  text-align: left;
+  transition: all 0.3s;
+  backdrop-filter: blur(4px);
+  border-left: 3px solid #f44336;
+}
+
+.retry-btn {
+  margin-left: auto;
+  margin-top: 8px;
+  border-color: rgba(255, 255, 255, 0.7) !important;
+  color: rgba(255, 255, 255, 0.9) !important;
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes pulse {
+  0% {
+    transform: scale(1);
+    opacity: 0.5;
+  }
+  50% {
+    transform: scale(1.1);
+    opacity: 0.8;
+  }
+  100% {
+    transform: scale(1);
+    opacity: 0.5;
+  }
+}
+
+/* 다크 테마에서 로딩 인디케이터 스타일 */
+.dashboard-container.dark-theme .loading-container {
+  background-color: rgba(20, 25, 35, 0.85);
+  border: 1px solid rgba(255, 255, 255, 0.05);
+}
+
+.dashboard-container.dark-theme .loading-details {
+  background-color: rgba(255, 255, 255, 0.07);
+  border-left: 3px solid rgba(78, 205, 196, 0.6);
+}
+
+.dashboard-container.dark-theme .loading-error {
+  background-color: rgba(244, 67, 54, 0.1);
 }
 </style>
