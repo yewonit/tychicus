@@ -383,15 +383,16 @@
 </template>
 
 <script>
+import { API_BASE_URL } from "@/config/constants";
 import moment from "moment";
 import "moment/locale/ko";
 import { mapGetters } from "vuex";
 
 // OrganizationManagementView.vue에서 사용하는 믹스인 참조
+import { AttendanceCtrl } from "@/mixins/apis_v2/internal/domainCtrl/AttendanceCtrl";
+import { CurrentMemberCtrl } from "@/mixins/apis_v2/internal/domainCtrl/CurrentMemberCtrl";
 import { OrganizationCtrl } from "@/mixins/apis_v2/internal/domainCtrl/OrganizationCtrl";
 import { MasterCtrl } from "@/mixins/apis_v2/internal/MasterCtrl";
-import { CurrentMemberCtrl } from "@/mixins/apis_v2/internal/domainCtrl/CurrentMemberCtrl";
-import { AttendanceCtrl } from "@/mixins/apis_v2/internal/domainCtrl/AttendanceCtrl";
 
 // 추가: ExcelJS 라이브러리 import
 import { saveAs } from "file-saver";
@@ -465,6 +466,9 @@ export default {
         title: "",
         message: "",
       },
+
+      // API 엔드포인트
+      API_BASE_URL: API_BASE_URL,
     };
   },
   computed: {

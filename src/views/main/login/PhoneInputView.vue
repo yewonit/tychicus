@@ -61,7 +61,7 @@
 
 <script>
 import "@/styles/overrides.scss";
-import { mapState, mapActions } from "vuex";
+import { mapActions, mapState } from "vuex";
 
 // Mixins
 import { AuthCtrl } from "@/mixins/apis_v2/internal/domainCtrl/AuthCtrl";

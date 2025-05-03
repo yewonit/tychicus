@@ -454,17 +454,17 @@
 </template>
 
 <script>
-import { mapState } from "vuex";
 import { MasterCtrl } from "@/mixins/apis_v2/internal/MasterCtrl";
 import { CurrentMemberCtrl } from "@/mixins/apis_v2/internal/domainCtrl/CurrentMemberCtrl";
 import { OrganizationCtrl } from "@/mixins/apis_v2/internal/domainCtrl/OrganizationCtrl";
+import { mapState } from "vuex";
 
 // 분리된 컴포넌트 import
-import OrganizationTree from "@/components/admin/organization/OrganizationTree.vue";
-import MemberList from "@/components/admin/organization/MemberList.vue";
-import MemberForm from "@/components/admin/organization/MemberForm.vue";
-import OrganizationDialog from "@/components/admin/organization/OrganizationDialog.vue";
 import DeleteConfirmDialog from "@/components/admin/organization/DeleteConfirmDialog.vue";
+import MemberForm from "@/components/admin/organization/MemberForm.vue";
+import MemberList from "@/components/admin/organization/MemberList.vue";
+import OrganizationDialog from "@/components/admin/organization/OrganizationDialog.vue";
+import OrganizationTree from "@/components/admin/organization/OrganizationTree.vue";
 
 export default {
   name: "OrganizationManagementView",
