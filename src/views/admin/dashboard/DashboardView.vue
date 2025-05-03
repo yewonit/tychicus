@@ -303,6 +303,7 @@
               :meetingDates="meetingDates"
               :memberAttendanceData="filteredMemberAttendanceData"
               :isDarkTheme="isDarkTheme"
+              :absenceRiskStats="getAbsenteeStats()"
             />
           </v-col>
         </v-row>
@@ -411,8 +412,11 @@
                   <div class="d-flex align-center">
                     <v-icon left color="error">mdi-account-alert</v-icon>
                     <span class="text-h6">단기 결석자 위험군</span>
-                    <v-chip small color="error" class="ml-4" outlined
-                      >2주 이상 결석자</v-chip
+                    <v-chip small color="light-blue" class="ml-2" outlined
+                      >1주 결석</v-chip
+                    >
+                    <v-chip small color="amber darken-2" class="ml-2" outlined
+                      >2주 결석</v-chip
                     >
                   </div>
                 </v-expansion-panel-header>
@@ -1957,18 +1961,14 @@ export default {
           endDate = today.clone();
           break;
         case "thisWeek":
-          // 한국은 일요일이 아닌 월요일을 주의 시작으로 사용
-          startDate = today.clone().startOf("week").add(1, "days");
-          endDate = startDate.clone().add(6, "days");
+          // 일요일부터 토요일까지를 한 주로 설정
+          startDate = today.clone().startOf("week"); // 일요일
+          endDate = startDate.clone().add(6, "days"); // 토요일
           break;
         case "lastWeek":
-          // 지난 주 월요일부터 일요일까지
-          startDate = today
-            .clone()
-            .subtract(1, "week")
-            .startOf("week")
-            .add(1, "days");
-          endDate = startDate.clone().add(6, "days");
+          // 지난 주 일요일부터 토요일까지
+          startDate = today.clone().subtract(1, "week").startOf("week"); // 지난 주 일요일
+          endDate = startDate.clone().add(6, "days"); // 지난 주 토요일
           break;
         case "last7Days":
           startDate = today.clone().subtract(6, "days");
@@ -2274,8 +2274,12 @@ export default {
             ).format("YYYY-MM-DD");
           }
 
-          // 2주(2회) 이상 연속 결석한 경우만 추가
-          if (consecutiveAbsences >= 2) {
+          // 한 번이라도 참석한 기록이 있고, 최근 1주 또는 2주 연속 결석한 경우만 추가 (3주 이상은 장기결석자)
+          if (
+            lastAttendanceIdx >= 0 &&
+            consecutiveAbsences >= 1 &&
+            consecutiveAbsences <= 2
+          ) {
             riskMembers.push({
               memberName: member.memberName,
               organizationName: member.organizationName,
@@ -2303,9 +2307,9 @@ export default {
 
     // 결석 기간에 따른 색상 반환
     getAbsenceColor(weeks) {
-      if (weeks >= 4) return "error"; // 4주 이상 - 빨간색(심각)
-      if (weeks >= 3) return "deep-orange"; // 3주 이상 - 주황색(경고)
-      return "amber darken-2"; // 2주 - 노란색(주의)
+      if (weeks > 2) return "deep-orange"; // 장기결석자 (3주 이상) - 주황색(경고)
+      if (weeks == 2) return "amber darken-2"; // 2주 결석자 - 노란색(주의)
+      return "light-blue"; // 1주 결석자 - 파란색(정보)
     },
 
     // 인원 연락처 호출 핸들러
@@ -2325,6 +2329,49 @@ export default {
     // 위험군 데이터 초기화 (데이터 업데이트 시 호출)
     resetAbsenceRiskData() {
       this.absenceRiskData = {};
+    },
+
+    // 예배 유형별 단기결석자 수 반환 (1주, 2주 별도)
+    getAbsenceRiskCount(worshipType) {
+      const riskMembers = this.getAbsenceRiskMembers(worshipType);
+      const oneWeekAbsent = riskMembers.filter(
+        (member) => member.continuousAbsence === 1
+      ).length;
+      const twoWeekAbsent = riskMembers.filter(
+        (member) => member.continuousAbsence === 2
+      ).length;
+
+      return {
+        oneWeekAbsent,
+        twoWeekAbsent,
+        total: oneWeekAbsent + twoWeekAbsent,
+      };
+    },
+
+    // 출석률 차트에 표시할 전체 단기결석자 통계 반환
+    getAbsenteeStats() {
+      if (this.meetingDates.length === 0) {
+        return { oneWeekAbsent: 0, twoWeekAbsent: 0, total: 0 };
+      }
+
+      // 현재 표시 중인 예배 유형들
+      const displayedTypes = [...new Set(this.meetingDates.map((m) => m.type))];
+
+      // 각 예배 유형별 집계 합산
+      let oneWeekTotal = 0;
+      let twoWeekTotal = 0;
+
+      displayedTypes.forEach((type) => {
+        const stats = this.getAbsenceRiskCount(type);
+        oneWeekTotal += stats.oneWeekAbsent;
+        twoWeekTotal += stats.twoWeekAbsent;
+      });
+
+      return {
+        oneWeekAbsent: oneWeekTotal,
+        twoWeekAbsent: twoWeekTotal,
+        total: oneWeekTotal + twoWeekTotal,
+      };
     },
 
     // 저장된 테마 설정 불러오기

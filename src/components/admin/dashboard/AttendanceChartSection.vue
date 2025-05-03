@@ -169,6 +169,30 @@
             <v-tooltip bottom>
               <template v-slot:activator="{ on, attrs }">
                 <div class="stat-item" v-bind="attrs" v-on="on">
+                  <div class="stat-value light-blue--text">
+                    {{ absenteeStats.oneWeekAbsent }}명
+                  </div>
+                  <div class="stat-label">1주 결석자</div>
+                </div>
+              </template>
+              <span>1주간 연속으로 결석한 인원 수입니다.</span>
+            </v-tooltip>
+
+            <v-tooltip bottom>
+              <template v-slot:activator="{ on, attrs }">
+                <div class="stat-item" v-bind="attrs" v-on="on">
+                  <div class="stat-value amber--text text--darken-2">
+                    {{ absenteeStats.twoWeekAbsent }}명
+                  </div>
+                  <div class="stat-label">2주 결석자</div>
+                </div>
+              </template>
+              <span>2주간 연속으로 결석한 인원 수입니다.</span>
+            </v-tooltip>
+
+            <v-tooltip bottom>
+              <template v-slot:activator="{ on, attrs }">
+                <div class="stat-item" v-bind="attrs" v-on="on">
                   <div class="stat-value orange--text">
                     {{ stats.avgAttendees }}명
                   </div>
@@ -226,6 +250,15 @@ export default {
       type: Array,
       required: true,
     },
+    // 단기결석자 통계 (부모 컴포넌트에서 계산)
+    absenceRiskStats: {
+      type: Object,
+      default: () => ({
+        oneWeekAbsent: 0,
+        twoWeekAbsent: 0,
+        total: 0,
+      }),
+    },
   },
   data() {
     return {
@@ -235,6 +268,12 @@ export default {
       selectedWorshipTypes: [], // 선택된 예배 유형 값
       selectedWorshipTypeIndices: [], // 선택된 예배 유형 인덱스
       chartType: "combo", // 차트 유형: 'combo', 'line', 'bar'
+      // 기본 단기결석자 통계
+      localAbsenteeStats: {
+        oneWeekAbsent: 0,
+        twoWeekAbsent: 0,
+        total: 0,
+      },
       worshipTypeLabels: {
         SUNDAY_SERVICE_2: "주일2부예배",
         SUNDAY_SERVICE_3: "주일3부예배",
@@ -259,6 +298,11 @@ export default {
     };
   },
   computed: {
+    // 단기결석자 통계
+    absenteeStats() {
+      return this.absenceRiskStats || this.localAbsenteeStats;
+    },
+
     // 사용 가능한 예배 유형 목록
     availableWorshipTypes() {
       // 현재 meetingDates에서 사용되는 예배 유형만 추출
