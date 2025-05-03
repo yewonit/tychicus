@@ -1,0 +1,71 @@
+@for $i from 1 through 25 {
+  // 마진 - 모든 방향, 상단, 우측, 하단, 좌측
+  .ma-#{$i} {
+    margin: $i * 4px !important;
+  }
+  .mt-#{$i} {
+    margin-top: $i * 4px !important;
+  }
+  .mr-#{$i} {
+    margin-right: $i * 4px !important;
+  }
+  .mb-#{$i} {
+    margin-bottom: $i * 4px !important;
+  }
+  .ml-#{$i} {
+    margin-left: $i * 4px !important;
+  }
+
+  // 마진 - y축(상하), x축(좌우)
+  .my-#{$i} {
+    margin-top: $i * 4px !important;
+    margin-bottom: $i * 4px !important;
+  }
+  .mx-#{$i} {
+    margin-left: $i * 4px !important;
+    margin-right: $i * 4px !important;
+  }
+
+  // 패딩 - 모든 방향, 상단, 우측, 하단, 좌측
+  .pa-#{$i} {
+    padding: $i * 4px !important;
+  }
+  .pt-#{$i} {
+    padding-top: $i * 4px !important;
+  }
+  .pr-#{$i} {
+    padding-right: $i * 4px !important;
+  }
+  .pb-#{$i} {
+    padding-bottom: $i * 4px !important;
+  }
+  .pl-#{$i} {
+    padding-left: $i * 4px !important;
+  }
+
+  // 패딩 - y축(상하), x축(좌우)
+  .py-#{$i} {
+    padding-top: $i * 4px !important;
+    padding-bottom: $i * 4px !important;
+  }
+  .px-#{$i} {
+    padding-left: $i * 4px !important;
+    padding-right: $i * 4px !important;
+  }
+}
+
+@for $i from 1 through 25 {
+  // 마이너스 마진 - 모든 방향, 상단, 우측, 하단, 좌측
+  .mt-n#{$i} {
+    margin-top: -($i * 4px) !important;
+  }
+  .mr-n#{$i} {
+    margin-right: -($i * 4px) !important;
+  }
+  .mb-n#{$i} {
+    margin-bottom: -($i * 4px) !important;
+  }
+  .ml-n#{$i} {
+    margin-left: -($i * 4px) !important;
+  }
+}

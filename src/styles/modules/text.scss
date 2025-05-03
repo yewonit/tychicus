@@ -1,0 +1,364 @@
+// 🌐 전역 변수
+$font-family-base: "NotoSansCJKKR", sans-serif;
+$font-weight-bold: bold;
+$font-weight-medium: 500;
+$font-weight-normal: normal;
+
+// 🎨 색상 팔레트
+$color-main-text: #262626;
+$color-sub-text: #b7bbcc;
+$color-placeholder-text: #8a98a5;
+$color-menu-default: #a6aaba;
+$color-header-text: #353538;
+$color-info-text: #2e2e2e;
+$color-caption-text: #b3bbbf;
+$color-light-info-text: #9da1b2;
+$color-green: #7ea394; // 추가된 색상
+
+// 📏 글자 크기
+$font-size-huge: 48px;
+$font-size-extra-large: 36px;
+$font-size-large: 42px;
+$font-size-medium-large: 28px;
+$font-size-medium: 22px;
+$font-size-regular: 20px;
+$font-size-medium-small: 18px;
+$font-size-small: 13px;
+$font-size-extra-small: 12px;
+$font-size-tiny: 11px;
+$font-size-avatar-name: 13px; // 아바타 이름 크기
+$font-size-avatar-position: 12px; // 아바타 직위 크기
+$font-size-content-title: 28px; // 회원가입 제목 크기
+$font-size-content-subtitle: 15px; // 회원가입 부제목 크기
+
+// ✍️ 기본 텍스트 스타일
+// 공통적으로 적용될 텍스트 스타일 정의
+%text-default {
+  font-family: $font-family-base;
+  font-stretch: normal;
+  font-style: normal;
+  line-height: normal;
+  letter-spacing: normal;
+  color: $color-main-text;
+  animation: textFadeIn 1.5s ease-in-out forwards; // 애니메이션 적용
+}
+
+// 🏷️ 제목 스타일
+// h1부터 h5까지 다양한 레벨의 제목에 대한 스타일
+%heading-styles {
+  @extend %text-default;
+  font-weight: $font-weight-bold;
+}
+
+// 텝바 타이틀
+.wc-tab-title {
+  @extend %heading-styles;
+  font-size: $font-size-regular;
+  font-weight: $font-weight-bold;
+  line-height: 1.29;
+  color: $color-header-text;
+}
+
+// 제목 - h1
+.wc-h1 {
+  @extend %heading-styles;
+  font-size: $font-size-large;
+  line-height: 1.29;
+  color: $color-header-text;
+}
+
+// 제목 - h2
+.wc-h2 {
+  @extend %heading-styles;
+  font-size: $font-size-medium;
+  letter-spacing: 0.18px;
+}
+
+// 중간 무게의 제목 - h2-m, direction-text
+.wc-h2-m,
+.wc-direction-text {
+  @extend %text-default;
+  font-size: $font-size-medium;
+  font-weight: $font-weight-medium;
+  letter-spacing: 0.18px;
+}
+
+// h3 제목
+.wc-h3 {
+  @extend %heading-styles;
+  font-size: $font-size-regular;
+  font-weight: $font-weight-bold;
+  letter-spacing: 0.14px;
+}
+
+// h4, h5 제목
+.wc-h4,
+.wc-h5 {
+  @extend %heading-styles;
+  font-size: $font-size-small;
+  color: $color-main-text;
+}
+
+.wc-h4 {
+  color: #2e2e2e;
+}
+
+// 서브 타이틀
+.wc-st1,
+.wc-st2 {
+  @extend %text-default;
+  font-weight: $font-weight-normal;
+  color: $color-sub-text;
+}
+
+.wc-st1 {
+  font-size: $font-size-regular;
+  line-height: 1.27;
+}
+
+.wc-st2 {
+  font-size: $font-size-tiny;
+  letter-spacing: 0.07px;
+}
+
+// 텍스트 버튼
+.wc-tb1,
+.wc-tb2,
+.wc-tb3 {
+  @extend %text-default;
+  font-weight: $font-weight-medium;
+}
+
+.wc-tb1,
+.wc-tb2 {
+  font-size: $font-size-regular;
+  color: #003442;
+}
+
+.wc-tb3 {
+  font-size: $font-size-small;
+  font-weight: $font-weight-normal;
+  color: $color-placeholder-text;
+}
+
+// 본문 스타일
+.wc-body1,
+.wc-body2 {
+  @extend %text-default;
+}
+
+.wc-body1 {
+  font-size: $font-size-regular;
+  line-height: 1.67;
+  color: $color-header-text;
+}
+
+.wc-body2 {
+  font-size: $font-size-small;
+  color: #656565;
+}
+
+// 메뉴 스타일
+.wc-topmenu-active,
+.wc-topmenu-default {
+  @extend %text-default;
+  font-size: $font-size-regular;
+  font-weight: $font-weight-medium;
+  letter-spacing: 0.11px;
+}
+
+.wc-topmenu-default {
+  font-weight: $font-weight-normal;
+  color: $color-menu-default;
+}
+
+.wc-sidemenu-active,
+.wc-sidemenu-default {
+  @extend %text-default;
+  font-size: $font-size-small;
+  font-weight: $font-weight-normal;
+}
+
+.wc-sidemenu-active {
+  color: #656565;
+}
+
+.wc-sidemenu-default {
+  color: $color-menu-default;
+}
+
+// 기타 스타일
+.wc-placeholder,
+.wc-info,
+.wc-info-light,
+.wc-caption {
+  @extend %text-default;
+  font-weight: $font-weight-normal;
+}
+
+.wc-placeholder {
+  font-size: $font-size-small;
+  letter-spacing: 0.09px;
+  color: $color-sub-text;
+}
+
+.wc-info {
+  font-size: $font-size-tiny;
+  color: $color-info-text;
+}
+
+.wc-info-light {
+  font-size: $font-size-tiny;
+  color: $color-light-info-text;
+}
+
+.wc-caption {
+  font-size: $font-size-tiny;
+  color: $color-caption-text;
+}
+
+// 시스템 역할이 있는 폰트
+.wc-direction-text {
+  @extend %text-default;
+  font-size: $font-size-medium;
+  font-weight: $font-weight-normal;
+  letter-spacing: 0.18px;
+}
+
+// 아바타 스타일
+.text-avatar-name {
+  @extend %text-default;
+  font-size: $font-size-avatar-name;
+  font-weight: $font-weight-medium;
+  color: $color-main-text;
+}
+
+.text-avatar-position {
+  @extend %text-default;
+  font-size: $font-size-avatar-position;
+  font-weight: $font-weight-medium;
+  color: $color-light-info-text;
+}
+
+// 회원가입 관련 스타일
+.contant-title {
+  @extend %text-default;
+  font-size: $font-size-content-title;
+  font-weight: $font-weight-bold;
+  color: $color-header-text;
+}
+
+.contant-subtitle {
+  @extend %text-default;
+  font-size: $font-size-content-subtitle;
+  font-weight: $font-weight-normal;
+  color: $color-sub-text;
+}
+
+// 커스텀 색상 텍스트
+.wc-text-color-green {
+  color: $color-green;
+}
+
+@keyframes textFadeIn {
+  0% {
+    opacity: 0;
+  }
+  100% {
+    opacity: 1;
+  }
+}
+
+// 볼드 단계 클래스
+.wc-bold-100 {
+  font-weight: 100;
+}
+
+.wc-bold-200 {
+  font-weight: 200;
+}
+
+.wc-bold-300 {
+  font-weight: 300;
+}
+
+.wc-bold-400 {
+  font-weight: 400;
+}
+
+.wc-bold-500 {
+  font-weight: 500;
+}
+
+.wc-bold-600 {
+  font-weight: 600;
+}
+
+.wc-bold-700 {
+  font-weight: 700;
+}
+
+.wc-bold-800 {
+  font-weight: 800;
+}
+
+.wc-bold-900 {
+  font-weight: 900;
+}
+
+// 글자 크기 클래스
+.wc-fs-48 {
+  font-size: $font-size-huge;
+}
+
+.wc-fs-36 {
+  font-size: $font-size-extra-large;
+}
+
+.wc-fs-42 {
+  font-size: $font-size-large;
+}
+
+.wc-fs-28 {
+  font-size: $font-size-medium-large;
+}
+
+.wc-fs-22 {
+  font-size: $font-size-medium;
+}
+
+.wc-fs-20 {
+  font-size: $font-size-regular;
+}
+
+.wc-fs-18 {
+  font-size: $font-size-medium-small;
+}
+
+.wc-fs-13 {
+  font-size: $font-size-small;
+}
+
+.wc-fs-12 {
+  font-size: $font-size-extra-small;
+}
+
+.wc-fs-11 {
+  font-size: $font-size-tiny;
+}
+
+.wc-fs-avatar-name {
+  font-size: $font-size-avatar-name;
+}
+
+.wc-fs-avatar-position {
+  font-size: $font-size-avatar-position;
+}
+
+.wc-fs-content-title {
+  font-size: $font-size-content-title;
+}
+
+.wc-fs-content-subtitle {
+  font-size: $font-size-content-subtitle;
+}
