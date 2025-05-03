@@ -148,7 +148,7 @@ const routes = [
           title: "이름 입력",
           showIcon: false,
           iconName: "mdi-account-edit",
-          showBackButton: false,
+          showBackButton: true,
           showHomeButton: false,
           showCancelButton: false,
         },
@@ -163,7 +163,7 @@ const routes = [
           iconName: "mdi-phone",
           showBackButton: true,
           showHomeButton: false,
-          showCancelButton: true,
+          showCancelButton: false,
         },
       },
       {
@@ -176,7 +176,7 @@ const routes = [
           iconName: "mdi-email",
           showBackButton: true,
           showHomeButton: false,
-          showCancelButton: true,
+          showCancelButton: false,
         },
       },
       {
@@ -189,7 +189,7 @@ const routes = [
           iconName: "mdi-password",
           showBackButton: true,
           showHomeButton: false,
-          showCancelButton: true,
+          showCancelButton: false,
         },
       },
       {
