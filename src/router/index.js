@@ -76,6 +76,7 @@ import AWSImageCRUDTest from "@/views/main/mainMenu/attendanceManagement/AWSImag
 import DashboardView from "@/views/admin/dashboard/DashboardView.vue";
 import OrganizationManagementView from "@/views/admin/members/OrganizationManagementView.vue";
 import OrganizationMeetingHistoryView from "@/views/admin/members/OrganizationMeetingHistoryView.vue";
+import AdminAttendanceStats from "@/views/admin/attendance/AttendanceStatsView.vue";
 // import AdminMemberList from "@/views/admin/members/MemberListView.vue";
 // import AdminMemberDetail from "@/views/admin/members/MemberDetailView.vue";
 // import AdminAttendanceList from "@/views/admin/attendance/AttendanceListView.vue";
@@ -430,7 +431,21 @@ const routes = [
         path: "",
         name: "AdminDashboard",
         component: DashboardView,
-        meta: { title: "대시보드" },
+        meta: {
+          title: "대시보드",
+          requiresAuth: true,
+          isAdmin: true,
+        },
+      },
+      {
+        path: "AdminDashboard",
+        name: "AdminDashboardAlias",
+        component: DashboardView,
+        meta: {
+          title: "대시보드",
+          requiresAuth: true,
+          isAdmin: true,
+        },
       },
       {
         path: "organizations",
@@ -443,6 +458,12 @@ const routes = [
         name: "AdminOrganizationMeetingHistory",
         component: OrganizationMeetingHistoryView,
         meta: { title: "조직별 모임 관리" },
+      },
+      {
+        path: "attendance/stats",
+        name: "AdminAttendanceStats",
+        component: AdminAttendanceStats,
+        meta: { title: "출결 통계" },
       },
       /*
       {
@@ -474,12 +495,6 @@ const routes = [
         name: "AdminAttendanceList",
         component: AdminAttendanceList,
         meta: { title: "출석 현황" },
-      },
-      {
-        path: "attendance/stats",
-        name: "AdminAttendanceStats",
-        component: AdminAttendanceStats,
-        meta: { title: "출석 통계" },
       },
       {
         path: "visitation",
@@ -514,7 +529,36 @@ const router = new VueRouter({
   routes,
 });
 
-// 네비게이션 가드 추가
+// 대시보드 화면 관련 네비게이션 가드 추가
+router.beforeEach((to, from, next) => {
+  // 대시보드로 진입하는 경우 처리
+  if (to.name === "AdminDashboard" || to.name === "AdminDashboardAlias") {
+    // 대시보드 활성화 클래스 추가 (body 태그에)
+    setTimeout(() => {
+      document.body.classList.add("dashboard-active");
+
+      // 사이드바 강제 닫기
+      const sidebarElement = document.querySelector(".v-navigation-drawer");
+      if (sidebarElement) {
+        sidebarElement.style.transform = "translateX(-100%)";
+        sidebarElement.style.visibility = "hidden";
+      }
+    }, 50);
+  }
+  // 대시보드에서 나가는 경우 처리
+  else if (
+    from.name === "AdminDashboard" ||
+    from.name === "AdminDashboardAlias"
+  ) {
+    // 대시보드 활성화 클래스 제거
+    document.body.classList.remove("dashboard-active");
+  }
+
+  // 라우트 이동 허용
+  next();
+});
+
+// 인증 관련 네비게이션 가드 (주석 처리된 부분은 그대로 유지)
 // router.beforeEach((to, from, next) => {
 //   const requiresAuth = to.matched.some((record) => record.meta.requiresAuth);
 //   const isAdmin = to.matched.some((record) => record.meta.isAdmin);

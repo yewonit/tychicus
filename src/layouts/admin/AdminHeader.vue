@@ -3,8 +3,11 @@
     <!-- 좌측: 메뉴 토글 버튼 & 로고 -->
     <v-app-bar-nav-icon
       @click="$emit('toggle-drawer')"
-      :disabled="isOrganizationManagementView"
-      :class="{ 'grey--text text--lighten-1': isOrganizationManagementView }"
+      :disabled="isOrganizationManagementView || isMenuDisabled"
+      :class="{
+        'grey--text text--lighten-1':
+          isOrganizationManagementView || isMenuDisabled,
+      }"
     ></v-app-bar-nav-icon>
 
     <v-toolbar-title class="ml-2">
@@ -74,6 +77,13 @@ import { mapState } from "vuex";
 export default {
   name: "AdminHeader",
 
+  props: {
+    isMenuDisabled: {
+      type: Boolean,
+      default: false,
+    },
+  },
+
   data: () => ({
     notificationCount: 0,
   }),
@@ -135,5 +145,18 @@ export default {
 
 .v-list-item {
   min-height: 35px;
+}
+</style>
+
+<!-- 전역 스타일 -->
+<style>
+/* 대시보드 화면일 때 햄버거 메뉴 버튼 숨김 */
+body.dashboard-active .v-app-bar-nav-icon {
+  display: none !important;
+}
+
+body.dashboard-active .v-toolbar-title {
+  margin-left: 0 !important;
+  padding-left: 16px !important;
 }
 </style>
