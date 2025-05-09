@@ -1,4 +1,4 @@
-import axiosApiClient from "@/utils/axiosApiClient";
+import axiosClient from "@/utils/axiosClient";
 import env from "@/config/environments.js";
 
 export const CurrentMemberCtrl = {
@@ -25,8 +25,8 @@ export const CurrentMemberCtrl = {
       }
 
       try {
-        const res = await axiosApiClient.get(
-          `${env.API_BASE_URL}/${this.CurrentMember_EP}`,
+        const res = await axiosClient.api.get(
+          `/${this.CurrentMember_EP}`,
           {
             params: {
               organizationId: organizationId,
@@ -63,7 +63,7 @@ export const CurrentMemberCtrl = {
       showLog
     ) {
       // API 엔드포인트 구성
-      const apiEndpoint = `${env.API_BASE_URL}/${this.CurrentMember_EP}`;
+      const apiEndpoint = `/${this.CurrentMember_EP}`;
 
       if (showLog) {
         console.group(
@@ -117,7 +117,7 @@ export const CurrentMemberCtrl = {
           console.log("요청 헤더:", {
             "Content-Type": "application/json",
             Authorization:
-              axiosApiClient.defaults.headers.common["Authorization"] ||
+              axiosClient.api.defaults.headers.common["Authorization"] ||
               "인증 정보 없음",
           });
           console.log("요청 본문:", requestBody);
@@ -126,7 +126,7 @@ export const CurrentMemberCtrl = {
 
         // API 요청 실행
         console.time("API 요청 시간");
-        const res = await axiosApiClient.post(apiEndpoint, requestBody);
+        const res = await axiosClient.api.post(apiEndpoint, requestBody);
         console.timeEnd("API 요청 시간");
 
         // 응답 처리
@@ -219,8 +219,8 @@ export const CurrentMemberCtrl = {
       }
 
       try {
-        const res = await axiosApiClient.delete(
-          `${env.API_BASE_URL}/${this.CurrentMember_EP}/${userId}`
+        const res = await axiosClient.api.delete(
+          `/${this.CurrentMember_EP}/${userId}`
         );
 
         let returnData = res.data;
@@ -253,8 +253,8 @@ export const CurrentMemberCtrl = {
       }
 
       try {
-        const res = await axiosApiClient.put(
-          `${env.API_BASE_URL}/${this.CurrentMember_EP}/${userId}`,
+        const res = await axiosClient.api.put(
+          `/${this.CurrentMember_EP}/${userId}`,
           userData
         );
 

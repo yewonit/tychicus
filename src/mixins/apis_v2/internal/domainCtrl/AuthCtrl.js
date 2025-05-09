@@ -1,6 +1,6 @@
 import { ModelCtrl } from "@/mixins/apis_v2/internal/core/ModelCtrl";
 import { mapActions } from "vuex";
-import axiosApiClient from "@/utils/axiosApiClient";
+import axiosClient from "@/utils/axiosClient";
 import env from "@/config/environments.js";
 
 export const AuthCtrl = {
@@ -64,7 +64,7 @@ export const AuthCtrl = {
       try {
         // 2. API 요청 준비 로깅
         const encodedName = encodeURIComponent(name);
-        const requestUrl = `${env.API_BASE_URL}/${this.User_EP}/name`;
+        const requestUrl = `/${this.User_EP}/name`;
 
         console.log(`${logPrefix} 📡 API 요청 정보:`, {
           url: requestUrl,
@@ -78,7 +78,7 @@ export const AuthCtrl = {
         console.log(`${logPrefix} ⏳ API 요청 시작...`);
         const startTime = performance.now();
 
-        const res = await axiosApiClient.get(requestUrl, {
+        const res = await axiosClient.auth.get(requestUrl, {
           params: { name: encodedName },
           timeout: 8000, // 8초 타임아웃 설정
         });
@@ -196,8 +196,8 @@ export const AuthCtrl = {
           `color: #6495ED;`
         );
       }
-      const res = await axiosApiClient.post(
-        `${env.API_BASE_URL}/${this.User_EP}/phone-number`,
+      const res = await axiosClient.auth.post(
+        `/${this.User_EP}/phone-number`,
         userInfo
       );
       let returnData = res.data;
@@ -217,9 +217,8 @@ export const AuthCtrl = {
      */
     async authLogin(email, password) {
       try {
-        const requestUrl = `${env.AUTH_BASE_URL}/login`;
         const requestData = { email, password };
-        const res = await axios.post(requestUrl, requestData, {
+        const res = await axiosClient.auth.post("/login", requestData, {
           timeout: 8000, // 8초 타임아웃 설정
           headers: {
             "Content-Type": "application/x-www-form-urlencoded",
@@ -254,8 +253,7 @@ export const AuthCtrl = {
 
     async authTokenCheck(accessToken, refreshToken) {
       try {
-        const requestUrl = `${env.AUTH_BASE_URL}/login`;
-        const res = await axios.get(requestUrl, {
+        const res = await axiosClient.auth.get('/login', {
           timeout: 8000, // 8초 타임아웃 설정
           headers: {
             Authorization: `Bearer ${accessToken}`,
@@ -283,9 +281,8 @@ export const AuthCtrl = {
 
     async authRefreshToken(refreshToken) {
       try {
-        const requestUrl = `${env.AUTH_BASE_URL}/refresh`;
         const requestData = { refreshToken };
-        const res = await axios.post(requestUrl, requestData, {
+        const res = await axiosClient.auth.post("/refresh", requestData, {
           timeout: 8000, // 8초 타임아웃 설정
           headers: {
             "Content-Type": "application/x-www-form-urlencoded",
@@ -317,8 +314,7 @@ export const AuthCtrl = {
 
     async authCheckEmail(email) {
       try {
-        const requestUrl = `${env.AUTH_BASE_URL}/code`;
-        const res = await axios.post(requestUrl, { email });
+        const res = await axiosClient.auth.post("/code", { email });
 
         if (res.status === 204) {
           return { result: 1, message: "인증번호 전송 완료" };
@@ -333,8 +329,7 @@ export const AuthCtrl = {
 
     async authVerifyCode(email, code) {
       try {
-        const requestUrl = `${env.AUTH_BASE_URL}/verify`;
-        const res = await axios.post(requestUrl, { email, code });
+        const res = await axiosClient.auth.post("/verify", { email, code });
 
         if (res.data) {
           return { result: 1, message: "인증 코드가 유효합니다." };
@@ -354,9 +349,8 @@ export const AuthCtrl = {
      */
     async authCheckEmailDuplication(email) {
       try {
-        const requestUrl = `${env.AUTH_BASE_URL}/check-email`;
-        const res = await axios.get(
-          requestUrl,
+        const res = await axiosClient.auth.get(
+          "/check-email",
           {
             params: { email },
           },
@@ -394,8 +388,7 @@ export const AuthCtrl = {
      */
     async authRegister(userData) {
       try {
-        const requestUrl = `${env.AUTH_BASE_URL}/register`;
-        const res = await axios.post(requestUrl, userData, {
+        const res = await axiosClient.auth.post("/register", userData, {
           headers: {
             "Content-Type": "application/json",
           },
@@ -443,8 +436,7 @@ export const AuthCtrl = {
 
     async authResetPassword(userData) {
       try {
-        const requestUrl = `${env.AUTH_BASE_URL}/reset-password`;
-        const res = await axios.post(requestUrl, userData, {
+        const res = await axiosClient.auth.post("/reset-password", userData, {
           headers: {
             "Content-Type": "application/json",
           },

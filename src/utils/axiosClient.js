@@ -7,7 +7,7 @@ const API_BASE_URL = environments.API_BASE_URL;
 const AUTH_BASE_URL = environments.AUTH_BASE_URL;
 
 // axios 인스턴스 생성
-const axiosApiClient = axios.create({
+const api = axios.create({
   baseURL: API_BASE_URL,
   timeout: 10000,
   headers: {
@@ -15,8 +15,16 @@ const axiosApiClient = axios.create({
   },
 });
 
+const auth = axios.create({
+  baseURL: AUTH_BASE_URL,
+  timeout: 10000,
+  headers: {
+    "Content-Type": "application/json",
+  },
+});
+
 // 요청 인터셉터 - 모든 요청에 인증 토큰 추가
-axiosApiClient.interceptors.request.use(
+api.interceptors.request.use(
   (config) => {
     const accessToken = store.getters["auth/userAccessToken"];
     if (accessToken) {
@@ -30,7 +38,7 @@ axiosApiClient.interceptors.request.use(
 );
 
 // 응답 인터셉터 - 토큰 만료 등의 에러 처리
-axiosApiClient.interceptors.response.use(
+api.interceptors.response.use(
   (response) => {
     return response;
   },
@@ -78,4 +86,4 @@ axiosApiClient.interceptors.response.use(
   }
 );
 
-export default axiosApiClient;
+export default { api, auth };
