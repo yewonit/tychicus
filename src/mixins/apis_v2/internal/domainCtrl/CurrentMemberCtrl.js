@@ -1,5 +1,4 @@
 import axiosClient from "@/utils/axiosClient";
-import env from "@/config/environments.js";
 
 export const CurrentMemberCtrl = {
   data() {
@@ -25,14 +24,11 @@ export const CurrentMemberCtrl = {
       }
 
       try {
-        const res = await axiosClient.api.get(
-          `/${this.CurrentMember_EP}`,
-          {
-            params: {
-              organizationId: organizationId,
-            },
-          }
-        );
+        const res = await axiosClient.api.get(`/${this.CurrentMember_EP}`, {
+          params: {
+            organizationId: organizationId,
+          },
+        });
 
         let returnData = res.data;
 

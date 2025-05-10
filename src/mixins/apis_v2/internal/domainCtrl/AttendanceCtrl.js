@@ -1,6 +1,5 @@
 import { ModelCtrl } from "@/mixins/apis_v2/internal/core/ModelCtrl";
 import axiosClient from "@/utils/axiosClient";
-import env from "@/config/environments";
 
 export const AttendanceCtrl = {
   data() {

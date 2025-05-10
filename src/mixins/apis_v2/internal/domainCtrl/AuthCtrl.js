@@ -1,7 +1,6 @@
 import { ModelCtrl } from "@/mixins/apis_v2/internal/core/ModelCtrl";
-import { mapActions } from "vuex";
 import axiosClient from "@/utils/axiosClient";
-import env from "@/config/environments.js";
+import { mapActions } from "vuex";
 
 export const AuthCtrl = {
   data() {
@@ -253,7 +252,7 @@ export const AuthCtrl = {
 
     async authTokenCheck(accessToken, refreshToken) {
       try {
-        const res = await axiosClient.auth.get('/login', {
+        const res = await axiosClient.auth.get("/login", {
           timeout: 8000, // 8초 타임아웃 설정
           headers: {
             Authorization: `Bearer ${accessToken}`,
@@ -350,7 +349,7 @@ export const AuthCtrl = {
     async authCheckEmailDuplication(email) {
       try {
         const res = await axiosClient.auth.get(
-          "/check-email",
+          `/${this.User_EP}/email`,
           {
             params: { email },
           },

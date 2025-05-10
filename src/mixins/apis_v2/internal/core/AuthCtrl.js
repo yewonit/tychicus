@@ -1,4 +1,3 @@
-import env from "@/config/environments.js";
 import axiosClient from "@/utils/axiosClient";
 
 export const AuthCtrl = {
@@ -63,11 +62,11 @@ export const AuthCtrl = {
     },
     // 로그인이 필요한 API 를 호출할 때 사용
     async getAuthAxios() {
-      return axiosClient.auth
+      return axiosClient.auth;
     },
     // 로그인이 필요 없는 API를 호출할 때 사용
     async getOpenAxios() {
-      return axiosClient.api
+      return axiosClient.api;
     },
     // Access Token 재발급
     refreshAccessToken: () => {

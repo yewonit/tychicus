@@ -1,6 +1,6 @@
-import axios from "axios";
-import store from "@/store";
 import environments from "@/config/environments";
+import store from "@/store";
+import axios from "axios";
 
 // API 기본 URL 설정
 const API_BASE_URL = environments.API_BASE_URL;
@@ -63,7 +63,7 @@ api.interceptors.response.use(
         }
 
         // 토큰 갱신 요청 (일반 axios 사용, 인터셉터 무한 루프 방지)
-        const response = await axios.post(`${AUTH_BASE_URL}/auth/refresh`, {
+        const response = await auth.post(`/auth/refresh`, {
           refreshToken,
         });
 
@@ -74,7 +74,7 @@ api.interceptors.response.use(
 
         // 새 토큰으로 원래 요청 재시도
         originalRequest.headers["Authorization"] = `Bearer ${accessToken}`;
-        return axiosApiClient(originalRequest);
+        return auth(originalRequest);
       } catch (refreshError) {
         // 토큰 갱신에 실패하면 로그아웃
         await store.dispatch("auth/logout");

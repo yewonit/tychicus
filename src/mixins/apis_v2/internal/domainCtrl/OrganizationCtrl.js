@@ -1,5 +1,4 @@
 import axiosClient from "@/utils/axiosClient";
-import env from "@/config/environments.js";
 
 export const OrganizationCtrl = {
   data() {
@@ -24,9 +23,7 @@ export const OrganizationCtrl = {
       }
 
       try {
-        const res = await axiosClient.api.get(
-          `/${this.Organization_EP}`
-        );
+        const res = await axiosClient.api.get(`/${this.Organization_EP}`);
 
         let returnData = res.data;
 
