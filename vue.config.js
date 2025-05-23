@@ -12,6 +12,14 @@ module.exports = {
   // outputDir: "../static",
   // indexPath: "../templates/index.html",
 
+  // 개발 서버 설정 추가
+  devServer: {
+    allowedHosts: 'all',
+    host: '0.0.0.0',
+    port: 8080,
+    https: false
+  },
+
   // PWA 설정 추가
   pwa: {
     name: "두기고",
