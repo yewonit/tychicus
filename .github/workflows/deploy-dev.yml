@@ -32,7 +32,7 @@ jobs:
 
       - name: Deploy
         run: |
-          sshpass -p ${{ secrets.DEV_MACHINE_SSH_PASSWORD }} ssh ${{ secrets.DEV_MACHINE_SSH_USER }}@${{ secrets.DEV_MACHINE_SSH_HOST }} -p ${{ secrets.DEV_MACHINE_SSH_PORT }} << 'EOF'
+          sshpass -p ${{ secrets.DEV_MACHINE_SSH_PASSWORD }} ssh -o StrictHostKeyChecking=no -t ${{ secrets.DEV_MACHINE_SSH_USER }}@${{ secrets.DEV_MACHINE_SSH_HOST }} -p ${{ secrets.DEV_MACHINE_SSH_PORT }} << 'EOF'
             docker rm -f tychicus-dev
             docker rmi coramdeoyouth/tychicus:dev
             docker pull coramdeoyouth/tychicus:dev
