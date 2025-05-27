@@ -15,7 +15,7 @@
           v-if="!welcomeShown"
           v-bind:class="{ fadeIn: !welcomeShown, fadeOut: welcomeShown }"
         >
-          코람데오 청년선교회 출결 플랫폼에 <br />잘 오셨습니다.
+          코람데오 청년선교회 출결 플랫폼에 <br />잘 오셨습니다~
         </span>
         <span
           class="wc-h3"
