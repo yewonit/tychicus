@@ -9,7 +9,7 @@
         <div
           class="wc-direction-text wc-bold-900 wc-fs-28 blue--text organization-name"
         >
-          {{ formatOrganizationName(userData.roles[0].organizationName) }}
+          {{ formatOrganizationName(userInfo.roles[0].organizationName) }}
         </div>
         <!-- <div class="wc-direction-text mt-1">사용할 서비스를 선택하세요</div> -->
       </v-col>
@@ -79,7 +79,7 @@ export default {
   name: "ServiceSelectionView",
   mixins: [NewExcelDataUpload, UserOrganizationsAndRolesCtrl],
   computed: {
-    ...mapState("auth", ["userData"]),
+    ...mapState("auth", ["userInfo"]),
   },
   data() {
     return {
