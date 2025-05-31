@@ -9,7 +9,7 @@
         <div
           class="wc-direction-text wc-bold-900 wc-fs-28 blue--text organization-name"
         >
-          {{ formatOrganizationName(userInfo.roles[0].organizationName) }}
+          {{ formatOrganizationName(userData.roles[0].organizationName) }}
         </div>
         <!-- <div class="wc-direction-text mt-1">사용할 서비스를 선택하세요</div> -->
       </v-col>
@@ -79,7 +79,7 @@ export default {
   name: "ServiceSelectionView",
   mixins: [NewExcelDataUpload, UserOrganizationsAndRolesCtrl],
   computed: {
-    ...mapState("auth", ["userInfo"]),
+    ...mapState("auth", ["userData"]),
   },
   data() {
     return {
@@ -214,8 +214,8 @@ export default {
     },
   },
   mounted() {
-    if (!this.userInfo) {
-      this.$router.push({ name: "NameInputView" });
+    if (!this.userData) {
+      this.$router.push({ name: "LoginView" });
     }
     console.log("사용자 정보:", this.userInfo);
     // 데이터 업데이트 함수 절대 키지 말것
