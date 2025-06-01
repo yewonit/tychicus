@@ -383,7 +383,6 @@
 </template>
 
 <script>
-import { API_BASE_URL } from "@/config/constants";
 import moment from "moment";
 import "moment/locale/ko";
 import { mapGetters } from "vuex";
@@ -466,9 +465,6 @@ export default {
         title: "",
         message: "",
       },
-
-      // API 엔드포인트
-      API_BASE_URL: API_BASE_URL,
     };
   },
   computed: {
