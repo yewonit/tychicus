@@ -14,10 +14,10 @@ module.exports = {
 
   // 개발 서버 설정 추가
   devServer: {
-    allowedHosts: 'all',
-    host: '0.0.0.0',
+    allowedHosts: "all",
+    host: "0.0.0.0",
     port: 8080,
-    https: false
+    https: false,
   },
 
   // PWA 설정 추가

@@ -30,8 +30,8 @@
 </template>
 
 <script>
-import { mapGetters, mapActions } from "vuex";
 import { AuthCtrl } from "@/mixins/apis_v2/internal/domainCtrl/AuthCtrl";
+import { mapActions, mapGetters } from "vuex";
 
 export default {
   name: "HelloView",
