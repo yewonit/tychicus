@@ -495,10 +495,15 @@ export default {
       return null;
     },
     formattedActivities() {
-      return this.activities.map((activity) => ({
-        ...activity,
-        name: activity.name.split(" (")[0],
-      }));
+      // 임시로 금요예배, 수요예배, 주일2부예배 제외
+      const excludedActivities = ["금요예배", "수요예배", "주일2부예배"];
+
+      return this.activities
+        .filter((activity) => !excludedActivities.includes(activity.name))
+        .map((activity) => ({
+          ...activity,
+          name: activity.name.split(" (")[0],
+        }));
     },
     // 자정을 넘어가는 모임인지 확인
     isOvernightMeeting() {
