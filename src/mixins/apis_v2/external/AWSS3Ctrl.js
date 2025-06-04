@@ -3,6 +3,7 @@ import AWS from "aws-sdk";
 export const AWSS3Ctrl = {
   data() {
     return {
+      // AWS S3 버킷 정보
       albumBucketName: "tychicus", // S3 버킷 이름
       bucketRegion: "ap-northeast-2", // AWS 리전 (서울)
       IdentityPoolId: "ap-northeast-2:bfd26cc6-669c-4afb-a4d3-580c5f35f776", // Cognito Identity Pool ID
