@@ -457,6 +457,7 @@
 import { MasterCtrl } from "@/mixins/apis_v2/internal/MasterCtrl";
 import { CurrentMemberCtrl } from "@/mixins/apis_v2/internal/domainCtrl/CurrentMemberCtrl";
 import { OrganizationCtrl } from "@/mixins/apis_v2/internal/domainCtrl/OrganizationCtrl";
+import { mapState } from "vuex";
 import moment from "moment-timezone";
 
 // 분리된 컴포넌트 import

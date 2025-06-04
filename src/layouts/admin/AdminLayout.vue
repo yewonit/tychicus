@@ -5,9 +5,6 @@
       @toggle-drawer="toggleDrawer"
       :is-menu-disabled="isMenuDisabled"
     />
-  <v-app>
-    <!-- 헤더 -->
-    <admin-header @toggle-drawer="toggleDrawer" />
 
     <!-- 사이드바 -->
     <admin-sidebar v-if="!isOrganizationManagementView" v-model="drawer" />
@@ -15,7 +12,6 @@
     <!-- 메인 컨텐츠 영역 -->
     <v-main>
       <v-container fluid class="admin-container pa-4">
-      <v-container fluid class="pa-6">
         <router-view></router-view>
       </v-container>
     </v-main>
@@ -167,7 +163,8 @@ body.dashboard-active .v-navigation-drawer {
 
 body.dashboard-active .v-main {
   padding-left: 0 !important;
-<style scoped>
+}
+
 .v-main {
   background-color: #f8f9fa;
 }

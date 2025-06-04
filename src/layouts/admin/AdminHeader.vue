@@ -8,8 +8,6 @@
         'grey--text text--lighten-1':
           isOrganizationManagementView || isMenuDisabled,
       }"
-      :disabled="isOrganizationManagementView"
-      :class="{ 'grey--text text--lighten-1': isOrganizationManagementView }"
     ></v-app-bar-nav-icon>
 
     <v-toolbar-title class="ml-2">
