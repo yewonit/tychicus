@@ -65,7 +65,7 @@ import "@/styles/overrides.scss";
 // Vuex의 mapState와 mapActions를 import합니다.
 // mapState는 Vuex 저장소의 상태를 컴포넌트의 computed 속성에 매핑하는 데 사용됩니다.
 // mapActions는 Vuex 저장소의 액션을 컴포넌트의 methods에 매핑하는 데 사용됩니다.
-import { mapActions, mapState } from "vuex";
+import { mapState, mapActions } from "vuex";
 
 // DataSetting 믹신을 "@/mixins/dataset/DataSetting"에서 import합니다.
 // 이 믹신은 데이터 CRUD(Create, Read, Update, Delete) 작업을 위한 메서드를 제공합니다.

@@ -71,9 +71,9 @@
 </template>
 
 <script>
+import { mapState } from "vuex";
 import { NewExcelDataUpload } from "@/mixins/apis_v2/utility/NewExcelDataUpload";
 import { UserOrganizationsAndRolesCtrl } from "@/mixins/apis_v2/utility/UserOrganizationsAndRolesCtrl";
-import { mapState } from "vuex";
 
 export default {
   name: "ServiceSelectionView",
