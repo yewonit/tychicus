@@ -35,11 +35,8 @@ import ServiceSelectionView from "@/views/main/coreNavigation/ServiceSelectionVi
  * @section 인증 관련 뷰
  * @description 사용자 인증 및 정보 입력 관련 컴포넌트
  */
-import LoginView from "@/views/main/login/LoginView.vue";
 import NameInputView from "@/views/main/login/NameInputView.vue";
 import PhoneInputView from "@/views/main/login/PhoneInputView.vue";
-import EmailInputView from "@/views/main/login/EmailInputView.vue";
-import PasswordInputView from "@/views/main/login/PasswordInputView.vue";
 
 /**
  * @section 교회 관리 시스템
@@ -128,19 +125,6 @@ const routes = [
        * @section 인증 관련 라우트
        */
       {
-        path: "/login",
-        name: "LoginView",
-        component: LoginView,
-        meta: {
-          title: "로그인",
-          showIcon: false,
-          iconName: "mdi-account-edit",
-          showBackButton: false,
-          showHomeButton: false,
-          showCancelButton: false,
-        },
-      },
-      {
         path: "/name-input",
         name: "NameInputView",
         component: NameInputView,
@@ -148,7 +132,7 @@ const routes = [
           title: "이름 입력",
           showIcon: false,
           iconName: "mdi-account-edit",
-          showBackButton: true,
+          showBackButton: false,
           showHomeButton: false,
           showCancelButton: false,
         },
@@ -163,33 +147,7 @@ const routes = [
           iconName: "mdi-phone",
           showBackButton: true,
           showHomeButton: false,
-          showCancelButton: false,
-        },
-      },
-      {
-        path: "/email-input",
-        name: "EmailInputView",
-        component: EmailInputView,
-        meta: {
-          title: "이메일 입력",
-          showIcon: false,
-          iconName: "mdi-email",
-          showBackButton: true,
-          showHomeButton: false,
-          showCancelButton: false,
-        },
-      },
-      {
-        path: "/password-input",
-        name: "PasswordInputView",
-        component: PasswordInputView,
-        meta: {
-          title: "비밀번호 입력",
-          showIcon: false,
-          iconName: "mdi-password",
-          showBackButton: false,
-          showHomeButton: false,
-          showCancelButton: false,
+          showCancelButton: true,
         },
       },
       {
