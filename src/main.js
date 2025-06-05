@@ -31,6 +31,7 @@ use([
 Vue.component("v-chart", VChart);
 
 Vue.config.productionTip = false;
+Vue.config.silent = process.env.NODE_ENV === "production";
 
 new Vue({
   router,
