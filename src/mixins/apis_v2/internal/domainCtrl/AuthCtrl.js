@@ -1,6 +1,6 @@
 import { ModelCtrl } from "@/mixins/apis_v2/internal/core/ModelCtrl";
-import axiosClient from "@/utils/axiosClient";
-import { mapActions } from "vuex";
+import axios from "axios";
+import env from "@/config/environments.js";
 
 export const AuthCtrl = {
   data() {
@@ -41,7 +41,6 @@ export const AuthCtrl = {
   created() {},
   mixins: [ModelCtrl],
   methods: {
-    ...mapActions("auth", ["setUserData", "setAccessToken", "setRefreshToken"]),
     /**
      * @description [인증된 사용자] 이름을 통한 사용자 존재 여부 확인 API
      * @param {String} name 확인할 사용자의 이름
@@ -63,7 +62,7 @@ export const AuthCtrl = {
       try {
         // 2. API 요청 준비 로깅
         const encodedName = encodeURIComponent(name);
-        const requestUrl = `/${this.User_EP}/name`;
+        const requestUrl = `${env.API_BASE_URL}/${this.User_EP}/name`;
 
         console.log(`${logPrefix} 📡 API 요청 정보:`, {
           url: requestUrl,
@@ -77,7 +76,7 @@ export const AuthCtrl = {
         console.log(`${logPrefix} ⏳ API 요청 시작...`);
         const startTime = performance.now();
 
-        const res = await axiosClient.auth.get(requestUrl, {
+        const res = await axios.get(requestUrl, {
           params: { name: encodedName },
           timeout: 8000, // 8초 타임아웃 설정
         });
@@ -151,7 +150,7 @@ export const AuthCtrl = {
           });
 
           if (error.response.status === 404) {
-            console.log(`${logPrefix} 사용자를 찾을 수 없습니다.`);
+            console.log(`${logPrefix} �� 사용자를 찾을 수 없습니다.`);
             return { result: 0, message: "사용자를 찾을 수 없습니다." };
           }
 
@@ -195,8 +194,8 @@ export const AuthCtrl = {
           `color: #6495ED;`
         );
       }
-      const res = await axiosClient.auth.post(
-        `/${this.User_EP}/phone-number`,
+      const res = await axios.post(
+        `${env.API_BASE_URL}/${this.User_EP}/phone-number`,
         userInfo
       );
       let returnData = res.data;
@@ -206,249 +205,6 @@ export const AuthCtrl = {
         console.log(`%c[ return ] :`, `color: #6495ED;`, returnData);
       }
       return returnData;
-    },
-
-    /**
-     * @description 로그인 API 호출
-     * @param {String} email 사용자 이메일
-     * @param {String} password 사용자 비밀번호
-     * @returns {Object} 조회 결과 (object: 성공, {result:0}: 실패)
-     */
-    async authLogin(email, password) {
-      try {
-        const requestData = { email, password };
-        const res = await axiosClient.auth.post("/login", requestData, {
-          timeout: 8000, // 8초 타임아웃 설정
-          headers: {
-            "Content-Type": "application/x-www-form-urlencoded",
-          },
-        });
-
-        console.log("응답 : " + JSON.stringify(res.data));
-
-        if (res.data) {
-          // 로그인 성공 시 사용자 정보 저장
-          this.setUserData(res.data.userData);
-          this.setAccessToken(res.data.tokens.accessToken);
-          this.setRefreshToken(res.data.tokens.refreshToken);
-          return {
-            success: true,
-            message: "로그인에 성공했습니다.",
-          };
-        } else {
-          return { success: false, message: "로그인 오류" };
-        }
-      } catch (error) {
-        if (error.response.status === 400 || error.response.status === 401) {
-          return {
-            success: false,
-            message: error.response.data.error.message,
-            // error: message: "패스워드가 일치하지 않습니다." name: "AuthenticationError"
-          };
-        }
-        return { success: false, message: "로그인 오류입니다." };
-      }
-    },
-
-    async authTokenCheck(accessToken, refreshToken) {
-      try {
-        const res = await axiosClient.auth.get("/login", {
-          timeout: 8000, // 8초 타임아웃 설정
-          headers: {
-            Authorization: `Bearer ${accessToken}`,
-          },
-        });
-
-        console.log("authTokenCheck 리턴 : " + JSON.stringify(res.data));
-
-        if (res.data) {
-          // 테스트 주석
-          // throw new Error("강제 오류 호출");
-          return {
-            success: true,
-            user: res.data.user,
-            message: "로그인에 성공했습니다.",
-          };
-        } else {
-          throw new Error({ success: false, message: "사용불가능한 토큰" });
-        }
-      } catch (error) {
-        console.log("3. 만료된 토큰인가봐요. authRefreshToken 호출");
-        return await this.authRefreshToken(refreshToken);
-      }
-    },
-
-    async authRefreshToken(refreshToken) {
-      try {
-        const requestData = { refreshToken };
-        const res = await axiosClient.auth.post("/refresh", requestData, {
-          timeout: 8000, // 8초 타임아웃 설정
-          headers: {
-            "Content-Type": "application/x-www-form-urlencoded",
-          },
-        });
-
-        console.log("authRefreshToken 리턴 : " + JSON.stringify(res.data));
-
-        if (res.data) {
-          console.log("3-1. 토큰 Refresh 성공");
-          this.setAccessToken(res.data.accessToken);
-          this.setRefreshToken(res.data.refreshToken);
-          return {
-            success: true,
-            message: "로그인에 성공했습니다.",
-          };
-        } else {
-          console.log("3-2. 토큰 Refresh 실패");
-          return { success: false, message: "Token Refresh Error" };
-        }
-      } catch (error) {
-        console.log("3-2. 토큰 Refresh 실패");
-        return {
-          success: false,
-          message: `서버 에러 (${error.response.status}): ${error.message}`,
-        };
-      }
-    },
-
-    async authCheckEmail(email) {
-      try {
-        const res = await axiosClient.auth.post("/code", { email });
-
-        if (res.status === 204) {
-          return { result: 1, message: "인증번호 전송 완료" };
-        } else {
-          return { result: 0, message: "인증번호 전송 오류" };
-        }
-      } catch (error) {
-        console.error("인증번호 전송 오류:", error);
-        return { result: 0, message: "인증번호 전송 중 오류가 발생했습니다." };
-      }
-    },
-
-    async authVerifyCode(email, code) {
-      try {
-        const res = await axiosClient.auth.post("/verify", { email, code });
-
-        if (res.data) {
-          return { result: 1, message: "인증 코드가 유효합니다." };
-        } else {
-          return { result: 0, message: "인증 코드가 유효하지 않습니다." };
-        }
-      } catch (error) {
-        console.error("인증 코드 확인 중 오류 발생:", error);
-        return { result: 0, message: "인증 코드 확인 중 오류가 발생했습니다." };
-      }
-    },
-
-    /**
-     * @description 이메일 중복 확인 API
-     * @param {String} email 확인할 이메일 주소
-     * @returns {Object} 조회 결과 ({"message": "이메일 사용 가능","email": "icetime963@gmail.com"})
-     */
-    async authCheckEmailDuplication(email) {
-      try {
-        const res = await axiosClient.auth.get(
-          `/${this.User_EP}/email`,
-          {
-            params: { email },
-          },
-          {
-            headers: {
-              "Content-Type": "application/json",
-            },
-          }
-        );
-
-        if (res.data) {
-          return { result: 0, message: res.data.message };
-        } else {
-          return { result: 1, message: "이메일 중복 체크 오류입니다." };
-        }
-      } catch (error) {
-        if (error.response.data.error.name === "DataConflictError") {
-          return {
-            result: 1,
-            message: "이미 같은 email로 등록된 유저가 있습니다.",
-          };
-        } else {
-          return {
-            result: 1,
-            message: "이메일 중복 체크 오류입니다.",
-          };
-        }
-      }
-    },
-
-    /**
-     * @description 사용자 등록 API
-     * @param {Object} userData 사용자 등록 정보 (id: 사용자 ID, email: 이메일, password: 비밀번호)
-     * @returns {Object} 등록 결과 (success: true/false, message: 결과 메시지)
-     */
-    async authRegister(userData) {
-      try {
-        const res = await axiosClient.auth.post("/register", userData, {
-          headers: {
-            "Content-Type": "application/json",
-          },
-        });
-
-        if (res.data) {
-          return {
-            success: true,
-            message: "사용자 등록이 완료되었습니다.",
-            data: res.data,
-          };
-        } else {
-          return {
-            success: false,
-            message: "사용자 등록 중 오류가 발생했습니다.",
-          };
-        }
-      } catch (error) {
-        console.error("사용자 등록 오류:", error);
-
-        if (error.response) {
-          // 서버에서 응답을 받은 경우
-          return {
-            success: false,
-            message:
-              error.response.data.message ||
-              "사용자 등록 중 오류가 발생했습니다.",
-            error: error.response.data,
-          };
-        } else if (error.request) {
-          // 요청은 보냈지만 응답을 받지 못한 경우
-          return {
-            success: false,
-            message: "서버에 연결할 수 없습니다.",
-          };
-        } else {
-          // 요청 설정 중 에러가 발생한 경우
-          return {
-            success: false,
-            message: "요청 준비 중 오류가 발생했습니다.",
-          };
-        }
-      }
-    },
-
-    async authResetPassword(userData) {
-      try {
-        const res = await axiosClient.auth.post("/reset-password", userData, {
-          headers: {
-            "Content-Type": "application/json",
-          },
-        });
-
-        if (res) {
-          return { result: true, message: "비밀번호가 설정되었습니다." };
-        }
-      } catch (e) {
-        console.error(e);
-        console.error(e.error.message);
-        return { result: false, message: e.error.message };
-      }
     },
   },
 };
