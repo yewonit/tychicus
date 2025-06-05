@@ -1,5 +1,4 @@
-import axios from "axios";
-import env from "@/config/environments.js";
+import axiosClient from "@/utils/axiosClient";
 
 export const OrganizationCtrl = {
   data() {
@@ -24,9 +23,7 @@ export const OrganizationCtrl = {
       }
 
       try {
-        const res = await axios.get(
-          `${env.API_BASE_URL}/${this.Organization_EP}`
-        );
+        const res = await axiosClient.api.get(`/${this.Organization_EP}`);
 
         let returnData = res.data;
 
@@ -66,8 +63,8 @@ export const OrganizationCtrl = {
       }
 
       try {
-        const res = await axios.get(
-          `${env.API_BASE_URL}/${this.Organization_EP}/${organizationId}`
+        const res = await axiosClient.api.get(
+          `/${this.Organization_EP}/${organizationId}`
         );
 
         let returnData = res.data;
@@ -100,8 +97,8 @@ export const OrganizationCtrl = {
       }
 
       try {
-        const res = await axios.post(
-          `${env.API_BASE_URL}/${this.Organization_EP}`,
+        const res = await axiosClient.api.post(
+          `/${this.Organization_EP}`,
           organizationData
         );
 
@@ -136,8 +133,8 @@ export const OrganizationCtrl = {
       }
 
       try {
-        const res = await axios.put(
-          `${env.API_BASE_URL}/${this.Organization_EP}/${organizationId}`,
+        const res = await axiosClient.api.put(
+          `/${this.Organization_EP}/${organizationId}`,
           organizationData
         );
 
@@ -169,8 +166,8 @@ export const OrganizationCtrl = {
       }
 
       try {
-        const res = await axios.delete(
-          `${env.API_BASE_URL}/${this.Organization_EP}/${organizationId}`
+        const res = await axiosClient.api.delete(
+          `/${this.Organization_EP}/${organizationId}`
         );
 
         let returnData = res.data;

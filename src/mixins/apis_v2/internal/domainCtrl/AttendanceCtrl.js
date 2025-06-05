@@ -1,6 +1,5 @@
 import { ModelCtrl } from "@/mixins/apis_v2/internal/core/ModelCtrl";
-import axios from "axios";
-import env from "@/config/environments";
+import axiosClient from "@/utils/axiosClient";
 
 export const AttendanceCtrl = {
   data() {
@@ -41,8 +40,8 @@ export const AttendanceCtrl = {
         );
       }
       try {
-        const res = await axios.get(
-          `${env.API_BASE_URL}/${this.Organization_EP}/${organizationId}/${this.Activity_EP}`
+        const res = await axiosClient.api.get(
+          `/${this.Organization_EP}/${organizationId}/${this.Activity_EP}`
         );
         let returnData = res.data;
         if (showLog) {
@@ -71,8 +70,8 @@ export const AttendanceCtrl = {
         );
       }
       try {
-        const res = await axios.post(
-          `${env.API_BASE_URL}/${this.Activity_EP}`,
+        const res = await axiosClient.api.post(
+          `/${this.Activity_EP}`,
           activityData
         );
         let returnData = res.data;
@@ -122,7 +121,7 @@ export const AttendanceCtrl = {
         console.log(`🎯 activityId: ${activityId}`);
       }
       try {
-        const instanceUrl = `${env.API_BASE_URL}/${this.Organization_EP}/${organizationId}/${this.Activity_EP}/${activityId}/attendance`;
+        const instanceUrl = `/${this.Organization_EP}/${organizationId}/${this.Activity_EP}/${activityId}/attendance`;
         console.log("🌐 활동 인스턴스 생성 URL:", instanceUrl);
         console.log("📦 instanceData:", instanceData);
         console.log("👥 attendances:", attendances);
@@ -134,7 +133,7 @@ export const AttendanceCtrl = {
           imageInfo,
         };
 
-        const res = await axios.post(instanceUrl, requestData);
+        const res = await axiosClient.api.post(instanceUrl, requestData);
         let returnData = res.data;
 
         if (showLog) {
@@ -194,10 +193,10 @@ export const AttendanceCtrl = {
       }
 
       try {
-        const deleteUrl = `${env.API_BASE_URL}/organizations/${organizationId}/activities/${activityId}/instances/${activityInstanceId}`;
+        const deleteUrl = `/organizations/${organizationId}/activities/${activityId}/instances/${activityInstanceId}`;
         console.log("🌐 활동 인스턴스 삭제 URL:", deleteUrl);
 
-        const res = await axios.delete(deleteUrl);
+        const res = await axiosClient.api.delete(deleteUrl);
         let returnData = res.data;
 
         if (showLog) {
@@ -246,14 +245,14 @@ export const AttendanceCtrl = {
       }
 
       try {
-        const updateUrl = `${env.API_BASE_URL}/organizations/${organizationId}/activities/${activityId}/instances/${activityInstanceId}/attendance`;
+        const updateUrl = `/organizations/${organizationId}/activities/${activityId}/instances/${activityInstanceId}/attendance`;
         console.log("🌐 출석 정보 업데이트 URL:", updateUrl);
         console.log("📦 instanceData:", instanceData);
         console.log("👥 attendances:", attendances);
         console.log("📸 imageInfo:", imageInfo);
 
         const requestData = { instanceData, attendances, imageInfo };
-        const res = await axios.put(updateUrl, requestData);
+        const res = await axiosClient.api.put(updateUrl, requestData);
         let returnData = res.data;
 
         if (showLog) {
@@ -288,8 +287,8 @@ export const AttendanceCtrl = {
       }
 
       try {
-        const url = `${env.API_BASE_URL}/organizations/${organizationId}/activities/${activityId}/instances/${activityInstanceId}`;
-        const res = await axios.get(url);
+        const url = `/organizations/${organizationId}/activities/${activityId}/instances/${activityInstanceId}`;
+        const res = await axiosClient.api.get(url);
         let returnData = res.data;
 
         if (showLog) {
@@ -315,8 +314,8 @@ export const AttendanceCtrl = {
       }
 
       try {
-        const url = `${env.API_BASE_URL}/organizations/${organizationId}/members`;
-        const res = await axios.get(url);
+        const url = `/organizations/${organizationId}/members`;
+        const res = await axiosClient.api.get(url);
         let returnData = res.data;
 
         if (showLog) {
