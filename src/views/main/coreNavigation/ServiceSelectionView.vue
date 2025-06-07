@@ -71,9 +71,9 @@
 </template>
 
 <script>
-import { mapState } from "vuex";
 import { NewExcelDataUpload } from "@/mixins/apis_v2/utility/NewExcelDataUpload";
 import { UserOrganizationsAndRolesCtrl } from "@/mixins/apis_v2/utility/UserOrganizationsAndRolesCtrl";
+import { mapState } from "vuex";
 
 export default {
   name: "ServiceSelectionView",
@@ -187,8 +187,8 @@ export default {
         // 로딩 표시 시작
         this.$store.commit("SET_LOADING", true);
 
-        // userInfo에서 사용자 ID를 가져옵니다.
-        const userId = this.userInfo.id;
+        // userData에서 사용자 ID를 가져옵니다.
+        const userId = this.userData.id;
 
         if (!userId) {
           throw new Error("사용자 ID를 찾을 수 없습니다.");
@@ -223,10 +223,10 @@ export default {
     },
   },
   mounted() {
-    if (!this.userData) {
+    if (!this.userInfo) {
       this.$router.push({ name: "LoginView" });
     }
-    console.log("사용자 정보:", this.userInfo);
+    console.log("사용자 정보:", this.userData);
     // 데이터 업데이트 함수 절대 키지 말것
     // this.newUserDataUpdate();
     // this.createUserHasRoleData();
