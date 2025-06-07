@@ -9,7 +9,7 @@
         <div
           class="wc-direction-text wc-bold-900 wc-fs-28 blue--text organization-name"
         >
-          {{ formatOrganizationName(userInfo.roles[0].organizationName) }}
+          {{ formatOrganizationName(userData.roles[0].organizationName) }}
         </div>
         <!-- <div class="wc-direction-text mt-1">사용할 서비스를 선택하세요</div> -->
       </v-col>
@@ -71,15 +71,15 @@
 </template>
 
 <script>
-import { mapState } from "vuex";
 import { NewExcelDataUpload } from "@/mixins/apis_v2/utility/NewExcelDataUpload";
 import { UserOrganizationsAndRolesCtrl } from "@/mixins/apis_v2/utility/UserOrganizationsAndRolesCtrl";
+import { mapState } from "vuex";
 
 export default {
   name: "ServiceSelectionView",
   mixins: [NewExcelDataUpload, UserOrganizationsAndRolesCtrl],
   computed: {
-    ...mapState("auth", ["userInfo"]),
+    ...mapState("auth", ["userData"]),
   },
   data() {
     return {
@@ -178,8 +178,8 @@ export default {
         // 로딩 표시 시작
         this.$store.commit("SET_LOADING", true);
 
-        // userInfo에서 사용자 ID를 가져옵니다.
-        const userId = this.userInfo.id;
+        // userData에서 사용자 ID를 가져옵니다.
+        const userId = this.userData.id;
 
         if (!userId) {
           throw new Error("사용자 ID를 찾을 수 없습니다.");
@@ -214,10 +214,10 @@ export default {
     },
   },
   mounted() {
-    if (!this.userInfo) {
+    if (!this.userData) {
       this.$router.push({ name: "NameInputView" });
     }
-    console.log("사용자 정보:", this.userInfo);
+    console.log("사용자 정보:", this.userData);
     // 데이터 업데이트 함수 절대 키지 말것
     // this.newUserDataUpdate();
     // this.createUserHasRoleData();
