@@ -4,6 +4,7 @@ on:
   push:
     branches:
       - dev
+      - switch
 
 jobs:
   build-and-push:

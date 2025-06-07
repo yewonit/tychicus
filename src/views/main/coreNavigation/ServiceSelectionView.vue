@@ -187,8 +187,8 @@ export default {
         // 로딩 표시 시작
         this.$store.commit("SET_LOADING", true);
 
-        // userData 사용자 ID를 가져옵니다.
-        const userId = this.userData.id;
+        // userInfo에서 사용자 ID를 가져옵니다.
+        const userId = this.userInfo.id;
 
         if (!userId) {
           throw new Error("사용자 ID를 찾을 수 없습니다.");
@@ -226,7 +226,7 @@ export default {
     if (!this.userData) {
       this.$router.push({ name: "LoginView" });
     }
-    console.log("사용자 정보:", this.userData);
+    console.log("사용자 정보:", this.userInfo);
     // 데이터 업데이트 함수 절대 키지 말것
     // this.newUserDataUpdate();
     // this.createUserHasRoleData();

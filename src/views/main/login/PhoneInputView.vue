@@ -99,7 +99,7 @@ export default {
     }
   },
   methods: {
-    ...mapActions("auth", ["setUserEmail", "setUserInfo"]),
+    ...mapActions("auth", ["setUserInfo"]),
     /**
      * 사용자의 전화번호에서 숫자가 아닌 문자를 제거합니다.
      * 이 함수는 전화번호 입력을 형식화하기 위해 사용되며, 숫자(0-9)가 아닌 문자를 제거합니다.
@@ -133,7 +133,6 @@ export default {
       }
 
       try {
-        console.log(this.userList);
         // 동명이인 처리: userList가 있는 경우
         if (this.hasDuplicateUsers) {
           console.log("동명이인 처리 로직 실행");
@@ -147,10 +146,9 @@ export default {
             console.log("일치하는 사용자 찾음:", matchedUser);
             this.phoneNumberCheckMessage = "전화번호가 일치합니다.";
             this.phoneNumberCheckClass = "success--text";
-            this.setUserEmail(matchedUser[0].email);
             this.setUserInfo(matchedUser);
-            console.log("스토어에 저장된 유저데이터:", this.matchedUser);
-            this.$router.push({ name: "EmailInputView" });
+            console.log("스토어에 저장된 유저데이터:", this.userInfo);
+            this.$router.push({ name: "ServiceSelectionView" });
           } else {
             console.log("일치하는 사용자 없음");
             this.phoneNumberCheckMessage = "일치하는 사용자가 없습니다.";
@@ -165,10 +163,9 @@ export default {
             console.log("전화번호 일치");
             this.phoneNumberCheckMessage = "전화번호가 일치합니다.";
             this.phoneNumberCheckClass = "success--text";
-            this.setUserEmail(this.userData.email);
             this.setUserInfo(this.userData);
-            console.log("스토어에 저장된 유저데이터:", this.userData);
-            this.$router.push({ name: "EmailInputView" });
+            console.log("스토어에 저장된 유저데이터:", this.userInfo);
+            this.$router.push({ name: "ServiceSelectionView" });
           } else {
             console.log("전화번호 불일치");
             this.phoneNumberCheckMessage = "전화번호가 일치하지 않습니다.";
@@ -190,10 +187,9 @@ export default {
             this.phoneNumberCheckMessage = "전화번호가 일치합니다.";
             this.phoneNumberCheckClass = "success--text";
             console.log("유저데이터:", response.userData);
-            this.setUserEmail(response.userData.email);
             this.setUserInfo(response.userData);
-            console.log("스토어에 저장된 유저데이터:", response.userData);
-            this.$router.push({ name: "EmailInputView" });
+            console.log("스토어에 저장된 유저데이터:", this.userInfo);
+            this.$router.push({ name: "ServiceSelectionView" });
           } else {
             this.phoneNumberCheckMessage = "전화번호가 일치하지 않습니다.";
             this.phoneNumberCheckClass = "error--text";
