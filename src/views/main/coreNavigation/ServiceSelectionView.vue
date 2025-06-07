@@ -84,15 +84,15 @@ export default {
   data() {
     return {
       services: [
-        {
-          id: 0,
-          name: "출석현황 대시보드",
-          nameEn: "Attendance Dashboard",
-          description: "출석현항을 확인해보세요",
-          icon: "mdi-view-dashboard-variant-outline",
-          isActive: true,
-          path: "/attendance-dashboard", // path 속성 추가
-        },
+        // {
+        //   id: 0,
+        //   name: "출석현황 대시보드",
+        //   nameEn: "Attendance Dashboard",
+        //   description: "출석현항을 확인해보세요",
+        //   icon: "mdi-view-dashboard-variant-outline",
+        //   isActive: true,
+        //   path: "/attendance-dashboard", // path 속성 추가
+        // },
         // {
         //   id: 1,
         //   name: "기도제목",
