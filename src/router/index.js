@@ -46,6 +46,9 @@ import PasswordInputView from "@/views/main/login/PasswordInputView.vue";
  * @description 교회 운영을 위한 각종 관리 기능 컴포넌트
  */
 
+//** 출석현황 대시보드 */
+import AttendanceDashboardView from "@/views/main/mainMenu/attendanceDashboard/AttendanceDashboardView.vue";
+
 /** 기도제목 관리 */
 import PrayerTopicView from "@/views/main/mainMenu/prayerTopic/prayerTopicView.vue";
 
@@ -210,6 +213,19 @@ const routes = [
       /**
        * @section 교회 관리 시스템 라우트
        */
+      {
+        path: "/attendance-dashboard",
+        name: "AttendanceDashboardView",
+        component: AttendanceDashboardView,
+        meta: {
+          title: "출석현황 대시보드",
+          showIcon: true,
+          iconName: "mdi-view-dashboard-variant-outline",
+          showBackButton: true,
+          showHomeButton: false,
+          showCancelButton: true,
+        },
+      },
       {
         path: "/prayer-topic",
         name: "PrayerTopicView",
