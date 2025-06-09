@@ -884,54 +884,66 @@ export default {
       }
       this.isLoading = true;
       this.loadingProgress = 0;
-      this.loadingOperations = 3; // 주요 작업 3개로 변경 (캐싱 제거)
+      this.loadingOperations = 5; // 🔧 5단계로 확장하여 실제 처리 시간 반영
       this.completedOperations = 0;
       this.loadingError = null;
       this.loadingStepText = "데이터 초기화...";
       this.loadingDetails = null;
 
       try {
-        // 1. 조직 정보 로딩
+        // 1단계: 조직 정보 로딩 (10% 가중치)
         this.loadingStepText = "조직 정보 불러오는 중...";
         this.loadingDetails = "교회 조직 구조를 불러오고 있습니다";
         this.loadingProgress = 0;
         await this.fetchOrganizationsOnly();
-        this.updateLoadingProgress();
+        this.updateLoadingProgress(10);
 
-        // 2. 모임 정보 로딩
+        // 2단계: 모임 정보 로딩 (30% 가중치 - 시간이 많이 걸림)
         this.loadingStepText = "모임 정보 불러오는 중...";
         this.loadingDetails = "각 조직의 모임 정보를 불러오고 있습니다";
         await this.fetchAllMeetings();
-        this.updateLoadingProgress();
+        this.updateLoadingProgress(30);
 
-        // 3. 출석 데이터 로딩 및 테이블 준비
+        // 3단계: 출석 데이터 로딩 (20% 가중치)
         this.loadingStepText = "출석 데이터 처리 중...";
         this.loadingDetails = "모임별 출석 정보를 처리하고 있습니다";
         await this.fetchAllAttendanceData();
-        this.updateLoadingProgress();
+        this.updateLoadingProgress(20);
 
-        // 데이터 테이블 준비
+        // 4단계: 멤버 데이터 로딩 (30% 가중치 - 가장 시간이 많이 걸림)
+        this.loadingStepText = "멤버 데이터 처리 중...";
+        this.loadingDetails = "조직별 멤버 정보를 불러오고 있습니다";
+        await this.fetchAndPrepareMemberData();
+        this.updateLoadingProgress(30);
+
+        // 5단계: 테이블 데이터 준비 (10% 가중치)
         this.loadingStepText = "데이터 테이블 생성 중...";
         this.loadingDetails = "출석 데이터 테이블을 준비하고 있습니다";
-        await this.filterData();
+        await this.finalizeTableData();
+        this.updateLoadingProgress(10);
 
         this.loadingStepText = "데이터 로딩 완료!";
         this.loadingDetails = "대시보드를 준비하고 있습니다";
 
         // 대시보드 초기화 완료
       } catch (error) {
+        console.error("대시보드 초기화 중 오류:", error);
         this.loadingError =
           "데이터 로딩 중 오류가 발생했습니다. 다시 시도해주세요.";
+        this.loadingProgress = 100; // 오류 시에도 진행률 100%로 설정하여 로딩 해제
       } finally {
-        this.completedOperations = this.loadingOperations;
-        this.loadingProgress = 100;
+        // 🔧 가중치 기반 진행률 관리로 인해 중복 설정 제거
         this.loadingStepText = "데이터 로딩 완료!";
+        this.loadingDetails = "대시보드를 준비하고 있습니다";
 
-        // 데이터를 전부 표시한 후 로딩 화면을 천천히 사라지게 합니다
-        setTimeout(() => {
-          // 로딩 화면이 페이드 아웃되도록 설정
-          this.isLoading = false;
-        }, 800);
+        // 진행률이 100%가 아닌 경우에만 강제 완료 처리
+        if (this.loadingProgress < 100) {
+          this.loadingProgress = 100;
+          setTimeout(() => {
+            this.isLoading = false;
+          }, 800);
+        }
+        // else: updateLoadingProgress(10)에서 이미 100% 도달 시 로딩 해제 처리됨
       }
     },
 
@@ -958,11 +970,9 @@ export default {
 
         // 모든 조직 데이터 사용
         this.organizations = organizations;
-        this.updateLoadingProgress();
       } catch (error) {
         // 오류 발생 시 더미 데이터 사용
         this.organizations = this.getDummyOrganizations();
-        this.updateLoadingProgress();
       }
     },
 
@@ -1030,6 +1040,9 @@ export default {
           );
 
           this.loadingDetails = `조직 정보 처리 중 (${processedCount}/${totalOrganizations}, ${progressPercent}%): ${org.organization_name}`;
+
+          // 🔧 실시간 진행률 업데이트 (2단계: 10% 기준점 + 30% 가중치)
+          this.updateSubProgress(10, processedCount, totalOrganizations, 30);
 
           // 조직 경로 찾기
           const orgPath = this.findOrganizationPath(org.id);
@@ -1192,6 +1205,9 @@ export default {
         processedOrgs++;
         const progressPercent = Math.round((processedOrgs / totalOrgs) * 100);
         this.loadingDetails = `출석 데이터 처리 중 (${processedOrgs}/${totalOrgs}, ${progressPercent}%): ${orgData.organizationName}`;
+
+        // 🔧 실시간 진행률 업데이트 (3단계: 40% 기준점 + 20% 가중치)
+        this.updateSubProgress(40, processedOrgs, totalOrgs, 20);
 
         // 각 활동의 출석 정보 처리 - 날짜 범위 필터링은 하지 않음
         for (const activity of orgData.activities) {
@@ -1441,8 +1457,23 @@ export default {
         );
       });
 
+      // 🔧 멤버 추출 진행률 업데이트를 위한 변수
+      const totalTargetOrgs = targetOrganizations.length;
+      let processedTargetOrgs = 0;
+
       // 각 조직별로 API 호출하여 멤버 목록 가져오기
       for (const org of targetOrganizations) {
+        processedTargetOrgs++;
+        const memberProgressPercent = Math.round(
+          (processedTargetOrgs / totalTargetOrgs) * 100
+        );
+
+        // 로딩 상세 정보 업데이트
+        this.loadingDetails = `멤버 데이터 처리 중 (${processedTargetOrgs}/${totalTargetOrgs}, ${memberProgressPercent}%): ${org.organization_name}`;
+        console.log(
+          `[멤버추출진행] ${processedTargetOrgs}/${totalTargetOrgs} - ${org.organization_name}`
+        );
+
         const isKwonYerinOrg =
           org.organization_name?.includes("권예린순") || org.id === 53;
 
@@ -1502,6 +1533,9 @@ export default {
         } catch (error) {
           // API 호출 실패 처리
         }
+
+        // 🔧 실시간 진행률 업데이트 (4단계: 60% 기준점 + 30% 가중치)
+        this.updateSubProgress(60, processedTargetOrgs, totalTargetOrgs, 30);
 
         // API 호출 간 짧은 지연으로 서버 부하 방지
         await new Promise((resolve) => setTimeout(resolve, 100));
@@ -1585,10 +1619,18 @@ export default {
 
         if (this.meetingDates.length > 0) {
           // 조회 기간이 있는 경우: 해당 기간의 출석 상태 업데이트
+          const totalMeetingOrgs = this.attendanceData.meetings.length;
+          let processedMeetingOrgs = 0;
+
           this.attendanceData.meetings.forEach((orgData) => {
             if (!orgData.activities || orgData.activities.length === 0) {
               return;
             }
+
+            processedMeetingOrgs++;
+
+            // 🔧 출석 데이터 처리 진행률 업데이트
+            this.loadingDetails = `출석 상태 업데이트 중 (${processedMeetingOrgs}/${totalMeetingOrgs}): ${orgData.organizationName}`;
 
             // 각 활동의 각 인스턴스 순회
             orgData.activities.forEach((activity) => {
@@ -2030,32 +2072,9 @@ export default {
         // 필터링된 데이터를 attendanceData에 설정
         this.attendanceData.meetings = finalFilteredMeetings;
 
-        // 테이블 데이터 재구성 (중요)
-        this.prepareMeetingDates();
-        this.prepareOrganizationSelectItems();
-        await this.prepareMemberAttendanceData();
-
-        // 조직 선택 적용 - 더 안전한 처리
-        if (this.organizationSelectItems.length > 0) {
-          // 현재 선택된 조직이 유효한지 확인
-          const isCurrentSelectionValid =
-            this.selectedOrganization &&
-            this.organizationSelectItems.some(
-              (item) => item.value === this.selectedOrganization
-            );
-
-          if (isCurrentSelectionValid) {
-            // 이전 선택 유지
-            this.handleOrganizationChange();
-          } else {
-            // 기본 조직 선택 (첫 번째 조직)
-            this.selectedOrganization = this.organizationSelectItems[0].value;
-            this.handleOrganizationChange();
-          }
-        } else {
-          this.selectedOrganization = null;
-          this.filteredMemberAttendanceData = [];
-        }
+        // 🔧 테이블 데이터 재구성 - 새로운 구조 사용
+        await this.fetchAndPrepareMemberData();
+        await this.finalizeTableData();
       } catch (error) {
         // 오류 발생 시 원본 데이터라도 사용
         if (this.originalMeetingsData && this.originalMeetingsData.length > 0) {
@@ -2136,19 +2155,106 @@ export default {
       return result;
     },
 
-    // 로딩 진행 상태 업데이트 메서드
-    updateLoadingProgress() {
-      this.completedOperations++;
-      this.loadingProgress = Math.round(
-        (this.completedOperations / this.loadingOperations) * 100
-      );
+    // 로딩 진행 상태 업데이트 메서드 (가중치 지원)
+    updateLoadingProgress(weight = null) {
+      if (weight) {
+        // 가중치가 주어진 경우 해당 가중치만큼 진행률 증가
+        this.loadingProgress = Math.min(this.loadingProgress + weight, 100);
+      } else {
+        // 기존 방식 (균등 분할)
+        this.completedOperations++;
+        this.loadingProgress = Math.round(
+          (this.completedOperations / this.loadingOperations) * 100
+        );
+      }
 
       // 로딩이 완료되면 잠시 후 로딩 인디케이터를 닫음
-      if (this.completedOperations >= this.loadingOperations) {
-        // 100%에 도달한 후 0.5초 후에 로딩 상태 해제
+      if (this.loadingProgress >= 100) {
+        // 100%에 도달한 후 0.8초 후에 로딩 상태 해제 (더 안정적으로)
         setTimeout(() => {
           this.isLoading = false;
-        }, 500);
+        }, 800);
+      }
+    },
+
+    // 🔧 세부 진행률 업데이트 메서드 (단계 내 실시간 진행률)
+    updateSubProgress(baseProgress, currentStep, totalSteps, stepWeight) {
+      const stepProgress = (currentStep / totalSteps) * stepWeight;
+      this.loadingProgress = Math.round(
+        Math.min(baseProgress + stepProgress, 100)
+      );
+    },
+
+    // 🔧 새로운 멤버 데이터 처리 단계 (4단계)
+    async fetchAndPrepareMemberData() {
+      try {
+        // 🔧 4단계 세부 진행률 (60% 기준점 + 30% 가중치)
+        this.loadingDetails = "모임 일자 목록 준비 중...";
+        this.updateSubProgress(60, 1, 10, 30); // 3% 완료
+
+        // 예배 일자 목록 먼저 준비 (멤버 데이터 처리에 필요)
+        this.prepareMeetingDates();
+
+        this.loadingDetails = "멤버 데이터 추출 시작...";
+        this.updateSubProgress(60, 2, 10, 30); // 6% 완료
+
+        // 멤버 데이터 처리 (시간이 가장 오래 걸리는 작업)
+        // 🔧 참고: fetchAllOrganizationMembers 내부에서 추가 진행률 업데이트됨
+        await this.prepareMemberAttendanceData();
+
+        this.loadingDetails = "멤버 데이터 처리 완료";
+        this.updateSubProgress(60, 10, 10, 30); // 30% 완료
+      } catch (error) {
+        console.error("멤버 데이터 처리 중 오류:", error);
+        this.loadingError = "멤버 데이터 처리 중 오류가 발생했습니다.";
+        throw error;
+      }
+    },
+
+    // 🔧 최종 테이블 데이터 준비 단계 (5단계)
+    async finalizeTableData() {
+      try {
+        // 🔧 5단계 세부 진행률 (90% 기준점 + 10% 가중치)
+        this.loadingDetails = "조직 선택 항목 준비 중...";
+        this.updateSubProgress(90, 1, 4, 10);
+
+        // 조직 선택 드롭다운 아이템 준비
+        this.prepareOrganizationSelectItems();
+
+        this.loadingDetails = "조직 선택 유효성 검사 중...";
+        this.updateSubProgress(90, 2, 4, 10);
+
+        // 조직 선택 적용 - 더 안전한 처리
+        if (this.organizationSelectItems.length > 0) {
+          // 현재 선택된 조직이 유효한지 확인
+          const isCurrentSelectionValid =
+            this.selectedOrganization &&
+            this.organizationSelectItems.some(
+              (item) => item.value === this.selectedOrganization
+            );
+
+          this.loadingDetails = "조직 필터링 적용 중...";
+          this.updateSubProgress(90, 3, 4, 10);
+
+          if (isCurrentSelectionValid) {
+            // 이전 선택 유지
+            this.handleOrganizationChange();
+          } else {
+            // 기본 조직 선택 (첫 번째 조직)
+            this.selectedOrganization = this.organizationSelectItems[0].value;
+            this.handleOrganizationChange();
+          }
+        } else {
+          this.selectedOrganization = null;
+          this.filteredMemberAttendanceData = [];
+        }
+
+        this.loadingDetails = "테이블 데이터 준비 완료";
+        this.updateSubProgress(90, 4, 4, 10);
+      } catch (error) {
+        console.error("테이블 데이터 준비 중 오류:", error);
+        this.loadingError = "테이블 데이터 준비 중 오류가 발생했습니다.";
+        throw error;
       }
     },
 
