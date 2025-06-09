@@ -402,15 +402,21 @@
                   >
                     <div
                       :key="meeting.date + '_' + meeting.type"
-                      :class="{
-                        'attendance-present':
-                          getMemberMeetingAttendance(item, meeting) === 'O',
-                        'attendance-absent':
-                          getMemberMeetingAttendance(item, meeting) === 'X',
-                      }"
                       class="text-center attendance-cell"
                     >
-                      {{ getMemberMeetingAttendance(item, meeting) }}
+                      <span
+                        :class="{
+                          'attendance-status present':
+                            item[`meeting_${index}`] === 'O',
+                          'attendance-status absent':
+                            item[`meeting_${index}`] === 'X',
+                          'attendance-status no-data':
+                            item[`meeting_${index}`] === '-',
+                          'no-data-indicator': item[`meeting_${index}`] === '-',
+                        }"
+                      >
+                        {{ item[`meeting_${index}`] || "-" }}
+                      </span>
                     </div>
                   </template>
                 </v-data-table>
@@ -569,6 +575,7 @@
 import { MasterCtrl } from "@/mixins/apis_v2/internal/MasterCtrl";
 import { OrganizationCtrl } from "@/mixins/apis_v2/internal/domainCtrl/OrganizationCtrl";
 import { AttendanceCtrl } from "@/mixins/apis_v2/internal/domainCtrl/AttendanceCtrl";
+import { CurrentMemberCtrl } from "@/mixins/apis_v2/internal/domainCtrl/CurrentMemberCtrl";
 import moment from "moment";
 import AttendanceChartSection from "@/components/admin/dashboard/AttendanceChartSection.vue";
 import ExcelJS from "exceljs";
@@ -579,7 +586,7 @@ export default {
   components: {
     AttendanceChartSection,
   },
-  mixins: [MasterCtrl, OrganizationCtrl, AttendanceCtrl],
+  mixins: [MasterCtrl, OrganizationCtrl, AttendanceCtrl, CurrentMemberCtrl],
   data() {
     // 기본 조회 기간을 오늘부터 최근 7일로 설정
     const today = moment();
@@ -949,8 +956,6 @@ export default {
           organizations = this.getDummyOrganizations();
         }
 
-        // 조직 정보 로딩 완료
-
         // 모든 조직 데이터 사용
         this.organizations = organizations;
         this.updateLoadingProgress();
@@ -1029,8 +1034,48 @@ export default {
           // 조직 경로 찾기
           const orgPath = this.findOrganizationPath(org.id);
 
-          // API에서 모임 정보 가져오기
-          const response = await this.getOrganizationActivities(org.id, true);
+          // 🐌 API 요청 간 지연 추가 (Race Condition 방지)
+          if (processedCount > 1) {
+            await new Promise((resolve) => setTimeout(resolve, 50)); // 50ms 지연
+          }
+
+          // API에서 모임 정보 가져오기 (직렬 처리)
+          let response = await this.getOrganizationActivities(org.id, true);
+
+          // 🚨 중요: API 응답 검증 - 요청한 조직 ID와 응답 조직 ID가 일치하는지 확인
+          if (
+            response &&
+            response.organizationId &&
+            response.organizationId !== org.id
+          ) {
+            // 재시도 (최대 2번)
+            let retryCount = 0;
+            let validResponse = null;
+            while (retryCount < 2 && !validResponse) {
+              retryCount++;
+              await new Promise((resolve) => setTimeout(resolve, 100)); // 100ms 대기
+              const retryResponse = await this.getOrganizationActivities(
+                org.id,
+                true
+              );
+
+              if (retryResponse && retryResponse.organizationId === org.id) {
+                validResponse = retryResponse;
+              }
+            }
+
+            if (!validResponse) {
+              failedOrganizations.push({
+                id: org.id,
+                name: org.organization_name,
+                reason: `API 응답 불일치 (요청: ${org.id}, 응답: ${response?.organizationId})`,
+              });
+              continue;
+            }
+
+            // 올바른 응답으로 교체
+            response = validResponse;
+          }
 
           // 응답 데이터 처리 - 더 유연한 처리
           let activities = [];
@@ -1045,13 +1090,18 @@ export default {
           }
 
           // 각 활동 상세 정보 처리
-
           // 모든 활동을 가공 (날짜 필터링은 나중에 수행)
           const processedActivities = activities.map((activity) => {
             // 모임 유형 식별 및 분류
-            const meetingType = this.identifyMeetingType(
-              activity.name || activity.type || ""
-            );
+            const activityName = activity.name || activity.type || "";
+            const meetingType = this.identifyMeetingType(activityName);
+
+            // 🔍 디버깅: 청년예배 관련 로그
+            if (activityName.toLowerCase().includes("청년")) {
+              console.log(
+                `[청년예배 감지] 조직: ${org.organization_name}, 활동명: "${activityName}", 식별된 유형: ${meetingType}`
+              );
+            }
 
             // 인스턴스 정보가 있는지 확인
             const hasInstances =
@@ -1059,10 +1109,8 @@ export default {
               Array.isArray(activity.instances) &&
               activity.instances.length > 0;
 
-            // 인스턴스 날짜 정보 처리
-
             // 각 활동에 필요한 정보 추가
-            return {
+            const processedActivity = {
               ...activity,
               instance_id: hasInstances
                 ? activity.instances[0].id
@@ -1079,6 +1127,8 @@ export default {
                   )
                 : activity.date,
             };
+
+            return processedActivity;
           });
 
           // 유효한 활동이 있으면 추가
@@ -1123,6 +1173,13 @@ export default {
       this.originalMeetingsData = JSON.parse(
         JSON.stringify(this.attendanceData.meetings)
       );
+
+      // 실패한 조직이 있으면 로딩 디테일 업데이트
+      if (failedOrganizations.length > 0) {
+        this.loadingDetails = `모임 데이터 구조화 중... (${failedOrganizations.length}개 조직 실패)`;
+      } else {
+        this.loadingDetails = "모임 데이터 구조화 중...";
+      }
     },
 
     // 모든 모임의 출석 데이터 가져오기
@@ -1226,28 +1283,45 @@ export default {
               const instanceStartDate = moment(formattedDate).startOf("day");
 
               // 날짜가 범위 내에 있는지 확인
-              if (
-                !instanceStartDate.isBetween(
-                  startDate,
-                  endDate,
-                  undefined,
-                  "[]"
-                )
-              ) {
+              const isInRange = instanceStartDate.isBetween(
+                startDate,
+                endDate,
+                undefined,
+                "[]"
+              );
+
+              if (!isInRange) {
                 return; // 날짜 범위 밖이면 건너뜀
               }
 
               // 날짜와 모임 유형의 고유 키
               const key = `${formattedDate}_${activity.meetingType}`;
 
+              // 🔍 디버깅: 청년예배 관련 로그
+              if (activity.meetingType === "YOUTH_SERVICE") {
+                console.log(
+                  `[청년예배 날짜추가] 날짜: ${formattedDate}, 조직: ${orgData.organizationName}, 활동명: ${activity.name}, 인스턴스ID: ${instance.id}`
+                );
+              }
+
               // 새로운 날짜-모임 조합이면 추가
               if (!meetingDateMap.has(key)) {
-                meetingDateMap.set(key, {
+                const meetingData = {
                   date: formattedDate,
                   type: activity.meetingType,
                   typeName: activity.meetingTypeName || "알 수 없는 모임",
                   instanceId: instance.id,
-                });
+                };
+
+                meetingDateMap.set(key, meetingData);
+
+                // 🔍 디버깅: 청년예배 관련 로그
+                if (activity.meetingType === "YOUTH_SERVICE") {
+                  console.log(
+                    `[청년예배 meetingDates 추가됨] 키: ${key}, 데이터:`,
+                    meetingData
+                  );
+                }
               }
             });
           }
@@ -1308,12 +1382,143 @@ export default {
       this.memberTableHeaders = headers;
     },
 
-    // 인원별 출결 데이터 준비
-    async prepareMemberAttendanceData() {
+    // 🚀 안전한 API 기반 멤버 추출 - 권예린순 문제 근본 해결
+    async fetchAllOrganizationMembers() {
       const memberMap = new Map();
 
+      // 최하위 조직들(리프 노드)만 추출하여 처리
+      const leafOrganizations = this.organizations.filter((org) => {
+        // 이 조직을 상위로 하는 다른 조직이 없으면 리프 노드
+        return !this.organizations.some(
+          (other) => other.upper_organization_id === org.id
+        );
+      });
+
+      // 권예린순 조직 찾기
+      const kwonYerinOrg = leafOrganizations.find(
+        (org) => org.organization_name?.includes("권예린순") || org.id === 53
+      );
+
+      if (!kwonYerinOrg) {
+        const kwonYerinInAll = this.organizations.find(
+          (org) => org.organization_name?.includes("권예린순") || org.id === 53
+        );
+
+        if (kwonYerinInAll) {
+          leafOrganizations.push(kwonYerinInAll);
+        }
+      }
+
+      // 각 조직별로 API 호출하여 멤버 목록 가져오기
+      for (const org of leafOrganizations) {
+        const isKwonYerinOrg =
+          org.organization_name?.includes("권예린순") || org.id === 53;
+
+        try {
+          // 🔄 1단계: getMembersWithRoles API 호출 - 가장 안전한 방법
+          const membersResponse = await this.getMembersWithRoles(
+            org.id,
+            isKwonYerinOrg
+          );
+
+          // API 응답 처리
+          let members = [];
+          if (membersResponse && Array.isArray(membersResponse)) {
+            members = membersResponse;
+          } else if (
+            membersResponse &&
+            membersResponse.data &&
+            Array.isArray(membersResponse.data)
+          ) {
+            members = membersResponse.data;
+          }
+
+          // 🔄 2단계: 멤버 데이터 처리
+          if (members.length > 0) {
+            members.forEach((member) => {
+              const userId = member.userId || member.id || member.user_id;
+              const userName =
+                member.userName ||
+                member.name ||
+                member.user_name ||
+                "이름없음";
+
+              if (userId || userName) {
+                const memberKey = `${userId || userName}_${org.id}`;
+
+                if (!memberMap.has(memberKey)) {
+                  const memberData = {
+                    userId: userId || `api_${userName}`,
+                    memberName: userName,
+                    organizationId: org.id,
+                    organizationName: org.organization_name,
+                    userEmail: member.userEmail || member.email || null,
+                    userPhoneNumber:
+                      member.userPhoneNumber || member.phone || null,
+                    extractedFrom: "api_getMembersWithRoles", // 추출 방법 표시
+                    apiCallTime: new Date().toISOString(), // API 호출 시점
+                  };
+
+                  // 모든 모임 날짜에 대해 기본값 '-' 설정
+                  this.meetingDates.forEach((_, idx) => {
+                    memberData[`meeting_${idx}`] = "-";
+                  });
+
+                  memberMap.set(memberKey, memberData);
+                }
+              }
+            });
+          }
+        } catch (error) {
+          // API 호출 실패 처리
+        }
+
+        // API 호출 간 짧은 지연으로 서버 부하 방지
+        await new Promise((resolve) => setTimeout(resolve, 100));
+      }
+
+      // memberMap을 인스턴스 변수에 저장
+      this.allMembersMap = memberMap;
+
+      return memberMap;
+    },
+
+    // 🎯 조직의 가장 최근 인스턴스 찾기 (start_datetime 기준)
+    getLatestInstanceForOrganization(orgData) {
+      let latestInstance = null;
+      let latestDate = null;
+
+      if (!orgData.activities || !Array.isArray(orgData.activities)) {
+        return null;
+      }
+
+      orgData.activities.forEach((activity) => {
+        if (!activity.instances || !Array.isArray(activity.instances)) {
+          return;
+        }
+
+        activity.instances.forEach((instance) => {
+          if (!instance.start_datetime) {
+            return;
+          }
+
+          const instanceDate = new Date(instance.start_datetime);
+          if (!latestDate || instanceDate > latestDate) {
+            latestDate = instanceDate;
+            latestInstance = {
+              ...instance,
+              activityName: activity.name, // 디버깅용
+            };
+          }
+        });
+      });
+
+      return latestInstance;
+    },
+
+    // 🎯 새로운 인원별 출결 현황 데이터 준비 - 최신 인스턴스 기준
+    async prepareMemberAttendanceData() {
       try {
-        // 모든 조직의 모든 활동을 순회하며 인원 정보 수집
         if (
           !this.attendanceData.meetings ||
           this.attendanceData.meetings.length === 0
@@ -1323,239 +1528,183 @@ export default {
           return;
         }
 
-        // 모임 날짜 정보 확인
-        if (this.meetingDates.length === 0) {
+        // 🔍 1단계: 최신 인스턴스 기준 전체 멤버 추출
+        const allMembersMap = await this.fetchAllOrganizationMembers();
+
+        if (!allMembersMap || allMembersMap.size === 0) {
           this.memberAttendanceData = [];
           this.filteredMemberAttendanceData = [];
           return;
         }
 
-        // 출석 데이터가 있는 조직들과 없는 조직들 추적
-        const organizationsWithAttendance = new Set();
-        const organizationsWithoutAttendance = [];
-
-        // 1단계: 출석 데이터가 있는 조직들 처리
-        this.attendanceData.meetings.forEach((orgData) => {
-          if (!orgData.activities || orgData.activities.length === 0) {
-            organizationsWithoutAttendance.push(orgData);
-            return;
-          }
-
-          let orgHasData = false;
-
-          // 각 활동 순회
-          orgData.activities.forEach((activity) => {
-            if (!activity.instances || activity.instances.length === 0) {
+        if (this.meetingDates.length > 0) {
+          // 조회 기간이 있는 경우: 해당 기간의 출석 상태 업데이트
+          this.attendanceData.meetings.forEach((orgData) => {
+            if (!orgData.activities || orgData.activities.length === 0) {
               return;
             }
 
-            // 각 인스턴스 순회
-            activity.instances.forEach((instance) => {
-              if (
-                !instance.start_datetime ||
-                !instance.attendances ||
-                !Array.isArray(instance.attendances) ||
-                instance.attendances.length === 0
-              ) {
+            // 각 활동의 각 인스턴스 순회
+            orgData.activities.forEach((activity) => {
+              if (!activity.instances || activity.instances.length === 0) {
                 return;
               }
 
-              const instanceDate = moment(instance.start_datetime).format(
-                "YYYY-MM-DD"
-              );
-
-              // 해당 인스턴스가 meetingDates에 있는지 확인 - 더 유연한 매칭
-              let meetingIndex = this.meetingDates.findIndex(
-                (m) =>
-                  m.date === instanceDate && m.type === activity.meetingType
-              );
-
-              // 정확한 매칭이 안되면 날짜만으로 매칭 시도
-              if (meetingIndex === -1) {
-                meetingIndex = this.meetingDates.findIndex(
-                  (m) => m.date === instanceDate
-                );
-              }
-
-              // 여전히 매칭되지 않으면 건너뜀
-              if (meetingIndex === -1) {
-                return;
-              }
-
-              // 각 출석 정보 처리 - 더 유연한 처리
-              instance.attendances.forEach((attendance) => {
-                // userId나 userName 중 하나라도 있으면 처리
-                const userId =
-                  attendance.userId || attendance.user_id || attendance.id;
-                const userName =
-                  attendance.userName ||
-                  attendance.user_name ||
-                  attendance.name ||
-                  "이름없음";
-
-                if (!userId && !userName) {
+              activity.instances.forEach((instance) => {
+                if (
+                  !instance.start_datetime ||
+                  !instance.attendances ||
+                  !Array.isArray(instance.attendances)
+                ) {
                   return;
                 }
 
-                // userId가 없으면 userName을 키로 사용
-                const memberKey = userId
-                  ? `${userId}_${orgData.organizationId}`
-                  : `${userName}_${orgData.organizationId}`;
+                const instanceDate = moment(instance.start_datetime).format(
+                  "YYYY-MM-DD"
+                );
 
-                // 새 멤버 정보 생성 또는 기존 정보 가져오기
-                let memberData = memberMap.get(memberKey);
+                // 🔍 날짜와 모임 유형을 함께 매칭 (핵심 수정)
+                const meetingIndex = this.meetingDates.findIndex(
+                  (m) =>
+                    m.date === instanceDate && m.type === activity.meetingType
+                );
 
-                if (!memberData) {
-                  memberData = {
-                    userId: userId || userName, // userId가 없으면 userName 사용
-                    memberName: userName,
-                    organizationId: orgData.organizationId,
-                    organizationName: orgData.organizationName,
-                  };
-
-                  // 모든 모임 날짜에 대해 기본값 'X' 설정
-                  this.meetingDates.forEach((_, idx) => {
-                    memberData[`meeting_${idx}`] = "X";
-                  });
+                // 🔍 디버깅: 청년예배 관련 로그
+                if (activity.meetingType === "YOUTH_SERVICE") {
+                  console.log(
+                    `[청년예배 매칭] 날짜: ${instanceDate}, 유형: ${activity.meetingType}, 찾은 인덱스: ${meetingIndex}`
+                  );
+                  console.log(
+                    `[청년예배 출석데이터] 인스턴스 출석자 수: ${
+                      instance.attendances?.length || 0
+                    }`
+                  );
                 }
 
-                // 해당 모임의 출석 상태 설정 - 문법 오류 수정
-                const status =
-                  attendance.status || attendance.attendance_status || "";
-                memberData[`meeting_${meetingIndex}`] =
-                  status === "출석" ||
-                  status === "PRESENT" ||
-                  status === "present"
-                    ? "O"
-                    : "X";
+                if (meetingIndex === -1) {
+                  // 조회 기간에 해당하지 않는 인스턴스는 건너뜀
+                  if (activity.meetingType === "YOUTH_SERVICE") {
+                    console.log(
+                      `[청년예배 스킵] 날짜: ${instanceDate}, 이유: meetingDates에서 찾을 수 없음`
+                    );
+                  }
+                  return;
+                }
 
-                // 멤버 맵에 저장
-                memberMap.set(memberKey, memberData);
-                orgHasData = true;
+                // 해당 인스턴스의 출석 정보 처리
+                instance.attendances.forEach((attendance) => {
+                  const userId =
+                    attendance.userId || attendance.user_id || attendance.id;
+                  const userName =
+                    attendance.userName ||
+                    attendance.user_name ||
+                    attendance.name;
+
+                  if (!userId && !userName) {
+                    return;
+                  }
+
+                  // 🔄 유연한 멤버 매칭: 조직 ID 불일치 문제 해결
+                  let memberData = null;
+
+                  // 1차 시도: 기존 방식 (정확한 조직 ID 매칭)
+                  const exactKey = `${userId || userName}_${
+                    orgData.organizationId
+                  }`;
+                  memberData = allMembersMap.get(exactKey);
+
+                  // 2차 시도: userId/userName으로만 검색 (조직 무관)
+                  if (!memberData && (userId || userName)) {
+                    for (const [, member] of allMembersMap.entries()) {
+                      const keyUserId = member.userId;
+                      const keyUserName = member.memberName;
+
+                      // userId나 userName이 일치하는 멤버 찾기
+                      if (
+                        (userId && keyUserId === userId) ||
+                        (userName && keyUserName === userName)
+                      ) {
+                        memberData = member;
+                        break;
+                      }
+                    }
+                  }
+
+                  if (memberData) {
+                    const status =
+                      attendance.status || attendance.attendance_status || "";
+                    const attendanceStatus =
+                      status === "출석" ||
+                      status === "PRESENT" ||
+                      status === "present"
+                        ? "O"
+                        : "X";
+
+                    memberData[`meeting_${meetingIndex}`] = attendanceStatus;
+
+                    // 🔍 디버깅: 청년예배 출석 상태 업데이트 로그
+                    if (activity.meetingType === "YOUTH_SERVICE") {
+                      console.log(
+                        `[청년예배 출석업데이트] 멤버: ${memberData.memberName}, 상태: ${status} -> ${attendanceStatus}, 키: meeting_${meetingIndex}`
+                      );
+                    }
+                  } else {
+                    // 🔍 디버깅: 매칭되지 않은 멤버 로그
+                    if (activity.meetingType === "YOUTH_SERVICE") {
+                      console.log(
+                        `[청년예배 멤버매칭실패] userId: ${userId}, userName: ${userName}, 조직: ${orgData.organizationName}`
+                      );
+                    }
+                  }
+                });
               });
             });
           });
-
-          if (orgHasData) {
-            organizationsWithAttendance.add(orgData.organizationId);
-          } else {
-            organizationsWithoutAttendance.push(orgData);
-          }
-        });
-
-        // 2단계: 출석 데이터가 없는 조직들 처리 - 조직 정보만이라도 표시
-        for (const orgData of organizationsWithoutAttendance) {
-          // 해당 조직에 대한 기본 멤버 정보 생성 (조직 표시용)
-          const placeholderKey = `placeholder_${orgData.organizationId}`;
-
-          // 이미 해당 조직의 데이터가 있는지 확인
-          const hasExistingMembers = Array.from(memberMap.values()).some(
-            (member) => member.organizationId === orgData.organizationId
-          );
-
-          if (!hasExistingMembers) {
-            // 조직의 회원 목록을 가져오려고 시도
-            try {
-              // 회원 목록 API 호출 시도 (있다면)
-              let members = [];
-              if (
-                this.getOrganizationMembers &&
-                typeof this.getOrganizationMembers === "function"
-              ) {
-                try {
-                  const membersResponse = await this.getOrganizationMembers(
-                    orgData.organizationId
-                  );
-                  if (
-                    membersResponse &&
-                    membersResponse.data &&
-                    Array.isArray(membersResponse.data)
-                  ) {
-                    members = membersResponse.data;
-                  } else if (Array.isArray(membersResponse)) {
-                    members = membersResponse;
-                  }
-                } catch (memberError) {
-                  // 회원 목록 조회 실패 시 무시
-                }
-              }
-
-              if (members.length > 0) {
-                // 실제 회원이 있는 경우, 각 회원을 추가
-                members.forEach((member, index) => {
-                  const memberKey = `${
-                    member.user_id ||
-                    member.id ||
-                    `${orgData.organizationId}_${index}`
-                  }_${orgData.organizationId}`;
-                  const memberName =
-                    member.user_name ||
-                    member.name ||
-                    member.username ||
-                    `회원${index + 1}`;
-
-                  const memberData = {
-                    userId:
-                      member.user_id ||
-                      member.id ||
-                      `${orgData.organizationId}_${index}`,
-                    memberName: memberName,
-                    organizationId: orgData.organizationId,
-                    organizationName: orgData.organizationName,
-                    hasNoAttendanceData: true, // 출석 데이터가 없음을 표시
-                  };
-
-                  // 모든 모임 날짜에 대해 'X' 설정
-                  this.meetingDates.forEach((_, idx) => {
-                    memberData[`meeting_${idx}`] = "X";
-                  });
-
-                  memberMap.set(memberKey, memberData);
-                });
-              } else {
-                // 회원 목록도 없는 경우 플레이스홀더 생성
-                const placeholderMember = {
-                  userId: `placeholder_${orgData.organizationId}`,
-                  memberName: `${orgData.organizationName}`,
-                  organizationId: orgData.organizationId,
-                  organizationName: orgData.organizationName,
-                  isPlaceholder: true, // 플레이스홀더임을 표시
-                };
-
-                // 모든 모임 날짜에 대해 'X' 설정
-                this.meetingDates.forEach((_, idx) => {
-                  placeholderMember[`meeting_${idx}`] = "X";
-                });
-
-                memberMap.set(placeholderKey, placeholderMember);
-              }
-            } catch (error) {
-              // 오류 발생 시에도 플레이스홀더는 생성
-              const placeholderMember = {
-                userId: `placeholder_${orgData.organizationId}`,
-                memberName: `${orgData.organizationName}`,
-                organizationId: orgData.organizationId,
-                organizationName: orgData.organizationName,
-                isPlaceholder: true,
-              };
-
-              this.meetingDates.forEach((_, idx) => {
-                placeholderMember[`meeting_${idx}`] = "X";
-              });
-
-              memberMap.set(placeholderKey, placeholderMember);
-            }
-          }
         }
 
-        // 맵에서 배열로 변환
-        this.memberAttendanceData = Array.from(memberMap.values());
-
-        // 필터링된 데이터도 초기화 (조직 필터링은 handleOrganizationChange에서 수행)
+        // 🔍 3단계: 최종 결과 생성
+        this.memberAttendanceData = Array.from(allMembersMap.values());
         this.filteredMemberAttendanceData = [...this.memberAttendanceData];
+
+        // 🔍 디버깅: 최종 결과 확인
+        console.log(
+          `[최종결과] 총 멤버 수: ${this.memberAttendanceData.length}`
+        );
+        console.log(`[최종결과] meetingDates 수: ${this.meetingDates.length}`);
+        this.meetingDates.forEach((meeting, index) => {
+          if (meeting.type === "YOUTH_SERVICE") {
+            console.log(
+              `[청년예배 최종확인] 인덱스: ${index}, 날짜: ${meeting.date}, 유형: ${meeting.type}`
+            );
+
+            // 청년예배에 대한 실제 출석 데이터 확인
+            const youthAttendanceCount = this.memberAttendanceData.filter(
+              (member) => member[`meeting_${index}`] === "O"
+            ).length;
+            const youthTotalCount = this.memberAttendanceData.filter(
+              (member) =>
+                member[`meeting_${index}`] && member[`meeting_${index}`] !== "-"
+            ).length;
+
+            console.log(
+              `[청년예배 최종통계] 출석: ${youthAttendanceCount}명, 전체: ${youthTotalCount}명`
+            );
+          }
+        });
       } catch (error) {
         this.memberAttendanceData = [];
         this.filteredMemberAttendanceData = [];
+
+        // 에러 알림
+        if (this.$notify) {
+          this.$notify({
+            title: "데이터 로딩 오류",
+            message:
+              "멤버 데이터 로딩 중 오류가 발생했습니다. 다시 시도해주세요.",
+            type: "error",
+            duration: 5000,
+          });
+        }
       }
     },
 
@@ -1871,44 +2020,46 @@ export default {
       activityName = activityName.toLowerCase();
 
       // 모임 유형 분류 로직
+      let result = "OTHER";
+
       if (
         activityName.includes("주일") &&
         (activityName.includes("2부") || activityName.includes("2 부"))
       ) {
-        return "SUNDAY_SERVICE_2";
+        result = "SUNDAY_SERVICE_2";
       } else if (
         activityName.includes("주일") &&
         (activityName.includes("3부") || activityName.includes("3 부"))
       ) {
-        return "SUNDAY_SERVICE_3";
+        result = "SUNDAY_SERVICE_3";
       } else if (
         activityName.includes("청년") &&
         activityName.includes("예배")
       ) {
-        return "YOUTH_SERVICE";
+        result = "YOUTH_SERVICE";
       } else if (
         activityName.includes("수요") &&
         activityName.includes("예배")
       ) {
-        return "WEDNESDAY_SERVICE";
+        result = "WEDNESDAY_SERVICE";
       } else if (
         activityName.includes("금요") &&
         activityName.includes("예배")
       ) {
-        return "FRIDAY_SERVICE";
+        result = "FRIDAY_SERVICE";
       } else if (
         activityName.includes("수요") &&
         (activityName.includes("기도") || activityName.includes("제자"))
       ) {
-        return "WEDNESDAY_PRAYER";
+        result = "WEDNESDAY_PRAYER";
       } else if (
         activityName.includes("치유") &&
         (activityName.includes("팀") || activityName.includes("사역"))
       ) {
-        return "HEALING_MINISTRY";
-      } else {
-        return "OTHER";
+        result = "HEALING_MINISTRY";
       }
+
+      return result;
     },
 
     // 로딩 진행 상태 업데이트 메서드
@@ -2382,4 +2533,64 @@ export default {
 
 <style lang="scss" scoped>
 @import "@/styles/dashboard.scss";
+
+/* 출석 데이터 없음 표시 스타일 */
+::v-deep .v-data-table tbody tr td {
+  &:has(span.no-data-indicator) {
+    background-color: #f5f5f5 !important;
+    color: #9e9e9e !important;
+  }
+}
+
+/* 출석 데이터 없음 표시 스타일 (다크 테마) */
+.theme--dark ::v-deep .v-data-table tbody tr td {
+  &:has(span.no-data-indicator) {
+    background-color: #424242 !important;
+    color: #757575 !important;
+  }
+}
+
+/* 출석 상태별 색상 */
+::v-deep .attendance-status {
+  display: inline-block;
+  padding: 2px 6px;
+  border-radius: 4px;
+  font-weight: bold;
+  text-align: center;
+  min-width: 20px;
+
+  &.present {
+    background-color: #e8f5e8;
+    color: #2e7d32;
+  }
+
+  &.absent {
+    background-color: #ffebee;
+    color: #c62828;
+  }
+
+  &.no-data {
+    background-color: #f5f5f5;
+    color: #9e9e9e;
+    font-style: italic;
+  }
+}
+
+/* 다크 테마용 출석 상태 색상 */
+.theme--dark ::v-deep .attendance-status {
+  &.present {
+    background-color: #1b5e20;
+    color: #a5d6a7;
+  }
+
+  &.absent {
+    background-color: #b71c1c;
+    color: #ef9a9a;
+  }
+
+  &.no-data {
+    background-color: #424242;
+    color: #757575;
+  }
+}
 </style>
