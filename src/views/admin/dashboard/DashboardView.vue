@@ -1386,7 +1386,10 @@ export default {
     async fetchAllOrganizationMembers() {
       const memberMap = new Map();
 
-      // 최하위 조직들(리프 노드)만 추출하여 처리
+      // 🔧 수정: 리프 노드 + 청년예배 관련 상위 조직도 포함
+      const targetOrganizations = [];
+
+      // 1단계: 최하위 조직들(리프 노드) 추출
       const leafOrganizations = this.organizations.filter((org) => {
         // 이 조직을 상위로 하는 다른 조직이 없으면 리프 노드
         return !this.organizations.some(
@@ -1394,8 +1397,29 @@ export default {
         );
       });
 
+      targetOrganizations.push(...leafOrganizations);
+
+      // 2단계: 청년예배가 있는 조직들도 추가 (상위 조직일 가능성)
+      this.attendanceData.meetings.forEach((orgData) => {
+        const hasYouthService = orgData.activities.some(
+          (activity) => activity.meetingType === "YOUTH_SERVICE"
+        );
+
+        if (hasYouthService) {
+          const org = this.organizations.find(
+            (o) => o.id === orgData.organizationId
+          );
+          if (org && !targetOrganizations.some((t) => t.id === org.id)) {
+            targetOrganizations.push(org);
+            console.log(
+              `[청년예배 조직추가] ${org.organization_name} (ID: ${org.id})`
+            );
+          }
+        }
+      });
+
       // 권예린순 조직 찾기
-      const kwonYerinOrg = leafOrganizations.find(
+      const kwonYerinOrg = targetOrganizations.find(
         (org) => org.organization_name?.includes("권예린순") || org.id === 53
       );
 
@@ -1405,12 +1429,20 @@ export default {
         );
 
         if (kwonYerinInAll) {
-          leafOrganizations.push(kwonYerinInAll);
+          targetOrganizations.push(kwonYerinInAll);
         }
       }
 
+      // 🔧 디버깅: 대상 조직 목록 출력
+      console.log(`[멤버추출] 대상 조직 수: ${targetOrganizations.length}`);
+      targetOrganizations.forEach((org) => {
+        console.log(
+          `[멤버추출] 조직: ${org.organization_name} (ID: ${org.id})`
+        );
+      });
+
       // 각 조직별로 API 호출하여 멤버 목록 가져오기
-      for (const org of leafOrganizations) {
+      for (const org of targetOrganizations) {
         const isKwonYerinOrg =
           org.organization_name?.includes("권예린순") || org.id === 53;
 
@@ -1459,10 +1491,8 @@ export default {
                     apiCallTime: new Date().toISOString(), // API 호출 시점
                   };
 
-                  // 모든 모임 날짜에 대해 기본값 '-' 설정
-                  this.meetingDates.forEach((_, idx) => {
-                    memberData[`meeting_${idx}`] = "-";
-                  });
+                  // ⚠️ 기본값 설정은 prepareMemberAttendanceData에서 처리하도록 제거
+                  // (meetingDates가 아직 준비되지 않았을 수 있음)
 
                   memberMap.set(memberKey, memberData);
                 }
@@ -1537,6 +1567,22 @@ export default {
           return;
         }
 
+        // 🔧 2단계: 모든 멤버에게 meetingDates 기반으로 기본값 설정
+        console.log(`[초기화] meetingDates 수: ${this.meetingDates.length}`);
+        for (const [, memberData] of allMembersMap.entries()) {
+          // 기존 meeting_* 키들 모두 제거 후 다시 설정
+          Object.keys(memberData).forEach((key) => {
+            if (key.startsWith("meeting_")) {
+              delete memberData[key];
+            }
+          });
+
+          // meetingDates 기반으로 기본값 설정
+          this.meetingDates.forEach((_, idx) => {
+            memberData[`meeting_${idx}`] = "-";
+          });
+        }
+
         if (this.meetingDates.length > 0) {
           // 조회 기간이 있는 경우: 해당 기간의 출석 상태 업데이트
           this.attendanceData.meetings.forEach((orgData) => {
@@ -1600,7 +1646,21 @@ export default {
                     attendance.user_name ||
                     attendance.name;
 
+                  // 🔍 디버깅: 출석 데이터 구조 확인
+                  if (activity.meetingType === "YOUTH_SERVICE") {
+                    console.log(`[청년예배 출석원본] 출석객체:`, attendance);
+                    console.log(
+                      `[청년예배 출석원본] userId: ${userId}, userName: ${userName}`
+                    );
+                  }
+
                   if (!userId && !userName) {
+                    if (activity.meetingType === "YOUTH_SERVICE") {
+                      console.log(
+                        `[청년예배 스킵] userId와 userName 둘 다 없음:`,
+                        attendance
+                      );
+                    }
                     return;
                   }
 
@@ -1654,6 +1714,20 @@ export default {
                       console.log(
                         `[청년예배 멤버매칭실패] userId: ${userId}, userName: ${userName}, 조직: ${orgData.organizationName}`
                       );
+
+                      // 현재 멤버 맵에 있는 멤버들 일부 출력 (최대 5명)
+                      console.log(
+                        `[청년예배 멤버맵현황] 총 멤버 수: ${allMembersMap.size}`
+                      );
+                      let count = 0;
+                      for (const [key, member] of allMembersMap.entries()) {
+                        if (count < 5) {
+                          console.log(
+                            `[청년예배 멤버맵] 키: ${key}, 이름: ${member.memberName}, userId: ${member.userId}`
+                          );
+                        }
+                        count++;
+                      }
                     }
                   }
                 });
