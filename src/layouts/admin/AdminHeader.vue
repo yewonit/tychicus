@@ -104,20 +104,24 @@ export default {
     },
 
     goToProfile() {
-      this.$router.push({ name: "AdminProfile" });
+      // 임시 대안: 대시보드로 이동 (AdminProfile 라우트가 구현되지 않음)
+      this.$router.push({ name: "AdminDashboard" });
     },
 
     goToSettings() {
-      this.$router.push({ name: "AdminSettings" });
+      // 임시 대안: 대시보드로 이동 (AdminSettings 라우트가 구현되지 않음)
+      this.$router.push({ name: "AdminDashboard" });
     },
 
     async logout() {
       try {
         // 로그아웃 로직 구현
         await this.$store.dispatch("auth/logout");
-        this.$router.push({ name: "Login" });
+        // 임시 대안: 홈으로 이동 (Login 라우트가 구현되지 않음)
+        this.$router.push({ name: "HelloView" });
       } catch (error) {
-        console.error("로그아웃 중 오류 발생:", error);
+        // 로그아웃 중 오류 발생 시에도 홈으로 이동
+        this.$router.push({ name: "HelloView" });
       }
     },
   },

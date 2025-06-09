@@ -49,7 +49,8 @@
           <v-list-item-title class="pl-2">조직 및 멤버 관리</v-list-item-title>
         </v-list-item>
 
-        <v-list-item link :to="{ name: 'AdminMemberList' }">
+        <!-- 임시 비활성화: 해당 라우트가 구현되지 않음 -->
+        <!-- <v-list-item link :to="{ name: 'AdminMemberList' }">
           <v-list-item-title class="pl-2">회원 목록</v-list-item-title>
         </v-list-item>
 
@@ -59,7 +60,7 @@
 
         <v-list-item link :to="{ name: 'AdminAbsentMembers' }">
           <v-list-item-title class="pl-2">장기결석자</v-list-item-title>
-        </v-list-item>
+        </v-list-item> -->
       </v-list-group>
 
       <!-- 출석 관리 그룹 -->
@@ -68,44 +69,46 @@
           <v-list-item-title>출석 관리</v-list-item-title>
         </template>
 
-        <v-list-item link :to="{ name: 'AdminAttendanceList' }">
+        <!-- 임시 비활성화: 해당 라우트가 구현되지 않음 -->
+        <!-- <v-list-item link :to="{ name: 'AdminAttendanceList' }">
           <v-list-item-title class="pl-2">출석 현황</v-list-item-title>
-        </v-list-item>
+        </v-list-item> -->
 
         <v-list-item link :to="{ name: 'AdminAttendanceStats' }">
           <v-list-item-title class="pl-2">출석 통계</v-list-item-title>
         </v-list-item>
       </v-list-group>
 
+      <!-- 임시 비활성화: 해당 라우트들이 구현되지 않음 -->
       <!-- 심방 관리 -->
-      <v-list-item link :to="{ name: 'AdminVisitation' }">
+      <!-- <v-list-item link :to="{ name: 'AdminVisitation' }">
         <v-list-item-icon>
           <v-icon>mdi-home-heart</v-icon>
         </v-list-item-icon>
         <v-list-item-content>
           <v-list-item-title>심방 관리</v-list-item-title>
         </v-list-item-content>
-      </v-list-item>
+      </v-list-item> -->
 
       <!-- 통계 -->
-      <v-list-item link :to="{ name: 'AdminStatistics' }">
+      <!-- <v-list-item link :to="{ name: 'AdminStatistics' }">
         <v-list-item-icon>
           <v-icon>mdi-chart-bar</v-icon>
         </v-list-item-icon>
         <v-list-item-content>
           <v-list-item-title>통계</v-list-item-title>
         </v-list-item-content>
-      </v-list-item>
+      </v-list-item> -->
 
       <!-- 설정 -->
-      <v-list-item link :to="{ name: 'AdminSettings' }">
+      <!-- <v-list-item link :to="{ name: 'AdminSettings' }">
         <v-list-item-icon>
           <v-icon>mdi-cog</v-icon>
         </v-list-item-icon>
         <v-list-item-content>
           <v-list-item-title>설정</v-list-item-title>
         </v-list-item-content>
-      </v-list-item>
+      </v-list-item> -->
     </v-list>
   </v-navigation-drawer>
 </template>
