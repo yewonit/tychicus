@@ -21,25 +21,27 @@
             <span>대시보드에 접근하려면 비밀번호를 입력하세요.</span>
           </div>
 
-          <v-text-field
-            v-model="inputPassword"
-            :append-icon="showPassword ? 'mdi-eye' : 'mdi-eye-off'"
-            :type="showPassword ? 'text' : 'password'"
-            label="비밀번호"
-            color="primary"
-            class="password-input"
-            prepend-inner-icon="mdi-key"
-            @click:append="showPassword = !showPassword"
-            @keyup.enter="verifyPassword"
-            autofocus
-            :error="passwordError"
-            :error-messages="passwordErrorMessage"
-            background-color="white"
-            solo
-            flat
-            hide-details="auto"
-            single-line
-          ></v-text-field>
+          <form @submit.prevent="verifyPassword">
+            <v-text-field
+              v-model="inputPassword"
+              :append-icon="showPassword ? 'mdi-eye' : 'mdi-eye-off'"
+              :type="showPassword ? 'text' : 'password'"
+              label="비밀번호"
+              color="primary"
+              class="password-input"
+              prepend-inner-icon="mdi-key"
+              @click:append="showPassword = !showPassword"
+              @keyup.enter="verifyPassword"
+              :error="passwordError"
+              :error-messages="passwordErrorMessage"
+              background-color="white"
+              solo
+              flat
+              hide-details="auto"
+              single-line
+              autocomplete="current-password"
+            ></v-text-field>
+          </form>
 
           <v-alert
             v-if="passwordError"
@@ -909,65 +911,8 @@ export default {
         this.loadingStepText = "데이터 로딩 완료!";
         this.loadingDetails = "대시보드를 준비하고 있습니다";
 
-        // 🔴🎉 최종 완료 로그
-        console.log(
-          "%c🔴🎉 === 대시보드 초기화 완전히 완료! ===",
-          "color: red; font-size: 18px; font-weight: bold; background: lightgreen;"
-        );
-        console.log(
-          `%c🔴📊 최종 상태 요약:`,
-          "color: red; font-size: 16px; font-weight: bold;"
-        );
-        console.log(
-          `%c🔴🏢   조직 수: ${this.organizations.length}개`,
-          "color: red; font-size: 14px;"
-        );
-        console.log(
-          `%c🔴📅   모임 날짜: ${this.meetingDates.length}개`,
-          "color: red; font-size: 14px;"
-        );
-        console.log(
-          `%c🔴🎭   attendanceData.meetings: ${this.attendanceData.meetings.length}개`,
-          "color: red; font-size: 14px;"
-        );
-        console.log(
-          `%c🔴👤   전체 회원: ${this.memberAttendanceData.length}명`,
-          "color: red; font-size: 14px;"
-        );
-        console.log(
-          `%c🔴🎯   화면 표시 회원: ${this.filteredMemberAttendanceData.length}명`,
-          "color: red; font-size: 14px;"
-        );
-        console.log(
-          `%c🔴📋   드롭다운 조직: ${this.organizationSelectItems.length}개`,
-          "color: red; font-size: 14px;"
-        );
-        console.log(
-          `%c🔴✅   선택된 조직: ${this.selectedOrganization}`,
-          "color: red; font-size: 14px;"
-        );
-
-        // 각 조직별 상태 확인
-        console.log(
-          "%c🔴📋 드롭다운에 표시되는 조직들:",
-          "color: red; font-size: 15px; font-weight: bold;"
-        );
-        this.organizationSelectItems.forEach((item, index) => {
-          const hasMembers = this.memberAttendanceData.some(
-            (member) => member.organizationId === item.value
-          );
-          const memberCount = this.memberAttendanceData.filter(
-            (member) => member.organizationId === item.value
-          ).length;
-          console.log(
-            `%c🔴🏢 [${index + 1}] ID:${item.value} "${
-              item.text
-            }" → 회원 ${memberCount}명 ${hasMembers ? "✅" : "❌"}`,
-            "color: red; font-size: 12px;"
-          );
-        });
+        // 대시보드 초기화 완료
       } catch (error) {
-        console.error("대시보드 초기화 중 오류 발생:", error);
         this.loadingError =
           "데이터 로딩 중 오류가 발생했습니다. 다시 시도해주세요.";
       } finally {
@@ -1004,40 +949,12 @@ export default {
           organizations = this.getDummyOrganizations();
         }
 
-        // 🔴🏢 조직 정보 로딩 완료 로그
-        console.log(
-          "%c🔴🏢 === 조직 정보 로딩 완료 ===",
-          "color: red; font-size: 16px; font-weight: bold;"
-        );
-        console.log(
-          `%c🔴📊 전체 조직 수: ${organizations.length}개`,
-          "color: red; font-size: 14px; font-weight: bold;"
-        );
-
-        organizations.forEach((org, index) => {
-          console.log(
-            `%c🔴🏢 조직 ${index + 1}: ID=${org.id}, 이름="${
-              org.organization_name
-            }", 상위조직=${org.upper_organization_id || "없음"}`,
-            "color: red; font-size: 12px;"
-          );
-        });
+        // 조직 정보 로딩 완료
 
         // 모든 조직 데이터 사용
         this.organizations = organizations;
         this.updateLoadingProgress();
-
-        // 🔴✅ 조직 저장 완료 로그
-        console.log(
-          "%c🔴✅ 조직 정보 this.organizations에 저장 완료!",
-          "color: red; font-size: 14px; font-weight: bold;"
-        );
       } catch (error) {
-        console.error(
-          "%c🔴❌ 조직 정보 가져오기 오류:",
-          "color: red; font-size: 14px; font-weight: bold;",
-          error
-        );
         // 오류 발생 시 더미 데이터 사용
         this.organizations = this.getDummyOrganizations();
         this.updateLoadingProgress();
@@ -1093,21 +1010,11 @@ export default {
 
     // 모든 조직의 모임 정보 가져오기
     async fetchAllMeetings() {
-      console.log(
-        "%c🔴🎯 === 모임 정보 로딩 시작 ===",
-        "color: red; font-size: 16px; font-weight: bold;"
-      );
-
       this.attendanceData.meetings = []; // 기존 데이터 초기화
       const failedOrganizations = []; // 실패한 조직 추적
 
       const totalOrganizations = this.organizations.length;
       let processedCount = 0;
-
-      console.log(
-        `%c🔴📋 처리할 조직 수: ${totalOrganizations}개`,
-        "color: red; font-size: 14px; font-weight: bold;"
-      );
 
       // 모든 조직의 모임 데이터를 하나씩 가져오기
       for (const org of this.organizations) {
@@ -1115,11 +1022,6 @@ export default {
           processedCount++;
           const progressPercent = Math.round(
             (processedCount / totalOrganizations) * 100
-          );
-
-          console.log(
-            `%c🔴🏢 [${processedCount}/${totalOrganizations}] 조직 처리 중: "${org.organization_name}" (ID: ${org.id})`,
-            "color: red; font-size: 13px; font-weight: bold;"
           );
 
           this.loadingDetails = `조직 정보 처리 중 (${processedCount}/${totalOrganizations}, ${progressPercent}%): ${org.organization_name}`;
@@ -1142,30 +1044,7 @@ export default {
             }
           }
 
-          console.log(
-            `%c🔴📊 조직 "${org.organization_name}"의 활동 수: ${activities.length}개`,
-            "color: red; font-size: 12px;"
-          );
-
-          // 각 활동 상세 정보 로그
-          if (activities.length > 0) {
-            activities.forEach((activity, idx) => {
-              const instanceCount = activity.instances
-                ? activity.instances.length
-                : 0;
-              console.log(
-                `%c🔴🎪   활동 ${idx + 1}: "${
-                  activity.name || "이름없음"
-                }" (인스턴스: ${instanceCount}개)`,
-                "color: red; font-size: 11px;"
-              );
-            });
-          } else {
-            console.log(
-              `%c🔴⚠️   조직 "${org.organization_name}"에 활동이 없습니다!`,
-              "color: red; font-size: 12px; background: yellow;"
-            );
-          }
+          // 각 활동 상세 정보 처리
 
           // 모든 활동을 가공 (날짜 필터링은 나중에 수행)
           const processedActivities = activities.map((activity) => {
@@ -1180,19 +1059,7 @@ export default {
               Array.isArray(activity.instances) &&
               activity.instances.length > 0;
 
-            // 인스턴스 날짜 정보 로깅
-            if (hasInstances) {
-              const instanceDates = activity.instances.map((instance) => {
-                if (instance.start_datetime) {
-                  return moment(instance.start_datetime).format("YYYY-MM-DD");
-                }
-                return "날짜 없음";
-              });
-              console.log(
-                `%c🔴📅     인스턴스 날짜: ${instanceDates.join(", ")}`,
-                "color: red; font-size: 10px;"
-              );
-            }
+            // 인스턴스 날짜 정보 처리
 
             // 각 활동에 필요한 정보 추가
             return {
@@ -1222,10 +1089,6 @@ export default {
               organizationPath: orgPath,
               activities: processedActivities,
             });
-            console.log(
-              `%c🔴✅ 조직 "${org.organization_name}" 추가 완료 (활동 ${processedActivities.length}개)`,
-              "color: red; font-size: 12px;"
-            );
           } else {
             // 활동이 없는 조직도 빈 배열로 추가하여 추적
             this.attendanceData.meetings.push({
@@ -1234,17 +1097,8 @@ export default {
               organizationPath: orgPath,
               activities: [],
             });
-            console.log(
-              `%c🔴⚠️ 조직 "${org.organization_name}" 추가 (활동 없음)`,
-              "color: red; font-size: 12px; background: yellow;"
-            );
           }
         } catch (error) {
-          console.error(
-            `%c🔴❌ 조직 "${org.organization_name}"의 모임 정보 가져오기 실패:`,
-            "color: red; font-size: 12px; font-weight: bold;",
-            error
-          );
           // 실패한 조직 추가
           failedOrganizations.push(org.organization_name);
 
@@ -1258,34 +1112,8 @@ export default {
         }
       }
 
-      // 최종 결과 로그
-      console.log(
-        "%c🔴🎯 === 모임 정보 로딩 완료 ===",
-        "color: red; font-size: 16px; font-weight: bold;"
-      );
-      console.log(
-        `%c🔴📊 최종 attendanceData.meetings 수: ${this.attendanceData.meetings.length}개`,
-        "color: red; font-size: 14px; font-weight: bold;"
-      );
-
-      // 각 조직별 최종 상태 로그
-      this.attendanceData.meetings.forEach((orgData, index) => {
-        console.log(
-          `%c🔴🏢 [${index + 1}] "${orgData.organizationName}": 활동 ${
-            orgData.activities.length
-          }개`,
-          "color: red; font-size: 12px;"
-        );
-      });
-
-      // 실패한 조직이 있으면 경고 표시
+      // 실패한 조직이 있으면 로딩 디테일 업데이트
       if (failedOrganizations.length > 0) {
-        console.warn(
-          `%c🔴❌ 일부 조직의 모임 정보 로딩 실패: ${failedOrganizations.join(
-            ", "
-          )}`,
-          "color: red; font-size: 14px; background: yellow;"
-        );
         this.loadingDetails = `모임 데이터 구조화 중... (${failedOrganizations.length}개 조직 실패)`;
       } else {
         this.loadingDetails = "모임 데이터 구조화 중...";
@@ -1294,10 +1122,6 @@ export default {
       // 원본 데이터 보존
       this.originalMeetingsData = JSON.parse(
         JSON.stringify(this.attendanceData.meetings)
-      );
-      console.log(
-        "%c🔴💾 원본 데이터 백업 완료!",
-        "color: red; font-size: 14px; font-weight: bold;"
       );
     },
 
@@ -1320,27 +1144,11 @@ export default {
             Array.isArray(activity.instances) &&
             activity.instances.length > 0
           ) {
-            console.log(
-              `활동 "${activity.name || "이름 없음"}"의 인스턴스 수: ${
-                activity.instances.length
-              }`
-            );
-
             // 모든 인스턴스에 대해 출석 정보 처리
             for (const instance of activity.instances) {
               // 출석 데이터가 없는 경우 빈 배열로 초기화
               if (!instance.attendances) {
                 instance.attendances = [];
-              }
-
-              // 날짜 정보 확인
-              if (instance.start_datetime) {
-                const instanceDate = moment(instance.start_datetime).format(
-                  "YYYY-MM-DD"
-                );
-                console.log(
-                  `인스턴스 날짜 ${instanceDate}의 출석 정보: ${instance.attendances.length}명`
-                );
               }
 
               // 출석 상태 계산
@@ -1374,21 +1182,10 @@ export default {
           }
         }
       }
-
-      console.log("모든 출석 데이터 로딩 완료");
     },
 
     // 조직 선택 드롭다운 아이템 준비
     prepareOrganizationSelectItems() {
-      console.log(
-        "%c🔴🎯 === 조직 선택 아이템 준비 시작 ===",
-        "color: red; font-size: 16px; font-weight: bold;"
-      );
-      console.log(
-        `%c🔴📊 flattenedOrganizations 수: ${this.flattenedOrganizations.length}개`,
-        "color: red; font-size: 14px; font-weight: bold;"
-      );
-
       this.organizationSelectItems = this.flattenedOrganizations.map((org) => {
         // 들여쓰기를 위한 공백 추가
         const indent = "　".repeat(org.level);
@@ -1397,66 +1194,30 @@ export default {
           value: org.id,
         };
       });
-
-      console.log(
-        "%c🔴📋 조직 선택 아이템 목록:",
-        "color: red; font-size: 14px; font-weight: bold;"
-      );
-      this.organizationSelectItems.forEach((item, index) => {
-        console.log(
-          `%c🔴🏢 [${index + 1}] ID: ${item.value}, 텍스트: "${item.text}"`,
-          "color: red; font-size: 12px;"
-        );
-      });
-
-      console.log(
-        `%c🔴✅ 조직 선택 아이템 준비 완료! 총 ${this.organizationSelectItems.length}개`,
-        "color: red; font-size: 14px; font-weight: bold;"
-      );
     },
 
     // 예배 일자 목록 준비
     prepareMeetingDates() {
-      console.log("모임 일자 목록 준비 시작");
-
       // 모든 모임에서 고유한 날짜와 예배 유형 조합을 추출
       const meetingDateMap = new Map();
 
       // 정해진 날짜 범위
       const startDate = moment(this.dateRange.start).startOf("day");
       const endDate = moment(this.dateRange.end).endOf("day");
-      console.log(
-        `모임 일자 준비 - 날짜 범위: ${startDate.format(
-          "YYYY-MM-DD"
-        )} ~ ${endDate.format("YYYY-MM-DD")}`
-      );
 
       // 각 조직의 모임 날짜 확인
       this.attendanceData.meetings.forEach((orgData) => {
-        // 조직 확인
-        console.log(`조직 ${orgData.organizationName}의 모임 일자 처리`);
-
         orgData.activities.forEach((activity) => {
           if (activity.instances && activity.instances.length > 0) {
-            console.log(
-              `모임 '${
-                activity.name || activity.meetingType || "알 수 없음"
-              }'의 인스턴스 수: ${activity.instances.length}`
-            );
-
             activity.instances.forEach((instance) => {
               // 인스턴스의 시작 날짜 추출
               if (!instance.start_datetime) {
-                console.warn("날짜 정보가 없는 인스턴스 발견");
                 return;
               }
 
               // 날짜 파싱
               const instanceDate = moment(instance.start_datetime);
               if (!instanceDate.isValid()) {
-                console.warn(
-                  `유효하지 않은 날짜 형식: ${instance.start_datetime}`
-                );
                 return;
               }
 
@@ -1473,9 +1234,6 @@ export default {
                   "[]"
                 )
               ) {
-                console.log(
-                  `범위 밖 모임 제외: ${formattedDate}, 모임타입: ${activity.meetingType}`
-                );
                 return; // 날짜 범위 밖이면 건너뜀
               }
 
@@ -1490,11 +1248,6 @@ export default {
                   typeName: activity.meetingTypeName || "알 수 없는 모임",
                   instanceId: instance.id,
                 });
-                console.log(
-                  `모임 일자 추가: ${formattedDate} (${
-                    activity.meetingTypeName || "알 수 없는 모임"
-                  })`
-                );
               }
             });
           }
@@ -1503,7 +1256,6 @@ export default {
 
       // 추출된 모임 일자가 있는지 확인
       if (meetingDateMap.size === 0) {
-        console.warn("선택한 날짜 범위에 모임 일자가 없습니다!");
         this.meetingDates = [];
         return;
       }
@@ -1526,14 +1278,6 @@ export default {
         };
 
         return (typeOrder[a.type] || 99) - (typeOrder[b.type] || 99);
-      });
-
-      // 최종 모임 일자 목록 로깅
-      console.log(
-        `모임 일자 목록 준비 완료: ${this.meetingDates.length}개 일자`
-      );
-      this.meetingDates.forEach((meeting) => {
-        console.log(`- ${meeting.date} (${meeting.typeName})`);
       });
 
       // 헤더 업데이트
@@ -1566,10 +1310,6 @@ export default {
 
     // 인원별 출결 데이터 준비
     async prepareMemberAttendanceData() {
-      console.log(
-        "%c🔴🎯 === 인원별 출결 데이터 준비 시작 ===",
-        "color: red; font-size: 16px; font-weight: bold;"
-      );
       const memberMap = new Map();
 
       try {
@@ -1578,26 +1318,13 @@ export default {
           !this.attendanceData.meetings ||
           this.attendanceData.meetings.length === 0
         ) {
-          console.warn(
-            "%c🔴❌ 출결 데이터를 준비할 모임 정보가 없습니다!",
-            "color: red; font-size: 14px; background: yellow;"
-          );
           this.memberAttendanceData = [];
           this.filteredMemberAttendanceData = [];
           return;
         }
 
-        console.log(
-          `%c🔴📊 처리할 조직 수: ${this.attendanceData.meetings.length}개, 모임 날짜 수: ${this.meetingDates.length}개`,
-          "color: red; font-size: 14px; font-weight: bold;"
-        );
-
         // 모임 날짜 정보 확인
         if (this.meetingDates.length === 0) {
-          console.warn(
-            "%c🔴❌ 표시할 모임 날짜 정보가 없습니다!",
-            "color: red; font-size: 14px; background: yellow;"
-          );
           this.memberAttendanceData = [];
           this.filteredMemberAttendanceData = [];
           return;
@@ -1609,14 +1336,7 @@ export default {
 
         // 1단계: 출석 데이터가 있는 조직들 처리
         this.attendanceData.meetings.forEach((orgData) => {
-          console.log(
-            `조직 ${orgData.organizationName} 처리 시작 - 활동 수: ${
-              orgData.activities?.length || 0
-            }`
-          );
-
           if (!orgData.activities || orgData.activities.length === 0) {
-            console.log(`조직 ${orgData.organizationName}에 활동이 없습니다.`);
             organizationsWithoutAttendance.push(orgData);
             return;
           }
@@ -1655,19 +1375,10 @@ export default {
                 meetingIndex = this.meetingDates.findIndex(
                   (m) => m.date === instanceDate
                 );
-
-                if (meetingIndex !== -1) {
-                  console.log(
-                    `날짜만으로 매칭됨: ${instanceDate}, 예상 타입: ${activity.meetingType}, 실제 타입: ${this.meetingDates[meetingIndex].type}`
-                  );
-                }
               }
 
               // 여전히 매칭되지 않으면 건너뜀
               if (meetingIndex === -1) {
-                console.log(
-                  `매칭되지 않는 인스턴스 (건너뜀): ${instanceDate}, 타입: ${activity.meetingType}`
-                );
                 return;
               }
 
@@ -1683,10 +1394,6 @@ export default {
                   "이름없음";
 
                 if (!userId && !userName) {
-                  console.log(
-                    "유효한 사용자 정보가 없는 출석 데이터 건너뜀:",
-                    attendance
-                  );
                   return;
                 }
 
@@ -1731,27 +1438,13 @@ export default {
 
           if (orgHasData) {
             organizationsWithAttendance.add(orgData.organizationId);
-            console.log(
-              `조직 ${orgData.organizationName}에서 출석 데이터 발견`
-            );
           } else {
-            console.log(
-              `조직 ${orgData.organizationName}에 활동은 있지만 출석 데이터가 없습니다.`
-            );
             organizationsWithoutAttendance.push(orgData);
           }
         });
 
         // 2단계: 출석 데이터가 없는 조직들 처리 - 조직 정보만이라도 표시
-        console.log(
-          `출석 데이터가 없는 조직 수: ${organizationsWithoutAttendance.length}`
-        );
-
         for (const orgData of organizationsWithoutAttendance) {
-          console.log(
-            `출석 데이터 없는 조직 처리: ${orgData.organizationName}`
-          );
-
           // 해당 조직에 대한 기본 멤버 정보 생성 (조직 표시용)
           const placeholderKey = `placeholder_${orgData.organizationId}`;
 
@@ -1763,10 +1456,6 @@ export default {
           if (!hasExistingMembers) {
             // 조직의 회원 목록을 가져오려고 시도
             try {
-              console.log(
-                `조직 ${orgData.organizationName}의 회원 목록 조회 시도...`
-              );
-
               // 회원 목록 API 호출 시도 (있다면)
               let members = [];
               if (
@@ -1786,14 +1475,8 @@ export default {
                   } else if (Array.isArray(membersResponse)) {
                     members = membersResponse;
                   }
-                  console.log(
-                    `조직 ${orgData.organizationName}의 회원 수: ${members.length}명`
-                  );
                 } catch (memberError) {
-                  console.warn(
-                    `조직 ${orgData.organizationName}의 회원 목록 조회 실패:`,
-                    memberError
-                  );
+                  // 회원 목록 조회 실패 시 무시
                 }
               }
 
@@ -1829,10 +1512,6 @@ export default {
 
                   memberMap.set(memberKey, memberData);
                 });
-
-                console.log(
-                  `조직 ${orgData.organizationName}: ${members.length}명의 회원 추가 (출석 데이터 없음)`
-                );
               } else {
                 // 회원 목록도 없는 경우 플레이스홀더 생성
                 const placeholderMember = {
@@ -1849,14 +1528,8 @@ export default {
                 });
 
                 memberMap.set(placeholderKey, placeholderMember);
-                console.log(`플레이스홀더 생성: ${orgData.organizationName}`);
               }
             } catch (error) {
-              console.warn(
-                `조직 ${orgData.organizationName} 처리 중 오류:`,
-                error
-              );
-
               // 오류 발생 시에도 플레이스홀더는 생성
               const placeholderMember = {
                 userId: `placeholder_${orgData.organizationId}`,
@@ -1871,9 +1544,6 @@ export default {
               });
 
               memberMap.set(placeholderKey, placeholderMember);
-              console.log(
-                `오류로 인한 플레이스홀더 생성: ${orgData.organizationName}`
-              );
             }
           }
         }
@@ -1881,29 +1551,9 @@ export default {
         // 맵에서 배열로 변환
         this.memberAttendanceData = Array.from(memberMap.values());
 
-        console.log(
-          `인원별 출결 데이터 준비 완료: ${this.memberAttendanceData.length}명`
-        );
-        console.log(
-          `출석 데이터가 있는 조직 수: ${organizationsWithAttendance.size}개`
-        );
-
-        // 데이터가 있는 조직들 로깅
-        const orgNames = this.attendanceData.meetings
-          .filter((org) => organizationsWithAttendance.has(org.organizationId))
-          .map((org) => org.organizationName);
-        console.log("출석 데이터가 있는 조직들:", orgNames);
-
-        // 데이터가 없는 조직들 로깅
-        const orgNamesWithoutData = organizationsWithoutAttendance.map(
-          (org) => org.organizationName
-        );
-        console.log("출석 데이터가 없는 조직들:", orgNamesWithoutData);
-
         // 필터링된 데이터도 초기화 (조직 필터링은 handleOrganizationChange에서 수행)
         this.filteredMemberAttendanceData = [...this.memberAttendanceData];
       } catch (error) {
-        console.error("인원별 출결 데이터 준비 중 오류 발생:", error);
         this.memberAttendanceData = [];
         this.filteredMemberAttendanceData = [];
       }
@@ -1911,26 +1561,9 @@ export default {
 
     // 조직 선택 변경 처리
     handleOrganizationChange() {
-      console.log(
-        "%c🔴🎯 === 조직 선택 변경 처리 시작 ===",
-        "color: red; font-size: 16px; font-weight: bold;"
-      );
-      console.log(
-        `%c🔴🏢 선택된 조직 ID: ${this.selectedOrganization}`,
-        "color: red; font-size: 14px; font-weight: bold;"
-      );
-
       // 선택된 조직이 없으면 필터링된 데이터 초기화
       if (!this.selectedOrganization) {
-        console.log(
-          "%c🔴🔄 선택된 조직 없음, 모든 데이터 표시",
-          "color: red; font-size: 14px;"
-        );
         this.filteredMemberAttendanceData = [...this.memberAttendanceData];
-        console.log(
-          `%c🔴📊 필터링된 데이터 수: ${this.filteredMemberAttendanceData.length}명`,
-          "color: red; font-size: 14px; font-weight: bold;"
-        );
         return;
       }
 
@@ -1938,95 +1571,23 @@ export default {
       const selectedOrgIds = this.getSelectedAndChildOrganizationIds(
         this.selectedOrganization
       );
-      console.log(
-        "%c🔴📋 선택된 조직 및 하위 조직 IDs:",
-        "color: red; font-size: 14px; font-weight: bold;",
-        selectedOrgIds
-      );
-
-      // 선택된 조직 이름 찾기
-      const selectedOrgItem = this.organizationSelectItems.find(
-        (item) => item.value === this.selectedOrganization
-      );
-      console.log(
-        `%c🔴🏢 선택된 조직 이름: "${selectedOrgItem?.text || "이름 없음"}"`,
-        "color: red; font-size: 14px; font-weight: bold;"
-      );
-
-      // 전체 회원 데이터 확인
-      console.log(
-        `%c🔴👤 전체 회원 데이터 수: ${this.memberAttendanceData.length}명`,
-        "color: red; font-size: 14px; font-weight: bold;"
-      );
-
-      // 전체 회원 데이터에서 조직별 분포 확인
-      const orgDistribution = {};
-      this.memberAttendanceData.forEach((member) => {
-        if (!orgDistribution[member.organizationId]) {
-          orgDistribution[member.organizationId] = {
-            name: member.organizationName,
-            count: 0,
-          };
-        }
-        orgDistribution[member.organizationId].count++;
-      });
-      console.log(
-        "%c🔴📊 조직별 회원 분포:",
-        "color: red; font-size: 14px; font-weight: bold;",
-        orgDistribution
-      );
 
       // 데이터가 없으면 빈 배열 반환
       if (
         !this.memberAttendanceData ||
         this.memberAttendanceData.length === 0
       ) {
-        console.warn(
-          "%c🔴❌ 전체 회원 데이터가 없습니다!",
-          "color: red; font-size: 14px; background: yellow;"
-        );
         this.filteredMemberAttendanceData = [];
         return;
       }
 
       // 선택된 조직과 하위 조직에 속한 인원만 필터링
       const filtered = this.memberAttendanceData.filter((member) => {
-        const isIncluded = selectedOrgIds.includes(member.organizationId);
-        if (isIncluded) {
-          console.log(
-            `%c🔴✅ 포함된 회원: "${member.memberName}" (조직: ${member.organizationName})`,
-            "color: red; font-size: 12px;"
-          );
-        }
-        return isIncluded;
+        return selectedOrgIds.includes(member.organizationId);
       });
 
       // 반응성을 위해 새 배열로 할당
       this.filteredMemberAttendanceData = filtered;
-
-      // 최종 결과 로그
-      console.log(
-        "%c🔴🎯 === 조직 선택 변경 처리 완료 ===",
-        "color: red; font-size: 16px; font-weight: bold;"
-      );
-      console.log(
-        `%c🔴📊 필터링된 회원 수: ${this.filteredMemberAttendanceData.length}명`,
-        "color: red; font-size: 14px; font-weight: bold;"
-      );
-
-      const includedOrgs = [
-        ...new Set(filtered.map((m) => m.organizationName)),
-      ];
-      console.log(
-        "%c🔴🏢 포함된 조직들:",
-        "color: red; font-size: 14px; font-weight: bold;",
-        includedOrgs
-      );
-
-      console.log(
-        "%c🔴🎉 조직 선택 변경 처리 완전히 완료!",
-        "color: red; font-size: 16px; font-weight: bold; background: lightgreen;"
-      );
     },
 
     // 선택된 조직과 모든 하위 조직의 ID 목록 가져오기
@@ -2105,21 +1666,6 @@ export default {
         return;
       }
 
-      // 날짜 범위 로깅
-      console.log(
-        `선택된 날짜 범위: ${startDate.format("YYYY-MM-DD")} ~ ${endDate.format(
-          "YYYY-MM-DD"
-        )}`
-      );
-
-      // 범위가 너무 큰 경우 경고 (선택사항)
-      const daysDiff = endDate.diff(startDate, "days");
-      if (daysDiff > 60) {
-        console.warn(
-          `주의: 선택한 날짜 범위가 매우 큽니다 (${daysDiff}일). 성능에 영향을 줄 수 있습니다.`
-        );
-      }
-
       // 기간 선택 알림
       this.$root.$emit("showSnackbar", {
         text: `${startDate.format("YYYY년 MM월 DD일")}부터 ${endDate.format(
@@ -2138,10 +1684,6 @@ export default {
         // 비동기 처리로 UI 업데이트 및 데이터 필터링 분리
         setTimeout(() => {
           try {
-            console.log(
-              `원본 데이터에서 필터링: ${this.originalMeetingsData.length}개 조직`
-            );
-
             // 필터링 수행
             this.filterData();
 
@@ -2151,9 +1693,6 @@ export default {
 
               // 결과 확인
               if (this.meetingDates.length === 0) {
-                console.warn(
-                  "필터링 후 표시할 모임 날짜가 없습니다. 날짜 범위를 확인해주세요."
-                );
                 this.$root.$emit("showSnackbar", {
                   text: "선택한 기간에 해당하는 모임 데이터가 없습니다.",
                   color: "warning",
@@ -2162,7 +1701,6 @@ export default {
               }
             }, 100);
           } catch (error) {
-            console.error("데이터 필터링 중 오류 발생:", error);
             this.isLoading = false;
             this.$root.$emit("showSnackbar", {
               text: "데이터 필터링 중 오류가 발생했습니다.",
@@ -2173,14 +1711,12 @@ export default {
         }, 0);
       } else {
         // 원본 데이터가 없으면 전체 데이터 로드
-        console.log("원본 데이터 없음, 전체 데이터 로드 진행");
         this.initializeDashboard();
       }
     },
 
     // 대시보드 데이터 새로 불러오기 (전체 데이터 업데이트)
     refreshDashboardData() {
-      console.log("전체 데이터 업데이트 시작");
       this.isLoading = true;
       this.isDataCached = false; // 캐시 무효화
       this.cachedMeetings = []; // 캐시 데이터 초기화
@@ -2190,8 +1726,6 @@ export default {
 
     // 클라이언트 측 필터링 및 테이블 재생성
     async filterData() {
-      console.log("데이터 필터링 시작");
-
       // 단기 결석자 위험군 데이터 초기화
       this.absenceRiskData = {};
 
@@ -2199,18 +1733,12 @@ export default {
         // 선택된 날짜 범위 확인 - 정확한 시작/종료일 설정
         const startDate = moment(this.dateRange.start).startOf("day");
         const endDate = moment(this.dateRange.end).endOf("day"); // 종료일은 해당 일의 끝(23:59:59)까지 포함
-        console.log(
-          `필터링 날짜 범위: ${startDate.format(
-            "YYYY-MM-DD HH:mm:ss"
-          )} ~ ${endDate.format("YYYY-MM-DD HH:mm:ss")}`
-        );
 
         // 원본 데이터가 있는지 확인
         if (
           !this.originalMeetingsData ||
           this.originalMeetingsData.length === 0
         ) {
-          console.warn("필터링할 원본 데이터가 없습니다.");
           this.memberAttendanceData = [];
           this.filteredMemberAttendanceData = [];
           this.meetingDates = [];
@@ -2223,21 +1751,13 @@ export default {
         );
 
         // 날짜 범위에 맞게 필터링
-        let totalInstancesBefore = 0;
-        let totalInstancesAfter = 0;
-        let filteredDates = [];
-
         filteredMeetings.forEach((orgData) => {
           if (orgData.activities && orgData.activities.length > 0) {
             orgData.activities.forEach((activity) => {
               if (activity.instances && activity.instances.length > 0) {
-                // 필터링 전 인스턴스 수 집계
-                totalInstancesBefore += activity.instances.length;
-
                 // 날짜 범위 내 인스턴스만 필터링
                 activity.instances = activity.instances.filter((instance) => {
                   if (!instance.start_datetime) {
-                    console.log("날짜 정보가 없는 인스턴스 건너뜀");
                     return false;
                   }
 
@@ -2254,38 +1774,21 @@ export default {
                     ]);
                   }
 
-                  // 여전히 유효하지 않으면 건너뜀 (하지만 경고만 표시)
+                  // 여전히 유효하지 않으면 건너뜀
                   if (!instanceDate.isValid()) {
-                    console.warn(
-                      "유효하지 않은 날짜 (건너뜀):",
-                      instance.start_datetime
-                    );
                     return false;
                   }
 
                   // 정확한 비교를 위해 날짜만 비교
                   instanceDate = instanceDate.startOf("day");
-                  const dateStr = instanceDate.format("YYYY-MM-DD");
 
                   // 날짜 범위 비교 - inclusive
                   const isInRange =
                     instanceDate.isSameOrAfter(startDate) &&
                     instanceDate.isSameOrBefore(endDate);
 
-                  if (isInRange) {
-                    filteredDates.push(dateStr);
-                    if (instance.attendances) {
-                      console.log(
-                        `포함된 인스턴스: ${dateStr}, 참석자: ${instance.attendances.length}명`
-                      );
-                    }
-                  }
-
                   return isInRange;
                 });
-
-                // 필터링된 인스턴스 수 집계
-                totalInstancesAfter += activity.instances.length;
               }
             });
 
@@ -2304,73 +1807,12 @@ export default {
         // 필터링된 데이터를 attendanceData에 설정
         this.attendanceData.meetings = finalFilteredMeetings;
 
-        // 필터링 결과 요약
-        console.log(
-          `필터링 결과: 전체 ${totalInstancesBefore}개 중 ${totalInstancesAfter}개 인스턴스 포함`
-        );
-        console.log(
-          `포함된 날짜: ${[...new Set(filteredDates)].sort().join(", ")}`
-        );
-
         // 테이블 데이터 재구성 (중요)
-        console.log(
-          "%c🔴🎯 === 테이블 데이터 재구성 시작 ===",
-          "color: red; font-size: 16px; font-weight: bold;"
-        );
-
         this.prepareMeetingDates();
-        console.log(
-          "%c🔴✅ prepareMeetingDates 완료",
-          "color: red; font-size: 14px;"
-        );
-
         this.prepareOrganizationSelectItems();
-        console.log(
-          "%c🔴✅ prepareOrganizationSelectItems 완료",
-          "color: red; font-size: 14px;"
-        );
-
         await this.prepareMemberAttendanceData();
-        console.log(
-          "%c🔴✅ prepareMemberAttendanceData 완료",
-          "color: red; font-size: 14px;"
-        );
-
-        console.log(
-          "%c🔴🎯 === 테이블 데이터 재구성 완료 ===",
-          "color: red; font-size: 16px; font-weight: bold;"
-        );
-        console.log(
-          `%c🔴📊 재구성 후 상태:`,
-          "color: red; font-size: 14px; font-weight: bold;"
-        );
-        console.log(
-          `%c🔴📅   meetingDates: ${this.meetingDates.length}개`,
-          "color: red; font-size: 13px;"
-        );
-        console.log(
-          `%c🔴🏢   organizationSelectItems: ${this.organizationSelectItems.length}개`,
-          "color: red; font-size: 13px;"
-        );
-        console.log(
-          `%c🔴👤   memberAttendanceData: ${this.memberAttendanceData.length}명`,
-          "color: red; font-size: 13px;"
-        );
 
         // 조직 선택 적용 - 더 안전한 처리
-        console.log(
-          "%c🔴🎯 === 조직 선택 초기화 시작 ===",
-          "color: red; font-size: 15px; font-weight: bold;"
-        );
-        console.log(
-          `%c🔴🏢 현재 선택된 조직: ${this.selectedOrganization}`,
-          "color: red; font-size: 14px;"
-        );
-        console.log(
-          `%c🔴📊 사용 가능한 조직 수: ${this.organizationSelectItems.length}개`,
-          "color: red; font-size: 14px;"
-        );
-
         if (this.organizationSelectItems.length > 0) {
           // 현재 선택된 조직이 유효한지 확인
           const isCurrentSelectionValid =
@@ -2381,45 +1823,19 @@ export default {
 
           if (isCurrentSelectionValid) {
             // 이전 선택 유지
-            console.log(
-              `%c🔴✅ 이전 조직 선택 유지: ${this.selectedOrganization}`,
-              "color: red; font-size: 14px;"
-            );
             this.handleOrganizationChange();
           } else {
             // 기본 조직 선택 (첫 번째 조직)
             this.selectedOrganization = this.organizationSelectItems[0].value;
-            console.log(
-              `%c🔴🔄 기본 조직 선택: ${this.selectedOrganization} (${this.organizationSelectItems[0].text})`,
-              "color: red; font-size: 14px;"
-            );
             this.handleOrganizationChange();
           }
         } else {
-          console.warn(
-            "%c🔴❌ 선택 가능한 조직이 없습니다!",
-            "color: red; font-size: 14px; background: yellow;"
-          );
           this.selectedOrganization = null;
           this.filteredMemberAttendanceData = [];
         }
-
-        console.log(
-          `%c🔴🎉 필터링 완료: 전체 ${this.memberAttendanceData.length}명 중 ${this.filteredMemberAttendanceData.length}명 표시`,
-          "color: red; font-size: 14px; font-weight: bold; background: lightgreen;"
-        );
       } catch (error) {
-        console.error(
-          "%c🔴💥 데이터 필터링 중 치명적 오류:",
-          "color: red; font-size: 14px; font-weight: bold; background: pink;",
-          error
-        );
         // 오류 발생 시 원본 데이터라도 사용
         if (this.originalMeetingsData && this.originalMeetingsData.length > 0) {
-          console.log(
-            "%c🔴🔄 오류로 인해 원본 데이터 사용 시도",
-            "color: red; font-size: 14px;"
-          );
           this.attendanceData.meetings = JSON.parse(
             JSON.stringify(this.originalMeetingsData)
           );
@@ -2761,10 +2177,7 @@ export default {
 
         const blob = new Blob([buffer], { type: fileType });
         saveAs(blob, fileName);
-
-        console.log("엑셀 파일 생성 완료:", fileName);
       } catch (error) {
-        console.error("엑셀 파일 생성 중 오류 발생:", error);
         // 오류 알림 표시 (선택적)
         alert("엑셀 파일 생성 중 오류가 발생했습니다.");
       } finally {
@@ -2864,7 +2277,6 @@ export default {
 
         return riskMembers;
       } catch (error) {
-        console.error(`위험군 계산 중 오류 발생 (${worshipType}):`, error);
         return [];
       }
     },
@@ -2878,14 +2290,12 @@ export default {
 
     // 인원 연락처 호출 핸들러
     contactMember(member) {
-      console.log("인원 연락:", member);
       // 실제 구현에서는 연락처 정보 표시 또는 전화 연결 기능 구현
       alert(`${member.memberName} 인원에게 연락하기`);
     },
 
     // 인원 메시지 전송 핸들러
     sendMessage(member) {
-      console.log("인원 메시지:", member);
       // 실제 구현에서는 메시지 작성 및 전송 기능 구현
       alert(`${member.memberName} 인원에게 메시지 보내기`);
     },
