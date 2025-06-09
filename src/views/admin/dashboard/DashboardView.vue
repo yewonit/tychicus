@@ -285,11 +285,6 @@
                   >
                 </v-btn-toggle>
               </div>
-
-              <div v-if="lastDataUpdateTime" class="update-time">
-                <v-icon small class="mr-1">mdi-update</v-icon>
-                마지막 갱신: {{ lastDataUpdateTime }}
-              </div>
             </div>
           </v-card>
         </v-col>
@@ -375,7 +370,23 @@
                   mobile-breakpoint="0"
                 >
                   <template v-slot:[`item.memberName`]="{ item }">
-                    <div class="font-weight-medium">{{ item.memberName }}</div>
+                    <div
+                      :class="{
+                        'font-weight-medium': !item.isPlaceholder,
+                        'placeholder-member': item.isPlaceholder,
+                      }"
+                    >
+                      {{ item.memberName }}
+                      <v-chip
+                        v-if="item.isPlaceholder"
+                        x-small
+                        color="orange"
+                        text-color="white"
+                        class="ml-2"
+                      >
+                        데이터 없음
+                      </v-chip>
+                    </div>
                   </template>
 
                   <template v-slot:[`item.organizationName`]="{ item }">
@@ -593,7 +604,7 @@ export default {
 
       // 로딩 상태
       loadingProgress: 0,
-      loadingOperations: 4, // 주요 작업 4개로 변경
+      loadingOperations: 3, // 주요 작업 3개로 변경 (캐싱 제거)
       completedOperations: 0,
       loadingError: null,
       loadingStepText: "데이터 로딩 중...",
@@ -624,6 +635,9 @@ export default {
         },
       },
 
+      // 원본 데이터 보존을 위한 변수 (필터링용)
+      originalMeetingsData: [],
+
       // 예배 유형 정의
       meetingTypes: {
         SUNDAY_SERVICE_2: "주일2부예배",
@@ -651,11 +665,6 @@ export default {
         { text: "조직명", value: "organizationName", width: "280px" },
         { text: "인원명", value: "memberName", width: "150px" },
       ],
-
-      // 데이터 캐싱 관련
-      isDataCached: false,
-      cachedMeetings: [], // 전체 모임 데이터 캐시
-      lastDataUpdateTime: null, // 마지막 데이터 업데이트 시간
 
       // 단기 결석자 위험군 관련
       activeRiskTab: 0,
@@ -866,7 +875,7 @@ export default {
       }
       this.isLoading = true;
       this.loadingProgress = 0;
-      this.loadingOperations = 4; // 주요 작업 4개로 변경
+      this.loadingOperations = 3; // 주요 작업 3개로 변경 (캐싱 제거)
       this.completedOperations = 0;
       this.loadingError = null;
       this.loadingStepText = "데이터 초기화...";
@@ -878,52 +887,85 @@ export default {
         this.loadingDetails = "교회 조직 구조를 불러오고 있습니다";
         this.loadingProgress = 0;
         await this.fetchOrganizationsOnly();
-        this.loadingProgress = 25;
+        this.updateLoadingProgress();
 
-        // 데이터가 캐시되어 있지 않거나 새로고침 요청인 경우만 API에서 데이터 가져오기
-        if (
-          !this.isDataCached ||
-          !this.cachedMeetings ||
-          this.cachedMeetings.length === 0
-        ) {
-          // 2. 모임 정보 로딩
-          this.loadingStepText = "모임 정보 불러오는 중...";
-          this.loadingDetails = "각 조직의 모임 정보를 불러오고 있습니다";
-          await this.fetchAllMeetings();
-          this.loadingProgress = 50;
+        // 2. 모임 정보 로딩
+        this.loadingStepText = "모임 정보 불러오는 중...";
+        this.loadingDetails = "각 조직의 모임 정보를 불러오고 있습니다";
+        await this.fetchAllMeetings();
+        this.updateLoadingProgress();
 
-          // 3. 출석 데이터 로딩
-          this.loadingStepText = "출석 데이터 불러오는 중...";
-          this.loadingDetails = "모임별 출석 정보를 처리하고 있습니다";
-          await this.fetchAllAttendanceData();
-          this.loadingProgress = 75;
+        // 3. 출석 데이터 로딩 및 테이블 준비
+        this.loadingStepText = "출석 데이터 처리 중...";
+        this.loadingDetails = "모임별 출석 정보를 처리하고 있습니다";
+        await this.fetchAllAttendanceData();
+        this.updateLoadingProgress();
 
-          // 캐시 저장
-          this.cachedMeetings = JSON.parse(
-            JSON.stringify(this.attendanceData.meetings)
-          );
-          this.isDataCached = true;
-          this.lastDataUpdateTime = moment().format("YYYY-MM-DD HH:mm:ss");
-          console.log("캐시 데이터 저장 완료:", this.cachedMeetings.length);
-        } else {
-          // 캐시된 데이터 사용
-          this.loadingStepText = "캐시된 데이터 처리 중...";
-          this.loadingDetails = "저장된 데이터를 필터링하고 있습니다";
-          console.log("캐시 데이터 사용:", this.cachedMeetings.length);
-          this.attendanceData.meetings = JSON.parse(
-            JSON.stringify(this.cachedMeetings)
-          );
-          this.loadingProgress = 75;
-        }
-
-        // 4. 데이터 테이블 준비
+        // 데이터 테이블 준비
         this.loadingStepText = "데이터 테이블 생성 중...";
         this.loadingDetails = "출석 데이터 테이블을 준비하고 있습니다";
-        this.filterData();
+        await this.filterData();
 
-        // 기본 조직 선택 (filterData에서 처리되므로 여기선 생략)
         this.loadingStepText = "데이터 로딩 완료!";
         this.loadingDetails = "대시보드를 준비하고 있습니다";
+
+        // 🔴🎉 최종 완료 로그
+        console.log(
+          "%c🔴🎉 === 대시보드 초기화 완전히 완료! ===",
+          "color: red; font-size: 18px; font-weight: bold; background: lightgreen;"
+        );
+        console.log(
+          `%c🔴📊 최종 상태 요약:`,
+          "color: red; font-size: 16px; font-weight: bold;"
+        );
+        console.log(
+          `%c🔴🏢   조직 수: ${this.organizations.length}개`,
+          "color: red; font-size: 14px;"
+        );
+        console.log(
+          `%c🔴📅   모임 날짜: ${this.meetingDates.length}개`,
+          "color: red; font-size: 14px;"
+        );
+        console.log(
+          `%c🔴🎭   attendanceData.meetings: ${this.attendanceData.meetings.length}개`,
+          "color: red; font-size: 14px;"
+        );
+        console.log(
+          `%c🔴👤   전체 회원: ${this.memberAttendanceData.length}명`,
+          "color: red; font-size: 14px;"
+        );
+        console.log(
+          `%c🔴🎯   화면 표시 회원: ${this.filteredMemberAttendanceData.length}명`,
+          "color: red; font-size: 14px;"
+        );
+        console.log(
+          `%c🔴📋   드롭다운 조직: ${this.organizationSelectItems.length}개`,
+          "color: red; font-size: 14px;"
+        );
+        console.log(
+          `%c🔴✅   선택된 조직: ${this.selectedOrganization}`,
+          "color: red; font-size: 14px;"
+        );
+
+        // 각 조직별 상태 확인
+        console.log(
+          "%c🔴📋 드롭다운에 표시되는 조직들:",
+          "color: red; font-size: 15px; font-weight: bold;"
+        );
+        this.organizationSelectItems.forEach((item, index) => {
+          const hasMembers = this.memberAttendanceData.some(
+            (member) => member.organizationId === item.value
+          );
+          const memberCount = this.memberAttendanceData.filter(
+            (member) => member.organizationId === item.value
+          ).length;
+          console.log(
+            `%c🔴🏢 [${index + 1}] ID:${item.value} "${
+              item.text
+            }" → 회원 ${memberCount}명 ${hasMembers ? "✅" : "❌"}`,
+            "color: red; font-size: 12px;"
+          );
+        });
       } catch (error) {
         console.error("대시보드 초기화 중 오류 발생:", error);
         this.loadingError =
@@ -962,11 +1004,40 @@ export default {
           organizations = this.getDummyOrganizations();
         }
 
+        // 🔴🏢 조직 정보 로딩 완료 로그
+        console.log(
+          "%c🔴🏢 === 조직 정보 로딩 완료 ===",
+          "color: red; font-size: 16px; font-weight: bold;"
+        );
+        console.log(
+          `%c🔴📊 전체 조직 수: ${organizations.length}개`,
+          "color: red; font-size: 14px; font-weight: bold;"
+        );
+
+        organizations.forEach((org, index) => {
+          console.log(
+            `%c🔴🏢 조직 ${index + 1}: ID=${org.id}, 이름="${
+              org.organization_name
+            }", 상위조직=${org.upper_organization_id || "없음"}`,
+            "color: red; font-size: 12px;"
+          );
+        });
+
         // 모든 조직 데이터 사용
         this.organizations = organizations;
         this.updateLoadingProgress();
+
+        // 🔴✅ 조직 저장 완료 로그
+        console.log(
+          "%c🔴✅ 조직 정보 this.organizations에 저장 완료!",
+          "color: red; font-size: 14px; font-weight: bold;"
+        );
       } catch (error) {
-        console.error("조직 정보 가져오기 오류:", error);
+        console.error(
+          "%c🔴❌ 조직 정보 가져오기 오류:",
+          "color: red; font-size: 14px; font-weight: bold;",
+          error
+        );
         // 오류 발생 시 더미 데이터 사용
         this.organizations = this.getDummyOrganizations();
         this.updateLoadingProgress();
@@ -1022,21 +1093,21 @@ export default {
 
     // 모든 조직의 모임 정보 가져오기
     async fetchAllMeetings() {
+      console.log(
+        "%c🔴🎯 === 모임 정보 로딩 시작 ===",
+        "color: red; font-size: 16px; font-weight: bold;"
+      );
+
       this.attendanceData.meetings = []; // 기존 데이터 초기화
+      const failedOrganizations = []; // 실패한 조직 추적
 
       const totalOrganizations = this.organizations.length;
       let processedCount = 0;
 
-      // 세부 진행률 계산 함수
-      const updateDetailedProgress = (current, total) => {
-        // 25%에서 50%까지의 진행률 계산
-        const baseProgress = 25;
-        const maxProgress = 50;
-        const additionalProgress = Math.round(
-          (current / total) * (maxProgress - baseProgress)
-        );
-        this.loadingProgress = baseProgress + additionalProgress;
-      };
+      console.log(
+        `%c🔴📋 처리할 조직 수: ${totalOrganizations}개`,
+        "color: red; font-size: 14px; font-weight: bold;"
+      );
 
       // 모든 조직의 모임 데이터를 하나씩 가져오기
       for (const org of this.organizations) {
@@ -1045,10 +1116,13 @@ export default {
           const progressPercent = Math.round(
             (processedCount / totalOrganizations) * 100
           );
-          this.loadingDetails = `조직 정보 처리 중 (${processedCount}/${totalOrganizations}, ${progressPercent}%): ${org.organization_name}`;
 
-          // 세부 진행률 업데이트
-          updateDetailedProgress(processedCount, totalOrganizations);
+          console.log(
+            `%c🔴🏢 [${processedCount}/${totalOrganizations}] 조직 처리 중: "${org.organization_name}" (ID: ${org.id})`,
+            "color: red; font-size: 13px; font-weight: bold;"
+          );
+
+          this.loadingDetails = `조직 정보 처리 중 (${processedCount}/${totalOrganizations}, ${progressPercent}%): ${org.organization_name}`;
 
           // 조직 경로 찾기
           const orgPath = this.findOrganizationPath(org.id);
@@ -1056,24 +1130,42 @@ export default {
           // API에서 모임 정보 가져오기
           const response = await this.getOrganizationActivities(org.id, true);
 
-          // 응답 데이터 처리
+          // 응답 데이터 처리 - 더 유연한 처리
           let activities = [];
-          if (
-            response &&
-            response.activities &&
-            Array.isArray(response.activities)
-          ) {
-            activities = response.activities;
-          } else if (Array.isArray(response)) {
-            activities = response;
-          } else {
-            continue; // 처리할 수 없는 형식일 경우 건너뜀
+          if (response) {
+            if (response.activities && Array.isArray(response.activities)) {
+              activities = response.activities;
+            } else if (Array.isArray(response)) {
+              activities = response;
+            } else if (response.data && Array.isArray(response.data)) {
+              activities = response.data;
+            }
           }
 
-          // 활동 개수 로깅
           console.log(
-            `조직 ${org.organization_name}의 활동 수: ${activities.length}`
+            `%c🔴📊 조직 "${org.organization_name}"의 활동 수: ${activities.length}개`,
+            "color: red; font-size: 12px;"
           );
+
+          // 각 활동 상세 정보 로그
+          if (activities.length > 0) {
+            activities.forEach((activity, idx) => {
+              const instanceCount = activity.instances
+                ? activity.instances.length
+                : 0;
+              console.log(
+                `%c🔴🎪   활동 ${idx + 1}: "${
+                  activity.name || "이름없음"
+                }" (인스턴스: ${instanceCount}개)`,
+                "color: red; font-size: 11px;"
+              );
+            });
+          } else {
+            console.log(
+              `%c🔴⚠️   조직 "${org.organization_name}"에 활동이 없습니다!`,
+              "color: red; font-size: 12px; background: yellow;"
+            );
+          }
 
           // 모든 활동을 가공 (날짜 필터링은 나중에 수행)
           const processedActivities = activities.map((activity) => {
@@ -1097,9 +1189,8 @@ export default {
                 return "날짜 없음";
               });
               console.log(
-                `활동 "${
-                  activity.name || "이름 없음"
-                }"의 인스턴스 날짜: ${instanceDates.join(", ")}`
+                `%c🔴📅     인스턴스 날짜: ${instanceDates.join(", ")}`,
+                "color: red; font-size: 10px;"
               );
             }
 
@@ -1131,17 +1222,83 @@ export default {
               organizationPath: orgPath,
               activities: processedActivities,
             });
+            console.log(
+              `%c🔴✅ 조직 "${org.organization_name}" 추가 완료 (활동 ${processedActivities.length}개)`,
+              "color: red; font-size: 12px;"
+            );
+          } else {
+            // 활동이 없는 조직도 빈 배열로 추가하여 추적
+            this.attendanceData.meetings.push({
+              organizationId: org.id,
+              organizationName: org.organization_name,
+              organizationPath: orgPath,
+              activities: [],
+            });
+            console.log(
+              `%c🔴⚠️ 조직 "${org.organization_name}" 추가 (활동 없음)`,
+              "color: red; font-size: 12px; background: yellow;"
+            );
           }
         } catch (error) {
           console.error(
-            `${org.organization_name}의 모임 정보 가져오기 실패:`,
+            `%c🔴❌ 조직 "${org.organization_name}"의 모임 정보 가져오기 실패:`,
+            "color: red; font-size: 12px; font-weight: bold;",
             error
           );
+          // 실패한 조직 추가
+          failedOrganizations.push(org.organization_name);
+
+          // 실패해도 빈 조직 정보는 추가하여 구조 유지
+          this.attendanceData.meetings.push({
+            organizationId: org.id,
+            organizationName: org.organization_name,
+            organizationPath: this.findOrganizationPath(org.id),
+            activities: [],
+          });
         }
       }
 
-      this.loadingDetails = "모임 데이터 구조화 중...";
-      this.updateLoadingProgress();
+      // 최종 결과 로그
+      console.log(
+        "%c🔴🎯 === 모임 정보 로딩 완료 ===",
+        "color: red; font-size: 16px; font-weight: bold;"
+      );
+      console.log(
+        `%c🔴📊 최종 attendanceData.meetings 수: ${this.attendanceData.meetings.length}개`,
+        "color: red; font-size: 14px; font-weight: bold;"
+      );
+
+      // 각 조직별 최종 상태 로그
+      this.attendanceData.meetings.forEach((orgData, index) => {
+        console.log(
+          `%c🔴🏢 [${index + 1}] "${orgData.organizationName}": 활동 ${
+            orgData.activities.length
+          }개`,
+          "color: red; font-size: 12px;"
+        );
+      });
+
+      // 실패한 조직이 있으면 경고 표시
+      if (failedOrganizations.length > 0) {
+        console.warn(
+          `%c🔴❌ 일부 조직의 모임 정보 로딩 실패: ${failedOrganizations.join(
+            ", "
+          )}`,
+          "color: red; font-size: 14px; background: yellow;"
+        );
+        this.loadingDetails = `모임 데이터 구조화 중... (${failedOrganizations.length}개 조직 실패)`;
+      } else {
+        this.loadingDetails = "모임 데이터 구조화 중...";
+      }
+
+      // 원본 데이터 보존
+      this.originalMeetingsData = JSON.parse(
+        JSON.stringify(this.attendanceData.meetings)
+      );
+      console.log(
+        "%c🔴💾 원본 데이터 백업 완료!",
+        "color: red; font-size: 14px; font-weight: bold;"
+      );
     },
 
     // 모든 모임의 출석 데이터 가져오기
@@ -1149,24 +1306,11 @@ export default {
       const totalOrgs = this.attendanceData.meetings.length;
       let processedOrgs = 0;
 
-      // 출석 데이터 로딩의 세부 진행률 계산 (50%에서 시작하여 75%까지 진행)
-      const updateDetailedProgress = (current, total) => {
-        const baseProgress = 50;
-        const maxProgress = 75;
-        const additionalProgress = Math.round(
-          (current / total) * (maxProgress - baseProgress)
-        );
-        this.loadingProgress = baseProgress + additionalProgress;
-      };
-
       // 모든 모임을 순회하며 출석 데이터 처리
       for (const orgData of this.attendanceData.meetings) {
         processedOrgs++;
         const progressPercent = Math.round((processedOrgs / totalOrgs) * 100);
         this.loadingDetails = `출석 데이터 처리 중 (${processedOrgs}/${totalOrgs}, ${progressPercent}%): ${orgData.organizationName}`;
-
-        // 세부 진행률 업데이트
-        updateDetailedProgress(processedOrgs, totalOrgs);
 
         // 각 활동의 출석 정보 처리 - 날짜 범위 필터링은 하지 않음
         for (const activity of orgData.activities) {
@@ -1231,12 +1375,20 @@ export default {
         }
       }
 
-      this.updateLoadingProgress();
       console.log("모든 출석 데이터 로딩 완료");
     },
 
     // 조직 선택 드롭다운 아이템 준비
     prepareOrganizationSelectItems() {
+      console.log(
+        "%c🔴🎯 === 조직 선택 아이템 준비 시작 ===",
+        "color: red; font-size: 16px; font-weight: bold;"
+      );
+      console.log(
+        `%c🔴📊 flattenedOrganizations 수: ${this.flattenedOrganizations.length}개`,
+        "color: red; font-size: 14px; font-weight: bold;"
+      );
+
       this.organizationSelectItems = this.flattenedOrganizations.map((org) => {
         // 들여쓰기를 위한 공백 추가
         const indent = "　".repeat(org.level);
@@ -1245,6 +1397,22 @@ export default {
           value: org.id,
         };
       });
+
+      console.log(
+        "%c🔴📋 조직 선택 아이템 목록:",
+        "color: red; font-size: 14px; font-weight: bold;"
+      );
+      this.organizationSelectItems.forEach((item, index) => {
+        console.log(
+          `%c🔴🏢 [${index + 1}] ID: ${item.value}, 텍스트: "${item.text}"`,
+          "color: red; font-size: 12px;"
+        );
+      });
+
+      console.log(
+        `%c🔴✅ 조직 선택 아이템 준비 완료! 총 ${this.organizationSelectItems.length}개`,
+        "color: red; font-size: 14px; font-weight: bold;"
+      );
     },
 
     // 예배 일자 목록 준비
@@ -1397,8 +1565,11 @@ export default {
     },
 
     // 인원별 출결 데이터 준비
-    prepareMemberAttendanceData() {
-      console.log("인원별 출결 데이터 준비 시작");
+    async prepareMemberAttendanceData() {
+      console.log(
+        "%c🔴🎯 === 인원별 출결 데이터 준비 시작 ===",
+        "color: red; font-size: 16px; font-weight: bold;"
+      );
       const memberMap = new Map();
 
       try {
@@ -1407,29 +1578,50 @@ export default {
           !this.attendanceData.meetings ||
           this.attendanceData.meetings.length === 0
         ) {
-          console.warn("출결 데이터를 준비할 모임 정보가 없습니다.");
+          console.warn(
+            "%c🔴❌ 출결 데이터를 준비할 모임 정보가 없습니다!",
+            "color: red; font-size: 14px; background: yellow;"
+          );
           this.memberAttendanceData = [];
           this.filteredMemberAttendanceData = [];
           return;
         }
 
         console.log(
-          `조직 수: ${this.attendanceData.meetings.length}, 모임 날짜 수: ${this.meetingDates.length}`
+          `%c🔴📊 처리할 조직 수: ${this.attendanceData.meetings.length}개, 모임 날짜 수: ${this.meetingDates.length}개`,
+          "color: red; font-size: 14px; font-weight: bold;"
         );
 
         // 모임 날짜 정보 확인
         if (this.meetingDates.length === 0) {
-          console.warn("표시할 모임 날짜 정보가 없습니다.");
+          console.warn(
+            "%c🔴❌ 표시할 모임 날짜 정보가 없습니다!",
+            "color: red; font-size: 14px; background: yellow;"
+          );
           this.memberAttendanceData = [];
           this.filteredMemberAttendanceData = [];
           return;
         }
 
-        // 모든 조직 순회
+        // 출석 데이터가 있는 조직들과 없는 조직들 추적
+        const organizationsWithAttendance = new Set();
+        const organizationsWithoutAttendance = [];
+
+        // 1단계: 출석 데이터가 있는 조직들 처리
         this.attendanceData.meetings.forEach((orgData) => {
+          console.log(
+            `조직 ${orgData.organizationName} 처리 시작 - 활동 수: ${
+              orgData.activities?.length || 0
+            }`
+          );
+
           if (!orgData.activities || orgData.activities.length === 0) {
+            console.log(`조직 ${orgData.organizationName}에 활동이 없습니다.`);
+            organizationsWithoutAttendance.push(orgData);
             return;
           }
+
+          let orgHasData = false;
 
           // 각 활동 순회
           orgData.activities.forEach((activity) => {
@@ -1442,7 +1634,8 @@ export default {
               if (
                 !instance.start_datetime ||
                 !instance.attendances ||
-                !Array.isArray(instance.attendances)
+                !Array.isArray(instance.attendances) ||
+                instance.attendances.length === 0
               ) {
                 return;
               }
@@ -1451,32 +1644,64 @@ export default {
                 "YYYY-MM-DD"
               );
 
-              // 해당 인스턴스가 meetingDates에 있는지 확인
-              const meetingIndex = this.meetingDates.findIndex(
+              // 해당 인스턴스가 meetingDates에 있는지 확인 - 더 유연한 매칭
+              let meetingIndex = this.meetingDates.findIndex(
                 (m) =>
                   m.date === instanceDate && m.type === activity.meetingType
               );
 
+              // 정확한 매칭이 안되면 날짜만으로 매칭 시도
               if (meetingIndex === -1) {
-                return; // 매칭되는 모임이 없으면 건너뜀
+                meetingIndex = this.meetingDates.findIndex(
+                  (m) => m.date === instanceDate
+                );
+
+                if (meetingIndex !== -1) {
+                  console.log(
+                    `날짜만으로 매칭됨: ${instanceDate}, 예상 타입: ${activity.meetingType}, 실제 타입: ${this.meetingDates[meetingIndex].type}`
+                  );
+                }
               }
 
-              // 각 출석 정보 처리
+              // 여전히 매칭되지 않으면 건너뜀
+              if (meetingIndex === -1) {
+                console.log(
+                  `매칭되지 않는 인스턴스 (건너뜀): ${instanceDate}, 타입: ${activity.meetingType}`
+                );
+                return;
+              }
+
+              // 각 출석 정보 처리 - 더 유연한 처리
               instance.attendances.forEach((attendance) => {
-                if (!attendance.userId || !attendance.userName) {
+                // userId나 userName 중 하나라도 있으면 처리
+                const userId =
+                  attendance.userId || attendance.user_id || attendance.id;
+                const userName =
+                  attendance.userName ||
+                  attendance.user_name ||
+                  attendance.name ||
+                  "이름없음";
+
+                if (!userId && !userName) {
+                  console.log(
+                    "유효한 사용자 정보가 없는 출석 데이터 건너뜀:",
+                    attendance
+                  );
                   return;
                 }
 
-                const userId = attendance.userId;
-                const memberKey = `${userId}_${orgData.organizationId}`;
+                // userId가 없으면 userName을 키로 사용
+                const memberKey = userId
+                  ? `${userId}_${orgData.organizationId}`
+                  : `${userName}_${orgData.organizationId}`;
 
                 // 새 멤버 정보 생성 또는 기존 정보 가져오기
                 let memberData = memberMap.get(memberKey);
 
                 if (!memberData) {
                   memberData = {
-                    userId,
-                    memberName: attendance.userName,
+                    userId: userId || userName, // userId가 없으면 userName 사용
+                    memberName: userName,
                     organizationId: orgData.organizationId,
                     organizationName: orgData.organizationName,
                   };
@@ -1487,16 +1712,171 @@ export default {
                   });
                 }
 
-                // 해당 모임의 출석 상태 설정
+                // 해당 모임의 출석 상태 설정 - 문법 오류 수정
+                const status =
+                  attendance.status || attendance.attendance_status || "";
                 memberData[`meeting_${meetingIndex}`] =
-                  attendance.status === "출석" ? "O" : "X";
+                  status === "출석" ||
+                  status === "PRESENT" ||
+                  status === "present"
+                    ? "O"
+                    : "X";
 
                 // 멤버 맵에 저장
                 memberMap.set(memberKey, memberData);
+                orgHasData = true;
               });
             });
           });
+
+          if (orgHasData) {
+            organizationsWithAttendance.add(orgData.organizationId);
+            console.log(
+              `조직 ${orgData.organizationName}에서 출석 데이터 발견`
+            );
+          } else {
+            console.log(
+              `조직 ${orgData.organizationName}에 활동은 있지만 출석 데이터가 없습니다.`
+            );
+            organizationsWithoutAttendance.push(orgData);
+          }
         });
+
+        // 2단계: 출석 데이터가 없는 조직들 처리 - 조직 정보만이라도 표시
+        console.log(
+          `출석 데이터가 없는 조직 수: ${organizationsWithoutAttendance.length}`
+        );
+
+        for (const orgData of organizationsWithoutAttendance) {
+          console.log(
+            `출석 데이터 없는 조직 처리: ${orgData.organizationName}`
+          );
+
+          // 해당 조직에 대한 기본 멤버 정보 생성 (조직 표시용)
+          const placeholderKey = `placeholder_${orgData.organizationId}`;
+
+          // 이미 해당 조직의 데이터가 있는지 확인
+          const hasExistingMembers = Array.from(memberMap.values()).some(
+            (member) => member.organizationId === orgData.organizationId
+          );
+
+          if (!hasExistingMembers) {
+            // 조직의 회원 목록을 가져오려고 시도
+            try {
+              console.log(
+                `조직 ${orgData.organizationName}의 회원 목록 조회 시도...`
+              );
+
+              // 회원 목록 API 호출 시도 (있다면)
+              let members = [];
+              if (
+                this.getOrganizationMembers &&
+                typeof this.getOrganizationMembers === "function"
+              ) {
+                try {
+                  const membersResponse = await this.getOrganizationMembers(
+                    orgData.organizationId
+                  );
+                  if (
+                    membersResponse &&
+                    membersResponse.data &&
+                    Array.isArray(membersResponse.data)
+                  ) {
+                    members = membersResponse.data;
+                  } else if (Array.isArray(membersResponse)) {
+                    members = membersResponse;
+                  }
+                  console.log(
+                    `조직 ${orgData.organizationName}의 회원 수: ${members.length}명`
+                  );
+                } catch (memberError) {
+                  console.warn(
+                    `조직 ${orgData.organizationName}의 회원 목록 조회 실패:`,
+                    memberError
+                  );
+                }
+              }
+
+              if (members.length > 0) {
+                // 실제 회원이 있는 경우, 각 회원을 추가
+                members.forEach((member, index) => {
+                  const memberKey = `${
+                    member.user_id ||
+                    member.id ||
+                    `${orgData.organizationId}_${index}`
+                  }_${orgData.organizationId}`;
+                  const memberName =
+                    member.user_name ||
+                    member.name ||
+                    member.username ||
+                    `회원${index + 1}`;
+
+                  const memberData = {
+                    userId:
+                      member.user_id ||
+                      member.id ||
+                      `${orgData.organizationId}_${index}`,
+                    memberName: memberName,
+                    organizationId: orgData.organizationId,
+                    organizationName: orgData.organizationName,
+                    hasNoAttendanceData: true, // 출석 데이터가 없음을 표시
+                  };
+
+                  // 모든 모임 날짜에 대해 'X' 설정
+                  this.meetingDates.forEach((_, idx) => {
+                    memberData[`meeting_${idx}`] = "X";
+                  });
+
+                  memberMap.set(memberKey, memberData);
+                });
+
+                console.log(
+                  `조직 ${orgData.organizationName}: ${members.length}명의 회원 추가 (출석 데이터 없음)`
+                );
+              } else {
+                // 회원 목록도 없는 경우 플레이스홀더 생성
+                const placeholderMember = {
+                  userId: `placeholder_${orgData.organizationId}`,
+                  memberName: `${orgData.organizationName}`,
+                  organizationId: orgData.organizationId,
+                  organizationName: orgData.organizationName,
+                  isPlaceholder: true, // 플레이스홀더임을 표시
+                };
+
+                // 모든 모임 날짜에 대해 'X' 설정
+                this.meetingDates.forEach((_, idx) => {
+                  placeholderMember[`meeting_${idx}`] = "X";
+                });
+
+                memberMap.set(placeholderKey, placeholderMember);
+                console.log(`플레이스홀더 생성: ${orgData.organizationName}`);
+              }
+            } catch (error) {
+              console.warn(
+                `조직 ${orgData.organizationName} 처리 중 오류:`,
+                error
+              );
+
+              // 오류 발생 시에도 플레이스홀더는 생성
+              const placeholderMember = {
+                userId: `placeholder_${orgData.organizationId}`,
+                memberName: `${orgData.organizationName}`,
+                organizationId: orgData.organizationId,
+                organizationName: orgData.organizationName,
+                isPlaceholder: true,
+              };
+
+              this.meetingDates.forEach((_, idx) => {
+                placeholderMember[`meeting_${idx}`] = "X";
+              });
+
+              memberMap.set(placeholderKey, placeholderMember);
+              console.log(
+                `오류로 인한 플레이스홀더 생성: ${orgData.organizationName}`
+              );
+            }
+          }
+        }
 
         // 맵에서 배열로 변환
         this.memberAttendanceData = Array.from(memberMap.values());
@@ -1504,6 +1884,21 @@ export default {
         console.log(
           `인원별 출결 데이터 준비 완료: ${this.memberAttendanceData.length}명`
         );
+        console.log(
+          `출석 데이터가 있는 조직 수: ${organizationsWithAttendance.size}개`
+        );
+
+        // 데이터가 있는 조직들 로깅
+        const orgNames = this.attendanceData.meetings
+          .filter((org) => organizationsWithAttendance.has(org.organizationId))
+          .map((org) => org.organizationName);
+        console.log("출석 데이터가 있는 조직들:", orgNames);
+
+        // 데이터가 없는 조직들 로깅
+        const orgNamesWithoutData = organizationsWithoutAttendance.map(
+          (org) => org.organizationName
+        );
+        console.log("출석 데이터가 없는 조직들:", orgNamesWithoutData);
 
         // 필터링된 데이터도 초기화 (조직 필터링은 handleOrganizationChange에서 수행)
         this.filteredMemberAttendanceData = [...this.memberAttendanceData];
@@ -1516,12 +1911,26 @@ export default {
 
     // 조직 선택 변경 처리
     handleOrganizationChange() {
-      console.log("조직 선택 변경:", this.selectedOrganization);
+      console.log(
+        "%c🔴🎯 === 조직 선택 변경 처리 시작 ===",
+        "color: red; font-size: 16px; font-weight: bold;"
+      );
+      console.log(
+        `%c🔴🏢 선택된 조직 ID: ${this.selectedOrganization}`,
+        "color: red; font-size: 14px; font-weight: bold;"
+      );
 
       // 선택된 조직이 없으면 필터링된 데이터 초기화
       if (!this.selectedOrganization) {
-        console.log("선택된 조직 없음, 모든 데이터 표시");
+        console.log(
+          "%c🔴🔄 선택된 조직 없음, 모든 데이터 표시",
+          "color: red; font-size: 14px;"
+        );
         this.filteredMemberAttendanceData = [...this.memberAttendanceData];
+        console.log(
+          `%c🔴📊 필터링된 데이터 수: ${this.filteredMemberAttendanceData.length}명`,
+          "color: red; font-size: 14px; font-weight: bold;"
+        );
         return;
       }
 
@@ -1529,31 +1938,94 @@ export default {
       const selectedOrgIds = this.getSelectedAndChildOrganizationIds(
         this.selectedOrganization
       );
-      console.log("선택된 조직 및 하위 조직 IDs:", selectedOrgIds);
+      console.log(
+        "%c🔴📋 선택된 조직 및 하위 조직 IDs:",
+        "color: red; font-size: 14px; font-weight: bold;",
+        selectedOrgIds
+      );
+
+      // 선택된 조직 이름 찾기
+      const selectedOrgItem = this.organizationSelectItems.find(
+        (item) => item.value === this.selectedOrganization
+      );
+      console.log(
+        `%c🔴🏢 선택된 조직 이름: "${selectedOrgItem?.text || "이름 없음"}"`,
+        "color: red; font-size: 14px; font-weight: bold;"
+      );
 
       // 전체 회원 데이터 확인
-      console.log("전체 회원 데이터:", this.memberAttendanceData.length);
+      console.log(
+        `%c🔴👤 전체 회원 데이터 수: ${this.memberAttendanceData.length}명`,
+        "color: red; font-size: 14px; font-weight: bold;"
+      );
+
+      // 전체 회원 데이터에서 조직별 분포 확인
+      const orgDistribution = {};
+      this.memberAttendanceData.forEach((member) => {
+        if (!orgDistribution[member.organizationId]) {
+          orgDistribution[member.organizationId] = {
+            name: member.organizationName,
+            count: 0,
+          };
+        }
+        orgDistribution[member.organizationId].count++;
+      });
+      console.log(
+        "%c🔴📊 조직별 회원 분포:",
+        "color: red; font-size: 14px; font-weight: bold;",
+        orgDistribution
+      );
 
       // 데이터가 없으면 빈 배열 반환
       if (
         !this.memberAttendanceData ||
         this.memberAttendanceData.length === 0
       ) {
+        console.warn(
+          "%c🔴❌ 전체 회원 데이터가 없습니다!",
+          "color: red; font-size: 14px; background: yellow;"
+        );
         this.filteredMemberAttendanceData = [];
         return;
       }
 
       // 선택된 조직과 하위 조직에 속한 인원만 필터링
-      const filtered = this.memberAttendanceData.filter((member) =>
-        selectedOrgIds.includes(member.organizationId)
-      );
+      const filtered = this.memberAttendanceData.filter((member) => {
+        const isIncluded = selectedOrgIds.includes(member.organizationId);
+        if (isIncluded) {
+          console.log(
+            `%c🔴✅ 포함된 회원: "${member.memberName}" (조직: ${member.organizationName})`,
+            "color: red; font-size: 12px;"
+          );
+        }
+        return isIncluded;
+      });
 
       // 반응성을 위해 새 배열로 할당
       this.filteredMemberAttendanceData = filtered;
 
+      // 최종 결과 로그
       console.log(
-        "필터링된 회원 데이터:",
-        this.filteredMemberAttendanceData.length
+        "%c🔴🎯 === 조직 선택 변경 처리 완료 ===",
+        "color: red; font-size: 16px; font-weight: bold;"
+      );
+      console.log(
+        `%c🔴📊 필터링된 회원 수: ${this.filteredMemberAttendanceData.length}명`,
+        "color: red; font-size: 14px; font-weight: bold;"
+      );
+
+      const includedOrgs = [
+        ...new Set(filtered.map((m) => m.organizationName)),
+      ];
+      console.log(
+        "%c🔴🏢 포함된 조직들:",
+        "color: red; font-size: 14px; font-weight: bold;",
+        includedOrgs
+      );
+
+      console.log(
+        "%c🔴🎉 조직 선택 변경 처리 완전히 완료!",
+        "color: red; font-size: 16px; font-weight: bold; background: lightgreen;"
       );
     },
 
@@ -1657,12 +2129,8 @@ export default {
         timeout: 3000,
       });
 
-      // 캐싱된 데이터 필터링
-      if (
-        this.isDataCached &&
-        this.cachedMeetings &&
-        this.cachedMeetings.length > 0
-      ) {
+      // 원본 데이터가 있으면 필터링만 수행, 없으면 전체 데이터 로드
+      if (this.originalMeetingsData && this.originalMeetingsData.length > 0) {
         // 로딩 상태 표시
         this.isLoading = true;
         this.loadingStepText = "데이터 필터링 중...";
@@ -1671,26 +2139,8 @@ export default {
         setTimeout(() => {
           try {
             console.log(
-              `캐시된 데이터 복원: ${this.cachedMeetings.length}개 조직`
+              `원본 데이터에서 필터링: ${this.originalMeetingsData.length}개 조직`
             );
-
-            // 깊은 복사로 캐시된 데이터 복원 (Vue의 반응성 유지)
-            this.attendanceData.meetings = JSON.parse(
-              JSON.stringify(this.cachedMeetings)
-            );
-
-            // 캐시 복원 후 데이터 확인
-            let totalInstances = 0;
-            this.attendanceData.meetings.forEach((org) => {
-              if (org.activities) {
-                org.activities.forEach((act) => {
-                  if (act.instances) {
-                    totalInstances += act.instances.length;
-                  }
-                });
-              }
-            });
-            console.log(`복원된 데이터의 총 인스턴스 수: ${totalInstances}`);
 
             // 필터링 수행
             this.filterData();
@@ -1722,8 +2172,8 @@ export default {
           }
         }, 0);
       } else {
-        // 캐시가 없으면 전체 데이터 로드
-        console.log("캐시된 데이터 없음, 초기화 진행");
+        // 원본 데이터가 없으면 전체 데이터 로드
+        console.log("원본 데이터 없음, 전체 데이터 로드 진행");
         this.initializeDashboard();
       }
     },
@@ -1739,7 +2189,7 @@ export default {
     },
 
     // 클라이언트 측 필터링 및 테이블 재생성
-    filterData() {
+    async filterData() {
       console.log("데이터 필터링 시작");
 
       // 단기 결석자 위험군 데이터 초기화
@@ -1755,24 +2205,29 @@ export default {
           )} ~ ${endDate.format("YYYY-MM-DD HH:mm:ss")}`
         );
 
-        // 데이터가 있는지 확인
+        // 원본 데이터가 있는지 확인
         if (
-          !this.attendanceData.meetings ||
-          this.attendanceData.meetings.length === 0
+          !this.originalMeetingsData ||
+          this.originalMeetingsData.length === 0
         ) {
-          console.warn("필터링할 미팅 데이터가 없습니다.");
+          console.warn("필터링할 원본 데이터가 없습니다.");
           this.memberAttendanceData = [];
           this.filteredMemberAttendanceData = [];
           this.meetingDates = [];
           return;
         }
 
+        // 원본 데이터를 깊은 복사하여 필터링 수행 (원본 보존)
+        const filteredMeetings = JSON.parse(
+          JSON.stringify(this.originalMeetingsData)
+        );
+
         // 날짜 범위에 맞게 필터링
         let totalInstancesBefore = 0;
         let totalInstancesAfter = 0;
         let filteredDates = [];
 
-        this.attendanceData.meetings.forEach((orgData) => {
+        filteredMeetings.forEach((orgData) => {
           if (orgData.activities && orgData.activities.length > 0) {
             orgData.activities.forEach((activity) => {
               if (activity.instances && activity.instances.length > 0) {
@@ -1781,15 +2236,28 @@ export default {
 
                 // 날짜 범위 내 인스턴스만 필터링
                 activity.instances = activity.instances.filter((instance) => {
-                  if (!instance.start_datetime) return false;
+                  if (!instance.start_datetime) {
+                    console.log("날짜 정보가 없는 인스턴스 건너뜀");
+                    return false;
+                  }
 
-                  // 날짜 파싱 - 여러 형식 지원
+                  // 날짜 파싱 - 여러 형식 지원하고 오류 허용
                   let instanceDate = moment(instance.start_datetime);
 
-                  // 파싱 실패 체크
+                  // 파싱 실패 시 다른 형식으로 시도
+                  if (!instanceDate.isValid()) {
+                    instanceDate = moment(instance.start_datetime, [
+                      "YYYY-MM-DD",
+                      "YYYY-MM-DD HH:mm:ss",
+                      "YYYY/MM/DD",
+                      "MM/DD/YYYY",
+                    ]);
+                  }
+
+                  // 여전히 유효하지 않으면 건너뜀 (하지만 경고만 표시)
                   if (!instanceDate.isValid()) {
                     console.warn(
-                      "유효하지 않은 날짜:",
+                      "유효하지 않은 날짜 (건너뜀):",
                       instance.start_datetime
                     );
                     return false;
@@ -1829,9 +2297,12 @@ export default {
         });
 
         // 활동이 없는 조직 제거
-        this.attendanceData.meetings = this.attendanceData.meetings.filter(
+        const finalFilteredMeetings = filteredMeetings.filter(
           (orgData) => orgData.activities && orgData.activities.length > 0
         );
+
+        // 필터링된 데이터를 attendanceData에 설정
+        this.attendanceData.meetings = finalFilteredMeetings;
 
         // 필터링 결과 요약
         console.log(
@@ -1842,30 +2313,120 @@ export default {
         );
 
         // 테이블 데이터 재구성 (중요)
-        this.prepareMeetingDates();
-        this.prepareOrganizationSelectItems();
-        this.prepareMemberAttendanceData();
+        console.log(
+          "%c🔴🎯 === 테이블 데이터 재구성 시작 ===",
+          "color: red; font-size: 16px; font-weight: bold;"
+        );
 
-        // 조직 선택 적용
-        if (
-          this.selectedOrganization &&
-          this.organizationSelectItems.some(
-            (item) => item.value === this.selectedOrganization
-          )
-        ) {
-          // 이전 선택 유지
-          this.handleOrganizationChange();
-        } else if (this.organizationSelectItems.length > 0) {
-          // 기본 조직 선택
-          this.selectedOrganization = this.organizationSelectItems[0].value;
-          this.handleOrganizationChange();
+        this.prepareMeetingDates();
+        console.log(
+          "%c🔴✅ prepareMeetingDates 완료",
+          "color: red; font-size: 14px;"
+        );
+
+        this.prepareOrganizationSelectItems();
+        console.log(
+          "%c🔴✅ prepareOrganizationSelectItems 완료",
+          "color: red; font-size: 14px;"
+        );
+
+        await this.prepareMemberAttendanceData();
+        console.log(
+          "%c🔴✅ prepareMemberAttendanceData 완료",
+          "color: red; font-size: 14px;"
+        );
+
+        console.log(
+          "%c🔴🎯 === 테이블 데이터 재구성 완료 ===",
+          "color: red; font-size: 16px; font-weight: bold;"
+        );
+        console.log(
+          `%c🔴📊 재구성 후 상태:`,
+          "color: red; font-size: 14px; font-weight: bold;"
+        );
+        console.log(
+          `%c🔴📅   meetingDates: ${this.meetingDates.length}개`,
+          "color: red; font-size: 13px;"
+        );
+        console.log(
+          `%c🔴🏢   organizationSelectItems: ${this.organizationSelectItems.length}개`,
+          "color: red; font-size: 13px;"
+        );
+        console.log(
+          `%c🔴👤   memberAttendanceData: ${this.memberAttendanceData.length}명`,
+          "color: red; font-size: 13px;"
+        );
+
+        // 조직 선택 적용 - 더 안전한 처리
+        console.log(
+          "%c🔴🎯 === 조직 선택 초기화 시작 ===",
+          "color: red; font-size: 15px; font-weight: bold;"
+        );
+        console.log(
+          `%c🔴🏢 현재 선택된 조직: ${this.selectedOrganization}`,
+          "color: red; font-size: 14px;"
+        );
+        console.log(
+          `%c🔴📊 사용 가능한 조직 수: ${this.organizationSelectItems.length}개`,
+          "color: red; font-size: 14px;"
+        );
+
+        if (this.organizationSelectItems.length > 0) {
+          // 현재 선택된 조직이 유효한지 확인
+          const isCurrentSelectionValid =
+            this.selectedOrganization &&
+            this.organizationSelectItems.some(
+              (item) => item.value === this.selectedOrganization
+            );
+
+          if (isCurrentSelectionValid) {
+            // 이전 선택 유지
+            console.log(
+              `%c🔴✅ 이전 조직 선택 유지: ${this.selectedOrganization}`,
+              "color: red; font-size: 14px;"
+            );
+            this.handleOrganizationChange();
+          } else {
+            // 기본 조직 선택 (첫 번째 조직)
+            this.selectedOrganization = this.organizationSelectItems[0].value;
+            console.log(
+              `%c🔴🔄 기본 조직 선택: ${this.selectedOrganization} (${this.organizationSelectItems[0].text})`,
+              "color: red; font-size: 14px;"
+            );
+            this.handleOrganizationChange();
+          }
+        } else {
+          console.warn(
+            "%c🔴❌ 선택 가능한 조직이 없습니다!",
+            "color: red; font-size: 14px; background: yellow;"
+          );
+          this.selectedOrganization = null;
+          this.filteredMemberAttendanceData = [];
         }
 
         console.log(
-          `필터링 결과: ${this.memberAttendanceData.length}명 중 ${this.filteredMemberAttendanceData.length}명 표시`
+          `%c🔴🎉 필터링 완료: 전체 ${this.memberAttendanceData.length}명 중 ${this.filteredMemberAttendanceData.length}명 표시`,
+          "color: red; font-size: 14px; font-weight: bold; background: lightgreen;"
         );
       } catch (error) {
-        console.error("데이터 필터링 중 오류 발생:", error);
+        console.error(
+          "%c🔴💥 데이터 필터링 중 치명적 오류:",
+          "color: red; font-size: 14px; font-weight: bold; background: pink;",
+          error
+        );
+        // 오류 발생 시 원본 데이터라도 사용
+        if (this.originalMeetingsData && this.originalMeetingsData.length > 0) {
+          console.log(
+            "%c🔴🔄 오류로 인해 원본 데이터 사용 시도",
+            "color: red; font-size: 14px;"
+          );
+          this.attendanceData.meetings = JSON.parse(
+            JSON.stringify(this.originalMeetingsData)
+          );
+          this.prepareMeetingDates();
+          this.prepareOrganizationSelectItems();
+          await this.prepareMemberAttendanceData();
+        }
       }
     },
 
@@ -2409,2135 +2970,6 @@ export default {
 };
 </script>
 
-<style>
-/* 민트 & 스카이블루 그라데이션 기반 색상 시스템 */
-:root {
-  --mint-color: #4ecdc4;
-  --mint-light: #a6e7e2;
-  --mint-dark: #3aa39b;
-  --skyblue-color: #38b6ff;
-  --skyblue-light: #8cd6ff;
-  --skyblue-dark: #0096ee;
-  --gradient-primary: linear-gradient(
-    135deg,
-    var(--mint-color) 0%,
-    var(--skyblue-color) 100%
-  );
-  --gradient-secondary: linear-gradient(
-    135deg,
-    var(--skyblue-color) 0%,
-    var(--mint-color) 100%
-  );
-  --background-color: #f8fafb;
-  --card-color: #f9fbfd;
-  --text-primary: #2c3e50;
-  --text-secondary: #455a64;
-  --text-tertiary: #78909c;
-  --border-color: #e0f2f1;
-}
-
-/* Vuetify 테마 오버라이드 */
-.v-application .primary {
-  background-color: var(--mint-color) !important;
-  border-color: var(--mint-color) !important;
-}
-
-.v-application .secondary {
-  background-color: var(--skyblue-color) !important;
-  border-color: var(--skyblue-color) !important;
-}
-
-.v-application .accent {
-  background-color: var(--mint-light) !important;
-  border-color: var(--mint-light) !important;
-}
-
-/* 주요 데이터 영역 배경색 강화 */
-.attendance-data-card .v-card-text,
-.attendance-chart-card .v-card-text {
-  background-color: var(--card-color);
-}
-
-.search-btn {
-  margin-left: 4px;
-  min-width: 80px;
-  font-weight: 500;
-  background: linear-gradient(135deg, #4ecdc4 0%, #38b6ff 100%) !important;
-  color: white !important;
-  box-shadow: 0 4px 8px rgba(76, 175, 180, 0.25) !important;
-  transition: all 0.3s ease;
-  letter-spacing: 0.3px;
-  height: 40px;
-}
-
-.search-btn:hover {
-  box-shadow: 0 6px 12px rgba(76, 175, 180, 0.35) !important;
-  transform: translateY(-2px);
-}
-
-.update-btn {
-  background-color: #8cd6ff !important;
-  color: #2c3e50 !important;
-  box-shadow: 0 4px 8px rgba(56, 182, 255, 0.25) !important;
-  transition: all 0.3s ease;
-  font-weight: 500;
-  letter-spacing: 0.3px;
-  height: 40px;
-}
-
-.update-btn:hover {
-  box-shadow: 0 6px 12px rgba(56, 182, 255, 0.35) !important;
-  transform: translateY(-2px);
-}
-
-.excel-download-btn {
-  background-color: #a6e7e2 !important;
-  color: #2c3e50 !important;
-  box-shadow: 0 4px 8px rgba(78, 205, 196, 0.25) !important;
-  transition: all 0.3s ease;
-  font-weight: 500;
-  letter-spacing: 0.3px;
-  height: 40px;
-}
-
-.excel-download-btn:hover {
-  box-shadow: 0 6px 12px rgba(78, 205, 196, 0.35) !important;
-  transform: translateY(-2px);
-}
-
-/* 카드 디자인 개선 */
-/* 데이터 표시 카드 */
-.attendance-data-card,
-.attendance-chart-card {
-  border-radius: 12px !important;
-  overflow: hidden;
-  box-shadow: 0 6px 16px rgba(0, 0, 0, 0.08) !important;
-  margin-bottom: 24px;
-  background-color: #ffffff !important;
-  border: 1px solid rgba(78, 205, 196, 0.2) !important;
-  transition: all 0.3s ease;
-}
-
-/* 필터링 및 컨트롤 카드 */
-.dashboard-header-card {
-  border-radius: 12px !important;
-  overflow: hidden;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05) !important;
-  margin-bottom: 24px;
-  background-color: #ffffff !important;
-  border: 1px solid rgba(224, 242, 241, 0.7) !important;
-  transition: all 0.3s ease;
-}
-
-.dashboard-cards-container {
-  margin-top: 32px;
-}
-
-.dashboard-cards-container .v-row {
-  margin-bottom: 32px;
-}
-
-.card-section-divider {
-  height: 1px;
-  background: rgba(224, 242, 241, 0.7);
-  margin: 16px 0 24px;
-  width: 100%;
-}
-
-.dashboard-header-card:hover,
-.attendance-chart-card:hover,
-.attendance-data-card:hover {
-  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.08) !important;
-}
-
-.dashboard-title {
-  display: flex;
-  align-items: center;
-  gap: 12px;
-}
-
-.dashboard-icon {
-  font-size: 32px;
-  color: var(--primary-color);
-  margin-right: 8px;
-}
-
-.dashboard-header {
-  display: flex;
-  flex-wrap: wrap;
-  justify-content: space-between;
-  gap: 20px;
-  padding: 20px 24px;
-  position: relative;
-  background: linear-gradient(
-    to right,
-    rgba(255, 255, 255, 0.95),
-    rgba(248, 250, 251, 0.8)
-  );
-}
-
-.header-controls-wrapper {
-  display: flex;
-  align-items: flex-end;
-  gap: 12px;
-  flex-wrap: nowrap;
-}
-
-.date-controls-wrapper {
-  display: flex;
-  align-items: flex-end;
-  min-width: 360px;
-  gap: 12px;
-}
-
-.action-buttons-container {
-  display: flex;
-  align-items: center;
-  gap: 12px;
-}
-
-.date-field-container {
-  min-width: 160px;
-  max-width: 180px;
-  display: flex;
-  flex-direction: column;
-}
-
-.date-label {
-  font-size: 12px;
-  margin-bottom: 6px;
-  color: #666;
-  font-weight: 500;
-}
-
-.date-input-wrapper {
-  display: flex;
-  align-items: center;
-  border: 1px solid #d1d1d1;
-  border-radius: 4px;
-  padding: 0 8px;
-  background-color: #fff;
-  transition: all 0.2s ease;
-}
-
-.date-input-wrapper:hover {
-  border-color: #aaa;
-}
-
-.date-input-icon {
-  font-size: 18px !important;
-  color: #666;
-  margin-right: 8px;
-}
-
-.date-input {
-  flex: 1;
-}
-
-.date-input .v-input__control {
-  min-height: 40px !important;
-}
-
-.date-input .v-input__slot {
-  padding: 0 !important;
-  margin-bottom: 0 !important;
-  min-height: 40px !important;
-  box-shadow: none !important;
-  background-color: transparent !important;
-}
-
-.date-input .v-input__slot:before,
-.date-input .v-input__slot:after {
-  display: none !important;
-}
-
-.date-input .v-text-field__slot input {
-  padding: 0 !important;
-  font-size: 14px;
-  color: #333;
-}
-
-.date-separator {
-  margin: 0 8px;
-  font-weight: 500;
-  color: #666;
-  align-self: flex-end;
-  margin-bottom: 10px;
-}
-
-.header-actions {
-  display: flex;
-  gap: 8px;
-  margin-left: 8px;
-}
-
-.search-btn {
-  min-width: 80px;
-}
-
-.update-btn {
-  min-width: 150px;
-}
-
-.excel-download-btn {
-  min-width: 120px;
-}
-
-.period-summary {
-  padding: 12px 24px;
-  background-color: rgba(248, 250, 251, 0.7);
-  display: flex;
-  align-items: center;
-  flex-wrap: nowrap;
-  gap: 12px;
-  border-top: 1px solid rgba(224, 242, 241, 0.5);
-  overflow-x: auto;
-}
-
-.period-chip {
-  background: linear-gradient(135deg, #4ecdc4 0%, #38b6ff 100%) !important;
-  color: white !important;
-  font-weight: 500;
-  min-width: fit-content;
-}
-
-.period-text {
-  white-space: nowrap;
-  font-weight: 500;
-  min-width: fit-content;
-}
-
-.quick-filter-section {
-  display: flex;
-  min-width: fit-content;
-}
-
-.quick-filter-buttons {
-  background-color: rgba(245, 249, 252, 0.8) !important;
-  border-radius: 6px !important;
-  overflow: hidden;
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.03) !important;
-  display: flex;
-}
-
-.quick-filter-buttons .v-btn {
-  min-width: 70px;
-  height: 36px;
-  text-transform: none;
-  letter-spacing: 0;
-  font-size: 12px;
-  font-weight: 500;
-}
-
-.quick-filter-buttons .v-btn--active {
-  background: linear-gradient(135deg, #4ecdc4 0%, #38b6ff 100%) !important;
-  color: white !important;
-}
-
-.update-time {
-  white-space: nowrap;
-  font-size: 12px;
-  color: var(--text-tertiary);
-  min-width: fit-content;
-}
-
-/* 반응형 스타일 - 스크린 크기에 따라 조정 */
-@media (max-width: 1400px) {
-  .update-btn {
-    min-width: 36px;
-    padding: 0 8px;
-  }
-
-  .update-btn .v-btn__content span {
-    display: none;
-  }
-
-  .excel-download-btn {
-    min-width: 36px;
-    padding: 0 8px;
-  }
-
-  .excel-download-btn .v-btn__content span {
-    display: none;
-  }
-}
-
-@media (max-width: 1200px) {
-  .header-controls-wrapper {
-    flex-wrap: wrap;
-    gap: 8px;
-  }
-
-  .date-field-container {
-    min-width: 150px;
-    max-width: 180px;
-  }
-
-  .search-btn {
-    min-width: 70px;
-  }
-
-  .quick-filter-buttons .v-btn {
-    min-width: 60px;
-    font-size: 11px;
-  }
-}
-
-@media (max-width: 960px) {
-  .dashboard-header {
-    flex-wrap: wrap;
-    gap: 16px;
-  }
-
-  .dashboard-title {
-    width: 100%;
-    margin-bottom: 8px;
-  }
-
-  .header-controls-wrapper {
-    width: 100%;
-  }
-
-  .date-field-container {
-    min-width: 160px;
-    max-width: none;
-  }
-}
-
-@media (max-width: 768px) {
-  .period-summary {
-    overflow-x: auto;
-    flex-wrap: nowrap;
-    padding: 12px 16px;
-  }
-
-  .date-input-wrapper {
-    width: 100%;
-  }
-}
-
-.dashboard {
-  background-color: var(--background-color);
-  min-height: 100vh;
-  color: var(--text-primary);
-}
-
-/* 로딩 컨테이너 스타일 향상 */
-.loading-container {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  background-color: rgba(38, 50, 56, 0.92);
-  border-radius: 16px;
-  padding: 36px;
-  box-shadow: 0 12px 28px rgba(0, 0, 0, 0.25);
-  width: 420px;
-  max-width: 90vw;
-  text-align: center;
-  backdrop-filter: blur(4px);
-  animation: fadeIn 0.4s ease-out;
-  color: white;
-}
-
-@keyframes fadeIn {
-  from {
-    opacity: 0;
-  }
-  to {
-    opacity: 1;
-  }
-}
-
-.loading-spinner-wrapper {
-  position: relative;
-  margin-bottom: 16px;
-  z-index: 1;
-  width: 80px;
-  height: 80px;
-}
-
-.loading-spinner {
-  filter: drop-shadow(0 0 8px rgba(78, 205, 196, 0.5));
-}
-
-.loading-spinner::before {
-  content: "";
-  position: absolute;
-  width: 80px;
-  height: 80px;
-  top: 0;
-  left: 0;
-  border-radius: 50%;
-  background: radial-gradient(
-    circle,
-    rgba(78, 205, 196, 0.3) 0%,
-    rgba(78, 205, 196, 0.1) 40%,
-    transparent 70%
-  );
-  animation: pulse 2s infinite;
-  z-index: -1;
-}
-
-@keyframes glowing {
-  from {
-    box-shadow: 0 0 10px rgba(78, 205, 196, 0.5);
-  }
-  to {
-    box-shadow: 0 0 25px rgba(56, 182, 255, 0.8);
-  }
-}
-
-.loading-content {
-  width: 100%;
-}
-
-.loading-title {
-  font-size: 20px;
-  font-weight: 600;
-  color: white;
-  margin-bottom: 16px;
-  letter-spacing: 0.5px;
-}
-
-.loading-progress-bar {
-  margin-bottom: 12px;
-  border-radius: 100px;
-  overflow: hidden;
-}
-
-.loading-percentage {
-  font-size: 14px;
-  font-weight: 500;
-  margin-bottom: 16px;
-  color: rgba(255, 255, 255, 0.9);
-}
-
-.loading-details {
-  background-color: rgba(255, 255, 255, 0.1);
-  padding: 12px 16px;
-  border-radius: 8px;
-  margin-top: 12px;
-  font-size: 14px;
-  display: flex;
-  align-items: center;
-  text-align: left;
-  color: rgba(255, 255, 255, 0.8);
-}
-
-.loading-error {
-  background-color: rgba(244, 67, 54, 0.15);
-  padding: 12px 16px;
-  border-radius: 8px;
-  margin-top: 16px;
-  font-size: 14px;
-  display: flex;
-  flex-direction: column;
-  align-items: flex-start;
-  text-align: left;
-  color: rgba(255, 255, 255, 0.9);
-  border-left: 4px solid #f44336;
-}
-
-.retry-btn {
-  margin-top: 12px;
-  align-self: flex-end;
-}
-
-/* 대시보드 헤더 스타일 개선 */
-.dashboard-header-card {
-  border-radius: var(--radius-md);
-  overflow: hidden;
-  box-shadow: var(--shadow-md) !important;
-  margin-bottom: var(--spacing-lg);
-  background-color: var(--card-color) !important;
-  border: 1px solid var(--border-color);
-  transition: all 0.3s ease;
-}
-
-.dashboard-header-card:hover {
-  box-shadow: var(--shadow-lg) !important;
-}
-
-.dashboard-header {
-  padding: 20px 24px;
-  display: flex;
-  flex-wrap: wrap;
-  align-items: center;
-  gap: 20px;
-  position: relative;
-  background: linear-gradient(
-    to right,
-    rgba(255, 255, 255, 0.9),
-    rgba(248, 250, 251, 0.9)
-  );
-}
-
-.dashboard-header::after {
-  content: "";
-  position: absolute;
-  bottom: 0;
-  left: 0;
-  right: 0;
-  height: 3px;
-  background: var(--gradient-primary);
-  opacity: 0.7;
-}
-
-.dashboard-title {
-  display: flex;
-  align-items: center;
-  gap: var(--spacing-sm);
-  white-space: nowrap;
-}
-
-.dashboard-icon {
-  font-size: 32px !important;
-  background: var(--gradient-primary);
-  -webkit-background-clip: text;
-  background-clip: text;
-  -webkit-text-fill-color: transparent;
-  margin-right: var(--spacing-xs);
-}
-
-.header-controls-container {
-  flex: 1;
-  display: flex;
-  align-items: flex-start;
-  gap: 16px;
-  flex-direction: column;
-}
-
-.date-picker-container {
-  display: flex;
-  align-items: flex-end;
-  flex-wrap: wrap;
-  gap: 12px;
-  min-width: 0;
-  width: 100%;
-}
-
-.control-buttons {
-  display: flex;
-  gap: 8px;
-  align-items: center;
-  margin-left: 12px;
-}
-
-.date-field-container {
-  display: flex;
-  flex-direction: column;
-  width: 140px;
-}
-
-.date-label {
-  font-size: 12px;
-  margin-bottom: var(--spacing-xs);
-  color: var(--text-tertiary);
-  font-weight: 500;
-  letter-spacing: 0.3px;
-}
-
-.date-input {
-  background-color: white !important;
-  border-radius: var(--radius-sm);
-  overflow: hidden;
-  transition: all 0.3s ease;
-}
-
-.date-input:hover {
-  box-shadow: var(--shadow-sm);
-}
-
-.date-input .v-input__prepend-inner {
-  margin-top: 10px !important;
-}
-
-.date-separator {
-  margin: 0 8px;
-  font-weight: 500;
-  color: var(--text-tertiary);
-  align-self: center;
-  margin-bottom: 10px;
-}
-
-.search-btn {
-  margin-left: var(--spacing-xs);
-  min-width: 90px;
-  font-weight: 500;
-  letter-spacing: 0.3px;
-  background: var(--gradient-primary) !important;
-  color: white !important;
-  box-shadow: 0 3px 6px rgba(76, 175, 180, 0.2) !important;
-  transition: all 0.3s ease;
-}
-
-.search-btn:hover {
-  box-shadow: 0 5px 10px rgba(76, 175, 180, 0.3) !important;
-  transform: translateY(-1px);
-}
-
-.update-btn {
-  background-color: var(--skyblue-light) !important;
-  color: var(--text-primary) !important;
-  min-width: 170px;
-  font-weight: 500;
-  box-shadow: 0 3px 6px rgba(56, 182, 255, 0.15) !important;
-  transition: all 0.3s ease;
-}
-
-.update-btn:hover {
-  box-shadow: 0 5px 10px rgba(56, 182, 255, 0.25) !important;
-  transform: translateY(-1px);
-}
-
-.excel-download-btn {
-  background-color: var(--mint-light) !important;
-  color: var(--text-primary) !important;
-  min-width: 140px;
-  font-weight: 500;
-  box-shadow: 0 3px 6px rgba(78, 205, 196, 0.15) !important;
-  transition: all 0.3s ease;
-}
-
-.excel-download-btn:hover {
-  box-shadow: 0 5px 10px rgba(78, 205, 196, 0.25) !important;
-  transform: translateY(-1px);
-}
-
-.quick-filters {
-  display: flex;
-  align-items: center;
-  overflow-x: auto;
-  margin-top: 12px;
-  width: 100%;
-}
-
-.quick-filter-buttons {
-  background-color: rgba(245, 249, 252, 0.8) !important;
-  border-radius: 6px !important;
-  overflow: hidden;
-  box-shadow: var(--shadow-sm);
-  width: 100%;
-}
-
-.quick-filter-buttons .v-btn {
-  flex: 1;
-  min-width: 80px;
-  height: 36px !important;
-  text-transform: none;
-  letter-spacing: 0;
-  font-size: 13px;
-  font-weight: 500;
-}
-
-.quick-filter-buttons .v-btn--active {
-  background: linear-gradient(135deg, #4ecdc4 0%, #38b6ff 100%) !important;
-  color: white !important;
-  box-shadow: 0 2px 5px rgba(56, 182, 255, 0.2);
-}
-
-.period-summary {
-  padding: 12px 24px;
-  background-color: rgba(248, 250, 251, 0.7);
-  display: flex;
-  align-items: center;
-  flex-wrap: wrap;
-  gap: 8px;
-  border-top: 1px solid rgba(224, 242, 241, 0.5);
-}
-
-.period-chip {
-  font-size: 11px !important;
-  height: 22px !important;
-  background: var(--gradient-primary) !important;
-  color: white !important;
-  font-weight: 500;
-  letter-spacing: 0.3px;
-  box-shadow: 0 2px 4px rgba(56, 182, 255, 0.15);
-}
-
-.period-text {
-  font-size: 14px;
-  color: var(--text-secondary);
-  font-weight: 500;
-  letter-spacing: 0.2px;
-}
-
-.update-time {
-  font-size: 12px;
-  color: var(--text-tertiary);
-  display: flex;
-  align-items: center;
-  opacity: 0.8;
-  transition: opacity 0.3s ease;
-}
-
-.update-time:hover {
-  opacity: 1;
-}
-
-/* 빈 데이터 카드 스타일 */
-.empty-data-card {
-  border-radius: 12px;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05) !important;
-  background-color: #ffffff !important;
-  padding: 32px 0;
-  text-align: center;
-  border: 1px dashed rgba(78, 205, 196, 0.3) !important;
-  animation: fadeIn 0.5s ease-out;
-}
-
-.empty-data-card .v-icon {
-  color: #e0f2f1 !important;
-  margin-bottom: 16px;
-  transition: all 0.3s ease;
-}
-
-.empty-data-card:hover .v-icon {
-  color: #4ecdc4 !important;
-  transform: scale(1.05);
-}
-
-.empty-data-card .text-h6 {
-  color: #546e7a !important;
-  font-weight: 500 !important;
-  margin-bottom: 16px !important;
-}
-
-.empty-data-card .v-btn {
-  background: linear-gradient(135deg, #4ecdc4 0%, #38b6ff 100%) !important;
-  color: white !important;
-  box-shadow: 0 3px 6px rgba(76, 175, 180, 0.2) !important;
-  font-weight: 500;
-  letter-spacing: 0.2px;
-  transition: all 0.3s ease;
-}
-
-.empty-data-card .v-btn:hover {
-  box-shadow: 0 5px 10px rgba(76, 175, 180, 0.3) !important;
-  transform: translateY(-1px);
-}
-
-/* 출석 데이터 카드 스타일 */
-.attendance-data-card {
-  border-radius: var(--radius-md);
-  box-shadow: var(--shadow-md) !important;
-  background-color: var(--card-color) !important;
-  overflow: hidden;
-  border: 1px solid var(--border-color);
-  transition: all 0.3s ease;
-}
-
-.attendance-data-card:hover {
-  box-shadow: var(--shadow-lg) !important;
-}
-
-.filter-header {
-  display: flex;
-  flex-wrap: nowrap;
-  justify-content: space-between;
-  align-items: center;
-  padding: 16px 24px;
-  gap: 16px;
-  border-bottom: 1px solid var(--border-color);
-  position: relative;
-  background: linear-gradient(
-    to right,
-    rgba(255, 255, 255, 0.9),
-    rgba(248, 250, 251, 0.9)
-  );
-}
-
-.filter-header::after {
-  content: "";
-  position: absolute;
-  bottom: 0;
-  left: 0;
-  right: 0;
-  height: 2px;
-  background: var(--gradient-primary);
-  opacity: 0.5;
-}
-
-.filter-title {
-  display: flex;
-  align-items: center;
-  gap: var(--spacing-sm);
-  white-space: nowrap;
-  font-weight: 600;
-}
-
-.filter-title .v-icon {
-  background: var(--gradient-primary);
-  -webkit-background-clip: text;
-  background-clip: text;
-  -webkit-text-fill-color: transparent;
-}
-
-.table-filter-controls {
-  display: flex;
-  align-items: center;
-  flex-wrap: nowrap;
-  gap: var(--spacing-lg);
-}
-
-.search-field {
-  background-color: white !important;
-  border-radius: var(--radius-sm);
-  overflow: hidden;
-  transition: all 0.3s ease;
-  width: 250px;
-}
-
-.organization-select {
-  background-color: white !important;
-  border-radius: var(--radius-sm);
-  overflow: hidden;
-  width: 250px;
-}
-
-.attendance-cell {
-  font-weight: bold;
-  padding: 4px;
-  border-radius: 4px;
-  width: 36px;
-  height: 36px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  margin: 0 auto;
-  transition: all 0.2s ease;
-}
-
-.attendance-present {
-  background-color: rgba(166, 231, 226, 0.7);
-  color: #155724;
-  border: 1px solid rgba(78, 205, 196, 0.4);
-  font-weight: 600;
-}
-
-.attendance-present:hover {
-  background-color: rgba(166, 231, 226, 0.8);
-  transform: scale(1.05);
-  box-shadow: 0 2px 4px rgba(78, 205, 196, 0.15);
-}
-
-.attendance-absent {
-  background-color: rgba(248, 215, 218, 0.7);
-  color: #721c24;
-  border: 1px solid rgba(220, 53, 69, 0.4);
-  font-weight: 600;
-}
-
-.attendance-absent:hover {
-  background-color: rgba(248, 215, 218, 0.8);
-  transform: scale(1.05);
-  box-shadow: 0 2px 4px rgba(220, 53, 69, 0.15);
-}
-
-.attendance-table {
-  border-radius: var(--radius-sm);
-  overflow: hidden;
-  box-shadow: var(--shadow-sm) !important;
-}
-
-.v-data-table {
-  border-radius: 8px;
-  overflow: hidden;
-  border: 1px solid rgba(224, 242, 241, 0.5);
-}
-
-.v-data-table thead {
-  background: linear-gradient(to right, #f8fbfc, #ecf7fa) !important;
-}
-
-.v-data-table tbody tr:nth-child(even) {
-  background-color: rgba(248, 250, 251, 0.5);
-}
-
-.v-data-table tbody tr:hover {
-  background-color: rgba(166, 231, 226, 0.1) !important;
-}
-
-.v-data-table thead th {
-  color: var(--text-primary) !important;
-  font-weight: 600 !important;
-  background: linear-gradient(to right, #f8fbfc, #ecf7fa) !important;
-  line-height: 1.3 !important;
-  padding-top: 12px !important;
-  padding-bottom: 12px !important;
-  border-bottom: 2px solid rgba(78, 205, 196, 0.3) !important;
-}
-
-.v-data-table tbody tr:hover {
-  background-color: rgba(245, 249, 255, 0.7) !important;
-}
-
-/* Vuetify Override Styles */
-.v-btn {
-  letter-spacing: 0;
-  text-transform: none;
-  font-weight: 500;
-}
-
-.v-btn.v-btn--contained {
-  box-shadow: none;
-}
-
-.v-btn.v-btn--contained:hover {
-  box-shadow: var(--shadow-sm);
-}
-
-.v-text-field--outlined >>> fieldset {
-  border: 1px solid rgba(0, 0, 0, 0.12);
-}
-
-/* 대시보드에서 사이드바와 메뉴 버튼 숨김 처리를 위한 전역 스타일 */
-.dashboard-active .v-navigation-drawer {
-  transform: translateX(-100%) !important;
-  visibility: hidden !important;
-}
-
-.dashboard-active .v-main {
-  padding-left: 0 !important;
-}
-
-/* 햄버거 메뉴 버튼 숨김 처리 */
-.dashboard-active .v-app-bar-nav-icon {
-  display: none !important;
-}
-
-/* 햄버거 메뉴 버튼이 사라진 공간 재조정 */
-.dashboard-active .v-toolbar-title {
-  margin-left: 0 !important;
-  padding-left: 16px !important;
-}
-
-/* 카드 내부 패딩 통일 */
-.dashboard-header,
-.filter-header,
-.chart-header,
-.v-card-text,
-.v-card-actions {
-  padding: 16px 24px !important;
-}
-
-/* 버튼 간격 통일 */
-.header-actions .v-btn + .v-btn,
-.table-filter-controls .v-btn + .v-btn {
-  margin-left: 12px;
-}
-
-/* 반응형 스타일 */
-@media (max-width: 1280px) {
-  .header-controls-container {
-    flex-direction: column;
-    align-items: flex-start;
-    gap: var(--spacing-lg);
-  }
-
-  .date-picker-container {
-    width: 100%;
-    justify-content: space-between;
-  }
-
-  .quick-filters {
-    width: 100%;
-  }
-}
-
-@media (max-width: 960px) {
-  .dashboard-header {
-    flex-direction: column;
-    align-items: flex-start;
-    padding: var(--spacing-lg);
-    gap: var(--spacing-lg);
-  }
-
-  .header-controls-container {
-    width: 100%;
-  }
-
-  .control-buttons {
-    margin-top: var(--spacing-md);
-    width: 100%;
-    flex-wrap: wrap;
-  }
-
-  .control-buttons .v-btn {
-    flex: 1;
-    min-width: 0;
-  }
-
-  .date-picker-container {
-    flex-direction: row;
-    flex-wrap: wrap;
-    width: 100%;
-    align-items: stretch;
-    gap: var(--spacing-md);
-  }
-
-  .date-field-container {
-    flex: 1;
-    min-width: 120px;
-  }
-
-  .filter-header {
-    flex-direction: column;
-    align-items: flex-start;
-    padding: var(--spacing-lg);
-  }
-
-  .table-filter-controls {
-    width: 100%;
-    margin-top: var(--spacing-lg);
-    flex-direction: row;
-    flex-wrap: wrap;
-    gap: var(--spacing-md);
-  }
-
-  .organization-select,
-  .search-field {
-    width: 100%;
-    max-width: 100%;
-    margin-right: 0;
-  }
-
-  .date-separator {
-    align-self: center;
-    margin: 0;
-  }
-
-  .search-btn {
-    width: 100%;
-    margin-left: 0;
-  }
-
-  .quick-filters {
-    justify-content: flex-start;
-    width: 100%;
-    overflow-x: auto;
-  }
-
-  .quick-filter-buttons {
-    width: 100%;
-  }
-
-  .period-summary {
-    padding: var(--spacing-md) var(--spacing-lg);
-  }
-}
-
-@media (max-width: 600px) {
-  .dashboard-header {
-    padding: var(--spacing-md);
-  }
-
-  .date-picker-container {
-    flex-direction: column;
-    gap: var(--spacing-sm);
-  }
-
-  .date-field-container {
-    width: 100%;
-  }
-
-  .date-separator {
-    align-self: center;
-    margin: var(--spacing-sm) 0;
-  }
-
-  .control-buttons {
-    flex-direction: column;
-    width: 100%;
-    gap: var(--spacing-sm);
-  }
-
-  .control-buttons .v-btn {
-    width: 100%;
-    margin-left: 0 !important;
-  }
-
-  .update-btn,
-  .excel-download-btn {
-    margin-top: var(--spacing-sm);
-  }
-
-  .quick-filter-buttons {
-    width: 100%;
-    overflow-x: auto;
-    max-width: 100%;
-    display: flex;
-  }
-
-  .quick-filter-buttons .v-btn {
-    flex: 1;
-    min-width: 70px;
-    font-size: 12px;
-    padding: 0 var(--spacing-sm);
-  }
-
-  .filter-header {
-    padding: var(--spacing-md);
-  }
-
-  .table-filter-controls {
-    gap: var(--spacing-sm);
-  }
-
-  .organization-select,
-  .search-field {
-    width: 100%;
-  }
-
-  .v-data-table th {
-    font-size: 0.75rem !important;
-    padding: var(--spacing-sm) var(--spacing-xs) !important;
-  }
-
-  .period-summary {
-    padding: var(--spacing-sm) var(--spacing-lg);
-    flex-direction: column;
-    align-items: flex-start;
-  }
-
-  .update-time {
-    margin-top: var(--spacing-xs);
-  }
-
-  .attendance-table .v-data-table__wrapper {
-    max-width: 100%;
-    overflow-x: auto;
-  }
-}
-
-/* 스크롤바 스타일 개선 */
-::-webkit-scrollbar {
-  width: 8px;
-  height: 8px;
-}
-
-::-webkit-scrollbar-track {
-  background: #f1f1f1;
-  border-radius: 4px;
-}
-
-::-webkit-scrollbar-thumb {
-  background: linear-gradient(
-    to bottom,
-    rgba(78, 205, 196, 0.7),
-    rgba(56, 182, 255, 0.7)
-  );
-  border-radius: 4px;
-}
-
-::-webkit-scrollbar-thumb:hover {
-  background: linear-gradient(
-    to bottom,
-    rgba(78, 205, 196, 0.8),
-    rgba(56, 182, 255, 0.8)
-  );
-}
-
-/* 폰트 스타일 개선 */
-.dashboard {
-  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Oxygen,
-    Ubuntu, Cantarell, "Open Sans", "Helvetica Neue", sans-serif;
-  letter-spacing: 0.2px;
-}
-
-.text-h5 {
-  font-size: 22px !important;
-  font-weight: 600 !important;
-  letter-spacing: 0.3px !important;
-  color: var(--text-primary) !important;
-}
-
-.text-h6 {
-  font-size: 18px !important;
-  font-weight: 600 !important;
-  letter-spacing: 0.2px !important;
-  color: var(--text-primary) !important;
-}
-
-/* 본문 텍스트 */
-.v-data-table tbody td {
-  font-size: 14px !important;
-  color: var(--text-secondary) !important;
-}
-
-/* 테이블 헤더 */
-.v-data-table thead th {
-  font-size: 14px !important;
-  font-weight: 600 !important;
-  color: var(--text-primary) !important;
-  letter-spacing: 0.2px !important;
-  border-bottom: 2px solid rgba(78, 205, 196, 0.3) !important;
-}
-
-/* 애니메이션 효과 */
-@keyframes fadeIn {
-  from {
-    opacity: 0;
-    transform: translateY(10px);
-  }
-  to {
-    opacity: 1;
-    transform: translateY(0);
-  }
-}
-
-.dashboard-header-card,
-.attendance-data-card {
-  animation: fadeIn 0.5s ease-out;
-}
-
-.v-btn {
-  transition: all 0.3s cubic-bezier(0.25, 0.8, 0.5, 1) !important;
-}
-
-.v-btn:active {
-  transform: scale(0.95);
-}
-
-/* 여백과 마진 시스템 */
-.dashboard-header-card,
-.attendance-chart-card,
-.attendance-data-card,
-.empty-data-card {
-  margin-bottom: 24px !important; /* 카드 간 간격 통일 */
-  border-radius: 12px !important;
-  overflow: hidden;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05) !important;
-  border: 1px solid #e0f2f1 !important;
-  transition: all 0.3s ease;
-}
-
-.card-content-padding {
-  padding: 16px !important; /* 카드 내용 패딩 통일 */
-}
-
-.filter-header,
-.chart-header,
-.dashboard-header {
-  padding: 16px 24px !important; /* 헤더 패딩 통일 */
-}
-
-.period-summary {
-  padding: 12px 24px !important; /* 요약 영역 패딩 통일 */
-}
-
-/* v-col 패딩 제거하여 일관된 간격 유지 */
-.v-col {
-  padding: 12px 12px !important;
-}
-
-/* 대시보드 주요 컴포넌트 영역 */
-.dashboard-main-content {
-  margin-top: 16px;
-  animation: fadeIn 0.5s ease-out;
-}
-
-.dashboard-main-content .v-row {
-  margin-bottom: 24px;
-}
-
-.dashboard-main-content .v-row:last-child {
-  margin-bottom: 0;
-}
-
-.card-content-padding {
-  padding: 16px 24px;
-}
-
-.filter-header {
-  padding: 16px 24px;
-  display: flex;
-  flex-wrap: wrap;
-  justify-content: space-between;
-  align-items: center;
-  gap: 16px;
-  background-color: rgba(248, 250, 251, 0.7);
-}
-
-@media (max-width: 959px) {
-  .filter-header {
-    flex-direction: column;
-    align-items: stretch;
-  }
-
-  .table-filter-controls {
-    width: 100%;
-  }
-}
-
-.table-filter-controls {
-  display: flex;
-  align-items: center;
-  gap: 12px;
-  flex-wrap: wrap;
-}
-
-.organization-select {
-  min-width: 180px;
-  max-width: 300px;
-}
-
-.organization-select.v-input,
-.search-field.v-input {
-  border-radius: 6px;
-  overflow: hidden;
-}
-
-.organization-select .v-input__slot,
-.search-field .v-input__slot {
-  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.05) !important;
-}
-
-.search-field {
-  min-width: 200px;
-  max-width: 300px;
-}
-
-@media (max-width: 599px) {
-  .table-filter-controls {
-    flex-direction: column;
-    gap: 8px;
-  }
-
-  .organization-select,
-  .search-field {
-    width: 100%;
-    max-width: none;
-  }
-}
-
-@keyframes fadeIn {
-  from {
-    opacity: 0;
-    transform: translateY(10px);
-  }
-  to {
-    opacity: 1;
-    transform: translateY(0);
-  }
-}
-
-/* 새로운 스타일 추가 */
-.dashboard-card-section {
-  margin-top: 24px;
-}
-
-.dashboard-card-section .v-row {
-  margin-bottom: 24px;
-}
-
-.dashboard-card-section .v-row:last-child {
-  margin-bottom: 0;
-}
-
-.filter-header {
-  padding: 16px 24px;
-  display: flex;
-  flex-wrap: wrap;
-  justify-content: space-between;
-  align-items: center;
-  gap: 16px;
-  background-color: rgba(248, 250, 251, 0.7);
-}
-
-.card-content-padding {
-  padding: 16px 24px;
-}
-
-.date-controls-wrapper {
-  display: flex;
-  flex-wrap: wrap;
-  align-items: flex-end;
-  gap: 12px;
-  width: 100%;
-}
-
-.action-buttons-container {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 8px;
-  margin-left: 12px;
-}
-
-.table-filter-controls {
-  display: flex;
-  align-items: center;
-  gap: 12px;
-  flex-wrap: wrap;
-}
-
-.organization-select {
-  min-width: 180px;
-  max-width: 280px;
-}
-
-.search-field {
-  min-width: 200px;
-  max-width: 280px;
-}
-
-@media (max-width: 1264px) {
-  .action-buttons-container {
-    margin-left: 0;
-    margin-top: 12px;
-    width: 100%;
-  }
-
-  .action-buttons-container .v-btn {
-    flex: 1;
-  }
-}
-
-@media (max-width: 768px) {
-  .dashboard-header {
-    padding: 16px;
-    flex-direction: column;
-    align-items: flex-start;
-    gap: 16px;
-  }
-
-  .date-controls-wrapper {
-    flex-direction: column;
-    align-items: stretch;
-  }
-
-  .date-separator {
-    align-self: center;
-    margin: 4px 0;
-  }
-
-  .date-field-container {
-    width: 100%;
-  }
-
-  .table-filter-controls {
-    flex-direction: column;
-    gap: 8px;
-    width: 100%;
-  }
-
-  .organization-select,
-  .search-field {
-    width: 100%;
-    max-width: none;
-  }
-}
-
-.attendance-chart-card,
-.attendance-data-card {
-  border-radius: 12px !important;
-  overflow: hidden;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05) !important;
-  background-color: #ffffff !important;
-  border: 1px solid #e0f2f1 !important;
-  transition: all 0.3s ease;
-}
-
-/* 기본 대시보드 레이아웃 */
-.dashboard-container {
-  padding: 16px !important;
-}
-
-/* 카드 간격 일관성 유지 */
-.dashboard-container .v-row {
-  margin-bottom: 24px;
-}
-
-.dashboard-container .v-row:last-child {
-  margin-bottom: 0;
-}
-
-/* 헤더 카드 스타일 */
-.dashboard-header-card {
-  border-radius: 12px !important;
-  overflow: hidden;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05) !important;
-  margin-bottom: 24px;
-  background-color: #ffffff !important;
-  border: 1px solid #e0f2f1 !important;
-  transition: all 0.3s ease;
-}
-
-/* 출석률 그래프 카드 스타일 */
-.attendance-chart-card {
-  border-radius: 12px !important;
-  overflow: hidden;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05) !important;
-  margin-bottom: 24px;
-  background-color: #ffffff !important;
-  border: 1px solid #e0f2f1 !important;
-  transition: all 0.3s ease;
-}
-
-/* 출석 데이터 카드 스타일 */
-.attendance-data-card {
-  border-radius: 12px !important;
-  overflow: hidden;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05) !important;
-  background-color: #ffffff !important;
-  border: 1px solid #e0f2f1 !important;
-  transition: all 0.3s ease;
-}
-
-/* 카드 헤더 패딩 통일 */
-.dashboard-header,
-.chart-header,
-.filter-header {
-  padding: 16px 24px;
-}
-
-/* 카드 내용 패딩 통일 */
-.card-content-padding {
-  padding: 16px 24px;
-}
-
-/* 기간 요약 패딩 통일 */
-.period-summary {
-  padding: 12px 24px;
-  background-color: rgba(248, 250, 251, 0.7);
-  display: flex;
-  align-items: center;
-  flex-wrap: wrap;
-  gap: 8px;
-  border-top: 1px solid rgba(224, 242, 241, 0.5);
-}
-
-/* 빈 데이터 카드 여백 통일 */
-.empty-data-card {
-  border-radius: 12px;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05) !important;
-  background-color: #ffffff !important;
-  padding: 32px 0;
-  text-align: center;
-  border: 1px dashed rgba(78, 205, 196, 0.3) !important;
-}
-
-/* 반응형 레이아웃 개선 */
-@media (max-width: 959px) {
-  .dashboard-header {
-    flex-direction: column;
-    align-items: flex-start;
-    gap: 16px;
-  }
-
-  .control-buttons {
-    margin-left: 0;
-    margin-top: 12px;
-    width: 100%;
-    justify-content: space-between;
-  }
-
-  .quick-filters {
-    overflow-x: auto;
-  }
-}
-
-@media (max-width: 599px) {
-  .dashboard-container {
-    padding: 12px !important;
-  }
-
-  .dashboard-header,
-  .chart-header,
-  .filter-header {
-    padding: 16px;
-  }
-
-  .card-content-padding {
-    padding: 16px;
-  }
-
-  .period-summary {
-    padding: 12px 16px;
-  }
-
-  .date-field-container {
-    width: 100%;
-  }
-
-  .date-separator {
-    margin: 8px auto;
-  }
-
-  .control-buttons {
-    flex-direction: column;
-    width: 100%;
-  }
-
-  .control-buttons .v-btn {
-    width: 100%;
-    margin-left: 0 !important;
-    margin-top: 8px;
-  }
-
-  .control-buttons .v-btn:first-child {
-    margin-top: 0;
-  }
-
-  .table-filter-controls {
-    flex-direction: column;
-    width: 100%;
-  }
-
-  .organization-select,
-  .search-field {
-    width: 100%;
-    margin-bottom: 8px;
-  }
-}
-
-/* 비밀번호 대화상자 스타일 */
-.password-dialog {
-  border-radius: 16px !important;
-  overflow: hidden;
-  box-shadow: 0 12px 30px rgba(0, 0, 0, 0.15) !important;
-  animation: fadeInAndSlideDown 0.4s ease-out;
-}
-
-@keyframes fadeInAndSlideDown {
-  from {
-    opacity: 0;
-    transform: translateY(-30px);
-  }
-  to {
-    opacity: 1;
-    transform: translateY(0);
-  }
-}
-
-.password-header {
-  display: flex;
-  align-items: center;
-  padding: 28px 24px;
-  background: linear-gradient(
-    135deg,
-    var(--mint-color) 0%,
-    var(--skyblue-color) 100%
-  );
-  color: white;
-  position: relative;
-  overflow: hidden;
-}
-
-.password-header::after {
-  content: "";
-  position: absolute;
-  top: 0;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  background: linear-gradient(to right, rgba(255, 255, 255, 0.1), transparent);
-  z-index: 1;
-}
-
-.password-header .lock-icon {
-  font-size: 36px;
-  margin-right: 18px;
-  background: rgba(255, 255, 255, 0.25);
-  border-radius: 50%;
-  padding: 10px;
-  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.15);
-}
-
-.password-header .headline {
-  font-weight: 600;
-  font-size: 22px;
-  margin: 0;
-  text-shadow: 0 2px 4px rgba(0, 0, 0, 0.15);
-}
-
-.password-content {
-  padding: 36px 28px !important;
-}
-
-.password-message {
-  display: flex;
-  align-items: center;
-  padding: 14px 18px;
-  background-color: rgba(56, 182, 255, 0.12);
-  border-radius: 8px;
-  margin-bottom: 28px;
-  border-left: 4px solid var(--skyblue-color);
-  box-shadow: 0 2px 6px rgba(56, 182, 255, 0.08);
-}
-
-.password-input {
-  margin-top: 16px;
-  border-radius: 8px;
-  overflow: hidden;
-  width: 100%;
-}
-
-.password-input.v-input {
-  font-size: 16px;
-  font-weight: normal;
-}
-
-.password-input .v-input__slot {
-  box-shadow: none !important;
-  border: 1px solid rgba(0, 0, 0, 0.12) !important;
-  background-color: white !important;
-  min-height: 48px !important;
-  display: flex !important;
-  align-items: center !important;
-  border-radius: 8px !important;
-  padding: 0 12px !important;
-}
-
-.password-input.v-text-field--solo .v-input__control {
-  min-height: 48px !important;
-}
-
-.password-input.v-text-field--solo .v-input__slot {
-  border: 1px solid rgba(0, 0, 0, 0.12) !important;
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05) !important;
-}
-
-.password-input.v-text-field--solo.v-input--is-focused .v-input__slot {
-  border-color: var(--skyblue-color) !important;
-  box-shadow: 0 0 0 1px var(--skyblue-color) !important;
-}
-
-.password-input .v-input__prepend-inner {
-  margin-top: 0 !important;
-  margin-right: 8px !important;
-  align-self: center;
-}
-
-.password-input .v-input__append-inner {
-  margin-top: 0 !important;
-  align-self: center;
-}
-
-.password-input .v-text-field__slot {
-  display: flex !important;
-  align-items: center !important;
-  height: 100% !important;
-}
-
-.password-input input {
-  height: 100% !important;
-  padding: 0 !important;
-  font-size: 16px !important;
-}
-
-.password-input .v-label {
-  top: 50% !important;
-  transform: translateY(-50%) !important;
-  transition: all 0.3s ease;
-  font-size: 16px !important;
-}
-
-.password-input.v-text-field--solo .v-label--active {
-  transform: translateY(-50%) scale(0.75) !important;
-}
-
-.password-input .v-input__prepend-inner i,
-.password-input .v-input__append-inner i {
-  color: var(--mint-color);
-}
-
-.password-alert {
-  margin-top: 16px;
-  animation: shake 0.5s cubic-bezier(0.36, 0.07, 0.19, 0.97) both;
-}
-
-@keyframes shake {
-  10%,
-  90% {
-    transform: translate3d(-1px, 0, 0);
-  }
-  20%,
-  80% {
-    transform: translate3d(2px, 0, 0);
-  }
-  30%,
-  50%,
-  70% {
-    transform: translate3d(-3px, 0, 0);
-  }
-  40%,
-  60% {
-    transform: translate3d(3px, 0, 0);
-  }
-}
-
-.password-actions {
-  padding: 16px 24px;
-  background-color: rgba(248, 250, 251, 0.5);
-  border-top: 1px solid rgba(0, 0, 0, 0.05);
-}
-
-.cancel-btn {
-  margin-right: 8px;
-  opacity: 0.8;
-  transition: opacity 0.2s;
-}
-
-.cancel-btn:hover {
-  opacity: 1;
-}
-
-.login-btn {
-  padding: 0 24px !important;
-  height: 40px;
-  font-weight: 500;
-  letter-spacing: 0.5px;
-  box-shadow: 0 3px 5px rgba(56, 182, 255, 0.2);
-  transition: all 0.3s;
-}
-
-.login-btn:hover {
-  box-shadow: 0 5px 10px rgba(56, 182, 255, 0.3);
-  transform: translateY(-1px);
-}
-
-/* 단기 결석자 위험군 스타일 */
-.absence-risk-card {
-  border-radius: 12px !important;
-  overflow: hidden;
-  box-shadow: 0 6px 16px rgba(244, 67, 54, 0.08) !important;
-  margin-bottom: 24px;
-  background-color: #ffffff !important;
-  border: 1px solid rgba(244, 67, 54, 0.2) !important;
-  transition: all 0.3s ease;
-}
-
-.absence-risk-card:hover {
-  box-shadow: 0 6px 16px rgba(244, 67, 54, 0.1) !important;
-}
-
-.absence-header {
-  background: linear-gradient(
-    to right,
-    rgba(255, 255, 255, 0.9),
-    rgba(255, 243, 240, 0.9)
-  );
-  position: relative;
-}
-
-.absence-header::after {
-  content: "";
-  position: absolute;
-  bottom: 0;
-  left: 0;
-  right: 0;
-  height: 2px;
-  background: linear-gradient(135deg, #ff5252 0%, #f44336 100%);
-  opacity: 0.5;
-}
-
-.v-tabs-slider {
-  height: 3px !important;
-}
-
-.risk-table .v-data-table__wrapper {
-  padding: 0 !important;
-}
-
-.v-tab {
-  text-transform: none !important;
-  font-size: 14px !important;
-  font-weight: 500 !important;
-  letter-spacing: 0.3px !important;
-}
-
-/* 아이콘 크기 및 색상 일관성 */
-.dashboard-header .v-icon,
-.filter-header .v-icon,
-.absence-header .v-icon {
-  font-size: 24px !important;
-}
-
-.dashboard-title .v-icon {
-  color: var(--mint-color) !important;
-}
-
-.filter-header .v-icon {
-  color: var(--skyblue-color) !important;
-}
-
-.absence-header .v-icon {
-  color: #f44336 !important;
-}
-
-/* 버튼 내 아이콘 일관성 */
-.v-btn .v-icon {
-  font-size: 20px !important;
-  margin-right: 6px !important;
-}
-
-/* 로딩 인디케이터 스타일 */
-.loading-overlay {
-  backdrop-filter: blur(8px);
-  transition: all 0.3s ease-in-out !important;
-}
-
-.v-overlay__scrim {
-  transition: opacity 0.3s ease-in-out !important;
-}
-
-.loading-container {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  background-color: rgba(30, 40, 50, 0.85);
-  border-radius: 16px;
-  padding: 28px 32px;
-  box-shadow: 0 16px 32px rgba(0, 0, 0, 0.25);
-  max-width: 420px;
-  width: 90%;
-  animation: fadeIn 0.4s ease-out;
-  border: 1px solid rgba(255, 255, 255, 0.15);
-  position: relative;
-  overflow: hidden;
-  will-change: transform, opacity;
-}
-
-.loading-spinner-wrapper {
-  position: relative;
-  margin-bottom: 28px;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  width: 80px;
-  height: 80px;
-}
-
-.loading-spinner {
-  position: relative;
-  z-index: 2;
-  filter: drop-shadow(0 0 10px rgba(78, 205, 196, 0.5));
-}
-
-.loading-spinner::before {
-  content: "";
-  position: absolute;
-  width: 80px;
-  height: 80px;
-  top: 0;
-  left: 0;
-  border-radius: 50%;
-  background: radial-gradient(
-    circle,
-    rgba(78, 205, 196, 0.4) 0%,
-    rgba(78, 205, 196, 0.2) 40%,
-    transparent 70%
-  );
-  animation: pulse 2s infinite;
-  z-index: 1;
-}
-
-.loading-content {
-  width: 100%;
-  text-align: center;
-}
-
-.loading-title {
-  font-size: 20px;
-  font-weight: 600;
-  color: white;
-  margin-bottom: 20px;
-  text-shadow: 0 2px 5px rgba(0, 0, 0, 0.3);
-}
-
-.loading-progress-bar {
-  position: relative;
-  overflow: hidden;
-  border-radius: 10px !important;
-  margin-bottom: 12px;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2) inset;
-}
-
-.loading-percentage {
-  font-size: 14px;
-  font-weight: 500;
-  color: rgba(255, 255, 255, 0.9);
-  margin-bottom: 16px;
-}
-
-.loading-details {
-  background-color: rgba(255, 255, 255, 0.1);
-  padding: 10px 16px;
-  border-radius: 8px;
-  font-size: 14px;
-  margin-bottom: 16px;
-  color: rgba(255, 255, 255, 0.85);
-  text-align: left;
-  display: flex;
-  align-items: flex-start;
-  transition: all 0.3s;
-  backdrop-filter: blur(4px);
-  border-left: 3px solid rgba(78, 205, 196, 0.7);
-}
-
-.loading-error {
-  background-color: rgba(244, 67, 54, 0.15);
-  padding: 12px 16px;
-  border-radius: 8px;
-  margin-top: 8px;
-  display: flex;
-  align-items: center;
-  flex-wrap: wrap;
-  color: rgba(255, 255, 255, 0.9);
-  text-align: left;
-  transition: all 0.3s;
-  backdrop-filter: blur(4px);
-  border-left: 3px solid #f44336;
-}
-
-.retry-btn {
-  margin-left: auto;
-  margin-top: 8px;
-  border-color: rgba(255, 255, 255, 0.7) !important;
-  color: rgba(255, 255, 255, 0.9) !important;
-}
-
-@keyframes fadeIn {
-  from {
-    opacity: 0;
-    transform: translateY(10px);
-  }
-  to {
-    opacity: 1;
-    transform: translateY(0);
-  }
-}
-
-@keyframes pulse {
-  0% {
-    transform: scale(1);
-    opacity: 0.5;
-  }
-  50% {
-    transform: scale(1.1);
-    opacity: 0.8;
-  }
-  100% {
-    transform: scale(1);
-    opacity: 0.5;
-  }
-}
-
-/* 다크 테마에서 로딩 인디케이터 스타일 */
-.dashboard-container.dark-theme .loading-container {
-  background-color: rgba(20, 25, 35, 0.85);
-  border: 1px solid rgba(255, 255, 255, 0.05);
-}
-
-.dashboard-container.dark-theme .loading-details {
-  background-color: rgba(255, 255, 255, 0.07);
-  border-left: 3px solid rgba(78, 205, 196, 0.6);
-}
-
-.dashboard-container.dark-theme .loading-error {
-  background-color: rgba(244, 67, 54, 0.1);
-}
+<style lang="scss" scoped>
+@import "@/styles/dashboard.scss";
 </style>
