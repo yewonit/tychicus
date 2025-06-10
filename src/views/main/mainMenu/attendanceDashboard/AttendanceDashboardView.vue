@@ -14,7 +14,6 @@
             {{ groupPath }}
           </div>
         </div>
-        <!-- (프로필/알림 등은 생략 또는 필요시 추가) -->
       </div>
     </v-card>
 
@@ -33,7 +32,6 @@
             <template v-slot:activator="{ on, attrs }">
               <v-text-field
                 v-model="startDate"
-                label="시작일"
                 prepend-inner-icon="mdi-calendar"
                 readonly
                 v-bind="attrs"
@@ -65,7 +63,6 @@
             <template v-slot:activator="{ on, attrs }">
               <v-text-field
                 v-model="endDate"
-                label="종료일"
                 prepend-inner-icon="mdi-calendar"
                 readonly
                 v-bind="attrs"
@@ -145,9 +142,7 @@
           <div class="text-h5 font-weight-bold">
             {{ groupData.averageAttendance }}명
           </div>
-          <div class="text-caption text-grey mt-1">
-            최근 {{ period }}주 평균
-          </div>
+          <div class="text-caption text-grey mt-1">최근 1주 평균</div>
         </v-card>
       </v-col>
       <v-col cols="12" md="3">
@@ -188,17 +183,8 @@
       <v-col cols="12">
         <v-card class="pa-4 mb-6">
           <div class="mb-4">
-            <span class="text-h6 font-weight-medium">
-              우리 그룹 내 순별 비교
-            </span>
-            <div class="text-caption text-grey">
-              최근 {{ period }}주간 순별 출석 현황
-            </div>
+            <span class="text-h6 font-weight-medium">순별 출석 현황</span>
           </div>
-          <v-btn-toggle v-model="chartTab" class="mb-4" mandatory>
-            <v-btn value="bar">순별 평균 출석률</v-btn>
-            <v-btn value="line">순별 주간 추이</v-btn>
-          </v-btn-toggle>
           <div style="height: 320px">
             <canvas v-if="chartTab === 'bar'" ref="subgroupBarChart"></canvas>
             <canvas v-if="chartTab === 'line'" ref="subgroupLineChart"></canvas>
@@ -345,19 +331,13 @@
 import Chart from "chart.js/auto";
 import { OrganizationCtrl } from "@/mixins/apis_v2/internal/domainCtrl/OrganizationCtrl";
 import { mapState } from "vuex";
+import { format } from "date-fns";
 
 export default {
   name: "AttendanceDashboardView",
   mixins: [OrganizationCtrl],
   data() {
     return {
-      period: "1",
-      periodOptions: [
-        { text: "최근 1주", value: "1" },
-        { text: "최근 2주", value: "2" },
-        { text: "최근 3주", value: "3" },
-        { text: "최근 4주", value: "4" },
-      ],
       selectedSubgroup: "all",
       selectedMember: null,
       chartTab: "bar",
@@ -474,8 +454,7 @@ export default {
         { text: "", value: "actions", sortable: false },
       ],
       groupPath: "청년2국 > 송강욱그룹 | 그룹장: 송강욱 | 부그룹장: 허효진",
-      startDate: "2024-05-01",
-      endDate: "2024-06-01",
+      today: new Date(),
       startDateMenu: false,
       endDateMenu: false,
     };
@@ -503,6 +482,18 @@ export default {
           value: s.name,
         })),
       ];
+    },
+    startDate() {
+      const date = new Date(this.today.getFullYear(), this.today.getMonth(), 1);
+      return format(date, "yyyy-MM-dd");
+    },
+    endDate() {
+      const date = new Date(
+        this.today.getFullYear(),
+        this.today.getMonth() + 1,
+        0
+      );
+      return format(date, "yyyy-MM-dd");
     },
   },
   methods: {
@@ -640,12 +631,10 @@ export default {
         },
       });
     },
-    async fetchOrganizationsOnly(groupId) {
+    async getGroupData(groupId) {
       try {
-        const response = await this.getOrganizationById(groupId, true);
-        console.log(response.data);
-        this.organizations = response.data;
-        console.log(this.organizations);
+        this.organizations = await this.getOrganizationById(groupId, false)
+          .data;
       } catch (error) {
         console.error("조직 정보 가져오기 오류:", error);
         this.organizations = {};
@@ -662,12 +651,10 @@ export default {
       this.$router.push({ name: "LoginView" });
     }
 
-    console.log("사용자 정보:", this.userInfo);
-    console.log("그룹 아이디:", this.userInfo.roles[0].organizationId);
     this.$nextTick(() => {
       this.createWeeklyChart();
       this.createSubgroupBarChart();
-      this.fetchOrganizationsOnly(this.userInfo.roles[0].organizationId);
+      this.getGroupData(this.userInfo.roles[0].organizationId);
     });
   },
   watch: {
