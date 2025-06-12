@@ -23,10 +23,12 @@
         </div>
         <div class="header-right">
           <div class="user-profile">
-            <div class="profile-avatar">송</div>
+            <div class="profile-avatar">
+              {{ userInfo.name ? userInfo.name.charAt(0) : " " }}
+            </div>
             <div class="profile-info">
-              <span class="profile-name">송강욱</span>
-              <span class="profile-role">그룹장</span>
+              <span class="profile-name">{{ userInfo.name }}</span>
+              <span class="profile-role">{{ userInfo.roles[0].roleName }}</span>
             </div>
           </div>
           <div class="hamburger-menu-container">
@@ -150,35 +152,33 @@
           </div>
 
           <div class="chart-legend">
-            <div class="legend-title">예비 출석 신청</div>
+            <div class="legend-title">예배 종류 선택</div>
             <div class="legend-items">
-              <div class="legend-item">
-                <span class="legend-dot" style="background: #6b7280"></span>
-                <span>전체</span>
-              </div>
-              <div class="legend-item">
-                <span class="legend-dot" style="background: #a855f7"></span>
-                <span>대예배</span>
-              </div>
-              <div class="legend-item">
-                <span class="legend-dot" style="background: #10b981"></span>
-                <span>청년대예배</span>
-              </div>
-              <div class="legend-item">
-                <span class="legend-dot" style="background: #3b82f6"></span>
-                <span>수요예배</span>
-              </div>
-              <div class="legend-item">
-                <span class="legend-dot" style="background: #f59e0b"></span>
-                <span>수요새자리모임</span>
-              </div>
-              <div class="legend-item">
-                <span class="legend-dot" style="background: #8b5cf6"></span>
-                <span>금요예배</span>
-              </div>
-              <div class="legend-item">
-                <span class="legend-dot" style="background: #ec4899"></span>
-                <span>현장치유팀사역</span>
+              <div
+                v-for="(type, key) in worshipTypes"
+                :key="key"
+                class="worship-checkbox-item"
+                @click="toggleWorshipType(key)"
+              >
+                <div class="checkbox-wrapper">
+                  <input
+                    type="checkbox"
+                    :checked="type.selected"
+                    @click.stop="toggleWorshipType(key)"
+                    class="worship-checkbox"
+                  />
+                  <span
+                    class="checkmark"
+                    :style="{
+                      backgroundColor: type.selected
+                        ? type.color
+                        : 'transparent',
+                    }"
+                  >
+                    <span v-if="type.selected" class="check-icon">✓</span>
+                  </span>
+                </div>
+                <span class="worship-label">{{ type.name }}</span>
               </div>
             </div>
           </div>
@@ -310,6 +310,12 @@
         </div>
       </div>
     </template>
+
+    <!-- 순원 상세 정보 모달 -->
+    <MemberDetailModal
+      :member="selectedMember"
+      @close="selectedMember = null"
+    />
   </div>
 </template>
 
@@ -318,9 +324,13 @@ import Chart from "chart.js/auto";
 import { OrganizationCtrl } from "@/mixins/apis_v2/internal/domainCtrl/OrganizationCtrl";
 import { mapState } from "vuex";
 import { format } from "date-fns";
+import MemberDetailModal from "@/components/MemberDetailModal.vue";
 
 export default {
   name: "AttendanceDashboardView",
+  components: {
+    MemberDetailModal,
+  },
   mixins: [OrganizationCtrl],
   data() {
     return {
@@ -329,6 +339,15 @@ export default {
       selectedMember: null,
       chartTab: "combined",
       organizations: {},
+      worshipTypes: {
+        all: { name: "전체", selected: true, color: "#6b7280" },
+        sunday: { name: "대예배", selected: true, color: "#a855f7" },
+        youth: { name: "청년대예배", selected: true, color: "#10b981" },
+        wednesday: { name: "수요예배", selected: true, color: "#3b82f6" },
+        newbie: { name: "수요새자리모임", selected: true, color: "#f59e0b" },
+        friday: { name: "금요예배", selected: true, color: "#8b5cf6" },
+        healing: { name: "현장치유팀사역", selected: true, color: "#ec4899" },
+      },
       groupData: {
         name: "믿음 그룹",
         totalMembers: 24,
@@ -448,6 +467,32 @@ export default {
     callMember(phone) {
       window.location.href = `tel:${phone}`;
     },
+    toggleWorshipType(type) {
+      if (type === "all") {
+        // 전체 선택/해제
+        const newState = !this.worshipTypes.all.selected;
+        Object.keys(this.worshipTypes).forEach((key) => {
+          this.worshipTypes[key].selected = newState;
+        });
+      } else {
+        // 개별 선택/해제
+        this.worshipTypes[type].selected = !this.worshipTypes[type].selected;
+
+        // 모든 개별 항목이 선택되면 전체도 선택
+        const individualTypes = Object.keys(this.worshipTypes).filter(
+          (key) => key !== "all"
+        );
+        const allSelected = individualTypes.every(
+          (key) => this.worshipTypes[key].selected
+        );
+        this.worshipTypes.all.selected = allSelected;
+      }
+
+      // 차트 업데이트
+      this.$nextTick(() => {
+        this.createLineChart();
+      });
+    },
     showMemberDetail(member) {
       this.selectedMember = member;
     },
@@ -471,13 +516,14 @@ export default {
 
       if (this.chartTab === "combined") {
         // 그룹 출석률 - 전체 그룹의 통합 데이터
-        datasets = [
+        const allDatasets = [
           {
             type: "bar",
             label: "대예배",
             data: [40, 15, 35, 45, 25],
             backgroundColor: "#a855f7",
             order: 2,
+            key: "sunday",
           },
           {
             type: "bar",
@@ -485,6 +531,7 @@ export default {
             data: [50, 38, 42, 65, 40],
             backgroundColor: "#10b981",
             order: 2,
+            key: "youth",
           },
           {
             type: "bar",
@@ -492,6 +539,23 @@ export default {
             data: [15, 35, 30, 40, 20],
             backgroundColor: "#3b82f6",
             order: 2,
+            key: "wednesday",
+          },
+          {
+            type: "bar",
+            label: "수요새자리모임",
+            data: [20, 25, 30, 35, 28],
+            backgroundColor: "#f59e0b",
+            order: 2,
+            key: "newbie",
+          },
+          {
+            type: "bar",
+            label: "금요예배",
+            data: [18, 22, 25, 30, 24],
+            backgroundColor: "#8b5cf6",
+            order: 2,
+            key: "friday",
           },
           {
             type: "bar",
@@ -499,8 +563,18 @@ export default {
             data: [25, 40, 45, 35, 42],
             backgroundColor: "#ec4899",
             order: 2,
+            key: "healing",
           },
-          {
+        ];
+
+        // 선택된 예배 종류만 필터링
+        datasets = allDatasets.filter(
+          (dataset) => this.worshipTypes[dataset.key].selected
+        );
+
+        // 그룹 전체 출석률 라인 추가 (전체가 선택된 경우에만)
+        if (this.worshipTypes.all.selected) {
+          datasets.push({
             type: "line",
             label: "그룹 전체 출석률",
             data: [65, 58, 70, 75, 62],
@@ -514,8 +588,8 @@ export default {
             tension: 0.4,
             order: 1,
             yAxisID: "y1",
-          },
-        ];
+          });
+        }
       } else {
         // 예비별 출석률 - 각 순별 데이터
         datasets = [
@@ -1157,26 +1231,6 @@ export default {
   color: #6b7280;
 }
 
-.legend-items {
-  display: flex;
-  gap: 16px;
-  flex-wrap: wrap;
-}
-
-.legend-item {
-  display: flex;
-  align-items: center;
-  gap: 6px;
-  font-size: 12px;
-  color: #6b7280;
-}
-
-.legend-dot {
-  width: 10px;
-  height: 10px;
-  border-radius: 50%;
-}
-
 .chart-container {
   height: 300px;
   margin-top: 20px;
@@ -1522,5 +1576,154 @@ export default {
   background: #3367d6;
   transform: translateY(-1px);
   box-shadow: 0 4px 8px rgba(66, 133, 244, 0.3);
+}
+
+.modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(0, 0, 0, 0.5);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 1000;
+}
+
+.modal-content {
+  background: white;
+  padding: 20px;
+  border-radius: 8px;
+  max-width: 400px;
+  width: 100%;
+}
+
+.modal-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 20px;
+}
+
+.modal-title {
+  font-size: 18px;
+  font-weight: 600;
+}
+
+.close-button {
+  background: none;
+  border: none;
+  font-size: 18px;
+  cursor: pointer;
+}
+
+.modal-body {
+  padding: 20px;
+}
+
+.member-detail-info {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.detail-section {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.detail-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.detail-item {
+  flex: 1;
+}
+
+.detail-label {
+  font-size: 14px;
+  font-weight: 500;
+  color: #6b7280;
+}
+
+.detail-value {
+  font-size: 14px;
+  color: #333333;
+}
+
+.memo-section {
+  display: flex;
+  flex-direction: column;
+}
+
+.memo-content {
+  font-size: 14px;
+  color: #6b7280;
+}
+
+/* 예배 종류 체크박스 스타일 */
+.worship-checkbox-item {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  cursor: pointer;
+  padding: 4px;
+  border-radius: 4px;
+  transition: background-color 0.2s ease;
+}
+
+.worship-checkbox-item:hover {
+  background-color: #f3f4f6;
+}
+
+.checkbox-wrapper {
+  position: relative;
+  display: flex;
+  align-items: center;
+}
+
+.worship-checkbox {
+  display: none;
+}
+
+.checkmark {
+  width: 16px;
+  height: 16px;
+  border: 2px solid #d1d5db;
+  border-radius: 3px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.2s ease;
+  background-color: transparent;
+}
+
+.checkmark:hover {
+  border-color: #9ca3af;
+}
+
+.check-icon {
+  color: white;
+  font-size: 12px;
+  font-weight: bold;
+  line-height: 1;
+}
+
+.worship-label {
+  font-size: 12px;
+  color: #6b7280;
+  font-weight: 500;
+  user-select: none;
+}
+
+.legend-items {
+  display: flex;
+  gap: 16px;
+  flex-wrap: wrap;
+  align-items: center;
 }
 </style>
