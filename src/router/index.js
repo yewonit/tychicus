@@ -223,7 +223,7 @@ const routes = [
           iconName: "mdi-view-dashboard-variant-outline",
           showBackButton: true,
           showHomeButton: false,
-          showCancelButton: true,
+          showCancelButton: false,
         },
       },
       {
