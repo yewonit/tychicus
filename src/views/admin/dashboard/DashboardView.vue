@@ -2409,7 +2409,7 @@ export default {
 };
 </script>
 
-<style>
+<style scoped>
 /* 민트 & 스카이블루 그라데이션 기반 색상 시스템 */
 :root {
   --mint-color: #4ecdc4;

@@ -1,372 +1,333 @@
 <template>
-  <v-container fluid>
-    <!-- 상단 헤더 -->
-    <v-card class="dashboard-header" flat>
-      <div class="header-content d-flex align-center justify-space-between">
-        <div>
-          <div class="d-flex align-center mb-2">
-            <v-icon large color="white" class="mr-2">mdi-chart-bar</v-icon>
-            <span class="dashboard-title font-weight-bold">
-              {{ organizations.organization_name }} 대시보드
-            </span>
+  <div class="dashboard-container">
+    <!-- 로딩 상태 -->
+    <div v-if="loading" class="loading-container">
+      <div class="loading-spinner"></div>
+      <p>데이터를 불러오고 있습니다...</p>
+    </div>
+
+    <!-- 메인 컨텐츠 -->
+    <template v-else>
+      <!-- 상단 헤더 영역 -->
+      <div class="dashboard-header">
+        <div class="header-left">
+          <div class="header-title">
+            <span class="chart-icon">📊</span>
+            <span>{{ organizations.organization_name }} 대시보드</span>
           </div>
-          <div class="dashboard-path grey--text text--lighten-4">
-            {{ groupPath }}
+          <div class="breadcrumb">
+            <span
+              >청년2국 > 송강욱그룹 | 그룹장: 송강욱 | 부그룹장: 허효진</span
+            >
           </div>
         </div>
-        <!-- (프로필/알림 등은 생략 또는 필요시 추가) -->
+        <div class="header-right">
+          <div class="user-profile">
+            <div class="profile-avatar">송</div>
+            <div class="profile-info">
+              <span class="profile-name">송강욱</span>
+              <span class="profile-role">그룹장</span>
+            </div>
+          </div>
+          <div class="hamburger-menu-container">
+            <button
+              @click="toggleHamburgerMenu"
+              class="hamburger-menu"
+              :class="{ active: isHamburgerMenuOpen }"
+            >
+              <span class="hamburger-line"></span>
+              <span class="hamburger-line"></span>
+              <span class="hamburger-line"></span>
+            </button>
+
+            <!-- 햄버거 드롭다운 메뉴 -->
+            <div
+              v-if="isHamburgerMenuOpen"
+              class="hamburger-dropdown"
+              @click.stop
+            >
+              <div class="menu-item active">
+                <span class="menu-icon">📅</span>
+                <span>월 출석 현황</span>
+              </div>
+              <div class="menu-item" @click="navigateToGroupManagement">
+                <span class="menu-icon">👥</span>
+                <span>그룹별 관리</span>
+              </div>
+              <div class="menu-item" @click="navigateToRewardsPenalties">
+                <span class="menu-icon">🏆</span>
+                <span>상벌내역</span>
+              </div>
+            </div>
+          </div>
+        </div>
       </div>
-    </v-card>
 
-    <!-- 기간 선택 -->
-    <v-card class="period-card mt-4" flat>
-      <v-row align="center" no-gutters>
-        <v-col cols="12" md="4" class="pr-md-2">
-          <v-menu
-            ref="startDateMenu"
-            v-model="startDateMenu"
-            :close-on-content-click="false"
-            transition="scale-transition"
-            offset-y
-            min-width="auto"
-          >
-            <template v-slot:activator="{ on, attrs }">
-              <v-text-field
+      <!-- 날짜 검색 영역 -->
+      <div class="date-search-section">
+        <div class="date-search-container">
+          <div class="date-input-group">
+            <label class="date-label">시작일</label>
+            <div class="date-input-wrapper">
+              <input
+                type="date"
                 v-model="startDate"
-                label="시작일"
-                prepend-inner-icon="mdi-calendar"
-                readonly
-                v-bind="attrs"
-                v-on="on"
-                outlined
-                dense
-                class="date-input"
+                class="date-input-styled"
               />
-            </template>
-            <v-date-picker v-model="startDate" @input="startDateMenu = false" />
-          </v-menu>
-        </v-col>
-        <v-col
-          cols="12"
-          md="1"
-          class="text-center py-0 d-flex align-center justify-center"
-        >
-          <span class="date-separator">~</span>
-        </v-col>
-        <v-col cols="12" md="4" class="pl-md-2">
-          <v-menu
-            ref="endDateMenu"
-            v-model="endDateMenu"
-            :close-on-content-click="false"
-            transition="scale-transition"
-            offset-y
-            min-width="auto"
-          >
-            <template v-slot:activator="{ on, attrs }">
-              <v-text-field
-                v-model="endDate"
-                label="종료일"
-                prepend-inner-icon="mdi-calendar"
-                readonly
-                v-bind="attrs"
-                v-on="on"
-                outlined
-                dense
-                class="date-input"
-              />
-            </template>
-            <v-date-picker v-model="endDate" @input="endDateMenu = false" />
-          </v-menu>
-        </v-col>
-        <v-col cols="12" md="3" class="d-flex align-end justify-end">
-          <v-btn
-            color="primary"
-            @click="onSearch"
-            class="ml-2 period-search-btn"
-            large
-          >
-            조회
-          </v-btn>
-        </v-col>
-      </v-row>
-    </v-card>
+            </div>
+          </div>
 
-    <!-- 핵심 현황 카드 -->
-    <v-row>
-      <v-col cols="12" md="3">
-        <v-card class="pa-4">
-          <div class="text-sm font-medium text-grey mb-2">그룹 평균 출석률</div>
-          <div class="d-flex align-center justify-space-between">
-            <div class="text-h5 font-weight-bold">
-              {{ groupData.attendanceRate }}%
-            </div>
-            <div :class="attendanceRateChangeClass">
-              <v-icon
-                small
-                class="mr-1"
-                :color="
-                  groupData.attendanceRate > groupData.previousAttendanceRate
-                    ? 'success'
-                    : 'error'
-                "
-              >
-                {{
-                  groupData.attendanceRate > groupData.previousAttendanceRate
-                    ? "mdi-arrow-up"
-                    : "mdi-arrow-down"
-                }}
-              </v-icon>
-              <span class="text-sm font-medium">
-                {{
-                  Math.abs(
-                    groupData.attendanceRate - groupData.previousAttendanceRate
-                  ).toFixed(1)
-                }}%
-              </span>
-            </div>
-          </div>
-          <div class="text-caption text-grey mt-1">이전 동일 기간 대비</div>
-        </v-card>
-      </v-col>
-      <v-col cols="12" md="3">
-        <v-card class="pa-4">
-          <div class="text-sm font-medium text-grey mb-2">그룹 재적 인원</div>
-          <div class="d-flex align-center">
-            <v-icon class="mr-2" color="grey">mdi-account-group</v-icon>
-            <div class="text-h5 font-weight-bold">
-              {{ groupData.totalMembers }}명
-            </div>
-          </div>
-        </v-card>
-      </v-col>
-      <v-col cols="12" md="3">
-        <v-card class="pa-4">
-          <div class="text-sm font-medium text-grey mb-2">평균 출석 인원</div>
-          <div class="text-h5 font-weight-bold">
-            {{ groupData.averageAttendance }}명
-          </div>
-          <div class="text-caption text-grey mt-1">
-            최근 {{ period }}주 평균
-          </div>
-        </v-card>
-      </v-col>
-      <v-col cols="12" md="3">
-        <v-card class="pa-4">
-          <div class="text-sm font-medium text-grey mb-2">연속 결석 순원</div>
-          <div class="d-flex align-center">
-            <v-icon class="mr-2" color="amber">mdi-alert</v-icon>
-            <div class="text-h5 font-weight-bold">
-              {{ groupData.consecutiveAbsentees }}명
-            </div>
-          </div>
-          <div class="text-caption text-grey mt-1">2주 이상 연속 결석</div>
-        </v-card>
-      </v-col>
-    </v-row>
+          <div class="date-separator">~</div>
 
-    <!-- 출석률 주간 추이 차트 -->
-    <v-row>
-      <v-col cols="12">
-        <v-card class="pa-4 mb-6">
-          <div class="mb-4">
-            <span class="text-h6 font-weight-medium">
-              우리 그룹 출석률 주간 추이
-            </span>
-            <div class="text-caption text-grey">
-              최근 {{ period }}주간 출석률 변화 추이
+          <div class="date-input-group">
+            <label class="date-label">종료일</label>
+            <div class="date-input-wrapper">
+              <input type="date" v-model="endDate" class="date-input-styled" />
             </div>
           </div>
-          <div style="height: 320px">
-            <canvas ref="weeklyChart"></canvas>
-          </div>
-        </v-card>
-      </v-col>
-    </v-row>
 
-    <!-- 순별 비교 -->
-    <v-row>
-      <v-col cols="12">
-        <v-card class="pa-4 mb-6">
-          <div class="mb-4">
-            <span class="text-h6 font-weight-medium">
-              우리 그룹 내 순별 비교
-            </span>
-            <div class="text-caption text-grey">
-              최근 {{ period }}주간 순별 출석 현황
+          <button @click="onSearch" class="search-button-styled">조회</button>
+        </div>
+      </div>
+
+      <!-- 주요 지표 카드들 -->
+      <div class="metrics-row">
+        <div class="metric-card">
+          <div class="metric-number">79.2%</div>
+          <div class="metric-label">그룹 평균 출석률</div>
+          <div class="metric-trend positive">
+            <span class="trend-icon">▲</span>
+            <span>3.7% 이전 대비 기간 대비</span>
+          </div>
+        </div>
+
+        <div class="metric-card">
+          <div class="metric-number">24명</div>
+          <div class="metric-label">그룹 재적 인원</div>
+          <div class="metric-subtitle">번몸 없음</div>
+        </div>
+
+        <div class="metric-card">
+          <div class="metric-number green-text">19명</div>
+          <div class="metric-label">평균 출석 인원</div>
+          <div class="metric-subtitle">최근 1주 평균</div>
+        </div>
+
+        <div class="metric-card">
+          <div class="metric-number-with-icon">
+            <span class="warning-icon">⚠</span>
+            <span class="metric-number yellow-text">3명</span>
+          </div>
+          <div class="metric-label">연속 결석 순원</div>
+          <div class="metric-subtitle">2주 이상 연속 결석</div>
+        </div>
+      </div>
+
+      <!-- 출석률 추이 차트 -->
+      <div class="chart-section">
+        <div class="section-header">
+          <div class="section-title">
+            <span class="icon">📊</span>
+            출석률 동향
+          </div>
+          <div class="section-subtitle">최근 5주간 순별 출석률 변화 추이</div>
+        </div>
+
+        <div class="chart-controls">
+          <div class="chart-tabs">
+            <button
+              @click="chartTab = 'combined'"
+              :class="['tab-btn', { active: chartTab === 'combined' }]"
+            >
+              그룹 출석률
+            </button>
+            <button
+              @click="chartTab = 'individual'"
+              :class="['tab-btn', { active: chartTab === 'individual' }]"
+            >
+              예비별 출석률
+            </button>
+          </div>
+
+          <div class="chart-legend">
+            <div class="legend-title">예비 출석 신청</div>
+            <div class="legend-items">
+              <div class="legend-item">
+                <span class="legend-dot" style="background: #6b7280"></span>
+                <span>전체</span>
+              </div>
+              <div class="legend-item">
+                <span class="legend-dot" style="background: #a855f7"></span>
+                <span>대예배</span>
+              </div>
+              <div class="legend-item">
+                <span class="legend-dot" style="background: #10b981"></span>
+                <span>청년대예배</span>
+              </div>
+              <div class="legend-item">
+                <span class="legend-dot" style="background: #3b82f6"></span>
+                <span>수요예배</span>
+              </div>
+              <div class="legend-item">
+                <span class="legend-dot" style="background: #f59e0b"></span>
+                <span>수요새자리모임</span>
+              </div>
+              <div class="legend-item">
+                <span class="legend-dot" style="background: #8b5cf6"></span>
+                <span>금요예배</span>
+              </div>
+              <div class="legend-item">
+                <span class="legend-dot" style="background: #ec4899"></span>
+                <span>현장치유팀사역</span>
+              </div>
             </div>
           </div>
-          <v-btn-toggle v-model="chartTab" class="mb-4" mandatory>
-            <v-btn value="bar">순별 평균 출석률</v-btn>
-            <v-btn value="line">순별 주간 추이</v-btn>
-          </v-btn-toggle>
-          <div style="height: 320px">
-            <canvas v-if="chartTab === 'bar'" ref="subgroupBarChart"></canvas>
-            <canvas v-if="chartTab === 'line'" ref="subgroupLineChart"></canvas>
+        </div>
+
+        <div class="chart-container">
+          <canvas ref="attendanceChart"></canvas>
+        </div>
+      </div>
+
+      <!-- 순별 출석 현황 -->
+      <div class="subgroup-section">
+        <div class="section-header">
+          <div class="section-title">
+            <span class="icon">📋</span>
+            순별 출석 현황
           </div>
-          <v-data-table
-            :headers="subgroupTableHeaders"
-            :items="groupData.subgroups"
-            class="mt-6"
-            dense
-            hide-default-footer
+        </div>
+        <div class="subgroup-cards">
+          <div
+            v-for="subgroup in groupData.subgroups"
+            :key="subgroup.name"
+            class="subgroup-card"
           >
-            <template slot="item.attendanceRate" slot-scope="{ item }">
-              {{ item.attendanceRate }}%
-            </template>
-            <template slot="item.previousRate" slot-scope="{ item }">
-              <span
-                :class="
-                  item.attendanceRate > item.previousRate
-                    ? 'text-success'
-                    : 'text-error'
-                "
-              >
-                <v-icon
-                  small
-                  class="mr-1"
-                  :color="
-                    item.attendanceRate > item.previousRate
-                      ? 'success'
-                      : 'error'
-                  "
+            <!-- 큰 바 차트 -->
+            <div class="main-chart">
+              <div
+                class="chart-bar-large"
+                :style="{
+                  height: `${(subgroup.attendanceRate / 100) * 120}px`,
+                  width: '60px',
+                  background: `linear-gradient(135deg, #6366f1 0%, #8b5cf6 100%)`,
+                }"
+              ></div>
+              <div class="chart-label">{{ subgroup.name }}</div>
+            </div>
+
+            <!-- 하단 정보 -->
+            <div class="subgroup-info">
+              <div class="subgroup-name">{{ subgroup.name }}</div>
+              <div class="member-count">재적: {{ subgroup.members }}명</div>
+              <div class="attendance-rate">{{ subgroup.attendanceRate }}%</div>
+              <div class="rate-label">출석률</div>
+              <div class="rate-change">
+                <span
+                  :class="[
+                    'change-indicator',
+                    subgroup.attendanceRate > subgroup.previousRate
+                      ? 'positive'
+                      : 'negative',
+                  ]"
                 >
                   {{
-                    item.attendanceRate > item.previousRate
-                      ? "mdi-arrow-up"
-                      : "mdi-arrow-down"
+                    subgroup.attendanceRate > subgroup.previousRate ? "▲" : "▼"
                   }}
-                </v-icon>
-                {{ Math.abs(item.attendanceRate - item.previousRate) }}%
-              </span>
-            </template>
-            <template slot="item.consecutiveAbsentees" slot-scope="{ item }">
-              {{ item.consecutiveAbsentees }}명
-            </template>
-          </v-data-table>
-        </v-card>
-      </v-col>
-    </v-row>
-
-    <!-- 관심 순원 목록 -->
-    <v-row>
-      <v-col cols="12">
-        <v-card class="pa-4 mb-6">
-          <div class="d-flex align-center justify-space-between mb-4">
-            <div>
-              <span class="text-h6 font-weight-medium">관심 순원 목록</span>
-              <div class="text-caption text-grey">
-                출석률이 낮거나 연속 결석 중인 순원
+                  {{
+                    Math.abs(subgroup.attendanceRate - subgroup.previousRate)
+                  }}%
+                </span>
               </div>
             </div>
-            <v-select
-              v-model="selectedSubgroup"
-              :items="subgroupSelectOptions"
-              item-text="text"
-              item-value="value"
-              dense
-              outlined
-              hide-details
-              style="max-width: 120px"
-            />
           </div>
-          <v-data-table
-            :headers="memberTableHeaders"
-            :items="filteredMembers"
-            dense
-            hide-default-footer
-          >
-            <template slot="item.consecutiveAbsences" slot-scope="{ item }">
-              <v-chip
-                :color="getBadgeColor(item.consecutiveAbsences)"
-                small
-                dark
-              >
-                {{ item.consecutiveAbsences }}주
-              </v-chip>
-            </template>
-            <template slot="item.actions" slot-scope="{ item }">
-              <v-btn icon @click="callMember(item.phone)" title="전화하기">
-                <v-icon>mdi-phone</v-icon>
-              </v-btn>
-              <v-btn small outlined @click="showMemberDetail(item)">
-                상세
-              </v-btn>
-            </template>
-          </v-data-table>
-        </v-card>
-      </v-col>
-    </v-row>
+        </div>
+      </div>
 
-    <!-- 순원 상세 모달 -->
-    <v-dialog v-model="selectedMember" max-width="500">
-      <v-card v-if="selectedMember">
-        <v-card-title>
-          <span class="text-h6">{{ selectedMember.name }} 순원 정보</span>
-        </v-card-title>
-        <v-card-text>
-          <v-row>
-            <v-col cols="6">
-              <div class="font-weight-medium">최근 출석일</div>
-              <div>{{ selectedMember.lastAttendance }}</div>
-            </v-col>
-            <v-col cols="6">
-              <div class="font-weight-medium">연속 결석</div>
-              <div>{{ selectedMember.consecutiveAbsences }}주</div>
-            </v-col>
-            <v-col cols="6">
-              <div class="font-weight-medium">출석 횟수</div>
-              <div>{{ selectedMember.attendanceCount }}</div>
-            </v-col>
-            <v-col cols="6">
-              <div class="font-weight-medium">연락처</div>
-              <div>{{ selectedMember.phone }}</div>
-            </v-col>
-            <v-col cols="12">
-              <div class="font-weight-medium">메모</div>
-              <div class="text-caption text-grey">
-                최근 건강 문제로 교회 참석이 어려운 상황입니다. 지난 심방 시
-                기도 요청이 있었습니다.
+      <!-- 관심 순원 목록 -->
+      <div class="members-section">
+        <div class="section-header">
+          <div class="section-header-left">
+            <div class="section-title">
+              <span class="icon">⚠</span>
+              관심 순원 목록
+            </div>
+            <div class="section-subtitle">
+              출석율이 낮거나 연속 결석 중인 순원
+            </div>
+          </div>
+          <div class="filter-controls">
+            <select v-model="selectedSubgroup" class="filter-select">
+              <option value="all">전체 순</option>
+              <option
+                v-for="subgroup in groupData.subgroups"
+                :key="subgroup.name"
+                :value="subgroup.name"
+              >
+                {{ subgroup.name }}
+              </option>
+            </select>
+          </div>
+        </div>
+        <div class="members-list">
+          <div
+            v-for="member in filteredMembers"
+            :key="member.name"
+            class="member-card"
+          >
+            <div class="member-info">
+              <div class="member-name">{{ member.name }}</div>
+              <div class="member-details">
+                <span class="member-subgroup">{{ member.subgroup }}</span>
+                <span class="detail-separator">|</span>
+                <span class="detail-text">
+                  마지막 출석: {{ member.lastAttendance }}
+                </span>
+                <span class="detail-separator">|</span>
+                <span class="detail-text">
+                  출석 횟수: {{ member.attendanceCount }}
+                </span>
               </div>
-            </v-col>
-          </v-row>
-        </v-card-text>
-        <v-card-actions class="justify-end">
-          <v-btn outlined @click="selectedMember = null">닫기</v-btn>
-          <v-btn color="primary" @click="callMember(selectedMember.phone)">
-            연락하기
-          </v-btn>
-        </v-card-actions>
-      </v-card>
-    </v-dialog>
-  </v-container>
+            </div>
+            <div class="member-actions">
+              <button @click="showMemberDetail(member)" class="detail-btn">
+                📋 상세
+              </button>
+              <div
+                class="absence-badge"
+                :class="{
+                  'weeks-1': member.consecutiveAbsences === 1,
+                  'weeks-2': member.consecutiveAbsences === 2,
+                  'weeks-3': member.consecutiveAbsences === 3,
+                  'weeks-4': member.consecutiveAbsences >= 4,
+                }"
+              >
+                {{ member.consecutiveAbsences }}주 결석
+              </div>
+              <div class="phone-number">{{ member.phone }}</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </template>
+  </div>
 </template>
 
 <script>
 import Chart from "chart.js/auto";
 import { OrganizationCtrl } from "@/mixins/apis_v2/internal/domainCtrl/OrganizationCtrl";
 import { mapState } from "vuex";
+import { format } from "date-fns";
 
 export default {
   name: "AttendanceDashboardView",
   mixins: [OrganizationCtrl],
   data() {
     return {
-      period: "1",
-      periodOptions: [
-        { text: "최근 1주", value: "1" },
-        { text: "최근 2주", value: "2" },
-        { text: "최근 3주", value: "3" },
-        { text: "최근 4주", value: "4" },
-      ],
+      loading: true,
       selectedSubgroup: "all",
       selectedMember: null,
-      chartTab: "bar",
-      weeklyChart: null,
-      subgroupBarChart: null,
-      subgroupLineChart: null,
-      weeklyChartInstance: null,
-      barChartInstance: null,
-      lineChartInstance: null,
+      chartTab: "combined",
       organizations: {},
       groupData: {
         name: "믿음 그룹",
@@ -376,64 +337,47 @@ export default {
         previousAttendanceRate: 75.5,
         consecutiveAbsentees: 3,
         weeklyData: [
-          { week: "1주 전", attendanceRate: 75 },
-          { week: "2주 전", attendanceRate: 79 },
-          { week: "3주 전", attendanceRate: 83 },
-          { week: "4주 전", attendanceRate: 80 },
+          { week: "06/01(월)", attendanceRate: 85 },
+          { week: "06/04(수)", attendanceRate: 75 },
+          { week: "06/06(금)", attendanceRate: 82 },
+          { week: "06/08(일)", attendanceRate: 88 },
+          { week: "06/11(수)", attendanceRate: 78 },
         ],
         subgroups: [
           {
-            name: "순1",
+            name: "충선제순",
             members: 8,
             attendanceRate: 85,
             previousRate: 80,
             consecutiveAbsentees: 1,
-            weeklyData: [
-              { week: "1주 전", attendanceRate: 81 },
-              { week: "2주 전", attendanceRate: 88 },
-              { week: "3주 전", attendanceRate: 88 },
-              { week: "4주 전", attendanceRate: 83 },
-            ],
           },
           {
-            name: "순2",
+            name: "허들러순",
             members: 9,
-            attendanceRate: 78,
+            attendanceRate: 72,
             previousRate: 81,
             consecutiveAbsentees: 1,
-            weeklyData: [
-              { week: "1주 전", attendanceRate: 78 },
-              { week: "2주 전", attendanceRate: 78 },
-              { week: "3주 전", attendanceRate: 83 },
-              { week: "4주 전", attendanceRate: 73 },
-            ],
           },
           {
-            name: "순3",
+            name: "린덴션순",
             members: 7,
-            attendanceRate: 74,
+            attendanceRate: 68,
             previousRate: 65,
             consecutiveAbsentees: 1,
-            weeklyData: [
-              { week: "1주 전", attendanceRate: 65 },
-              { week: "2주 전", attendanceRate: 71 },
-              { week: "3주 전", attendanceRate: 79 },
-              { week: "4주 전", attendanceRate: 81 },
-            ],
           },
         ],
         membersOfConcern: [
           {
             name: "김성실",
-            subgroup: "순1",
-            lastAttendance: "2024-04-28",
+            subgroup: "충선제순",
+            lastAttendance: "2024-04-26",
             consecutiveAbsences: 2,
             attendanceCount: "2/4",
             phone: "010-1234-5678",
           },
           {
             name: "이믿음",
-            subgroup: "순2",
+            subgroup: "허들러순",
             lastAttendance: "2024-04-21",
             consecutiveAbsences: 3,
             attendanceCount: "1/4",
@@ -441,7 +385,7 @@ export default {
           },
           {
             name: "박소망",
-            subgroup: "순3",
+            subgroup: "린덴션순",
             lastAttendance: "2024-05-05",
             consecutiveAbsences: 1,
             attendanceCount: "3/4",
@@ -449,7 +393,7 @@ export default {
           },
           {
             name: "최사랑",
-            subgroup: "순3",
+            subgroup: "린덴션순",
             lastAttendance: "2024-04-14",
             consecutiveAbsences: 4,
             attendanceCount: "0/4",
@@ -457,37 +401,15 @@ export default {
           },
         ],
       },
-      subgroupTableHeaders: [
-        { text: "순 이름", value: "name" },
-        { text: "재적인원", value: "members" },
-        { text: "평균 출석률", value: "attendanceRate" },
-        { text: "이전 대비", value: "previousRate" },
-        { text: "연속 결석자", value: "consecutiveAbsentees" },
-      ],
-      memberTableHeaders: [
-        { text: "순원 이름", value: "name" },
-        { text: "소속 순", value: "subgroup" },
-        { text: "최근 출석일", value: "lastAttendance" },
-        { text: "연속 결석", value: "consecutiveAbsences" },
-        { text: "출석 횟수", value: "attendanceCount" },
-        { text: "연락처", value: "phone" },
-        { text: "", value: "actions", sortable: false },
-      ],
       groupPath: "청년2국 > 송강욱그룹 | 그룹장: 송강욱 | 부그룹장: 허효진",
-      startDate: "2024-05-01",
-      endDate: "2024-06-01",
-      startDateMenu: false,
-      endDateMenu: false,
+      today: new Date(),
+      lineChartInstance: null,
+      barChartInstance: null,
+      isHamburgerMenuOpen: false,
     };
   },
   computed: {
     ...mapState("auth", ["userInfo"]),
-    attendanceRateChangeClass() {
-      return this.groupData.attendanceRate >
-        this.groupData.previousAttendanceRate
-        ? "d-flex align-center text-success"
-        : "d-flex align-center text-error";
-    },
     filteredMembers() {
       return this.selectedSubgroup === "all"
         ? this.groupData.membersOfConcern
@@ -495,190 +417,360 @@ export default {
             (member) => member.subgroup === this.selectedSubgroup
           );
     },
-    subgroupSelectOptions() {
-      return [
-        { text: "전체 순", value: "all" },
-        ...this.groupData.subgroups.map((s) => ({
-          text: s.name,
-          value: s.name,
-        })),
-      ];
+    startDate: {
+      get() {
+        const date = new Date(
+          this.today.getFullYear(),
+          this.today.getMonth(),
+          1
+        );
+        return format(date, "yyyy-MM-dd");
+      },
+      set() {
+        // 사용자가 날짜를 변경할 수 있도록 처리
+      },
+    },
+    endDate: {
+      get() {
+        const date = new Date(
+          this.today.getFullYear(),
+          this.today.getMonth() + 1,
+          0
+        );
+        return format(date, "yyyy-MM-dd");
+      },
+      set() {
+        // 사용자가 날짜를 변경할 수 있도록 처리
+      },
     },
   },
   methods: {
-    getBadgeColor(consecutiveAbsences) {
-      if (consecutiveAbsences >= 3) {
-        return "red";
-      } else if (consecutiveAbsences >= 2) {
-        return "amber darken-2";
-      } else {
-        return "grey lighten-1";
-      }
-    },
     callMember(phone) {
       window.location.href = `tel:${phone}`;
     },
     showMemberDetail(member) {
       this.selectedMember = member;
     },
-    createWeeklyChart() {
-      if (this.weeklyChartInstance) {
-        this.weeklyChartInstance.destroy();
+    createLineChart() {
+      console.log("Creating chart with tab:", this.chartTab);
+      if (this.lineChartInstance) {
+        this.lineChartInstance.destroy();
       }
-      const ctx = this.$refs.weeklyChart.getContext("2d");
-      this.weeklyChartInstance = new Chart(ctx, {
-        type: "line",
+
+      if (!this.$refs.attendanceChart) {
+        console.log("Chart canvas not found, retrying...");
+        this.$nextTick(() => {
+          this.createLineChart();
+        });
+        return;
+      }
+
+      const ctx = this.$refs.attendanceChart.getContext("2d");
+
+      let datasets = [];
+
+      if (this.chartTab === "combined") {
+        // 그룹 출석률 - 전체 그룹의 통합 데이터
+        datasets = [
+          {
+            type: "bar",
+            label: "대예배",
+            data: [40, 15, 35, 45, 25],
+            backgroundColor: "#a855f7",
+            order: 2,
+          },
+          {
+            type: "bar",
+            label: "청년대예배",
+            data: [50, 38, 42, 65, 40],
+            backgroundColor: "#10b981",
+            order: 2,
+          },
+          {
+            type: "bar",
+            label: "수요예배",
+            data: [15, 35, 30, 40, 20],
+            backgroundColor: "#3b82f6",
+            order: 2,
+          },
+          {
+            type: "bar",
+            label: "현장치유팀사역",
+            data: [25, 40, 45, 35, 42],
+            backgroundColor: "#ec4899",
+            order: 2,
+          },
+          {
+            type: "line",
+            label: "그룹 전체 출석률",
+            data: [65, 58, 70, 75, 62],
+            borderColor: "#1f2937",
+            backgroundColor: "transparent",
+            borderWidth: 2,
+            pointBackgroundColor: "#ffffff",
+            pointBorderColor: "#1f2937",
+            pointBorderWidth: 2,
+            pointRadius: 4,
+            tension: 0.4,
+            order: 1,
+            yAxisID: "y1",
+          },
+        ];
+      } else {
+        // 예비별 출석률 - 각 순별 데이터
+        datasets = [
+          {
+            type: "line",
+            label: "충선제순",
+            data: [85, 80, 88, 90, 82],
+            borderColor: "#6366f1",
+            backgroundColor: "transparent",
+            borderWidth: 2,
+            pointBackgroundColor: "#ffffff",
+            pointBorderColor: "#6366f1",
+            pointBorderWidth: 2,
+            pointRadius: 4,
+            tension: 0.4,
+            yAxisID: "y",
+          },
+          {
+            type: "line",
+            label: "허들러순",
+            data: [72, 75, 68, 78, 70],
+            borderColor: "#10b981",
+            backgroundColor: "transparent",
+            borderWidth: 2,
+            pointBackgroundColor: "#ffffff",
+            pointBorderColor: "#10b981",
+            pointBorderWidth: 2,
+            pointRadius: 4,
+            tension: 0.4,
+            yAxisID: "y",
+          },
+          {
+            type: "line",
+            label: "린덴션순",
+            data: [68, 65, 72, 70, 66],
+            borderColor: "#f59e0b",
+            backgroundColor: "transparent",
+            borderWidth: 2,
+            pointBackgroundColor: "#ffffff",
+            pointBorderColor: "#f59e0b",
+            pointBorderWidth: 2,
+            pointRadius: 4,
+            tension: 0.4,
+            yAxisID: "y",
+          },
+        ];
+      }
+
+      this.lineChartInstance = new Chart(ctx, {
+        type: "bar",
         data: {
-          labels: this.groupData.weeklyData.map((d) => d.week),
-          datasets: [
-            {
-              label: "그룹 전체",
-              data: this.groupData.weeklyData.map((d) => d.attendanceRate),
-              borderColor: "#3b82f6",
-              backgroundColor: "#3b82f6",
-              borderWidth: 3,
-              fill: false,
-              tension: 0.1,
-            },
+          labels: [
+            "06/01(일)",
+            "06/04(수)",
+            "06/06(금)",
+            "06/08(일)",
+            "06/11(수)",
           ],
+          datasets: datasets,
         },
         options: {
           responsive: true,
           maintainAspectRatio: false,
+          plugins: {
+            legend: {
+              display: false,
+            },
+          },
           scales: {
+            x: {
+              grid: {
+                display: false,
+              },
+            },
             y: {
-              beginAtZero: false,
-              min: 50,
-              max: 100,
+              type: "linear",
+              display: true,
+              position: "left",
+              beginAtZero: true,
+              max: this.chartTab === "combined" ? 80 : 100,
+              grid: {
+                color: "rgba(0, 0, 0, 0.1)",
+              },
+              ticks: {
+                callback: function (value) {
+                  return value + "%";
+                },
+              },
+            },
+            y1: {
+              type: "linear",
+              display: this.chartTab === "combined",
+              position: "right",
+              beginAtZero: true,
+              max: this.chartTab === "combined" ? 80 : 100,
+              grid: {
+                drawOnChartArea: false,
+              },
+              ticks: {
+                color: "#10b981",
+                callback: function (value) {
+                  return value + "%";
+                },
+              },
             },
           },
         },
       });
     },
-    createSubgroupBarChart() {
+    createBarChart() {
       if (this.barChartInstance) {
         this.barChartInstance.destroy();
       }
-      const ctx = this.$refs.subgroupBarChart.getContext("2d");
+      const ctx = this.$refs.attendanceBarChart.getContext("2d");
       this.barChartInstance = new Chart(ctx, {
         type: "bar",
         data: {
-          labels: this.groupData.subgroups.map((s) => s.name),
+          labels: this.groupData.weeklyData.map((d) => d.week),
           datasets: [
             {
-              label: "출석률",
-              data: this.groupData.subgroups.map((s) => s.attendanceRate),
-              backgroundColor: "#3b82f6",
-              borderRadius: 4,
+              label: "충선제순",
+              data: [80, 70, 75, 85, 75],
+              backgroundColor: "#6366f1",
+            },
+            {
+              label: "허들러순",
+              data: [85, 80, 90, 95, 85],
+              backgroundColor: "#10b981",
+            },
+            {
+              label: "린덴션순",
+              data: [75, 85, 80, 70, 80],
+              backgroundColor: "#f59e0b",
             },
           ],
         },
         options: {
           responsive: true,
           maintainAspectRatio: false,
+          plugins: {
+            legend: {
+              display: false,
+            },
+          },
           scales: {
             y: {
               beginAtZero: true,
               max: 100,
+              grid: {
+                color: "rgba(0, 0, 0, 0.1)",
+              },
+            },
+            x: {
+              grid: {
+                display: false,
+              },
             },
           },
         },
       });
     },
-    createSubgroupLineChart() {
-      if (this.lineChartInstance) {
-        this.lineChartInstance.destroy();
-      }
-      const ctx = this.$refs.subgroupLineChart.getContext("2d");
-      this.lineChartInstance = new Chart(ctx, {
-        type: "line",
-        data: {
-          labels: this.groupData.weeklyData.map((d) => d.week),
-          datasets: [
-            {
-              label: "순1",
-              data: this.groupData.subgroups[0].weeklyData.map(
-                (d) => d.attendanceRate
-              ),
-              borderColor: "#3b82f6",
-              backgroundColor: "#3b82f6",
-              borderWidth: 2,
-              fill: false,
-            },
-            {
-              label: "순2",
-              data: this.groupData.subgroups[1].weeklyData.map(
-                (d) => d.attendanceRate
-              ),
-              borderColor: "#10b981",
-              backgroundColor: "#10b981",
-              borderWidth: 2,
-              fill: false,
-            },
-            {
-              label: "순3",
-              data: this.groupData.subgroups[2].weeklyData.map(
-                (d) => d.attendanceRate
-              ),
-              borderColor: "#ef4444",
-              backgroundColor: "#ef4444",
-              borderWidth: 2,
-              fill: false,
-            },
-          ],
-        },
-        options: {
-          responsive: true,
-          maintainAspectRatio: false,
-          scales: {
-            y: {
-              beginAtZero: false,
-              min: 50,
-              max: 100,
-            },
-          },
-        },
-      });
-    },
-    async fetchOrganizationsOnly(groupId) {
+    async getGroupData(groupId) {
       try {
         const response = await this.getOrganizationById(groupId, true);
-        console.log(response.data);
         this.organizations = response.data;
-        console.log(this.organizations);
+        console.log("organizations", this.organizations);
+
+        // 조직 데이터를 받아온 후 그룹패스 업데이트
+        if (this.organizations && this.organizations.organization_name) {
+          this.groupPath = `${this.organizations.organization_name} | 그룹장: ${
+            this.organizations.leader_name || "미지정"
+          } | 부그룹장: ${this.organizations.sub_leader_name || "미지정"}`;
+        }
+
+        // API에서 받은 실제 데이터로 groupData 업데이트 (실제 API 응답 구조에 맞게 조정 필요)
+        // 현재는 목 데이터를 유지하되, API 데이터가 있으면 일부 필드를 업데이트
+        if (this.organizations.total_members) {
+          this.groupData.totalMembers = this.organizations.total_members;
+        }
+        if (this.organizations.attendance_rate) {
+          this.groupData.attendanceRate = this.organizations.attendance_rate;
+        }
       } catch (error) {
         console.error("조직 정보 가져오기 오류:", error);
         this.organizations = {};
+        // 에러 발생 시 기본값 유지
+        this.groupPath =
+          "청년2국 > 송강욱그룹 | 그룹장: 송강욱 | 부그룹장: 허효진";
       }
     },
     onSearch() {
       // 조회 버튼 클릭 시 동작
-      // this.startDate, this.endDate, this.groupPath 등 활용
-      // 필요시 기존 기간 필터링 로직과 연동
+      console.log("검색 실행:", this.startDate, this.endDate);
+    },
+    toggleHamburgerMenu() {
+      this.isHamburgerMenuOpen = !this.isHamburgerMenuOpen;
+    },
+    navigateToGroupManagement() {
+      // 그룹별 관리 페이지로 이동
+      console.log("그룹별 관리 페이지로 이동");
+      this.isHamburgerMenuOpen = false;
+    },
+    navigateToRewardsPenalties() {
+      // 상벌내역 페이지로 이동
+      console.log("상벌내역 페이지로 이동");
+      this.isHamburgerMenuOpen = false;
+    },
+    handleClickOutside(event) {
+      if (
+        this.isHamburgerMenuOpen &&
+        !event.target.closest(".hamburger-menu-container")
+      ) {
+        this.isHamburgerMenuOpen = false;
+      }
     },
   },
-  mounted() {
+  async created() {
     if (!this.userInfo) {
       this.$router.push({ name: "LoginView" });
+      return;
     }
 
-    console.log("사용자 정보:", this.userInfo);
-    console.log("그룹 아이디:", this.userInfo.roles[0].organizationId);
+    // 조직 데이터를 먼저 로드
+    if (this.userInfo?.roles?.[0]?.organizationId) {
+      await this.getGroupData(this.userInfo.roles[0].organizationId);
+    }
+
+    this.loading = false;
+
+    // 로딩 완료 후 차트 생성
     this.$nextTick(() => {
-      this.createWeeklyChart();
-      this.createSubgroupBarChart();
-      this.fetchOrganizationsOnly(this.userInfo.roles[0].organizationId);
+      this.createLineChart();
     });
   },
+  mounted() {
+    // 외부 클릭 이벤트 리스너 추가
+    document.addEventListener("click", this.handleClickOutside);
+  },
+  beforeDestroy() {
+    // 이벤트 리스너 제거
+    document.removeEventListener("click", this.handleClickOutside);
+  },
   watch: {
-    chartTab(newTab) {
+    chartTab() {
       this.$nextTick(() => {
-        if (newTab === "bar") {
-          this.createSubgroupBarChart();
-        } else {
-          this.createSubgroupLineChart();
-        }
+        this.createLineChart();
       });
+    },
+    loading(newVal) {
+      if (!newVal) {
+        // 로딩이 완료되면 차트 생성
+        this.$nextTick(() => {
+          this.createLineChart();
+        });
+      }
     },
   },
 };
@@ -686,50 +778,749 @@ export default {
 
 <style scoped>
 .dashboard-container {
-  max-width: 1200px;
-  margin: 0 auto;
+  padding: 20px;
+  background-color: #ffffff;
+  min-height: 100vh;
 }
+
+.loading-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  min-height: 60vh;
+  color: #6b7280;
+}
+
+.loading-spinner {
+  width: 48px;
+  height: 48px;
+  border: 4px solid #e5e7eb;
+  border-top: 4px solid #4f46e5;
+  border-radius: 50%;
+  animation: spin 1s linear infinite;
+  margin-bottom: 16px;
+}
+
+@keyframes spin {
+  0% {
+    transform: rotate(0deg);
+  }
+  100% {
+    transform: rotate(360deg);
+  }
+}
+
 .dashboard-header {
-  background: linear-gradient(90deg, #7b7ce6 0%, #a084ee 100%);
+  background: linear-gradient(135deg, #8b5cf6 0%, #a855f7 100%);
+  padding: 16px 24px;
+  border-radius: 8px;
   color: white;
-  border-radius: 16px;
-  padding: 24px 32px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 20px;
+}
+
+.header-left .header-title {
+  font-size: 18px;
+  font-weight: 600;
+  color: white;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 4px;
+}
+
+.header-left .breadcrumb {
+  font-size: 14px;
+}
+
+.separator {
+  margin: 0 8px;
+  opacity: 0.7;
+}
+
+.header-right {
+  display: flex;
+  align-items: center;
+  gap: 20px;
+}
+
+.notification-icon {
+  position: relative;
+}
+
+.bell-icon {
+  font-size: 20px;
+}
+
+.notification-badge {
+  position: absolute;
+  top: -8px;
+  right: -8px;
+  background: #ef4444;
+  border-radius: 50%;
+  width: 20px;
+  height: 20px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 12px;
+  font-weight: 500;
+}
+
+.user-profile {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.profile-avatar {
+  width: 36px;
+  height: 36px;
+  background: white;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 18px;
+  font-weight: 600;
+  color: #8b5cf6;
+}
+
+.profile-info {
+  display: flex;
+  flex-direction: column;
+}
+
+.profile-name {
+  font-size: 14px;
+  font-weight: 600;
+  color: white;
+}
+
+.profile-role {
+  font-size: 12px;
+  color: white;
+}
+
+.dropdown-arrow {
+  font-size: 12px;
+  color: white;
+}
+
+.hamburger-menu-container {
+  position: relative;
+}
+
+.hamburger-menu {
+  background: none;
+  border: none;
+  cursor: pointer;
+  padding: 8px;
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+}
+
+.hamburger-line {
+  width: 20px;
+  height: 2px;
+  background: white;
+  display: block;
+}
+
+.hamburger-dropdown {
+  position: absolute;
+  top: 100%;
+  right: 0;
+  background: white;
+  border-radius: 8px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+  padding: 8px 0;
+  z-index: 1000;
+  min-width: 160px;
+  margin-top: 8px;
+}
+
+.menu-item {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 12px 16px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  color: #374151;
+  font-size: 14px;
+  font-weight: 500;
+}
+
+.menu-item.active {
+  background: #3b82f6;
+  color: white;
+}
+
+.menu-item:hover:not(.active) {
+  background: #f3f4f6;
+}
+
+.menu-icon {
+  font-size: 16px;
+}
+
+.metrics-row {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 20px;
+  margin-bottom: 24px;
+}
+
+.metric-card {
+  background: white;
+  padding: 24px 20px;
+  border-radius: 12px;
+  text-align: center;
+  position: relative;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  border: 1px solid #e9ecef;
+}
+
+.metric-card.blue .metric-number {
+  color: #4285f4;
+}
+
+.metric-card.green .metric-number {
+  color: #34a853;
+}
+
+.metric-card.yellow {
+  position: relative;
+}
+
+.metric-card.yellow .warning-icon {
+  position: absolute;
+  top: 16px;
+  left: 16px;
+  color: #ffc107;
+  font-size: 20px;
+}
+
+.metric-card.yellow .metric-number {
+  color: #ffc107;
+}
+
+.metric-card.orange {
+  position: relative;
+}
+
+.metric-card.orange .warning-icon {
+  position: absolute;
+  top: 16px;
+  left: 16px;
+  color: #ff9800;
+  font-size: 20px;
+}
+
+.metric-card.orange .metric-number {
+  color: #ff9800;
+}
+
+.warning-icon {
+  display: block;
+  text-align: center;
+  color: #ffc107;
+  font-size: 20px;
+  margin-bottom: 8px;
+}
+
+.metric-number {
+  font-size: 36px;
+  font-weight: 700;
+  margin-bottom: 8px;
+  color: #4285f4;
+  line-height: 1.2;
+}
+
+.metric-number.green-text {
+  color: #34a853;
+}
+
+.metric-number.yellow-text {
+  color: #ffc107;
+}
+
+.metric-label {
+  font-size: 16px;
+  color: #666666;
+  margin-bottom: 8px;
+  font-weight: 400;
+}
+
+.metric-subtitle {
+  font-size: 14px;
+  color: #999999;
+  margin-top: 4px;
+}
+
+.metric-trend {
+  font-size: 14px;
+  margin-top: 8px;
+  font-weight: 400;
+}
+
+.metric-trend.positive {
+  color: #34a853;
+}
+
+.trend-icon {
+  margin-right: 4px;
+  font-size: 12px;
+}
+
+.chart-section,
+.subgroup-section,
+.members-section {
+  background: white;
+  border-radius: 8px;
+  padding: 24px;
+  margin-bottom: 24px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  border: 1px solid #e9ecef;
+}
+
+.section-header {
+  margin-bottom: 20px;
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+}
+
+.section-header-left {
+  flex: 1;
+}
+
+.section-title {
+  font-size: 18px;
+  font-weight: 600;
+  color: #666666;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 4px;
+}
+
+.section-subtitle {
+  font-size: 14px;
+  color: #999999;
+  margin: 0;
+}
+
+.chart-controls {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  margin-bottom: 24px;
+}
+
+.chart-tabs {
+  display: flex;
+  gap: 8px;
+}
+
+.tab-btn {
+  padding: 8px 16px;
+  border: 1px solid #d1d5db;
+  background: white;
+  color: #6b7280;
+  border-radius: 6px;
+  cursor: pointer;
+  font-size: 13px;
+  font-weight: 500;
+}
+
+.tab-btn.active {
+  background: #3b82f6;
+  color: white;
+  border-color: #3b82f6;
+}
+
+.chart-legend {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.legend-title {
+  font-size: 14px;
+  font-weight: 500;
+  color: #6b7280;
+}
+
+.legend-items {
+  display: flex;
+  gap: 16px;
+  flex-wrap: wrap;
+}
+
+.legend-item {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 12px;
+  color: #6b7280;
+}
+
+.legend-dot {
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+}
+
+.chart-container {
+  height: 300px;
+  margin-top: 20px;
+}
+
+.subgroup-cards {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 20px;
+}
+
+.subgroup-card {
+  background: white;
+  border: 1px solid #e9ecef;
+  border-radius: 8px;
+  padding: 20px;
+  text-align: center;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+}
+
+.main-chart {
   margin-bottom: 16px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  height: 160px;
+  justify-content: flex-end;
 }
-.dashboard-title {
-  font-size: 2rem;
+
+.chart-bar-large {
+  border-radius: 4px;
+  overflow: hidden;
+  margin: 0 auto;
+  transition: all 0.3s ease;
 }
-.dashboard-path {
-  font-size: 1rem;
+
+.chart-label {
+  font-size: 12px;
+  font-weight: 500;
+  color: #6b7280;
+  margin-top: 8px;
+  text-align: center;
 }
-.period-card {
-  border-radius: 16px;
-  background: #f8f9fd;
-  box-shadow: 0 2px 8px rgba(120, 120, 200, 0.06);
-  padding: 24px 32px 16px 32px;
-  margin-bottom: 16px;
+
+.subgroup-info {
+  text-align: center;
 }
-.date-input {
-  font-size: 1.1rem;
+
+.subgroup-name {
+  font-size: 16px;
+  font-weight: 600;
+  color: #666666;
+  margin-bottom: 8px;
 }
+
+.member-count {
+  font-size: 14px;
+  color: #999999;
+  margin-bottom: 8px;
+}
+
+.attendance-rate {
+  font-size: 24px;
+  font-weight: bold;
+  color: #6366f1;
+  margin-bottom: 4px;
+}
+
+.rate-label {
+  font-size: 14px;
+  color: #999999;
+  margin-bottom: 8px;
+}
+
+.rate-change {
+  margin-top: 8px;
+  display: flex;
+  justify-content: center;
+}
+
+.change-indicator.positive {
+  color: #10b981;
+}
+
+.change-indicator.negative {
+  color: #ef4444;
+}
+
+.filter-controls {
+  display: flex;
+  gap: 12px;
+  align-items: flex-start;
+}
+
+.filter-select {
+  padding: 6px 12px;
+  border: 1px solid #d1d5db;
+  border-radius: 4px;
+  font-size: 12px;
+  background: white;
+  min-width: 120px;
+}
+
+.members-list {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.member-card {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 20px 24px;
+  background: white;
+  border-radius: 8px;
+  border: 1px solid #e5e7eb;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+  transition: all 0.2s ease;
+}
+
+.member-card:hover {
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+  transform: translateY(-1px);
+}
+
+.member-info {
+  flex: 1;
+}
+
+.member-name {
+  font-size: 18px;
+  font-weight: 600;
+  color: #1f2937;
+  margin-bottom: 8px;
+}
+
+.member-details {
+  font-size: 14px;
+  color: #6b7280;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.member-subgroup {
+  background: #dbeafe;
+  color: #1e40af;
+  padding: 2px 8px;
+  border-radius: 4px;
+  font-size: 12px;
+  font-weight: 500;
+}
+
+.detail-separator {
+  color: #d1d5db;
+  margin: 0 4px;
+}
+
+.detail-text {
+  color: #6b7280;
+}
+
+.member-actions {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.detail-btn {
+  background: #f3f4f6;
+  color: #374151;
+  border: 1px solid #d1d5db;
+  padding: 6px 12px;
+  border-radius: 6px;
+  cursor: pointer;
+  font-size: 12px;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  transition: all 0.2s ease;
+}
+
+.detail-btn:hover {
+  background: #e5e7eb;
+  border-color: #9ca3af;
+}
+
+.absence-badge {
+  padding: 4px 8px;
+  border-radius: 12px;
+  font-size: 12px;
+  font-weight: 500;
+  white-space: nowrap;
+}
+
+.weeks-1 {
+  background: #dbeafe;
+  color: #1e40af;
+}
+
+.weeks-2 {
+  background: #fef3c7;
+  color: #d97706;
+}
+
+.weeks-3 {
+  background: #fed7d7;
+  color: #c53030;
+}
+
+.weeks-4 {
+  background: #fecaca;
+  color: #dc2626;
+}
+
+.phone-number {
+  font-size: 14px;
+  color: #6b7280;
+  font-family: monospace;
+  min-width: 120px;
+  text-align: right;
+}
+
+@media (max-width: 768px) {
+  .dashboard-header {
+    flex-direction: column;
+    gap: 16px;
+    align-items: flex-start;
+  }
+
+  .metrics-row {
+    grid-template-columns: repeat(2, 1fr);
+  }
+
+  .subgroup-cards {
+    grid-template-columns: 1fr;
+  }
+
+  .chart-controls {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
+  .legend {
+    justify-content: flex-start;
+  }
+}
+
+.metric-number-with-icon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  margin-bottom: 8px;
+}
+
+.warning-icon {
+  color: #ffc107;
+  font-size: 20px;
+}
+
+.metric-number {
+  font-size: 36px;
+  font-weight: 700;
+  margin-bottom: 8px;
+  color: #4285f4;
+  line-height: 1.2;
+}
+
+.date-search-section {
+  background: white;
+  border-radius: 8px;
+  padding: 16px 24px;
+  margin-bottom: 20px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  border: 1px solid #e9ecef;
+}
+
+.date-search-container {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  justify-content: flex-start;
+}
+
+.date-input-group {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.date-label {
+  font-size: 13px;
+  color: #666666;
+  font-weight: 500;
+  white-space: nowrap;
+}
+
 .date-separator {
-  font-size: 1.5rem;
-  color: #888;
-  font-weight: 600;
-  margin: 0 0.5rem;
+  font-size: 16px;
+  color: #666666;
+  margin: 0 8px;
 }
-.period-search-btn {
-  min-width: 100px;
-  font-size: 1.1rem;
-  font-weight: 600;
-  box-shadow: 0 2px 8px rgba(120, 120, 200, 0.08);
+
+.date-input-wrapper {
+  position: relative;
 }
-@media (max-width: 960px) {
-  .period-card {
-    padding: 16px 8px 8px 8px;
-  }
-  .date-separator {
-    margin: 0 0.2rem;
-  }
+
+.date-input-styled {
+  padding: 10px 14px;
+  border: 1px solid #d1d5db;
+  border-radius: 6px;
+  font-size: 14px;
+  background: white;
+  color: #333333;
+  min-width: 150px;
+  outline: none;
+  transition: all 0.2s ease;
+  height: 40px;
+}
+
+.date-input-styled:focus {
+  border-color: #4285f4;
+  box-shadow: 0 0 0 3px rgba(66, 133, 244, 0.1);
+}
+
+.search-button-styled {
+  background: #4285f4;
+  color: white;
+  border: none;
+  border-radius: 6px;
+  padding: 10px 20px;
+  font-size: 14px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  min-width: 70px;
+  height: 40px;
+}
+
+.search-button-styled:hover {
+  background: #3367d6;
+  transform: translateY(-1px);
+  box-shadow: 0 4px 8px rgba(66, 133, 244, 0.3);
 }
 </style>
