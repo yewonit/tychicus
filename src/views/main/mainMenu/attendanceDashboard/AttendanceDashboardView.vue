@@ -50,15 +50,15 @@
             >
               <div class="menu-item active">
                 <span class="menu-icon">📅</span>
-                <span>월 출석 현황</span>
+                <span>출석 현황</span>
               </div>
               <div class="menu-item" @click="navigateToGroupManagement">
                 <span class="menu-icon">👥</span>
-                <span>그룹별 관리</span>
+                <span>그룹원 관리</span>
               </div>
               <div class="menu-item" @click="navigateToRewardsPenalties">
-                <span class="menu-icon">🏆</span>
-                <span>상벌내역</span>
+                <span class="menu-icon">🗂️</span>
+                <span>심방보고</span>
               </div>
             </div>
           </div>
@@ -919,6 +919,10 @@ export default {
   display: flex;
   align-items: center;
   gap: 20px;
+  margin-left: auto;
+  flex-shrink: 0;
+  position: relative;
+  z-index: 2;
 }
 
 .notification-icon {
@@ -1457,9 +1461,9 @@ export default {
 
 @media (max-width: 768px) {
   .dashboard-header {
-    flex-direction: column;
-    gap: 16px;
-    align-items: flex-start;
+    flex-direction: row;
+    align-items: center;
+    gap: 0;
   }
 
   .metrics-row {
