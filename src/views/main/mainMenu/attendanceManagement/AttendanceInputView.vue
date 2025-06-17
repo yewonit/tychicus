@@ -498,11 +498,18 @@ export default {
       // 임시로 금요예배, 수요예배, 주일2부예배 제외
       const excludedActivities = ["금요예배", "수요예배", "주일2부예배"];
 
+      // 화면 표시용 이름 매핑
+      const displayNameMapping = {
+        현장치유팀사역: "두란노사역자모임",
+      };
+
       return this.activities
         .filter((activity) => !excludedActivities.includes(activity.name))
         .map((activity) => ({
           ...activity,
-          name: activity.name.split(" (")[0],
+          name:
+            displayNameMapping[activity.name.split(" (")[0]] ||
+            activity.name.split(" (")[0],
         }));
     },
     // 자정을 넘어가는 모임인지 확인
@@ -608,7 +615,7 @@ export default {
           startTime: "22:20",
           endTime: "23:20",
           location: "스카이아트홀",
-          notes: "현장을 살리길 원하는 제자들을 위해 주시는 말씀을 받는 시간",
+          notes: "두란노의 응답 받아 성경적 전도운동의 증인으로 서는 시간",
           dayOfWeek: 5, // 금요일
         },
       },
@@ -1577,7 +1584,13 @@ export default {
 
       if (dayOfWeek !== defaults.dayOfWeek) {
         // 불일치 - 경고 대화상자 정보 설정
-        this.selectedActivityName = activity.name;
+        // 화면 표시용 이름 매핑
+        const displayNameMapping = {
+          현장치유팀사역: "두란노사역자모임",
+        };
+
+        this.selectedActivityName =
+          displayNameMapping[activity.name] || activity.name;
         this.recommendedDayOfWeekText = this.dayOfWeekTexts[defaults.dayOfWeek];
         this.selectedDayOfWeekText = this.dayOfWeekTexts[dayOfWeek];
         this.selectedDate = this.meetingDate;
@@ -1671,7 +1684,15 @@ export default {
       const activity = this.activities.find(
         (a) => a.id === this.selectedActivity
       );
-      return activity ? activity.name : "";
+
+      if (!activity) return "";
+
+      // 화면 표시용 이름 매핑
+      const displayNameMapping = {
+        현장치유팀사역: "두란노사역자모임",
+      };
+
+      return displayNameMapping[activity.name] || activity.name;
     },
 
     /**
