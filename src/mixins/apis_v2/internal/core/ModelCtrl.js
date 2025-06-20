@@ -1,4 +1,4 @@
-import { AuthCtrl } from "@/mixins/apis_v2/internal/core/AuthCtrl";
+import { AuthCtrl } from '@/mixins/apis_v2/internal/core/AuthCtrl';
 
 export const ModelCtrl = {
   data() {
@@ -21,7 +21,7 @@ export const ModelCtrl = {
           model
         );
       }
-      await this.setAxios("open", showLog);
+      await this.setAxios('open', showLog);
       let tempData = null;
       await this.OPEN_AXIOS.post(url, model)
         .then((res) => {
@@ -58,7 +58,7 @@ export const ModelCtrl = {
       }
 
       try {
-        await this.setAxios("open", showLog);
+        await this.setAxios('open', showLog);
         const res = await this.OPEN_AXIOS.get(url, paramsObject);
         if (showLog) {
           console.log(`%c[ read res ] :`, `color: #008080;`, res);
@@ -88,7 +88,7 @@ export const ModelCtrl = {
           modelWithId
         );
       }
-      await this.setAxios("open", showLog);
+      await this.setAxios('open', showLog);
       let tempData = null;
       await this.OPEN_AXIOS.put(url, modelWithId)
         .then((res) => {
@@ -126,7 +126,7 @@ export const ModelCtrl = {
           dataObject
         );
       }
-      await this.setAxios("open", showLog);
+      await this.setAxios('open', showLog);
       let tempData = null;
       await this.OPEN_AXIOS.delete(url, { data: dataObject.data })
         .then((res) => {

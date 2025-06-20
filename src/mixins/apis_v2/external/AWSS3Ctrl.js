@@ -1,12 +1,12 @@
-import AWS from "aws-sdk";
+import AWS from 'aws-sdk';
 
 export const AWSS3Ctrl = {
   data() {
     return {
       // AWS S3 버킷 정보
-      albumBucketName: "tychicus", // S3 버킷 이름
-      bucketRegion: "ap-northeast-2", // AWS 리전 (서울)
-      IdentityPoolId: "ap-northeast-2:bfd26cc6-669c-4afb-a4d3-580c5f35f776", // Cognito Identity Pool ID
+      albumBucketName: 'tychicus', // S3 버킷 이름
+      bucketRegion: 'ap-northeast-2', // AWS 리전 (서울)
+      IdentityPoolId: 'ap-northeast-2:bfd26cc6-669c-4afb-a4d3-580c5f35f776', // Cognito Identity Pool ID
       s3: null, // AWS S3 인스턴스를 저장할 변수
     };
   },
@@ -25,7 +25,7 @@ export const AWSS3Ctrl = {
       });
       // S3 인스턴스 생성
       this.s3 = await new AWS.S3({
-        apiVersion: "2006-03-01",
+        apiVersion: '2006-03-01',
         params: { Bucket: this.albumBucketName },
       });
     },
@@ -49,7 +49,7 @@ export const AWSS3Ctrl = {
         .upload({
           Key: fileName,
           Body: fileObject,
-          ACL: "public-read", // 파일을 공개적으로 읽을 수 있게 설정
+          ACL: 'public-read', // 파일을 공개적으로 읽을 수 있게 설정
         })
         .promise()
         .then((res) => {
@@ -69,7 +69,7 @@ export const AWSS3Ctrl = {
         })
         .catch((err) => {
           alert(
-            "정보를 업로드하는데 실패하였습니다.(관리자 문의 : 010-3383-4177)"
+            '정보를 업로드하는데 실패하였습니다.(관리자 문의 : 010-3383-4177)'
           );
           console.log(err);
         });
@@ -87,12 +87,12 @@ export const AWSS3Ctrl = {
         })
         .promise()
         .then((data) => {
-          console.log("리스트 가져오기 성공");
+          console.log('리스트 가져오기 성공');
           console.log(data);
           tempData = data.Contents; // 파일 목록 저장
         })
         .catch((err) => {
-          console.log("리스트 가져오기 실패");
+          console.log('리스트 가져오기 실패');
           console.log(err);
         });
       await this.clearS3();
@@ -114,12 +114,12 @@ export const AWSS3Ctrl = {
         })
         .promise()
         .then((res) => {
-          console.log("파일 가져오기 성공");
+          console.log('파일 가져오기 성공');
           console.log(res);
           tempData = res.Body; // 파일 내용 저장
         })
         .catch((err) => {
-          console.log("파일 가져오기 실패");
+          console.log('파일 가져오기 실패');
           console.log(err);
         });
       await this.clearS3();
@@ -136,19 +136,19 @@ export const AWSS3Ctrl = {
       let tempData = await null;
       await this.s3
         .upload({
-          Key: userEmail + "_" + fileName, // 사용자 이메일을 파일명에 추가
+          Key: userEmail + '_' + fileName, // 사용자 이메일을 파일명에 추가
           Body: fileObject,
-          ACL: "public-read",
+          ACL: 'public-read',
         })
         .promise()
         .then((data) => {
-          alert("업데이트 성공");
-          console.log("업데이트 성공");
+          alert('업데이트 성공');
+          console.log('업데이트 성공');
           console.log(data);
           tempData = data;
         })
         .catch((err) => {
-          console.log("업데이트 실패");
+          console.log('업데이트 실패');
           console.log(err);
         });
       await this.clearS3();
@@ -183,7 +183,7 @@ export const AWSS3Ctrl = {
           tempData = data;
         })
         .catch((err) => {
-          console.log("삭제 실패");
+          console.log('삭제 실패');
           console.log(err);
         });
       await this.clearS3();

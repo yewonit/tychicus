@@ -1,6 +1,6 @@
-import { MasterCtrl } from "@/mixins/apis_v2/internal/MasterCtrl";
-import { AWSS3Ctrl } from "@/mixins/apis_v2/external/AWSS3Ctrl";
-import { Utility } from "@/mixins/apis_v2/utility/Utility";
+import { MasterCtrl } from '@/mixins/apis_v2/internal/MasterCtrl';
+import { AWSS3Ctrl } from '@/mixins/apis_v2/external/AWSS3Ctrl';
+import { Utility } from '@/mixins/apis_v2/utility/Utility';
 export const FileBins = {
   data() {
     return {};
@@ -60,11 +60,11 @@ export const FileBins = {
         file_description: fileDescription,
         file_path: temps3CreateFile.filePath,
         file_size: fileObject.size,
-        file_type: fileName.split(".").pop().toLowerCase(),
+        file_type: fileName.split('.').pop().toLowerCase(),
       };
       const newFile = await this.authCreateData(this.File, tempFileModel);
       if (showLog) {
-        console.log(`%c[ Data ] newFile`, "color: #6495ED;", newFile);
+        console.log(`%c[ Data ] newFile`, 'color: #6495ED;', newFile);
       }
       // 1.3. (UHFile) 유저정보와 파일정보를 연결하는 데이터를 생성한다
       let tempUHFileModel = {
@@ -73,7 +73,7 @@ export const FileBins = {
       };
       const newUHFile = await this.authCreateData(this.UHFile, tempUHFileModel);
       if (showLog) {
-        console.log(`%c[ Data ] newUHFile`, "color: #6495ED;", newUHFile);
+        console.log(`%c[ Data ] newUHFile`, 'color: #6495ED;', newUHFile);
       }
       return newFile;
     },
@@ -125,11 +125,11 @@ export const FileBins = {
         file_description: fileDescription,
         file_path: temps3CreateFile.filePath,
         file_size: fileObject.size,
-        file_type: fileName.split(".").pop().toLowerCase(),
+        file_type: fileName.split('.').pop().toLowerCase(),
       };
       const newFile = await this.authCreateData(this.File, tempFileModel);
       if (showLog) {
-        console.log(`%c[ Data ] newFile`, "color: #6495ED;", newFile);
+        console.log(`%c[ Data ] newFile`, 'color: #6495ED;', newFile);
       }
       // 1.3. (UHFile) 유저정보와 파일정보를 연결하는 데이터를 생성한다
       let tempWHFileModel = {
@@ -138,7 +138,7 @@ export const FileBins = {
       };
       const newWHFile = await this.authCreateData(this.WHFile, tempWHFileModel);
       if (showLog) {
-        console.log(`%c[ Data ] newWHFile`, "color: #6495ED;", newWHFile);
+        console.log(`%c[ Data ] newWHFile`, 'color: #6495ED;', newWHFile);
       }
       return newFile;
     },
@@ -192,11 +192,11 @@ export const FileBins = {
         file_description: fileDescription,
         file_path: temps3CreateFile.filePath,
         file_size: fileObject.size,
-        file_type: fileName.split(".").pop().toLowerCase(),
+        file_type: fileName.split('.').pop().toLowerCase(),
       };
       const newFile = await this.authCreateData(this.File, tempFileModel);
       if (showLog) {
-        console.log(`%c[ Data ] newFile`, "color: #6495ED;", newFile);
+        console.log(`%c[ Data ] newFile`, 'color: #6495ED;', newFile);
       }
       // 1.3. (BNHFile) 비즈뉴스정보와 파일정보를 연결하는 데이터를 생성한다
       let tempBNHFileModel = {
@@ -208,7 +208,7 @@ export const FileBins = {
         tempBNHFileModel
       );
       if (showLog) {
-        console.log(`%c[ Data ] newBNHFile`, "color: #6495ED;", newBNHFile);
+        console.log(`%c[ Data ] newBNHFile`, 'color: #6495ED;', newBNHFile);
       }
       return newFile;
     },
@@ -234,7 +234,7 @@ export const FileBins = {
       if (showLog) {
         console.log(
           `%c[ Data ] tempUHFileList`,
-          "color: #6495ED;",
+          'color: #6495ED;',
           tempUHFileList
         );
       }
@@ -246,7 +246,7 @@ export const FileBins = {
           this.File,
           tempUHFile.file_id
         );
-        console.log(`%c[ Data ] fileItem`, "color: #E3DAC9;", fileItem);
+        console.log(`%c[ Data ] fileItem`, 'color: #E3DAC9;', fileItem);
         tempFileList.push(fileItem);
       }
 
@@ -290,7 +290,7 @@ export const FileBins = {
       if (showLog) {
         console.log(
           `%c[ Data ] tempWHFileList`,
-          "color: #6495ED;",
+          'color: #6495ED;',
           tempWHFileList
         );
       }
@@ -303,7 +303,7 @@ export const FileBins = {
           tempWHFile.file_id
         );
         if (showLog) {
-          console.log(`%c[ Data ] fileItem`, "color: #E3DAC9;", fileItem);
+          console.log(`%c[ Data ] fileItem`, 'color: #E3DAC9;', fileItem);
         }
         tempFileList.push(fileItem);
       }
@@ -352,7 +352,7 @@ export const FileBins = {
       if (showLog) {
         console.log(
           `%c[ Data ] tempBNHFileList`,
-          "color: #6495ED;",
+          'color: #6495ED;',
           tempBNHFileList
         );
       }
@@ -364,7 +364,7 @@ export const FileBins = {
           this.File,
           tempBNHFile.file_id
         );
-        console.log(`%c[ Data ] fileItem`, "color: #E3DAC9;", fileItem);
+        console.log(`%c[ Data ] fileItem`, 'color: #E3DAC9;', fileItem);
         tempFileList.push(fileItem);
       }
 
@@ -420,7 +420,7 @@ export const FileBins = {
       // 1.1. (File) 파일정보를 불러온다.
       const tempFileItem = await this.authReadDataItemById(this.File, fileId);
       if (showLog) {
-        console.log(`%c[ Data ] tempFileItem`, "color: #6495ED;", tempFileItem);
+        console.log(`%c[ Data ] tempFileItem`, 'color: #6495ED;', tempFileItem);
       }
       // 1.2. (AWS-S3) 파일이름을 활용해 S3 스토리지에서 파일을 삭제한다
       const s3DeleteFileResult = await this.s3DeleteFile(
@@ -429,7 +429,7 @@ export const FileBins = {
       if (showLog) {
         console.log(
           `%c[ Data ] s3DeleteFileResult`,
-          "color: #6495ED;",
+          'color: #6495ED;',
           s3DeleteFileResult
         );
       }
@@ -454,7 +454,7 @@ export const FileBins = {
         file_description: fileDescription,
         file_path: temps3CreateFile.filePath,
         file_size: fileObject.size,
-        file_type: fileName.split(".").pop().toLowerCase(),
+        file_type: fileName.split('.').pop().toLowerCase(),
       };
       // UPDATE DATA
       const updatedFile = await this.authUpdateData(
@@ -462,7 +462,7 @@ export const FileBins = {
         tempFileItem.id,
         tempFileModel
       );
-      console.log(`%c[ Data ] updatedFile`, "color: #6495ED;", updatedFile);
+      console.log(`%c[ Data ] updatedFile`, 'color: #6495ED;', updatedFile);
       return updatedFile;
     },
     // DELETE FILE
@@ -475,7 +475,7 @@ export const FileBins = {
       // 1. (File) 파일정보를 불러온다.
       const tempFileItem = await this.authReadDataItemById(this.File, fileId);
       if (showLog) {
-        console.log(`%c[ Data ] tempFileItem`, "color: #6495ED;", tempFileItem);
+        console.log(`%c[ Data ] tempFileItem`, 'color: #6495ED;', tempFileItem);
       }
       // 2. (AWS-S3) 파일이름을 활용해 S3 스토리지에서 파일을 삭제한다
       const s3DeleteFileResult = await this.s3DeleteFile(
@@ -484,7 +484,7 @@ export const FileBins = {
       if (showLog) {
         console.log(
           `%c[ Data ] s3DeleteFileResult`,
-          "color: #6495ED;",
+          'color: #6495ED;',
           s3DeleteFileResult
         );
       }
@@ -496,7 +496,7 @@ export const FileBins = {
       if (showLog) {
         console.log(
           `%c[ Data ] UHFileListByFileId`,
-          "color: #6495ED;",
+          'color: #6495ED;',
           UHFileListByFileId
         );
       }
@@ -512,7 +512,7 @@ export const FileBins = {
           if (showLog) {
             console.log(
               `%c[ Data ] deleteUHFileResult`,
-              "color: #6495ED;",
+              'color: #6495ED;',
               deleteUHFileResult
             );
           }
@@ -526,7 +526,7 @@ export const FileBins = {
       if (showLog) {
         console.log(
           `%c[ Data ] WHFileListByFileId`,
-          "color: #6495ED;",
+          'color: #6495ED;',
           WHFileListByFileId
         );
       }
@@ -540,7 +540,7 @@ export const FileBins = {
           if (showLog) {
             console.log(
               `%c[ Data ] deleteWHFileResult`,
-              "color: #6495ED;",
+              'color: #6495ED;',
               deleteWHFileResult
             );
           }
@@ -556,7 +556,7 @@ export const FileBins = {
       if (showLog) {
         console.log(
           `%c[ Data ] BNHFileListByFileId`,
-          "color: #6495ED;",
+          'color: #6495ED;',
           BNHFileListByFileId
         );
       }
@@ -570,7 +570,7 @@ export const FileBins = {
           if (showLog) {
             console.log(
               `%c[ Data ] deleteBNHFileResult`,
-              "color: #6495ED;",
+              'color: #6495ED;',
               deleteBNHFileResult
             );
           }
@@ -586,7 +586,7 @@ export const FileBins = {
       if (showLog) {
         console.log(
           `%c[ Data ] authDeletedFileResult`,
-          "color: #6495ED;",
+          'color: #6495ED;',
           authDeletedFileResult
         );
       }

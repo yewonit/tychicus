@@ -12,14 +12,14 @@
           {{
             userInfo && userInfo.roles && userInfo.roles.length > 0
               ? userInfo.roles[0].organizationName
-              : "조직 정보 로딩 중..."
+              : '조직 정보 로딩 중...'
           }}
         </v-list-item-title>
         <v-list-item-subtitle>
           {{
             userInfo && userInfo.roles && userInfo.roles.length > 0
               ? userInfo.roles[0].roleName
-              : "역할 정보 로딩 중..."
+              : '역할 정보 로딩 중...'
           }}
         </v-list-item-subtitle>
       </v-list-item-content>
@@ -111,64 +111,64 @@
 </template>
 
 <script>
-import { mapState } from "vuex";
+  import { mapState } from 'vuex';
 
-export default {
-  name: "AdminSidebar",
+  export default {
+    name: 'AdminSidebar',
 
-  props: {
-    value: {
-      type: Boolean,
-      default: true,
-    },
-  },
-
-  computed: {
-    ...mapState("auth", ["userInfo"]),
-
-    localDrawer: {
-      get() {
-        return this.value;
-      },
-      set(value) {
-        this.$emit("input", value);
+    props: {
+      value: {
+        type: Boolean,
+        default: true,
       },
     },
-  },
 
-  data: () => ({
-    // 필요한 데이터 정의
-  }),
+    computed: {
+      ...mapState('auth', ['userInfo']),
 
-  methods: {
-    // 필요한 메서드 정의
-  },
-};
+      localDrawer: {
+        get() {
+          return this.value;
+        },
+        set(value) {
+          this.$emit('input', value);
+        },
+      },
+    },
+
+    data: () => ({
+      // 필요한 데이터 정의
+    }),
+
+    methods: {
+      // 필요한 메서드 정의
+    },
+  };
 </script>
 
 <style scoped>
-.admin-sidebar {
-  border-right: 1px solid #e0e0e0;
-}
+  .admin-sidebar {
+    border-right: 1px solid #e0e0e0;
+  }
 
-.v-list-item {
-  min-height: 44px;
-}
+  .v-list-item {
+    min-height: 44px;
+  }
 
-.v-list-group__header {
-  min-height: 44px;
-}
+  .v-list-group__header {
+    min-height: 44px;
+  }
 
-.v-list-item__icon {
-  margin: 12px 0;
-}
+  .v-list-item__icon {
+    margin: 12px 0;
+  }
 
-.v-list-group__header.v-list-item--active:before {
-  opacity: 0.12;
-}
+  .v-list-group__header.v-list-item--active:before {
+    opacity: 0.12;
+  }
 
-.theme--light.v-list-item--active:hover::before,
-.theme--light.v-list-item--active::before {
-  opacity: 0.12;
-}
+  .theme--light.v-list-item--active:hover::before,
+  .theme--light.v-list-item--active::before {
+    opacity: 0.12;
+  }
 </style>

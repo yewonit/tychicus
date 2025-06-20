@@ -1,11 +1,11 @@
-import moment from "moment";
+import moment from 'moment';
 
 // 디버깅 로그 추가
-console.log("StructuredDataMixin이 로드됨");
+console.log('StructuredDataMixin이 로드됨');
 
 export const StructuredDataMixin = {
   data() {
-    console.log("StructuredDataMixin data() 함수 실행");
+    console.log('StructuredDataMixin data() 함수 실행');
     return {
       // 다차원 데이터 구조 (조직 > 모임유형 > 시간 > 출석정보)
       structuredData: {
@@ -19,7 +19,7 @@ export const StructuredDataMixin = {
   methods: {
     // 데이터 구조화 (다차원 데이터 구조 생성)
     structureData() {
-      console.log("데이터 구조화 시작...");
+      console.log('데이터 구조화 시작...');
 
       // 구조화된 데이터 초기화
       this.structuredData = {
@@ -71,8 +71,8 @@ export const StructuredDataMixin = {
         // 각 활동 데이터 처리
         if (orgData.activities) {
           orgData.activities.forEach((activity) => {
-            const meetingType = activity.meetingType || "OTHER";
-            const activityDate = moment(activity.date).format("YYYY-MM-DD");
+            const meetingType = activity.meetingType || 'OTHER';
+            const activityDate = moment(activity.date).format('YYYY-MM-DD');
 
             // 활동 기본 정보
             const activityInfo = {
@@ -83,7 +83,7 @@ export const StructuredDataMixin = {
               organizationId: orgData.organizationId,
               organizationName: orgData.organizationName,
               meetingType: meetingType,
-              meetingTypeName: this.meetingTypes[meetingType] || "기타",
+              meetingTypeName: this.meetingTypes[meetingType] || '기타',
               attendanceCount: 0, // 실제 출석 데이터 연결 전 기본값
             };
 
@@ -135,7 +135,7 @@ export const StructuredDataMixin = {
         }
       });
 
-      console.log("데이터 구조화 완료:", this.structuredData);
+      console.log('데이터 구조화 완료:', this.structuredData);
 
       // 모임 유형별 통계 계산 및 meetingTypeData 업데이트
       this.calculateMeetingTypeStatistics();
@@ -183,7 +183,7 @@ export const StructuredDataMixin = {
       // DashboardView의 meetingTypeData 업데이트
       this.meetingTypeData = meetingTypeDataResult;
       console.log(
-        "모임 유형별 통계 계산 완료 (meetingTypeData):",
+        '모임 유형별 통계 계산 완료 (meetingTypeData):',
         this.meetingTypeData
       );
     },
@@ -195,7 +195,7 @@ export const StructuredDataMixin = {
       meetingStats,
       instance = null
     ) {
-      const meetingType = activity.meetingType || "OTHER";
+      const meetingType = activity.meetingType || 'OTHER';
       const activityDate = meetingStats.date;
       const attendanceCount = meetingStats.presentCount || 0;
 
@@ -206,9 +206,9 @@ export const StructuredDataMixin = {
         name: activity.name,
         date: activityDate,
         organizationId: organizationId,
-        organizationName: activity.organizationName || "",
+        organizationName: activity.organizationName || '',
         meetingType: meetingType,
-        meetingTypeName: this.meetingTypes[meetingType] || "기타",
+        meetingTypeName: this.meetingTypes[meetingType] || '기타',
         attendanceCount: attendanceCount,
         presentCount: meetingStats.presentCount || 0,
         absentCount: meetingStats.absentCount || 0,
@@ -364,7 +364,7 @@ export const StructuredDataMixin = {
 
     // 조직 계층 구조 통계 처리 (하위 조직 → 상위 조직으로 롤업)
     processOrganizationHierarchyStats() {
-      console.log("조직 계층 구조 통계 처리 시작...");
+      console.log('조직 계층 구조 통계 처리 시작...');
 
       // 조직 트리 활용하여 리프 노드부터 상위로 통계 롤업
       const rollupStats = () => {
@@ -451,11 +451,11 @@ export const StructuredDataMixin = {
               ) {
                 for (const instance of activity.instances) {
                   const attendances = instance.attendances || [];
-                  const meetingType = activity.meetingType || "OTHER";
+                  const meetingType = activity.meetingType || 'OTHER';
 
                   // 출석한 인원수 계산
                   const presentCount = attendances.filter(
-                    (a) => a.status === "출석"
+                    (a) => a.status === '출석'
                   ).length;
 
                   // 모임 정보 생성
@@ -470,26 +470,26 @@ export const StructuredDataMixin = {
                           if (instance.start_datetime) {
                             const date = moment(instance.start_datetime);
                             if (date.isValid()) {
-                              return date.format("YYYY-MM-DD");
+                              return date.format('YYYY-MM-DD');
                             }
                           }
-                          return moment().format("YYYY-MM-DD");
+                          return moment().format('YYYY-MM-DD');
                         } catch (e) {
-                          console.warn("날짜 변환 중 오류:", e);
-                          return moment().format("YYYY-MM-DD");
+                          console.warn('날짜 변환 중 오류:', e);
+                          return moment().format('YYYY-MM-DD');
                         }
                       })(),
                     name: activity.name,
-                    type: activity.category || activity.type || "정기예배",
+                    type: activity.category || activity.type || '정기예배',
                     location: instance.actual_location,
                     notes: instance.notes,
                     meetingType: meetingType,
-                    meetingTypeName: this.meetingTypes[meetingType] || "기타",
+                    meetingTypeName: this.meetingTypes[meetingType] || '기타',
                     attendanceCount: attendances.length,
                     presentCount: presentCount,
-                    absentCount: attendances.filter((a) => a.status === "결석")
+                    absentCount: attendances.filter((a) => a.status === '결석')
                       .length,
-                    lateCount: attendances.filter((a) => a.status === "지각")
+                    lateCount: attendances.filter((a) => a.status === '지각')
                       .length,
                     organizationId: organizationId,
                     organizationName: orgData.organizationName,
@@ -629,7 +629,7 @@ export const StructuredDataMixin = {
       this.structuredData.hierarchyStats = hierarchyStats;
 
       console.log(
-        "조직 계층 구조 통계 처리 완료:",
+        '조직 계층 구조 통계 처리 완료:',
         this.structuredData.hierarchyStats
       );
 

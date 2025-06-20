@@ -5,7 +5,7 @@
         {{
           selectedOrganization
             ? selectedOrganization.organization_name
-            : "조직을 선택하세요"
+            : '조직을 선택하세요'
         }}
         <span v-if="selectedOrganization" class="text-caption ml-2">
           (총 {{ members.length }}명)
@@ -51,14 +51,14 @@
                 <div>
                   <div class="member-name">{{ item.name }}</div>
                   <div class="member-suffix">
-                    {{ item.nameSuffix || "구분자 없음" }}
+                    {{ item.nameSuffix || '구분자 없음' }}
                   </div>
                 </div>
               </div>
             </td>
-            <td>{{ item.phoneNumber || "번호 없음" }}</td>
-            <td>{{ item.email || "이메일 없음" }}</td>
-            <td>{{ item.genderType === "M" ? "남성" : "여성" }}</td>
+            <td>{{ item.phoneNumber || '번호 없음' }}</td>
+            <td>{{ item.email || '이메일 없음' }}</td>
+            <td>{{ item.genderType === 'M' ? '남성' : '여성' }}</td>
             <td>
               <!-- 역할 칩 렌더링 단순화 -->
               <v-chip
@@ -115,68 +115,68 @@
 </template>
 
 <script>
-export default {
-  name: "MemberList",
+  export default {
+    name: 'MemberList',
 
-  props: {
-    selectedOrganization: {
-      type: Object,
-      default: null,
+    props: {
+      selectedOrganization: {
+        type: Object,
+        default: null,
+      },
+      members: {
+        type: Array,
+        default: () => [],
+      },
+      loading: {
+        type: Boolean,
+        default: false,
+      },
     },
-    members: {
-      type: Array,
-      default: () => [],
-    },
-    loading: {
-      type: Boolean,
-      default: false,
-    },
-  },
 
-  data() {
-    return {
-      memberHeaders: [
-        { text: "이름", value: "name", sortable: true },
-        { text: "전화번호", value: "phoneNumber", sortable: true },
-        { text: "이메일", value: "email", sortable: true },
-        { text: "성별", value: "genderType", sortable: true },
-        { text: "상태/역할", value: "status", sortable: false },
-        { text: "관리", value: "actions", sortable: false, align: "right" },
-      ],
-    };
-  },
-
-  methods: {
-    // 역할에 따른 색상 지정
-    getRoleColor(roleName) {
-      const colorMap = {
-        그룹장: "#B3C6FF", // 파스텔 블루
-        부그룹장: "#B3C6FF", // 그룹장과 같은 파스텔 블루
-        순장: "#B3C6FF", // 그룹장과 같은 파스텔 블루
-        EBS: "#FFF4B3", // 파스텔 옐로우
-        순원: "#C2E0C2", // 파스텔 그린
-        회원: "#D6EAD6", // 연한 파스텔 그린
+    data() {
+      return {
+        memberHeaders: [
+          { text: '이름', value: 'name', sortable: true },
+          { text: '전화번호', value: 'phoneNumber', sortable: true },
+          { text: '이메일', value: 'email', sortable: true },
+          { text: '성별', value: 'genderType', sortable: true },
+          { text: '상태/역할', value: 'status', sortable: false },
+          { text: '관리', value: 'actions', sortable: false, align: 'right' },
+        ],
       };
-      return colorMap[roleName] || "#E0E0E0"; // 기본 연한 회색
     },
-  },
-};
+
+    methods: {
+      // 역할에 따른 색상 지정
+      getRoleColor(roleName) {
+        const colorMap = {
+          그룹장: '#B3C6FF', // 파스텔 블루
+          부그룹장: '#B3C6FF', // 그룹장과 같은 파스텔 블루
+          순장: '#B3C6FF', // 그룹장과 같은 파스텔 블루
+          EBS: '#FFF4B3', // 파스텔 옐로우
+          순원: '#C2E0C2', // 파스텔 그린
+          회원: '#D6EAD6', // 연한 파스텔 그린
+        };
+        return colorMap[roleName] || '#E0E0E0'; // 기본 연한 회색
+      },
+    },
+  };
 </script>
 
 <style scoped>
-/* 이름 아바타 스타일 */
-.name-avatar {
-  background: linear-gradient(135deg, #7ea394, #c2e0c2) !important;
-  font-weight: bold;
-}
+  /* 이름 아바타 스타일 */
+  .name-avatar {
+    background: linear-gradient(135deg, #7ea394, #c2e0c2) !important;
+    font-weight: bold;
+  }
 
-/* 멤버 정보 표시 스타일 */
-.member-name {
-  font-weight: 600;
-}
+  /* 멤버 정보 표시 스타일 */
+  .member-name {
+    font-weight: 600;
+  }
 
-.member-suffix {
-  opacity: 0.7;
-  font-size: 0.85em;
-}
+  .member-suffix {
+    opacity: 0.7;
+    font-size: 0.85em;
+  }
 </style>

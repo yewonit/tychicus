@@ -31,32 +31,32 @@
 </template>
 
 <script>
-import "@/styles/overrides.scss";
-export default {
-  props: {
-    imgUrl: {
-      type: String,
-      default:
-        "https://images.unsplash.com/photo-1638913662252-70efce1e60a7?ixlib=rb-1.2.1&ixid=MnwxMjA3fDF8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=1470&q=80",
+  import '@/styles/overrides.scss';
+  export default {
+    props: {
+      imgUrl: {
+        type: String,
+        default:
+          'https://images.unsplash.com/photo-1638913662252-70efce1e60a7?ixlib=rb-1.2.1&ixid=MnwxMjA3fDF8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=1470&q=80',
+      },
+      TopicTitle: {
+        type: String,
+        default: 'TopicTitle',
+      },
+      TopicSubTitle: {
+        type: String,
+        default: 'TopicSubTitle',
+      },
+      TopicDescription: {
+        type: String,
+        default: '이 곳에는 해당 토픽에 대한 설명이 들어가게됩니다.',
+      },
+      TopicInfo: {
+        type: String,
+        default: 'TopicInfo',
+      },
     },
-    TopicTitle: {
-      type: String,
-      default: "TopicTitle",
-    },
-    TopicSubTitle: {
-      type: String,
-      default: "TopicSubTitle",
-    },
-    TopicDescription: {
-      type: String,
-      default: "이 곳에는 해당 토픽에 대한 설명이 들어가게됩니다.",
-    },
-    TopicInfo: {
-      type: String,
-      default: "TopicInfo",
-    },
-  },
-};
+  };
 </script>
 
 <style></style>

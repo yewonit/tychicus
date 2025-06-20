@@ -1,10 +1,10 @@
 /* eslint-disable no-unused-vars */
 // 디버깅 로그 추가
-console.log("ExportDataMixin이 로드됨");
+console.log('ExportDataMixin이 로드됨');
 
 export const ExportDataMixin = {
   data() {
-    console.log("ExportDataMixin data() 함수 실행");
+    console.log('ExportDataMixin data() 함수 실행');
     return {
       // 엑셀 다운로드용 데이터
       exportData: {
@@ -18,12 +18,12 @@ export const ExportDataMixin = {
   methods: {
     // 엑셀 다운로드용 데이터 준비
     prepareExportData() {
-      console.log("엑셀 다운로드용 데이터 준비 시작...");
+      console.log('엑셀 다운로드용 데이터 준비 시작...');
 
       // 데이터가 없는 경우 먼저 구조화
       if (Object.keys(this.timeSeriesData.weekly || {}).length === 0) {
         console.log(
-          "timeSeriesData가 비어 있어 데이터 구조화를 다시 시도합니다."
+          'timeSeriesData가 비어 있어 데이터 구조화를 다시 시도합니다.'
         );
         this.structureTimeSeriesData();
       }
@@ -40,14 +40,14 @@ export const ExportDataMixin = {
       // 시계열 데이터 준비
       this.prepareExportTimeSeriesData();
 
-      console.log("엑셀 다운로드용 데이터 준비 완료:", this.exportData);
+      console.log('엑셀 다운로드용 데이터 준비 완료:', this.exportData);
     },
 
     // 엑셀 다운로드 - 요약 데이터 준비
     prepareExportSummaryData() {
       // 요약 데이터 구조
       this.exportData.summary = {
-        title: "출석 데이터 요약",
+        title: '출석 데이터 요약',
         period: `${this.dateRange.start} ~ ${this.dateRange.end}`,
         totalStats: {
           totalMeetings: this.attendanceData.summary.totalMeetings,
@@ -127,14 +127,14 @@ export const ExportDataMixin = {
     prepareExportOrganizationData() {
       // 조직별 데이터 구조
       this.exportData.byOrganization = {
-        title: "조직별 출석 데이터",
+        title: '조직별 출석 데이터',
         period: `${this.dateRange.start} ~ ${this.dateRange.end}`,
         hierarchyData: [], // 계층 구조를 반영한 조직 데이터
         detailedData: [], // 각 조직별 상세 데이터
       };
 
       // 1. 계층 구조를 반영한 조직 데이터 생성
-      const processOrgTree = (nodes, parentName = "") => {
+      const processOrgTree = (nodes, parentName = '') => {
         const result = [];
 
         nodes.forEach((node) => {
@@ -226,7 +226,7 @@ export const ExportDataMixin = {
             name: orgStats.name,
             level: orgStats.level,
             isLeafNode: orgStats.isLeafNode,
-            path: orgStats.path.join(" > "),
+            path: orgStats.path.join(' > '),
             meetingCount: orgStats.own.meetingCount,
             attendeeCount: orgStats.own.attendeeCount,
             attendanceRate: orgStats.own.attendanceRate,
@@ -253,7 +253,7 @@ export const ExportDataMixin = {
     prepareExportMeetingTypeData() {
       // 모임 유형별 데이터 구조
       this.exportData.byMeetingType = {
-        title: "모임 유형별 출석 데이터",
+        title: '모임 유형별 출석 데이터',
         period: `${this.dateRange.start} ~ ${this.dateRange.end}`,
         summaryData: [], // 모임 유형별 요약 통계
         timeSeriesData: [], // 시간에 따른 모임 유형별 통계
@@ -368,7 +368,7 @@ export const ExportDataMixin = {
     prepareExportTimeSeriesData() {
       // 시계열 데이터 구조
       this.exportData.timeSeries = {
-        title: "시계열 출석 데이터",
+        title: '시계열 출석 데이터',
         period: `${this.dateRange.start} ~ ${this.dateRange.end}`,
         weekly: [],
         monthly: [],

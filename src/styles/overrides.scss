@@ -1,26 +1,26 @@
 // 애니메이션 관련 스타일 모듈
-@import "./modules/animation.scss";
+@import './modules/animation.scss';
 
 // 버튼 관련 스타일 모듈
-@import "./modules/button.scss";
+@import './modules/button.scss';
 
 // 카드 컴포넌트 관련 스타일 모듈
-@import "./modules/card.scss";
+@import './modules/card.scss';
 
 // 폰트 관련 스타일 모듈
-@import "./modules/font.scss";
+@import './modules/font.scss';
 
 // 입력 필드 관련 스타일 모듈
-@import "./modules/input.scss";
+@import './modules/input.scss';
 
 // 레이어 관련 스타일 모듈
-@import "./modules/layer.scss";
+@import './modules/layer.scss';
 
 // 간격 관련 스타일 모듈
-@import "./modules/spacing.scss";
+@import './modules/spacing.scss';
 
 // 텍스트 관련 스타일 모듈
-@import "./modules/text.scss";
+@import './modules/text.scss';
 
 // 음수 마진 - 요소를 위로 120px 이동 (강제 적용)
 :not(.admin-page):not(.admin-view):not(.admin-dashboard) .mt-_120 {
@@ -28,7 +28,7 @@
 }
 
 // 관리자 전용 스타일 모듈 (항상 마지막에 임포트하여 우선순위 확보)
-@import "./modules/admin.scss";
+@import './modules/admin.scss';
 
 // 일반 디바이스에만 적용되는 전역 스타일
 body:not(.admin-view) {
@@ -36,6 +36,6 @@ body:not(.admin-view) {
 }
 
 // 어드민 경로를 제외한 스타일 적용
-:not([class*="admin"]) {
+:not([class*='admin']) {
   // 이곳에 admin 경로에 적용하지 않을 스타일 추가
 }

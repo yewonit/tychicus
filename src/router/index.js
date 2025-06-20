@@ -4,42 +4,42 @@
  * @version 1.0.0
  */
 
-import Vue from "vue";
-import VueRouter from "vue-router";
-// import store from "@/store";
+import Vue from 'vue';
+import VueRouter from 'vue-router';
+import store from '@/store';
 
 /**
  * @section 레이아웃 컴포넌트
  * @description 애플리케이션의 기본 레이아웃 구조를 정의하는 컴포넌트들
  */
-import MainLayout from "@/layouts/main/Index.vue";
-import BizLayout from "@/layouts/biz/Index.vue";
-import SubLayout from "@/layouts/sub/Index.vue";
-import MyPageLayout from "@/layouts/mypage/Index.vue";
-import CleanLayout from "@/layouts/clean/Index.vue";
-import AdminLayout from "@/layouts/admin/AdminLayout.vue";
+import MainLayout from '@/layouts/main/Index.vue';
+import BizLayout from '@/layouts/biz/Index.vue';
+import SubLayout from '@/layouts/sub/Index.vue';
+import MyPageLayout from '@/layouts/mypage/Index.vue';
+import CleanLayout from '@/layouts/clean/Index.vue';
+import AdminLayout from '@/layouts/admin/AdminLayout.vue';
 
 /**
  * @section 메인 레이아웃 뷰 컴포넌트
  * @description 메인 레이아웃에서 사용되는 핵심 뷰 컴포넌트
  */
-import HelloView from "@/views/main/HelloView.vue";
+import HelloView from '@/views/main/HelloView.vue';
 
 /**
  * @section 핵심 네비게이션
  * @description 서비스 진입점 및 기본 네비게이션 관련 컴포넌트
  */
-import ServiceSelectionView from "@/views/main/coreNavigation/ServiceSelectionView.vue";
+import ServiceSelectionView from '@/views/main/coreNavigation/ServiceSelectionView.vue';
 
 /**
  * @section 인증 관련 뷰
  * @description 사용자 인증 및 정보 입력 관련 컴포넌트
  */
-import LoginView from "@/views/main/login/LoginView.vue";
-import NameInputView from "@/views/main/login/NameInputView.vue";
-import PhoneInputView from "@/views/main/login/PhoneInputView.vue";
-import EmailInputView from "@/views/main/login/EmailInputView.vue";
-import PasswordInputView from "@/views/main/login/PasswordInputView.vue";
+import LoginView from '@/views/main/login/LoginView.vue';
+import NameInputView from '@/views/main/login/NameInputView.vue';
+import PhoneInputView from '@/views/main/login/PhoneInputView.vue';
+import EmailInputView from '@/views/main/login/EmailInputView.vue';
+import PasswordInputView from '@/views/main/login/PasswordInputView.vue';
 
 /**
  * @section 교회 관리 시스템
@@ -47,42 +47,43 @@ import PasswordInputView from "@/views/main/login/PasswordInputView.vue";
  */
 
 //** 출석현황 대시보드 */
-import AttendanceDashboardView from "@/views/main/mainMenu/attendanceDashboard/AttendanceDashboardView.vue";
+import AttendanceDashboardView from '@/views/main/mainMenu/attendanceDashboard/AttendanceDashboardView.vue';
 
 /** 기도제목 관리 */
-import PrayerTopicView from "@/views/main/mainMenu/prayerTopic/prayerTopicView.vue";
+import PrayerTopicView from '@/views/main/mainMenu/prayerTopic/prayerTopicView.vue';
 
 /** 교인 관리 */
-import MemberRegistrationView from "@/views/main/mainMenu/membersManagement/MemberRegistrationView.vue";
-import MemberUpdateView from "@/views/main/mainMenu/membersManagement/MemberUpdateView.vue";
-import MemberListView from "@/views/main/mainMenu/membersManagement/MemberListView.vue";
+import MemberRegistrationView from '@/views/main/mainMenu/membersManagement/MemberRegistrationView.vue';
+import MemberUpdateView from '@/views/main/mainMenu/membersManagement/MemberUpdateView.vue';
+import MemberListView from '@/views/main/mainMenu/membersManagement/MemberListView.vue';
 
 /** 출석 관리 */
-import AttendanceAggregationView from "@/views/main/mainMenu/attendanceManagement/AttendanceAggregationView.vue";
-import WorshipSelectionView from "@/views/main/mainMenu/attendanceManagement/WorshipSelectionView.vue";
-import AttendanceInputView from "@/views/main/mainMenu/attendanceManagement/AttendanceInputView.vue";
-import MeetingHistoryView from "@/views/main/mainMenu/attendanceManagement/MeetingHistoryView.vue";
-import AttendanceUpdateView from "@/views/main/mainMenu/attendanceManagement/AttendanceUpdateView.vue";
-import MeetingDetailView from "@/views/main/mainMenu/attendanceManagement/MeetingDetailView.vue";
+import AttendanceAggregationView from '@/views/main/mainMenu/attendanceManagement/AttendanceAggregationView.vue';
+import WorshipSelectionView from '@/views/main/mainMenu/attendanceManagement/WorshipSelectionView.vue';
+import AttendanceInputView from '@/views/main/mainMenu/attendanceManagement/AttendanceInputView.vue';
+import MeetingHistoryView from '@/views/main/mainMenu/attendanceManagement/MeetingHistoryView.vue';
+import AttendanceUpdateView from '@/views/main/mainMenu/attendanceManagement/AttendanceUpdateView.vue';
+import MeetingDetailView from '@/views/main/mainMenu/attendanceManagement/MeetingDetailView.vue';
+import VisitReportView from '@/views/main/mainMenu/attendanceManagement/VisitReportView.vue';
 
 /** 특별 관리 대상자 */
-import LostAndNewManagementSelectionView from "@/views/main/mainMenu/specialPersonnelManagement/LostAndNewManagementSelectionView.vue";
-import LongTermAbsenteeListView from "@/views/main/mainMenu/specialPersonnelManagement/LongTermAbsenteeListView.vue";
-import NewFamilyListView from "@/views/main/mainMenu/specialPersonnelManagement/NewFamilyListView.vue";
-import RescueVisitHistoryView from "@/views/main/mainMenu/specialPersonnelManagement/RescueVisitHistoryView.vue";
+import LostAndNewManagementSelectionView from '@/views/main/mainMenu/specialPersonnelManagement/LostAndNewManagementSelectionView.vue';
+import LongTermAbsenteeListView from '@/views/main/mainMenu/specialPersonnelManagement/LongTermAbsenteeListView.vue';
+import NewFamilyListView from '@/views/main/mainMenu/specialPersonnelManagement/NewFamilyListView.vue';
+import RescueVisitHistoryView from '@/views/main/mainMenu/specialPersonnelManagement/RescueVisitHistoryView.vue';
 
 /** 시스템 관리 */
-import DataManagementView from "@/views/main/DataManagementView.vue";
-import AWSImageCRUDTest from "@/views/main/mainMenu/attendanceManagement/AWSImageCRUDTest.vue";
+import DataManagementView from '@/views/main/DataManagementView.vue';
+import AWSImageCRUDTest from '@/views/main/mainMenu/attendanceManagement/AWSImageCRUDTest.vue';
 
 /**
  * @section 관리자 뷰 컴포넌트
  */
 
-import DashboardView from "@/views/admin/dashboard/DashboardView.vue";
-import OrganizationManagementView from "@/views/admin/members/OrganizationManagementView.vue";
-import OrganizationMeetingHistoryView from "@/views/admin/members/OrganizationMeetingHistoryView.vue";
-import AdminAttendanceStats from "@/views/admin/attendance/AttendanceStatsView.vue";
+import DashboardView from '@/views/admin/dashboard/DashboardView.vue';
+import OrganizationManagementView from '@/views/admin/members/OrganizationManagementView.vue';
+import OrganizationMeetingHistoryView from '@/views/admin/members/OrganizationMeetingHistoryView.vue';
+import AdminAttendanceStats from '@/views/admin/attendance/AttendanceStatsView.vue';
 // import AdminMemberList from "@/views/admin/members/MemberListView.vue";
 // import AdminMemberDetail from "@/views/admin/members/MemberDetailView.vue";
 // import AdminAttendanceList from "@/views/admin/attendance/AttendanceListView.vue";
@@ -106,8 +107,8 @@ const routes = [
    * @route /
    */
   {
-    path: "/",
-    name: "",
+    path: '/',
+    name: '',
     component: MainLayout,
     children: [
       /**
@@ -115,13 +116,13 @@ const routes = [
        * @route /
        */
       {
-        path: "/",
-        name: "HelloView",
+        path: '/',
+        name: 'HelloView',
         component: HelloView,
         meta: {
-          title: " ",
+          title: ' ',
           showIcon: false,
-          iconName: "",
+          iconName: '',
           showBackButton: false,
           showHomeButton: false,
           showCancelButton: false,
@@ -132,78 +133,78 @@ const routes = [
        * @section 인증 관련 라우트
        */
       {
-        path: "/login",
-        name: "LoginView",
+        path: '/login',
+        name: 'LoginView',
         component: LoginView,
         meta: {
-          title: "로그인",
+          title: '로그인',
           showIcon: false,
-          iconName: "mdi-account-edit",
+          iconName: 'mdi-account-edit',
           showBackButton: false,
           showHomeButton: false,
           showCancelButton: false,
         },
       },
       {
-        path: "/name-input",
-        name: "NameInputView",
+        path: '/name-input',
+        name: 'NameInputView',
         component: NameInputView,
         meta: {
-          title: "이름 입력",
+          title: '이름 입력',
           showIcon: false,
-          iconName: "mdi-account-edit",
+          iconName: 'mdi-account-edit',
           showBackButton: true,
           showHomeButton: false,
           showCancelButton: false,
         },
       },
       {
-        path: "/phone-input",
-        name: "PhoneInputView",
+        path: '/phone-input',
+        name: 'PhoneInputView',
         component: PhoneInputView,
         meta: {
-          title: "전화번호 입력",
+          title: '전화번호 입력',
           showIcon: false,
-          iconName: "mdi-phone",
+          iconName: 'mdi-phone',
           showBackButton: true,
           showHomeButton: false,
           showCancelButton: false,
         },
       },
       {
-        path: "/email-input",
-        name: "EmailInputView",
+        path: '/email-input',
+        name: 'EmailInputView',
         component: EmailInputView,
         meta: {
-          title: "이메일 입력",
+          title: '이메일 입력',
           showIcon: false,
-          iconName: "mdi-email",
+          iconName: 'mdi-email',
           showBackButton: true,
           showHomeButton: false,
           showCancelButton: false,
         },
       },
       {
-        path: "/password-input",
-        name: "PasswordInputView",
+        path: '/password-input',
+        name: 'PasswordInputView',
         component: PasswordInputView,
         meta: {
-          title: "비밀번호 입력",
+          title: '비밀번호 입력',
           showIcon: false,
-          iconName: "mdi-password",
+          iconName: 'mdi-password',
           showBackButton: false,
           showHomeButton: false,
           showCancelButton: false,
         },
       },
       {
-        path: "/service-selection",
-        name: "ServiceSelectionView",
+        path: '/service-selection',
+        name: 'ServiceSelectionView',
         component: ServiceSelectionView,
         meta: {
-          title: "서비스 선택",
+          title: '서비스 선택',
           showIcon: false,
-          iconName: "mdi-handshake",
+          iconName: 'mdi-handshake',
           showBackButton: false,
           showHomeButton: false,
           showCancelButton: false,
@@ -214,171 +215,173 @@ const routes = [
        * @section 교회 관리 시스템 라우트
        */
       {
-        path: "/attendance-dashboard",
-        name: "AttendanceDashboardView",
+        path: '/attendance-dashboard',
+        name: 'AttendanceDashboardView',
         component: AttendanceDashboardView,
         meta: {
-          title: "출석현황 대시보드",
+          title: '출석현황 대시보드',
           showIcon: true,
-          iconName: "mdi-view-dashboard-variant-outline",
+          iconName: 'mdi-view-dashboard-variant-outline',
           showBackButton: true,
           showHomeButton: false,
           showCancelButton: false,
+          requiresAuth: true, // 로그인 필요
+          isAdmin: true, // 관리자만 접근 가능
         },
       },
       {
-        path: "/prayer-topic",
-        name: "PrayerTopicView",
+        path: '/prayer-topic',
+        name: 'PrayerTopicView',
         component: PrayerTopicView,
         meta: {
-          title: "기도제목",
+          title: '기도제목',
           showIcon: true,
-          iconName: "mdi-praying-hands",
+          iconName: 'mdi-praying-hands',
           showBackButton: true,
           showHomeButton: false,
           showCancelButton: true,
         },
       },
       {
-        path: "/attendance-aggregation",
-        name: "AttendanceAggregationView",
+        path: '/attendance-aggregation',
+        name: 'AttendanceAggregationView',
         component: AttendanceAggregationView,
         meta: {
-          title: "출결 집계",
+          title: '출결 집계',
           showIcon: true,
-          iconName: "mdi-account-circle",
+          iconName: 'mdi-account-circle',
           showBackButton: true,
           showHomeButton: false,
           showCancelButton: true,
         },
       },
       {
-        path: "/worship-selection",
-        name: "WorshipSelectionView",
+        path: '/worship-selection',
+        name: 'WorshipSelectionView',
         component: WorshipSelectionView,
         meta: {
-          title: "예배 선택",
+          title: '예배 선택',
           showIcon: true,
-          iconName: "mdi-church",
+          iconName: 'mdi-church',
           showBackButton: true,
           showHomeButton: false,
           showCancelButton: true,
         },
       },
       {
-        path: "/attendance-input",
-        name: "AttendanceInputView",
+        path: '/attendance-input',
+        name: 'AttendanceInputView',
         component: AttendanceInputView,
         meta: {
-          title: "출결 입력",
+          title: '출결 입력',
           showIcon: true,
-          iconName: "mdi-account-group",
+          iconName: 'mdi-account-group',
           showBackButton: true,
           showHomeButton: false,
           showCancelButton: true,
         },
       },
       {
-        path: "/member-registration",
-        name: "MemberRegistrationView",
+        path: '/member-registration',
+        name: 'MemberRegistrationView',
         component: MemberRegistrationView,
         meta: {
-          title: "회원 등록",
+          title: '회원 등록',
           showIcon: true,
-          iconName: "mdi-account-plus",
+          iconName: 'mdi-account-plus',
           showBackButton: true,
           showHomeButton: false,
           showCancelButton: true,
         },
       },
       {
-        path: "/member-update/:id",
-        name: "MemberUpdateView",
+        path: '/member-update/:id',
+        name: 'MemberUpdateView',
         component: MemberUpdateView,
         props: true,
         meta: {
-          title: "회원 수정",
+          title: '회원 수정',
           showIcon: true,
-          iconName: "mdi-account-edit",
+          iconName: 'mdi-account-edit',
           showBackButton: true,
           showHomeButton: false,
           showCancelButton: true,
         },
       },
       {
-        path: "/member-list",
-        name: "MemberListView",
+        path: '/member-list',
+        name: 'MemberListView',
         component: MemberListView,
         meta: {
-          title: "회원 명단",
+          title: '회원 명단',
           showIcon: true,
-          iconName: "mdi-account-group",
+          iconName: 'mdi-account-group',
           showBackButton: true,
           showHomeButton: false,
           showCancelButton: true,
         },
       },
       {
-        path: "/lost-and-new-management-selection",
-        name: "LostAndNewManagementSelectionView",
+        path: '/lost-and-new-management-selection',
+        name: 'LostAndNewManagementSelectionView',
         component: LostAndNewManagementSelectionView,
         meta: {
-          title: "신규/이탈 관리",
+          title: '신규/이탈 관리',
           showIcon: true,
-          iconName: "mdi-account-group",
+          iconName: 'mdi-account-group',
           showBackButton: true,
           showHomeButton: false,
           showCancelButton: true,
         },
       },
       {
-        path: "/long-term-absentee-list",
-        name: "LongTermAbsenteeListView",
+        path: '/long-term-absentee-list',
+        name: 'LongTermAbsenteeListView',
         component: LongTermAbsenteeListView,
         meta: {
-          title: "장기 결석자 명단",
+          title: '장기 결석자 명단',
           showIcon: true,
-          iconName: "mdi-account-check",
+          iconName: 'mdi-account-check',
           showBackButton: true,
           showHomeButton: false,
           showCancelButton: true,
         },
       },
       {
-        path: "/rescue-visit-history/:id",
-        name: "RescueVisitHistoryView",
+        path: '/rescue-visit-history/:id',
+        name: 'RescueVisitHistoryView',
         component: RescueVisitHistoryView,
         props: true,
         meta: {
-          title: "심방이력",
+          title: '심방이력',
           showIcon: true,
-          iconName: "mdi-file-document",
+          iconName: 'mdi-file-document',
           showBackButton: true,
           showHomeButton: false,
           showCancelButton: true,
         },
       },
       {
-        path: "/new-family-list",
-        name: "NewFamilyListView",
+        path: '/new-family-list',
+        name: 'NewFamilyListView',
         component: NewFamilyListView,
         meta: {
-          title: "신규 가족 명단",
+          title: '신규 가족 명단',
           showIcon: true,
-          iconName: "mdi-account-multiple-plus",
+          iconName: 'mdi-account-multiple-plus',
           showBackButton: true,
           showHomeButton: false,
           showCancelButton: true,
         },
       },
       {
-        path: "/datamanagement",
-        name: "DataManagementView",
+        path: '/datamanagement',
+        name: 'DataManagementView',
         component: DataManagementView,
         meta: {
-          title: "Data Management",
+          title: 'Data Management',
           showIcon: false,
-          iconName: "",
+          iconName: '',
           showBackButton: false,
           showHomeButton: false,
           showCancelButton: false,
@@ -389,27 +392,40 @@ const routes = [
        * @description 예배 및 모임 출석 관련 기능
        */
       {
-        path: "/meeting-history",
-        name: "MeetingHistoryView",
+        path: '/meeting-history',
+        name: 'MeetingHistoryView',
         component: MeetingHistoryView,
         meta: {
-          title: "모임 기록",
+          title: '모임 기록',
           showIcon: true,
-          iconName: "mdi-history",
+          iconName: 'mdi-history',
           showBackButton: true,
           showHomeButton: false,
           showCancelButton: true,
         },
       },
       {
-        path: "/attendance-update/:organizationId/:activityId/:activityInstanceId",
-        name: "AttendanceUpdateView",
+        path: '/visit-report',
+        name: 'VisitReportView',
+        component: VisitReportView,
+        meta: {
+          title: '심방 보고서',
+          showIcon: true,
+          iconName: 'mdi-account-group',
+          showBackButton: true,
+          showHomeButton: false,
+          showCancelButton: true,
+        },
+      },
+      {
+        path: '/attendance-update/:organizationId/:activityId/:activityInstanceId',
+        name: 'AttendanceUpdateView',
         component: AttendanceUpdateView,
         props: true,
         meta: {
-          title: "모임 정보 수정",
+          title: '모임 정보 수정',
           showIcon: true,
-          iconName: "mdi-pencil",
+          iconName: 'mdi-pencil',
           showBackButton: true,
           showHomeButton: false,
           showCancelButton: true,
@@ -417,14 +433,14 @@ const routes = [
       },
       // MeetingDetailView 라우트 수정
       {
-        path: "/meeting-detail/:organizationId/:activityId/:activityInstanceId",
-        name: "MeetingDetailView",
+        path: '/meeting-detail/:organizationId/:activityId/:activityInstanceId',
+        name: 'MeetingDetailView',
         component: MeetingDetailView,
         props: true,
         meta: {
-          title: "모임 상세 정보",
+          title: '모임 상세 정보',
           showIcon: true,
-          iconName: "mdi-information",
+          iconName: 'mdi-information',
           showBackButton: true,
           showHomeButton: false,
           showCancelButton: false,
@@ -432,13 +448,13 @@ const routes = [
       },
       // AWSImageCRUDTest 라우트를 추가합니다.
       {
-        path: "/aws-image-crud-test",
-        name: "AWSImageCRUDTest",
+        path: '/aws-image-crud-test',
+        name: 'AWSImageCRUDTest',
         component: AWSImageCRUDTest,
         meta: {
-          title: "AWS S3 이미지 CRUD 테스트",
+          title: 'AWS S3 이미지 CRUD 테스트',
           showIcon: true,
-          iconName: "mdi-image",
+          iconName: 'mdi-image',
           showBackButton: true,
           showHomeButton: false,
           showCancelButton: true,
@@ -451,26 +467,26 @@ const routes = [
    * @description 비즈니스, 서브, 마이페이지, 클린 레이아웃 정의
    */
   {
-    path: "/biz",
-    name: "BizLayout",
+    path: '/biz',
+    name: 'BizLayout',
     component: BizLayout,
     children: [],
   },
   {
-    path: "/sub",
-    name: "SubLayout",
+    path: '/sub',
+    name: 'SubLayout',
     component: SubLayout,
     children: [],
   },
   {
-    path: "/mypage",
-    name: "MyPageLayout",
+    path: '/mypage',
+    name: 'MyPageLayout',
     component: MyPageLayout,
     children: [],
   },
   {
-    path: "/clean",
-    name: "CleanLayout",
+    path: '/clean',
+    name: 'CleanLayout',
     component: CleanLayout,
     children: [],
   },
@@ -478,7 +494,7 @@ const routes = [
    * @section 관리자 라우트
    */
   {
-    path: "/admin",
+    path: '/admin',
     component: AdminLayout,
     meta: {
       requiresAuth: true,
@@ -486,42 +502,42 @@ const routes = [
     },
     children: [
       {
-        path: "",
-        name: "AdminDashboard",
+        path: '',
+        name: 'AdminDashboard',
         component: DashboardView,
         meta: {
-          title: "대시보드",
+          title: '대시보드',
           requiresAuth: true,
           isAdmin: true,
         },
       },
       {
-        path: "AdminDashboard",
-        name: "AdminDashboardAlias",
+        path: 'AdminDashboard',
+        name: 'AdminDashboardAlias',
         component: DashboardView,
         meta: {
-          title: "대시보드",
+          title: '대시보드',
           requiresAuth: true,
           isAdmin: true,
         },
       },
       {
-        path: "organizations",
-        name: "AdminOrganizationManagement",
+        path: 'organizations',
+        name: 'AdminOrganizationManagement',
         component: OrganizationManagementView,
-        meta: { title: "조직 및 멤버 관리" },
+        meta: { title: '조직 및 멤버 관리' },
       },
       {
-        path: "organization-meetings",
-        name: "AdminOrganizationMeetingHistory",
+        path: 'organization-meetings',
+        name: 'AdminOrganizationMeetingHistory',
         component: OrganizationMeetingHistoryView,
-        meta: { title: "조직별 모임 관리" },
+        meta: { title: '조직별 모임 관리' },
       },
       {
-        path: "attendance/stats",
-        name: "AdminAttendanceStats",
+        path: 'attendance/stats',
+        name: 'AdminAttendanceStats',
         component: AdminAttendanceStats,
-        meta: { title: "출결 통계" },
+        meta: { title: '출결 통계' },
       },
       /*
       {
@@ -582,7 +598,7 @@ const routes = [
  * @type {VueRouter}
  */
 const router = new VueRouter({
-  mode: "history",
+  mode: 'history',
   base: process.env.BASE_URL,
   routes,
 });
@@ -590,26 +606,26 @@ const router = new VueRouter({
 // 대시보드 화면 관련 네비게이션 가드 추가
 router.beforeEach((to, from, next) => {
   // 대시보드로 진입하는 경우 처리
-  if (to.name === "AdminDashboard" || to.name === "AdminDashboardAlias") {
+  if (to.name === 'AdminDashboard' || to.name === 'AdminDashboardAlias') {
     // 대시보드 활성화 클래스 추가 (body 태그에)
     setTimeout(() => {
-      document.body.classList.add("dashboard-active");
+      document.body.classList.add('dashboard-active');
 
       // 사이드바 강제 닫기
-      const sidebarElement = document.querySelector(".v-navigation-drawer");
+      const sidebarElement = document.querySelector('.v-navigation-drawer');
       if (sidebarElement) {
-        sidebarElement.style.transform = "translateX(-100%)";
-        sidebarElement.style.visibility = "hidden";
+        sidebarElement.style.transform = 'translateX(-100%)';
+        sidebarElement.style.visibility = 'hidden';
       }
     }, 50);
   }
   // 대시보드에서 나가는 경우 처리
   else if (
-    from.name === "AdminDashboard" ||
-    from.name === "AdminDashboardAlias"
+    from.name === 'AdminDashboard' ||
+    from.name === 'AdminDashboardAlias'
   ) {
     // 대시보드 활성화 클래스 제거
-    document.body.classList.remove("dashboard-active");
+    document.body.classList.remove('dashboard-active');
   }
 
   // 라우트 이동 허용
@@ -617,19 +633,34 @@ router.beforeEach((to, from, next) => {
 });
 
 // 인증 관련 네비게이션 가드 (주석 처리된 부분은 그대로 유지)
-// router.beforeEach((to, from, next) => {
-//   const requiresAuth = to.matched.some((record) => record.meta.requiresAuth);
-//   const isAdmin = to.matched.some((record) => record.meta.isAdmin);
-//   const isAuthenticated = store.getters["auth/isAuthenticated"];
-//   const userRole = store.getters["auth/userRole"];
+router.beforeEach((to, from, next) => {
+  const requiresAuth = to.matched.some((record) => record.meta.requiresAuth);
+  const isAdmin = to.matched.some((record) => record.meta.isAdmin);
+  const isAuthenticated = store.getters['auth/userAccessToken'];
+  // TODO 임예원 : 페이지를 이동할 때 마다 토큰을 던져서 확인? - 사용가능한 토큰인지 확인하는 로직 필요
+  const userInfo = store.getters['auth/userInfo'];
+  const userRole =
+    userInfo.roles && userInfo.roles.length > 0
+      ? userInfo.roles[0].roleName
+      : null;
 
-//   if (requiresAuth && !isAuthenticated) {
-//     next("/login");
-//   } else if (isAdmin && !userRole?.includes("admin")) {
-//     next("/");
-//   } else {
-//     next();
-//   }
-// });
+  console.log('requiresAuth', requiresAuth);
+  console.log('isAdmin', isAdmin);
+  console.log('isAuthenticated', isAuthenticated);
+  console.log('userRole', userRole);
+
+  if (requiresAuth && !isAuthenticated) {
+    // 인증이 필요한데 로그인 안 했으면 로그인 페이지로
+    next('/login');
+    // } else if (isAdmin && !userRole?.includes("admin")) {
+    // TODO 임예원 : 관리자 데이터 확인 후 적용 필요
+  } else if (isAdmin && userRole !== '순원') {
+    // 관리자 권한이 필요한데 관리자가 아니면 홈으로
+    next('/');
+  } else {
+    // 그 외엔 정상적으로 이동
+    next();
+  }
+});
 
 export default router;

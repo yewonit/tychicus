@@ -5,7 +5,7 @@
 </template>
 
 <script>
-export default {
-  name: "AdminMemberHistory",
-};
+  export default {
+    name: 'AdminMemberHistory',
+  };
 </script>

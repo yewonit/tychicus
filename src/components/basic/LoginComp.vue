@@ -72,7 +72,7 @@
               rounded
               block
             >
-              <span class="wc-h5 white--text"> Log In </span>
+              <span class="wc-h5 white--text">Log In</span>
             </v-btn>
           </v-col>
           <v-spacer></v-spacer>
@@ -149,7 +149,7 @@
               rounded
               block
             >
-              <span class="wc-h5 white--text"> Log In </span>
+              <span class="wc-h5 white--text">Log In</span>
             </v-btn>
             <!-- <v-btn
             @click="refreshAccessTokenAtVuex()"
@@ -198,70 +198,70 @@
 </template>
 
 <script>
-import "@/styles/overrides.scss";
+  import '@/styles/overrides.scss';
 
-import { TokenCtrl } from "@/mixins/apis_v2/utility/TokenCtrl";
-import { mapState, mapActions } from "vuex";
+  import { TokenCtrl } from '@/mixins/apis_v2/utility/TokenCtrl';
+  import { mapState, mapActions } from 'vuex';
 
-export default {
-  mixins: [TokenCtrl],
-  props: {
-    // userEmail: {
-    //   type: String,
-    //   default: "userName",
-    // },
-    // userPW: {
-    //   type: String,
-    //   default: "userName",
-    // },
-  },
-  data() {
-    return {
-      userEmail: "",
-      userPw: "",
-      show1: false,
-      checkbox: false,
-      rules: {
-        requiredId: (value) => !!value || "Required.",
-        requiredPw: (value) => !!value || "Required.",
-        emailMatch: () => `The email and password you entered don't match`,
-      },
-    };
-  },
-  computed: {
-    ...mapState(["isLogin", "userInfo", "yewonbizAxios"]),
-  },
-  methods: {
-    ...mapActions(["login", "refreshAccessTokenAtVuex", "logout"]),
-  },
-  mounted() {},
-};
+  export default {
+    mixins: [TokenCtrl],
+    props: {
+      // userEmail: {
+      //   type: String,
+      //   default: "userName",
+      // },
+      // userPW: {
+      //   type: String,
+      //   default: "userName",
+      // },
+    },
+    data() {
+      return {
+        userEmail: '',
+        userPw: '',
+        show1: false,
+        checkbox: false,
+        rules: {
+          requiredId: (value) => !!value || 'Required.',
+          requiredPw: (value) => !!value || 'Required.',
+          emailMatch: () => `The email and password you entered don't match`,
+        },
+      };
+    },
+    computed: {
+      ...mapState(['isLogin', 'userInfo', 'yewonbizAxios']),
+    },
+    methods: {
+      ...mapActions(['login', 'refreshAccessTokenAtVuex', 'logout']),
+    },
+    mounted() {},
+  };
 </script>
 
 <style></style>
 
 <style scoped>
-/* Element : v-text-field */
-.v-text-field--outlined >>> fieldset {
-  /* border-color: rgba(192, 0, 250, 0.986); */
-  border: solid 1.5px rgba(236, 237, 245, 0.3);
-  border-radius: 24px;
-  background-image: #edeef3 !important;
-  box-shadow: 15px 15px 15px #00000012, -15px -15px 15px #ffffff !important;
-}
+  /* Element : v-text-field */
+  .v-text-field--outlined >>> fieldset {
+    /* border-color: rgba(192, 0, 250, 0.986); */
+    border: solid 1.5px rgba(236, 237, 245, 0.3);
+    border-radius: 24px;
+    background-image: #edeef3 !important;
+    box-shadow: 15px 15px 15px #00000012, -15px -15px 15px #ffffff !important;
+  }
 
-::v-deep .v-label {
-  font-family: NotoSansKR;
-  font-size: 13px;
-  font-weight: 500;
-  font-stretch: normal;
-  font-style: normal;
-  line-height: normal;
-  letter-spacing: 0.09px;
-  color: #b7bbcc;
-}
+  ::v-deep .v-label {
+    font-family: NotoSansKR;
+    font-size: 13px;
+    font-weight: 500;
+    font-stretch: normal;
+    font-style: normal;
+    line-height: normal;
+    letter-spacing: 0.09px;
+    color: #b7bbcc;
+  }
 
-.fb-btn .v-btn--outlined {
-  border: thin solid #cccccc;
-}
+  .fb-btn .v-btn--outlined {
+    border: thin solid #cccccc;
+  }
 </style>

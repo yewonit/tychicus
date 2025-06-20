@@ -11,7 +11,7 @@
     <v-card-title>공지사항 타이틀</v-card-title>
 
     <v-card-text>
-      <v-row align="center" class="mx-0"> </v-row>
+      <v-row align="center" class="mx-0"></v-row>
 
       <div class="my-4 text-subtitle-1 mx-0">
         <v-icon>mdi-calendar-check</v-icon>
@@ -32,15 +32,15 @@
 </template>
 
 <script>
-export default {
-  name: "BizCard",
-  props: {
-    loading: {
-      type: Boolean,
-      default: false,
+  export default {
+    name: 'BizCard',
+    props: {
+      loading: {
+        type: Boolean,
+        default: false,
+      },
     },
-  },
-};
+  };
 </script>
 
 <style></style>

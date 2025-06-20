@@ -1,4 +1,4 @@
-import moment from "moment";
+import moment from 'moment';
 
 export const TimeSeriesDataMixin = {
   data() {
@@ -15,7 +15,7 @@ export const TimeSeriesDataMixin = {
   methods: {
     // 시계열 데이터 구조화
     structureTimeSeriesData() {
-      console.log("시계열 데이터 구조화 시작...");
+      console.log('시계열 데이터 구조화 시작...');
 
       // 시계열 데이터 초기화
       this.timeSeriesData = {
@@ -39,13 +39,13 @@ export const TimeSeriesDataMixin = {
         const date = moment(dateStr);
 
         // 주차 정보 (YYYY-WW 형식)
-        const weekKey = date.format("GGGG-[W]WW");
+        const weekKey = date.format('GGGG-[W]WW');
         // 월 정보 (YYYY-MM 형식)
-        const monthKey = date.format("YYYY-MM");
+        const monthKey = date.format('YYYY-MM');
         // 분기 정보 (YYYY-Q# 형식)
-        const quarterKey = date.format("YYYY-[Q]Q");
+        const quarterKey = date.format('YYYY-[Q]Q');
         // 년 정보 (YYYY 형식)
-        const yearKey = date.format("YYYY");
+        const yearKey = date.format('YYYY');
 
         // 출석률 계산에 필요한 총 데이터 초기화
         const meetingTypeStats = {};
@@ -62,7 +62,7 @@ export const TimeSeriesDataMixin = {
 
         // 각 모임에 대해 처리
         dateData.meetings.forEach((meeting) => {
-          const meetingType = meeting.meetingType || "OTHER";
+          const meetingType = meeting.meetingType || 'OTHER';
 
           // 모임별 출석률 정보 (디버깅용)
           console.log(`모임 [${meeting.name}] 출석률 정보:`, {
@@ -117,7 +117,7 @@ export const TimeSeriesDataMixin = {
                 meetingCount: stats.meetingCount,
                 totalCount: stats.totalCount,
                 presentCount: stats.presentCount,
-                attendanceRate: (attendanceRate * 100).toFixed(1) + "%",
+                attendanceRate: (attendanceRate * 100).toFixed(1) + '%',
               }
             );
           }
@@ -152,7 +152,7 @@ export const TimeSeriesDataMixin = {
       // 연도별 집계
       this.aggregateYearlyData();
 
-      console.log("시계열 데이터 구조화 완료:", this.timeSeriesData);
+      console.log('시계열 데이터 구조화 완료:', this.timeSeriesData);
 
       // 결과 검증 (디버깅)
       this.validateTimeSeriesData();
@@ -187,9 +187,9 @@ export const TimeSeriesDataMixin = {
         if (!weeklyData[weekKey]) {
           weeklyData[weekKey] = {
             startDate: moment(data.date)
-              .startOf("isoWeek")
-              .format("YYYY-MM-DD"),
-            endDate: moment(data.date).endOf("isoWeek").format("YYYY-MM-DD"),
+              .startOf('isoWeek')
+              .format('YYYY-MM-DD'),
+            endDate: moment(data.date).endOf('isoWeek').format('YYYY-MM-DD'),
             meetings: [],
             meetingCount: 0,
             attendeeCount: 0,
@@ -245,7 +245,7 @@ export const TimeSeriesDataMixin = {
 
             // 디버깅 로그
             console.log(`주차 ${weekKey} 예배유형 [${typeData.name}] 출석률:`, {
-              attendanceRate: (typeData.attendanceRate * 100).toFixed(1) + "%",
+              attendanceRate: (typeData.attendanceRate * 100).toFixed(1) + '%',
               presentCount: typeData.presentCount,
               totalCount: typeData.totalCount,
               meetingCount: typeData.meetingCount,
@@ -298,9 +298,9 @@ export const TimeSeriesDataMixin = {
 
         if (!monthlyData[monthKey]) {
           monthlyData[monthKey] = {
-            monthName: moment(data.date).format("YYYY년 M월"),
-            startDate: moment(data.date).startOf("month").format("YYYY-MM-DD"),
-            endDate: moment(data.date).endOf("month").format("YYYY-MM-DD"),
+            monthName: moment(data.date).format('YYYY년 M월'),
+            startDate: moment(data.date).startOf('month').format('YYYY-MM-DD'),
+            endDate: moment(data.date).endOf('month').format('YYYY-MM-DD'),
             meetings: [],
             meetingCount: 0,
             attendeeCount: 0,
@@ -366,7 +366,7 @@ export const TimeSeriesDataMixin = {
               `월간 ${monthKey} 예배유형 [${typeData.name}] 출석률:`,
               {
                 attendanceRate:
-                  (typeData.attendanceRate * 100).toFixed(1) + "%",
+                  (typeData.attendanceRate * 100).toFixed(1) + '%',
                 presentCount: typeData.presentCount,
                 totalCount: typeData.totalCount,
                 meetingCount: typeData.meetingCount,
@@ -388,7 +388,7 @@ export const TimeSeriesDataMixin = {
             : 0;
 
         console.log(`월간 ${monthKey} 전체 출석률:`, {
-          attendanceRate: (monthData.attendanceRate * 100).toFixed(1) + "%",
+          attendanceRate: (monthData.attendanceRate * 100).toFixed(1) + '%',
           meetingCount: monthData.meetingCount,
           attendeeCount: monthData.attendeeCount,
         });
@@ -423,14 +423,14 @@ export const TimeSeriesDataMixin = {
       // 월별 데이터를 분기별로 집계
       Object.entries(this.timeSeriesData.monthly).forEach(
         ([monthKey, monthData]) => {
-          const date = moment(monthKey + "-01");
-          const quarterKey = date.format("YYYY-[Q]Q");
+          const date = moment(monthKey + '-01');
+          const quarterKey = date.format('YYYY-[Q]Q');
 
           if (!quarterlyData[quarterKey]) {
             quarterlyData[quarterKey] = {
-              quarterName: `${date.format("YYYY")}년 ${date.format("Q")}분기`,
-              startDate: moment(date).startOf("quarter").format("YYYY-MM-DD"),
-              endDate: moment(date).endOf("quarter").format("YYYY-MM-DD"),
+              quarterName: `${date.format('YYYY')}년 ${date.format('Q')}분기`,
+              startDate: moment(date).startOf('quarter').format('YYYY-MM-DD'),
+              endDate: moment(date).endOf('quarter').format('YYYY-MM-DD'),
               months: [],
               meetings: [],
               meetingCount: 0,
@@ -489,7 +489,7 @@ export const TimeSeriesDataMixin = {
                 `분기 ${quarterKey} 예배유형 [${typeData.name}] 출석률:`,
                 {
                   attendanceRate:
-                    (typeData.attendanceRate * 100).toFixed(1) + "%",
+                    (typeData.attendanceRate * 100).toFixed(1) + '%',
                   presentCount: typeData.presentCount,
                   totalCount: typeData.totalCount,
                   meetingCount: typeData.meetingCount,
@@ -542,13 +542,13 @@ export const TimeSeriesDataMixin = {
       Object.entries(this.timeSeriesData.quarterly).forEach(
         ([quarterKey, quarterData]) => {
           const date = moment(quarterData.startDate);
-          const yearKey = date.format("YYYY");
+          const yearKey = date.format('YYYY');
 
           if (!yearlyData[yearKey]) {
             yearlyData[yearKey] = {
               yearName: `${yearKey}년`,
-              startDate: moment(yearKey).startOf("year").format("YYYY-MM-DD"),
-              endDate: moment(yearKey).endOf("year").format("YYYY-MM-DD"),
+              startDate: moment(yearKey).startOf('year').format('YYYY-MM-DD'),
+              endDate: moment(yearKey).endOf('year').format('YYYY-MM-DD'),
               quarters: [],
               meetings: [],
               meetingCount: 0,
@@ -606,7 +606,7 @@ export const TimeSeriesDataMixin = {
                 `연간 ${yearKey} 예배유형 [${typeData.name}] 출석률:`,
                 {
                   attendanceRate:
-                    (typeData.attendanceRate * 100).toFixed(1) + "%",
+                    (typeData.attendanceRate * 100).toFixed(1) + '%',
                   presentCount: typeData.presentCount,
                   totalCount: typeData.totalCount,
                   meetingCount: typeData.meetingCount,
@@ -629,7 +629,7 @@ export const TimeSeriesDataMixin = {
             : 0;
 
         console.log(`연간 ${yearKey} 전체 출석률:`, {
-          attendanceRate: (yearData.attendanceRate * 100).toFixed(1) + "%",
+          attendanceRate: (yearData.attendanceRate * 100).toFixed(1) + '%',
           meetingCount: yearData.meetingCount,
           attendeeCount: yearData.attendeeCount,
         });
@@ -641,11 +641,11 @@ export const TimeSeriesDataMixin = {
 
     // 시계열 데이터 검증
     validateTimeSeriesData() {
-      console.log("시계열 데이터 검증 시작...");
+      console.log('시계열 데이터 검증 시작...');
 
       // 주간 데이터 확인
       console.log(
-        "주간 데이터 키 목록:",
+        '주간 데이터 키 목록:',
         Object.keys(this.timeSeriesData.weekly)
       );
 
@@ -673,19 +673,19 @@ export const TimeSeriesDataMixin = {
                   attendanceRate: typeData.attendanceRate,
                   // 백분율로 표시
                   attendanceRatePercent:
-                    (typeData.attendanceRate * 100).toFixed(1) + "%",
+                    (typeData.attendanceRate * 100).toFixed(1) + '%',
                 }
               );
             }
           }
         );
       } else {
-        console.warn("주간 데이터가 없습니다.");
+        console.warn('주간 데이터가 없습니다.');
       }
 
       // 월간 데이터 확인
       console.log(
-        "월간 데이터 키 목록:",
+        '월간 데이터 키 목록:',
         Object.keys(this.timeSeriesData.monthly)
       );
 
@@ -702,7 +702,7 @@ export const TimeSeriesDataMixin = {
         });
       }
 
-      console.log("시계열 데이터 검증 완료");
+      console.log('시계열 데이터 검증 완료');
     },
   },
 };

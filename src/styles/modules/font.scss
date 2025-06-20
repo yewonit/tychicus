@@ -1,15 +1,15 @@
 // 🌐 전역 폰트 설정
 @font-face {
-  font-family: "NotoSansKR";
+  font-family: 'NotoSansKR';
   // 로컬에 설치된 폰트 사용, 로컬 폰트가 없을 경우 웹 폰트 로드
   src: local(NotoSansKR-Regular),
-      // WOFF2 포맷 우선 사용 (압축률 높고 모던 브라우저 호환)
-      url(../assets/fonts/NotoSansKR-Regular.woff2) format("woff2"),
-      // WOFF, OTF, TTF, EOT 순으로 폰트 포맷 지정
-      url(../assets/fonts/NotoSansKR-Regular.woff) format("woff"),
-      url(../assets/fonts/NotoSansKR-Regular.otf) format("opentype"),
-      url(../assets/fonts/NotoSansKR-Regular.ttf) format("truetype"),
-      url(../assets/fonts/NotoSansKR-Regular.eot) format("embedded-opentype");
+    // WOFF2 포맷 우선 사용 (압축률 높고 모던 브라우저 호환)
+    url(../assets/fonts/NotoSansKR-Regular.woff2) format('woff2'),
+    // WOFF, OTF, TTF, EOT 순으로 폰트 포맷 지정
+    url(../assets/fonts/NotoSansKR-Regular.woff) format('woff'),
+    url(../assets/fonts/NotoSansKR-Regular.otf) format('opentype'),
+    url(../assets/fonts/NotoSansKR-Regular.ttf) format('truetype'),
+    url(../assets/fonts/NotoSansKR-Regular.eot) format('embedded-opentype');
   font-weight: normal;
   font-style: normal;
   font-stretch: normal;
@@ -18,13 +18,13 @@
 }
 
 @font-face {
-  font-family: "NotoSansKR";
+  font-family: 'NotoSansKR';
   src: local(NotoSansKR-Medium),
-      url(../assets/fonts/NotoSansKR-Medium.woff2) format("woff2"),
-      url(../assets/fonts/NotoSansKR-Medium.woff) format("woff"),
-      url(../assets/fonts/NotoSansKR-Medium.otf) format("opentype"),
-      url(../assets/fonts/NotoSansKR-Medium.ttf) format("truetype"),
-      url(../assets/fonts/NotoSansKR-Medium.eot) format("embedded-opentype");
+    url(../assets/fonts/NotoSansKR-Medium.woff2) format('woff2'),
+    url(../assets/fonts/NotoSansKR-Medium.woff) format('woff'),
+    url(../assets/fonts/NotoSansKR-Medium.otf) format('opentype'),
+    url(../assets/fonts/NotoSansKR-Medium.ttf) format('truetype'),
+    url(../assets/fonts/NotoSansKR-Medium.eot) format('embedded-opentype');
   font-weight: 500;
   font-style: normal;
   font-stretch: normal;
@@ -32,13 +32,13 @@
 }
 
 @font-face {
-  font-family: "NotoSansKR";
+  font-family: 'NotoSansKR';
   src: local(NotoSansKR-Bold),
-      url(../assets/fonts/NotoSansKR-Bold.woff2) format("woff2"),
-      url(../assets/fonts/NotoSansKR-Bold.woff) format("woff"),
-      url(../assets/fonts/NotoSansKR-Bold.otf) format("opentype"),
-      url(../assets/fonts/NotoSansKR-Bold.ttf) format("truetype"),
-      url(../assets/fonts/NotoSansKR-Bold.eot) format("embedded-opentype");
+    url(../assets/fonts/NotoSansKR-Bold.woff2) format('woff2'),
+    url(../assets/fonts/NotoSansKR-Bold.woff) format('woff'),
+    url(../assets/fonts/NotoSansKR-Bold.otf) format('opentype'),
+    url(../assets/fonts/NotoSansKR-Bold.ttf) format('truetype'),
+    url(../assets/fonts/NotoSansKR-Bold.eot) format('embedded-opentype');
   font-weight: bold;
   font-style: normal;
   font-stretch: normal;

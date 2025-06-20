@@ -78,42 +78,42 @@
 </template>
 
 <script>
-import SignUpComfirm from "@/components/basic/SignUpComfirmComp.vue";
-import SignUpUser from "@/components/basic/SignUpUserComp.vue";
-import SignUpCallToAction from "@/components/basic/SignUpCallToActionComp.vue";
-import SignUpWork from "@/components/basic/SignUpWorkComp.vue";
-// import SignUpReguler from "@/components/basic/SignUpReguler.vue";
+  import SignUpComfirm from '@/components/basic/SignUpComfirmComp.vue';
+  import SignUpUser from '@/components/basic/SignUpUserComp.vue';
+  import SignUpCallToAction from '@/components/basic/SignUpCallToActionComp.vue';
+  import SignUpWork from '@/components/basic/SignUpWorkComp.vue';
+  // import SignUpReguler from "@/components/basic/SignUpReguler.vue";
 
-export default {
-  name: "SignUp",
-  components: {
-    SignUpComfirm,
-    SignUpUser,
-    SignUpCallToAction,
-    SignUpWork,
-    // SignUpReguler,
-  },
-  data() {
-    return {
-      signupStep: 1,
-    };
-  },
-  methods: {
-    goToNextStep() {
-      this.signupStep++;
+  export default {
+    name: 'SignUp',
+    components: {
+      SignUpComfirm,
+      SignUpUser,
+      SignUpCallToAction,
+      SignUpWork,
+      // SignUpReguler,
     },
-    goToThisStep(val) {
-      this.lv1_Data("val", val);
-      alert("여기왔네");
-      alert(val);
-      this.signupStep = val;
+    data() {
+      return {
+        signupStep: 1,
+      };
     },
+    methods: {
+      goToNextStep() {
+        this.signupStep++;
+      },
+      goToThisStep(val) {
+        this.lv1_Data('val', val);
+        alert('여기왔네');
+        alert(val);
+        this.signupStep = val;
+      },
 
-    goToHome() {
-      this.$router.push("/");
+      goToHome() {
+        this.$router.push('/');
+      },
     },
-  },
-};
+  };
 </script>
 
 <style></style>

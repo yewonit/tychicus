@@ -12,27 +12,27 @@
 </template>
 
 <script>
-import ResetPWInfo from "@/components/basic/ResetPWInfoComp.vue";
+  import ResetPWInfo from '@/components/basic/ResetPWInfoComp.vue';
 
-export default {
-  name: "ResetPW",
-  components: {
-    ResetPWInfo,
-  },
-  data() {
-    return {};
-  },
-  mounted() {
-    this.checkLogin();
-  },
-  methods: {
-    checkLogin() {
-      if (!JSON.parse(localStorage.getItem("user_info"))) {
-        this.$router.push("/");
-      }
+  export default {
+    name: 'ResetPW',
+    components: {
+      ResetPWInfo,
     },
-  },
-};
+    data() {
+      return {};
+    },
+    mounted() {
+      this.checkLogin();
+    },
+    methods: {
+      checkLogin() {
+        if (!JSON.parse(localStorage.getItem('user_info'))) {
+          this.$router.push('/');
+        }
+      },
+    },
+  };
 </script>
 
 <style></style>

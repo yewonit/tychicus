@@ -15,27 +15,27 @@
 </template>
 
 <script>
-import "@/styles/overrides.scss";
-export default {
-  props: {
-    imgUrl: {
-      type: String,
-      default: "people1.png",
+  import '@/styles/overrides.scss';
+  export default {
+    props: {
+      imgUrl: {
+        type: String,
+        default: 'people1.png',
+      },
+      peopleName: {
+        type: String,
+        default: 'people Name',
+      },
+      peoplePosition: {
+        type: String,
+        default: 'people Position',
+      },
+      // contect: {
+      //   type: String,
+      //   default: "contect info",
+      // },
     },
-    peopleName: {
-      type: String,
-      default: "people Name",
-    },
-    peoplePosition: {
-      type: String,
-      default: "people Position",
-    },
-    // contect: {
-    //   type: String,
-    //   default: "contect info",
-    // },
-  },
-};
+  };
 </script>
 
 <style></style>

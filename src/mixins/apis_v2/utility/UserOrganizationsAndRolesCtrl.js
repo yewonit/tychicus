@@ -1,4 +1,4 @@
-import { MasterCtrl } from "@/mixins/apis_v2/internal/MasterCtrl";
+import { MasterCtrl } from '@/mixins/apis_v2/internal/MasterCtrl';
 
 export const UserOrganizationsAndRolesCtrl = {
   mixins: [MasterCtrl],
@@ -8,23 +8,23 @@ export const UserOrganizationsAndRolesCtrl = {
      * 📊 모든 사용자의 조직과 역할 정보를 분석하고 로그로 출력합니다.
      */
     async logAllUsersOrganizationsAndRoles() {
-      console.log("📊 모든 사용자의 조직 및 역할 정보 분석 시작");
+      console.log('📊 모든 사용자의 조직 및 역할 정보 분석 시작');
 
       try {
-        console.log("1️⃣ 필요 데이터 로드 중...");
+        console.log('1️⃣ 필요 데이터 로드 중...');
         const loadedData = await this.loadRequiredData();
-        console.log("✅ 데이터 로드 완료");
+        console.log('✅ 데이터 로드 완료');
 
-        console.log("2️⃣ 사용자별 조직 및 역할 정보 분석");
+        console.log('2️⃣ 사용자별 조직 및 역할 정보 분석');
         const userOrganizationRoles = this.groupRolesByUser(loadedData);
 
-        console.log("3️⃣ 사용자별 조직 및 역할 정보 출력");
+        console.log('3️⃣ 사용자별 조직 및 역할 정보 출력');
         this.logUserOrganizationRoles(userOrganizationRoles, loadedData);
       } catch (error) {
-        console.error("❌ 사용자 조직 및 역할 정보 분석 중 오류 발생:", error);
+        console.error('❌ 사용자 조직 및 역할 정보 분석 중 오류 발생:', error);
       }
 
-      console.log("📊 모든 사용자의 조직 및 역할 정보 분석 완료");
+      console.log('📊 모든 사용자의 조직 및 역할 정보 분석 완료');
     },
 
     /**
@@ -67,15 +67,15 @@ export const UserOrganizationsAndRolesCtrl = {
         console.log(`\n👤 사용자 ID: ${userId}`);
 
         const organizationCount = Object.keys(organizations).length;
-        let color = "green"; // 기본 색상 (1개 조직, 1개 역할)
+        let color = 'green'; // 기본 색상 (1개 조직, 1개 역할)
 
         if (organizationCount > 1) {
-          color = "red"; // 2개 이상의 조직에 소속된 경우
+          color = 'red'; // 2개 이상의 조직에 소속된 경우
         } else {
           // 1개 조직에서 2개 이상의 역할을 가진 경우 확인
           const roles = Object.values(organizations)[0];
           if (roles.length > 1) {
-            color = "yellow";
+            color = 'yellow';
           }
         }
 
@@ -85,13 +85,13 @@ export const UserOrganizationsAndRolesCtrl = {
           );
           const orgName = organization
             ? organization.organization_name
-            : "알 수 없는 조직";
+            : '알 수 없는 조직';
 
           const logMessage = `  🏢 조직: ${orgName} (ID: ${orgId}) - 역할: ${roles.join(
-            ", "
+            ', '
           )}`;
 
-          console.log("%c" + logMessage, `color: ${color}`);
+          console.log('%c' + logMessage, `color: ${color}`);
         }
       }
     },
@@ -103,14 +103,14 @@ export const UserOrganizationsAndRolesCtrl = {
      * @returns {Object} 조직별로 그룹화된 역할 정보
      */
     groupRolesByOrganization(userRoles, loadedData) {
-      console.log("🔀 역할 그룹화 시작");
-      console.log("📥 입력된 userRoles:", userRoles);
+      console.log('🔀 역할 그룹화 시작');
+      console.log('📥 입력된 userRoles:', userRoles);
       const organizationRoles = {};
 
       for (const userRole of userRoles) {
         console.log(`🔍 처리 중인 userRole:`, userRole);
         const role = loadedData.Role.find((r) => r.id === userRole.role_id);
-        console.log("🏷️ 매칭된 역할 정보:", role);
+        console.log('🏷️ 매칭된 역할 정보:', role);
 
         if (role) {
           if (!organizationRoles[userRole.organization_id]) {
@@ -132,7 +132,7 @@ export const UserOrganizationsAndRolesCtrl = {
         }
       }
 
-      console.log("📤 그룹화 결과:", organizationRoles);
+      console.log('📤 그룹화 결과:', organizationRoles);
       return organizationRoles;
     },
 
@@ -141,10 +141,10 @@ export const UserOrganizationsAndRolesCtrl = {
      * @returns {Promise<Object>} 로드된 데이터 객체
      */
     async loadRequiredData() {
-      const tables = ["User", "Organization", "Role", "UserHasRole"];
+      const tables = ['User', 'Organization', 'Role', 'UserHasRole'];
       const loadedData = {};
 
-      console.log("데이터 로딩 시작...");
+      console.log('데이터 로딩 시작...');
 
       for (const table of tables) {
         console.log(`${table} 데이터 로드 중...`);
@@ -158,7 +158,7 @@ export const UserOrganizationsAndRolesCtrl = {
         this.logLoadedDataSummary(table, loadedData[table]);
       }
 
-      console.log("모든 데이터 로딩 완료");
+      console.log('모든 데이터 로딩 완료');
       return loadedData;
     },
 
@@ -172,25 +172,25 @@ export const UserOrganizationsAndRolesCtrl = {
       console.log(`  - 총 ${data.length}개의 레코드 로드됨`);
 
       if (data.length > 0) {
-        console.log("  - 첫 번째 레코드 샘플:");
+        console.log('  - 첫 번째 레코드 샘플:');
         console.log(JSON.stringify(data[0], null, 2));
       }
 
-      if (tableName === "Organization") {
-        console.log("  - 조직 목록:");
+      if (tableName === 'Organization') {
+        console.log('  - 조직 목록:');
         data.forEach((org) =>
           console.log(`    ID: ${org.id}, 이름: ${org.organization_name}`)
         );
       }
 
-      if (tableName === "UserHasRole") {
+      if (tableName === 'UserHasRole') {
         const uniqueUsers = new Set(data.map((uhr) => uhr.user_id)).size;
         const uniqueOrgs = new Set(data.map((uhr) => uhr.organization_id)).size;
         console.log(`  - 고유 사용자 수: ${uniqueUsers}`);
         console.log(`  - 고유 조직 수: ${uniqueOrgs}`);
       }
 
-      console.log("  ---");
+      console.log('  ---');
     },
   },
 };

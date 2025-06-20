@@ -30,10 +30,10 @@ const actions = {
         `/api/attendance?startDate=${startDate}&endDate=${endDate}`
       );
       const data = await response.json();
-      commit("SET_ATTENDANCE_DATA", data);
+      commit('SET_ATTENDANCE_DATA', data);
       return data;
     } catch (error) {
-      console.error("출석 데이터 가져오기 실패:", error);
+      console.error('출석 데이터 가져오기 실패:', error);
       throw error;
     }
   },

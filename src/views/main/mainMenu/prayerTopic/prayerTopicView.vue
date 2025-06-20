@@ -21,8 +21,9 @@
         >
           <div class="wc-info-light ma-0 pa-1 pt-7 pb-7">
             <v-icon size="10" class="ma-0 mr-3 fadeIn" color="#262626">
-              mdi-hands-pray </v-icon
-            >PrayerTopic
+              mdi-hands-pray
+            </v-icon>
+            PrayerTopic
           </div>
           <div class="wc-h3 ma-0 pa-0">{{ service.name }}</div>
 
@@ -35,16 +36,18 @@
                 size="20"
                 class="ma-0 pa-0"
                 @click="deleteService(service.id)"
-                >mdi-delete</v-icon
               >
+                mdi-delete
+              </v-icon>
             </v-btn>
             <v-btn icon>
               <v-icon
                 size="20"
                 class="ma-0 pa-0"
                 @click="editService(service.id)"
-                >mdi-pencil</v-icon
               >
+                mdi-pencil
+              </v-icon>
             </v-btn>
           </v-card-actions>
         </v-card>
@@ -54,39 +57,39 @@
 </template>
 
 <script>
-export default {
-  name: "ServiceSelectionView",
-  data() {
-    return {
-      services: [
-        {
-          id: 1,
-          groupName: "00전도회",
-          prayerTopic: "전도회의 기도제목을 입력하고 항상 기도해보세요",
-        },
-        {
-          id: 2,
-          groupName: "01전도회",
-          prayerTopic: "전도회의 기도제목을 입력하고 항상 기도해보세요",
-        },
-        {
-          id: 3,
-          groupName: "02전도회",
-          prayerTopic: "전도회의 기도제목을 입력하고 항상 기도해보세요",
-        },
-      ],
-    };
-  },
-};
+  export default {
+    name: 'ServiceSelectionView',
+    data() {
+      return {
+        services: [
+          {
+            id: 1,
+            groupName: '00전도회',
+            prayerTopic: '전도회의 기도제목을 입력하고 항상 기도해보세요',
+          },
+          {
+            id: 2,
+            groupName: '01전도회',
+            prayerTopic: '전도회의 기도제목을 입력하고 항상 기도해보세요',
+          },
+          {
+            id: 3,
+            groupName: '02전도회',
+            prayerTopic: '전도회의 기도제목을 입력하고 항상 기도해보세요',
+          },
+        ],
+      };
+    },
+  };
 </script>
 
 <style scoped>
-.service-card {
-  padding: 20px;
-  margin-bottom: 20px;
-}
+  .service-card {
+    padding: 20px;
+    margin-bottom: 20px;
+  }
 
-.disabled-card {
-  opacity: 0.5;
-}
+  .disabled-card {
+    opacity: 0.5;
+  }
 </style>
