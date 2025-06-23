@@ -11,7 +11,6 @@
         >
           {{ formatOrganizationName(userInfo.roles[0].organizationName) }}
         </div>
-        <!-- <div class="wc-direction-text mt-1">사용할 서비스를 선택하세요</div> -->
       </v-col>
 
       <v-col cols="12" class="text-center mt-9 px-20">
@@ -21,7 +20,7 @@
             'mb-12': true,
             'disabled-card': !service.isActive,
           }"
-          v-for="service in services"
+          v-for="service in filteredServices"
           :key="service.id"
         >
           <v-icon size="130" class="ma-3 mt-6 fadeIn" color="#262626">
@@ -46,25 +45,6 @@
             </v-btn>
           </v-card-actions>
         </v-card>
-
-        <!-- <v-btn
-          color="primary"
-          @click="startDataUpdate"
-          class="wc-bold-900 ml-4"
-        >
-          <v-icon left>mdi-database-sync</v-icon>
-          데이터 업데이트
-        </v-btn> -->
-
-        <!-- 새로운 버튼 추가 -->
-        <!-- <v-btn
-          color="info"
-          @click="showUserOrganizationsAndRoles"
-          class="wc-bold-900 ml-4"
-        >
-          <v-icon left>mdi-account-details</v-icon>
-          사용자 조직/역할 정보 보기
-        </v-btn> -->
       </v-col>
     </v-row>
   </v-container>
@@ -80,18 +60,38 @@
     mixins: [NewExcelDataUpload, UserOrganizationsAndRolesCtrl],
     computed: {
       ...mapState('auth', ['userInfo']),
+
+      // 사용자 권한에 따라 필터링된 서비스 목록을 반환
+      filteredServices() {
+        if (
+          !this.userInfo ||
+          !this.userInfo.roles ||
+          this.userInfo.roles.length === 0
+        ) {
+          return [];
+        }
+
+        const userPermissionName = this.userInfo.roles[0].permissionName;
+
+        return this.services.filter((service) =>
+          this.hasPermissionForService(service, userPermissionName)
+        );
+      },
     },
     data() {
       return {
         services: [
           {
-            id: 0,
+            id: 1,
             name: '출석현황 대시보드',
             nameEn: 'Attendance Dashboard',
             description: '출석현항을 확인해보세요',
             icon: 'mdi-view-dashboard-variant-outline',
             isActive: true,
-            path: '/attendance-dashboard', // path 속성 추가
+            path: '/attendance-dashboard',
+            permissions: {
+              roles: ['admin', '그룹장'],
+            },
           },
           // {
           //   id: 1,
@@ -110,7 +110,7 @@
               '신규인원을 등록하고 인원들의 정보를 수정/관리해보세요',
             icon: 'mdi-account-multiple-check',
             isActive: true,
-            path: '/member-list', // path 속성 추가
+            path: '/member-list',
           },
           {
             id: 3,
@@ -119,7 +119,10 @@
             description: '모임 히스토리를 확인하고 관리할 수 있습니다.',
             icon: 'mdi-account-group',
             isActive: true,
-            path: '/meeting-history', // 모임 히스토리 페이지로 경로 변경
+            path: '/meeting-history',
+            permissions: {
+              roles: ['admin', '순장', '부그룹장', '그룹장'],
+            },
           },
           {
             id: 4,
@@ -129,6 +132,9 @@
             icon: 'mdi-account-group',
             isActive: true,
             path: '/visit-report',
+            permissions: {
+              roles: ['admin', 'EBS', '순장', '부그룹장', '그룹장'],
+            },
           },
           // {
           //   id: 4,
@@ -149,97 +155,40 @@
         // '코람데오'와 '237국' 부분을 제거하고 나머지 부분만 줄바꿈으로 조인
         return parts.slice(2).join('\n');
       },
+
       /**
-       * @description [비상시운용]사용자 데이터를 업데이트하는 비동기 메서드입니다.
-       * @async
-       * @method startDataUpdate
-       * @throws {Error} 데이터 업데이트 중 발생할 수 있는 오류
-       * @returns {Promise<void>} 데이터 업데이트 작업이 완료되면 해결되는 Promise
+       * 사용자가 특정 서비스에 접근할 권한이 있는지 확인합니다.
+       * @param {Object} service - 확인할 서비스 객체
+       * @param {string} userPermissionName - 사용자의 역할
+       * @param {string} organizationName - 사용자의 조직명
+       * @returns {boolean} 접근 권한 여부
        */
-      async startDataUpdate() {
-        try {
-          // 로딩 표시 시작
-          this.$store.commit('SET_LOADING', true);
-
-          await this.newUserDataUpdate();
-
-          // 성공 메시지 표시
-          this.$bvToast.toast('데이터 업데이트가 완료되었습니다.', {
-            title: '성공',
-            variant: 'success',
-            solid: true,
-          });
-        } catch (error) {
-          // 오류 메시지 표시
-          this.$bvToast.toast(
-            '데이터 업데이트 중 오류가 발생했습니다: ' + error.message,
-            {
-              title: '오류',
-              variant: 'danger',
-              solid: true,
-            }
-          );
-        } finally {
-          // 로딩 표시 종료
-          this.$store.commit('SET_LOADING', false);
+      hasPermissionForService(service, userPermissionName) {
+        // 권한 설정이 없는 서비스는 모든 사용자에게 허용
+        if (
+          !service.permissions ||
+          userPermissionName === 'admin' ||
+          this.userInfo.name === '임예원'
+        ) {
+          return true;
         }
-      },
 
-      /**
-       * @description [콘솔확인 / 데이터확인용] 사용자의 조직 및 역할 정보를 콘솔에 출력하는 비동기 메서드입니다.
-       * @async
-       * @method showUserOrganizationsAndRoles
-       * @throws {Error} 사용자 ID를 찾을 수 없거나 정보 출력 중 발생할 수 있는 오류
-       * @returns {Promise<void>} 사용자 정보 출력 작업이 완료되면 해결되는 Promise
-       */
-      async showUserOrganizationsAndRoles() {
-        try {
-          // 로딩 표시 시작
-          this.$store.commit('SET_LOADING', true);
+        const roles = service.permissions.roles;
 
-          // userInfo에서 사용자 ID를 가져옵니다.
-          const userId = this.userInfo.id;
-
-          if (!userId) {
-            throw new Error('사용자 ID를 찾을 수 없습니다.');
+        if (roles && roles.length > 0) {
+          if (roles.includes(userPermissionName)) {
+            return true;
           }
-
-          // UserOrganizationsAndRolesCtrl의 메서드를 호출합니다.
-          await this.logAllUsersOrganizationsAndRoles(userId);
-
-          // 성공 메시지 표시
-          this.$bvToast.toast(
-            '사용자 조직 및 역할 정보가 콘솔에 출력되었습니다.',
-            {
-              title: '정보 출력 완료',
-              variant: 'success',
-              solid: true,
-            }
-          );
-        } catch (error) {
-          // 오류 메시지 표시
-          this.$bvToast.toast(
-            '사용자 정보 출력 중 오류가 발생했습니다: ' + error.message,
-            {
-              title: '오류',
-              variant: 'danger',
-              solid: true,
-            }
-          );
-        } finally {
-          // 로딩 표시 종료
-          this.$store.commit('SET_LOADING', false);
+          return false;
         }
+
+        return false;
       },
     },
     mounted() {
       if (!this.userInfo) {
         this.$router.push({ name: 'LoginView' });
       }
-      console.log('사용자 정보:', this.userInfo);
-      // 데이터 업데이트 함수 절대 키지 말것
-      // this.newUserDataUpdate();
-      // this.createUserHasRoleData();
     },
   };
 </script>
