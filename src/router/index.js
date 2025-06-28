@@ -4,20 +4,20 @@
  * @version 1.0.0
  */
 
+import store from '@/store';
 import Vue from 'vue';
 import VueRouter from 'vue-router';
-import store from '@/store';
 
 /**
  * @section 레이아웃 컴포넌트
  * @description 애플리케이션의 기본 레이아웃 구조를 정의하는 컴포넌트들
  */
-import MainLayout from '@/layouts/main/Index.vue';
-import BizLayout from '@/layouts/biz/Index.vue';
-import SubLayout from '@/layouts/sub/Index.vue';
-import MyPageLayout from '@/layouts/mypage/Index.vue';
-import CleanLayout from '@/layouts/clean/Index.vue';
 import AdminLayout from '@/layouts/admin/AdminLayout.vue';
+import BizLayout from '@/layouts/biz/Index.vue';
+import CleanLayout from '@/layouts/clean/Index.vue';
+import MainLayout from '@/layouts/main/Index.vue';
+import MyPageLayout from '@/layouts/mypage/Index.vue';
+import SubLayout from '@/layouts/sub/Index.vue';
 
 /**
  * @section 메인 레이아웃 뷰 컴포넌트
@@ -35,11 +35,11 @@ import ServiceSelectionView from '@/views/main/coreNavigation/ServiceSelectionVi
  * @section 인증 관련 뷰
  * @description 사용자 인증 및 정보 입력 관련 컴포넌트
  */
+import EmailInputView from '@/views/main/login/EmailInputView.vue';
 import LoginView from '@/views/main/login/LoginView.vue';
 import NameInputView from '@/views/main/login/NameInputView.vue';
-import PhoneInputView from '@/views/main/login/PhoneInputView.vue';
-import EmailInputView from '@/views/main/login/EmailInputView.vue';
 import PasswordInputView from '@/views/main/login/PasswordInputView.vue';
+import PhoneInputView from '@/views/main/login/PhoneInputView.vue';
 
 /**
  * @section 교회 관리 시스템
@@ -53,22 +53,22 @@ import AttendanceDashboardView from '@/views/main/mainMenu/attendanceDashboard/A
 import PrayerTopicView from '@/views/main/mainMenu/prayerTopic/prayerTopicView.vue';
 
 /** 교인 관리 */
+import MemberListView from '@/views/main/mainMenu/membersManagement/MemberListView.vue';
 import MemberRegistrationView from '@/views/main/mainMenu/membersManagement/MemberRegistrationView.vue';
 import MemberUpdateView from '@/views/main/mainMenu/membersManagement/MemberUpdateView.vue';
-import MemberListView from '@/views/main/mainMenu/membersManagement/MemberListView.vue';
 
 /** 출석 관리 */
 import AttendanceAggregationView from '@/views/main/mainMenu/attendanceManagement/AttendanceAggregationView.vue';
-import WorshipSelectionView from '@/views/main/mainMenu/attendanceManagement/WorshipSelectionView.vue';
 import AttendanceInputView from '@/views/main/mainMenu/attendanceManagement/AttendanceInputView.vue';
-import MeetingHistoryView from '@/views/main/mainMenu/attendanceManagement/MeetingHistoryView.vue';
 import AttendanceUpdateView from '@/views/main/mainMenu/attendanceManagement/AttendanceUpdateView.vue';
 import MeetingDetailView from '@/views/main/mainMenu/attendanceManagement/MeetingDetailView.vue';
+import MeetingHistoryView from '@/views/main/mainMenu/attendanceManagement/MeetingHistoryView.vue';
 import VisitReportView from '@/views/main/mainMenu/attendanceManagement/VisitReportView.vue';
+import WorshipSelectionView from '@/views/main/mainMenu/attendanceManagement/WorshipSelectionView.vue';
 
 /** 특별 관리 대상자 */
-import LostAndNewManagementSelectionView from '@/views/main/mainMenu/specialPersonnelManagement/LostAndNewManagementSelectionView.vue';
 import LongTermAbsenteeListView from '@/views/main/mainMenu/specialPersonnelManagement/LongTermAbsenteeListView.vue';
+import LostAndNewManagementSelectionView from '@/views/main/mainMenu/specialPersonnelManagement/LostAndNewManagementSelectionView.vue';
 import NewFamilyListView from '@/views/main/mainMenu/specialPersonnelManagement/NewFamilyListView.vue';
 import RescueVisitHistoryView from '@/views/main/mainMenu/specialPersonnelManagement/RescueVisitHistoryView.vue';
 
@@ -80,10 +80,10 @@ import AWSImageCRUDTest from '@/views/main/mainMenu/attendanceManagement/AWSImag
  * @section 관리자 뷰 컴포넌트
  */
 
+import AdminAttendanceStats from '@/views/admin/attendance/AttendanceStatsView.vue';
 import DashboardView from '@/views/admin/dashboard/DashboardView.vue';
 import OrganizationManagementView from '@/views/admin/members/OrganizationManagementView.vue';
 import OrganizationMeetingHistoryView from '@/views/admin/members/OrganizationMeetingHistoryView.vue';
-import AdminAttendanceStats from '@/views/admin/attendance/AttendanceStatsView.vue';
 // import AdminMemberList from "@/views/admin/members/MemberListView.vue";
 // import AdminMemberDetail from "@/views/admin/members/MemberDetailView.vue";
 // import AdminAttendanceList from "@/views/admin/attendance/AttendanceListView.vue";
@@ -95,6 +95,33 @@ import AdminAttendanceStats from '@/views/admin/attendance/AttendanceStatsView.v
 // import AdminSettings from "@/views/admin/settings/SystemSettingsView.vue";
 
 Vue.use(VueRouter);
+
+/**
+ * 사용자가 특정 라우트에 접근할 권한이 있는지 확인합니다.
+ * @param {Object} route - 확인할 라우트 객체
+ * @param {string} userPermissionName - 사용자의 역할
+ * @param {string} userName - 사용자 이름
+ * @returns {boolean} 접근 권한 여부
+ */
+function hasPermissionForRoute(route, userPermissionName, userName) {
+  // 권한 설정이 없는 라우트는 모든 사용자에게 허용
+  if (!route.meta.permissions) {
+    return true;
+  }
+
+  // 관리자이거나 특정 사용자(임예원)는 모든 권한 허용
+  if (userPermissionName === 'admin' || userName === '임예원') {
+    return true;
+  }
+
+  const roles = route.meta.permissions.roles;
+
+  if (roles && roles.length > 0) {
+    return roles.includes(userPermissionName);
+  }
+
+  return false;
+}
 
 /**
  * @constant routes
@@ -225,8 +252,9 @@ const routes = [
           showBackButton: true,
           showHomeButton: false,
           showCancelButton: false,
-          requiresAuth: true, // 로그인 필요
-          isAdmin: true, // 관리자만 접근 가능
+          permissions: {
+            roles: ['admin'], // 관리자만 접근 가능
+          },
         },
       },
       {
@@ -402,6 +430,9 @@ const routes = [
           showBackButton: true,
           showHomeButton: false,
           showCancelButton: true,
+          permissions: {
+            roles: ['admin', 'EBS', '순장', '부그룹장', '그룹장'],
+          },
         },
       },
       {
@@ -415,6 +446,9 @@ const routes = [
           showBackButton: true,
           showHomeButton: false,
           showCancelButton: true,
+          permissions: {
+            roles: ['admin'],
+          },
         },
       },
       {
@@ -497,7 +531,6 @@ const routes = [
     path: '/admin',
     component: AdminLayout,
     meta: {
-      requiresAuth: true,
       isAdmin: true,
     },
     children: [
@@ -507,7 +540,6 @@ const routes = [
         component: DashboardView,
         meta: {
           title: '대시보드',
-          requiresAuth: true,
           isAdmin: true,
         },
       },
@@ -517,7 +549,6 @@ const routes = [
         component: DashboardView,
         meta: {
           title: '대시보드',
-          requiresAuth: true,
           isAdmin: true,
         },
       },
@@ -632,35 +663,44 @@ router.beforeEach((to, from, next) => {
   next();
 });
 
-// 인증 관련 네비게이션 가드 (주석 처리된 부분은 그대로 유지)
+// 인증 및 권한 관련 네비게이션 가드
 router.beforeEach((to, from, next) => {
-  const requiresAuth = to.matched.some((record) => record.meta.requiresAuth);
-  const isAdmin = to.matched.some((record) => record.meta.isAdmin);
-  const isAuthenticated = store.getters['auth/userAccessToken'];
-  // TODO 임예원 : 페이지를 이동할 때 마다 토큰을 던져서 확인? - 사용가능한 토큰인지 확인하는 로직 필요
-  const userInfo = store.getters['auth/userInfo'];
-  const userRole =
-    userInfo.roles && userInfo.roles.length > 0
-      ? userInfo.roles[0].roleName
-      : null;
-
-  console.log('requiresAuth', requiresAuth);
-  console.log('isAdmin', isAdmin);
-  console.log('isAuthenticated', isAuthenticated);
-  console.log('userRole', userRole);
-
-  if (requiresAuth && !isAuthenticated) {
-    // 인증이 필요한데 로그인 안 했으면 로그인 페이지로
-    next('/login');
-    // } else if (isAdmin && !userRole?.includes("admin")) {
-    // TODO 임예원 : 관리자 데이터 확인 후 적용 필요
-  } else if (isAdmin && userRole !== '순원') {
-    // 관리자 권한이 필요한데 관리자가 아니면 홈으로
-    next('/');
-  } else {
-    // 그 외엔 정상적으로 이동
+  // 로그인 페이지는 인증 없이 접근 가능
+  const publicRoutes = ['/login', '/'];
+  if (publicRoutes.includes(to.path)) {
     next();
+    return;
   }
+
+  const isAuthenticated = store.getters['auth/userAccessToken'];
+  console.log('isAuthenticated', isAuthenticated);
+  // 로그인하지 않은 경우 로그인 페이지로 리다이렉트
+  if (!isAuthenticated) {
+    next('/login');
+    return;
+  }
+
+  const userInfo = store.getters['auth/userInfo'];
+
+  // 사용자 권한 정보 추출
+  const userPermissionName =
+    userInfo && userInfo.roles && userInfo.roles.length > 0
+      ? userInfo.roles[0].permissionName
+      : null;
+  const userName = userInfo ? userInfo.name : null;
+
+  console.log('userPermissionName', userPermissionName);
+  console.log('userName', userName);
+
+  // 인증된 사용자의 권한 체크
+  if (!hasPermissionForRoute(to, userPermissionName, userName)) {
+    console.log('권한 없음 - 서비스 선택 페이지로 리다이렉트');
+    next('/service-selection');
+    return;
+  }
+
+  // 모든 조건을 통과하면 정상적으로 이동
+  next();
 });
 
 export default router;
