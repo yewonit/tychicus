@@ -90,7 +90,8 @@
             isActive: true,
             path: '/attendance-dashboard',
             permissions: {
-              roles: ['admin', '그룹장'],
+              // roles: ['admin', '그룹장'],
+              roles: ['admin'],
             },
           },
           // {
@@ -121,7 +122,7 @@
             isActive: true,
             path: '/meeting-history',
             permissions: {
-              roles: ['admin', '순장', '부그룹장', '그룹장'],
+              roles: ['admin', 'EBS', '순장', '부그룹장', '그룹장'],
             },
           },
           {
@@ -133,7 +134,8 @@
             isActive: true,
             path: '/visit-report',
             permissions: {
-              roles: ['admin', 'EBS', '순장', '부그룹장', '그룹장'],
+              // roles: ['admin', 'EBS', '순장', '부그룹장', '그룹장'],
+              roles: ['admin'],
             },
           },
           // {
