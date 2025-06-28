@@ -7,7 +7,7 @@
     >
       <v-col class="text-center">
         <div
-          class="wc-direction-text wc-bold-900 wc-fs-28 blue--text organization-name"
+          class="wc-direction-text wc-bold-900 wc-fs-28 primary--text organization-name"
         >
           {{ formatOrganizationName(userInfo.roles[0].organizationName) }}
         </div>
@@ -204,15 +204,93 @@
   .disabled-card {
     opacity: 0.5;
   }
-  /* 커스텀 텍스트 블루 */
-  .blue--text {
-    color: #06a1cc !important;
-  }
 
   .custom-button {
     background-image: linear-gradient(to right, #cbdaf7, #96f2e4) !important;
     border-radius: 50px;
     color: rgb(83, 83, 83);
+  }
+
+  /* 로고 색상 기반 버튼 스타일 */
+  .wc-card-btn {
+    border-radius: 12px !important;
+    font-weight: bold !important;
+    text-transform: none !important;
+    /* Vuetify 테마 색상으로 그라데이션 */
+    background: linear-gradient(
+      135deg,
+      var(--v-gradientStart-base) 0%,
+      var(--v-gradientMiddle-base) 50%,
+      var(--v-gradientEnd-base) 100%
+    ) !important;
+    box-shadow: 0 4px 15px var(--v-shadowMedium-base),
+      inset 0 1px 0 rgba(255, 255, 255, 0.2) !important;
+    border: none !important;
+    position: relative;
+    overflow: hidden;
+    color: white !important;
+  }
+
+  /* 버튼 위에 빛나는 효과 */
+  .wc-card-btn::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: -100%;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(
+      90deg,
+      transparent,
+      rgba(255, 255, 255, 0.3),
+      transparent
+    );
+    transition: left 0.6s ease;
+  }
+
+  /* 버튼 호버 효과 */
+  .wc-card-btn:hover:not(:disabled) {
+    background: linear-gradient(
+      135deg,
+      var(--v-hoverGradientStart-base) 0%,
+      var(--v-hoverGradientMiddle-base) 50%,
+      var(--v-hoverGradientEnd-base) 100%
+    ) !important;
+    transform: translateY(-2px);
+    box-shadow: 0 8px 25px var(--v-shadowStrong-base),
+      inset 0 1px 0 rgba(255, 255, 255, 0.3) !important;
+  }
+
+  /* 호버시 빛나는 효과 */
+  .wc-card-btn:hover::before {
+    left: 100%;
+  }
+
+  /* 버튼 클릭 효과 */
+  .wc-card-btn:active {
+    transform: translateY(0px);
+    box-shadow: 0 2px 10px var(--v-shadowMedium-base),
+      inset 0 2px 4px rgba(0, 0, 0, 0.1) !important;
+  }
+
+  /* 비활성화된 버튼 */
+  .wc-card-btn:disabled {
+    background: linear-gradient(
+      135deg,
+      var(--v-disabledStart-base) 0%,
+      var(--v-disabledMiddle-base) 50%,
+      var(--v-disabledEnd-base) 100%
+    ) !important;
+    color: var(--v-disabledText-base) !important;
+    box-shadow: none !important;
+    transform: none !important;
+  }
+
+  /* 버튼 텍스트 스타일 */
+  .wc-card-btn .wc-h3 {
+    color: black !important;
+    font-weight: bold !important;
+    text-shadow: 0 1px 2px rgba(255, 255, 255, 0.3);
   }
 
   .organization-name {
