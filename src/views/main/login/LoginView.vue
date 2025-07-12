@@ -20,7 +20,7 @@
           dense
           label="터치해서 이메일을 입력하세요"
           hide-details="auto"
-          class="mb-4 mx-auto bg-transparent"
+          class="mb-7 mx-auto bg-transparent"
         ></v-text-field>
 
         <!-- 비밀번호 입력 필드 -->

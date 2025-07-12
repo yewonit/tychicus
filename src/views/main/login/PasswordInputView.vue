@@ -16,7 +16,7 @@
             dense
             label="터치해서 비밀번호를 입력하세요"
             hide-details="auto"
-            class="mb-4 mx-auto bg-transparent"
+            class="mb-7 mx-auto bg-transparent"
             style="max-width: 400px"
             :type="showPassword ? 'text' : 'password'"
             :append-icon="showPassword ? 'mdi-eye' : 'mdi-eye-off'"
@@ -33,7 +33,7 @@
             dense
             label="터치해서 비밀번호를 다시 입력하세요"
             hide-details="auto"
-            class="mb-4 mx-auto bg-transparent"
+            class="mb-7 mx-auto bg-transparent"
             style="max-width: 400px"
             :type="showPassword ? 'text' : 'password'"
             :append-icon="showPassword ? 'mdi-eye' : 'mdi-eye-off'"
@@ -68,7 +68,7 @@
 
 <script>
   import '@/styles/overrides.scss';
-  import { mapState, mapActions } from 'vuex';
+  import { mapActions, mapState } from 'vuex';
 
   // Mixins
   import { AuthCtrl } from '@/mixins/apis_v2/internal/domainCtrl/AuthCtrl';
