@@ -45,20 +45,21 @@
         </div>
 
         <v-row class="mt-2">
-          <v-col cols="6" class="pa-0">
+          <v-col cols="12" sm="6" class="pa-1 pa-sm-0">
             <v-btn
               text
-              class="text-decoration-none"
+              class="text-decoration-none text-caption text-sm-body-2"
               color="primary"
               @click="$router.push('/name-input')"
+              block
             >
               이메일과 비밀번호가 없나요?
             </v-btn>
           </v-col>
-          <v-col cols="6" class="pa-0">
+          <v-col cols="12" sm="6" class="pa-1 pa-sm-0">
             <v-btn
               text
-              class="text-decoration-none"
+              class="text-decoration-none text-caption text-sm-body-2"
               color="primary"
               @click="
                 $router.push({
@@ -66,6 +67,7 @@
                   query: { isPasswordRecovery: true },
                 })
               "
+              block
             >
               비밀번호를 잃어버렸어요.
             </v-btn>
@@ -103,7 +105,7 @@
   // Vuex의 mapState와 mapActions를 import합니다.
   // mapState는 Vuex 저장소의 상태를 컴포넌트의 computed 속성에 매핑하는 데 사용됩니다.
   // mapActions는 Vuex 저장소의 액션을 컴포넌트의 methods에 매핑하는 데 사용됩니다.
-  import { mapState, mapActions } from 'vuex';
+  import { mapActions, mapState } from 'vuex';
 
   // DataSetting 믹신을 "@/mixins/dataset/DataSetting"에서 import합니다.
   // 이 믹신은 데이터 CRUD(Create, Read, Update, Delete) 작업을 위한 메서드를 제공합니다.
