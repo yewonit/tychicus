@@ -23,7 +23,7 @@
         <template v-slot:activator="{ on, attrs }">
           <v-btn class="mt-5 pr-0 mr-0" plain v-bind="attrs" v-on="on">
             <!-- <span class="mr-2"> Menu </span> -->
-            <v-icon> mdi-dots-vertical </v-icon>
+            <v-icon>mdi-dots-vertical</v-icon>
           </v-btn>
         </template>
 
@@ -54,26 +54,26 @@
 </template>
 
 <script>
-export default {
-  name: "SubLayout",
-  data() {
-    return {
-      items: [
-        { title: "내 정보 수정", path: "/mypage/user-info" },
-        { title: "비밀번호 재설정", path: "/mypage/reset-pw" },
-        { title: "내 산업정보 수정", path: "/mypage/work-info" },
-        // { title: "정회원 정보 수정", path: "/mypage/cms-info" },
-      ],
-    };
-  },
-  computed: {},
-  methods: {
-    goBack() {
-      this.$router.go(-1);
-      [2];
+  export default {
+    name: 'SubLayout',
+    data() {
+      return {
+        items: [
+          { title: '내 정보 수정', path: '/mypage/user-info' },
+          { title: '비밀번호 재설정', path: '/mypage/reset-pw' },
+          { title: '내 산업정보 수정', path: '/mypage/work-info' },
+          // { title: "정회원 정보 수정", path: "/mypage/cms-info" },
+        ],
+      };
     },
-  },
-};
+    computed: {},
+    methods: {
+      goBack() {
+        this.$router.go(-1);
+        [2];
+      },
+    },
+  };
 </script>
 
 <style></style>

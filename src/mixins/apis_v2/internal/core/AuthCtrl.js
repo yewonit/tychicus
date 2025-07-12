@@ -1,4 +1,4 @@
-import axiosClient from "@/utils/axiosClient";
+import axiosClient from '@/utils/axiosClient';
 
 export const AuthCtrl = {
   data() {
@@ -14,23 +14,23 @@ export const AuthCtrl = {
     async setAxios(authorization, showLog) {
       if (showLog) {
         console.log(
-          "%c[ mixins: AuthCtrl ]setAxios authorization : ",
+          '%c[ mixins: AuthCtrl ]setAxios authorization : ',
           `color: #505050;`,
           authorization
         );
       }
 
       switch (authorization) {
-        case "auth":
-          if (!localStorage.getItem("access_token")) {
+        case 'auth':
+          if (!localStorage.getItem('access_token')) {
             // alert("로그인이 필요합니다");
-            return { data: "NEED LOGIN" };
+            return { data: 'NEED LOGIN' };
           } else {
             this.AUTH_AXIOS = await this.getAuthAxios();
             // return { success: "AUTH_AXIOS" };
             break;
           }
-        case "open":
+        case 'open':
           this.OPEN_AXIOS = await this.getOpenAxios();
           // return { success: "OPEN_AXIOS" };
           break;
@@ -41,12 +41,12 @@ export const AuthCtrl = {
       }
       if (showLog) {
         console.log(
-          "%c[ mixins: AuthCtrl ]setAxios this.AUTH_AXIOS : ",
+          '%c[ mixins: AuthCtrl ]setAxios this.AUTH_AXIOS : ',
           `color: #505050;`,
           this.AUTH_AXIOS
         );
         console.log(
-          "%c[ mixins: AuthCtrl ]setAxios this.OPEN_AXIOS : ",
+          '%c[ mixins: AuthCtrl ]setAxios this.OPEN_AXIOS : ',
           `color: #505050;`,
           this.OPEN_AXIOS
         );
@@ -71,20 +71,20 @@ export const AuthCtrl = {
     // Access Token 재발급
     refreshAccessToken: () => {
       // console.log("[mixins: TokenCtrl ]refreshAccessToken");
-      const refreshToken = localStorage.getItem("refresh_token");
-      console.log("refreshToken", refreshToken);
+      const refreshToken = localStorage.getItem('refresh_token');
+      console.log('refreshToken', refreshToken);
       if (refreshToken) {
         axiosClient.auth
-          .post("/refresh", {
-            refreshToken: localStorage.getItem("refresh_token"),
+          .post('/refresh', {
+            refreshToken: localStorage.getItem('refresh_token'),
           })
           .then((res) => {
-            console.log("refresh res", res);
-            localStorage.removeItem("access_token");
-            localStorage.setItem("access_token", res.data.accessToken);
+            console.log('refresh res', res);
+            localStorage.removeItem('access_token');
+            localStorage.setItem('access_token', res.data.accessToken);
           })
           .catch((err) => {
-            console.log("refresh err", err);
+            console.log('refresh err', err);
           });
       }
     },

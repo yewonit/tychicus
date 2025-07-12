@@ -39,8 +39,9 @@
                     ? 'attendance-present'
                     : 'attendance-absent'
                 "
-                >{{ item.sunday_service_2 ? "O" : "X" }}</span
               >
+                {{ item.sunday_service_2 ? 'O' : 'X' }}
+              </span>
             </td>
             <td>
               <span
@@ -49,8 +50,9 @@
                     ? 'attendance-present'
                     : 'attendance-absent'
                 "
-                >{{ item.sunday_service_3 ? "O" : "X" }}</span
               >
+                {{ item.sunday_service_3 ? 'O' : 'X' }}
+              </span>
             </td>
             <td>
               <span
@@ -59,8 +61,9 @@
                     ? 'attendance-present'
                     : 'attendance-absent'
                 "
-                >{{ item.youth_service ? "O" : "X" }}</span
               >
+                {{ item.youth_service ? 'O' : 'X' }}
+              </span>
             </td>
             <td>
               <span
@@ -69,8 +72,9 @@
                     ? 'attendance-present'
                     : 'attendance-absent'
                 "
-                >{{ item.wednesday_service ? "O" : "X" }}</span
               >
+                {{ item.wednesday_service ? 'O' : 'X' }}
+              </span>
             </td>
             <td>
               <span
@@ -79,8 +83,9 @@
                     ? 'attendance-present'
                     : 'attendance-absent'
                 "
-                >{{ item.friday_service ? "O" : "X" }}</span
               >
+                {{ item.friday_service ? 'O' : 'X' }}
+              </span>
             </td>
             <td>
               <span
@@ -89,8 +94,9 @@
                     ? 'attendance-present'
                     : 'attendance-absent'
                 "
-                >{{ item.wednesday_prayer ? "O" : "X" }}</span
               >
+                {{ item.wednesday_prayer ? 'O' : 'X' }}
+              </span>
             </td>
             <td>
               <span
@@ -99,8 +105,9 @@
                     ? 'attendance-present'
                     : 'attendance-absent'
                 "
-                >{{ item.healing_ministry ? "O" : "X" }}</span
               >
+                {{ item.healing_ministry ? 'O' : 'X' }}
+              </span>
             </td>
             <td>{{ item.attendance_rate }}</td>
           </tr>
@@ -148,8 +155,9 @@
                     ? 'attendance-present'
                     : 'attendance-absent'
                 "
-                >{{ item.sunday_service_2 ? "O" : "X" }}</span
               >
+                {{ item.sunday_service_2 ? 'O' : 'X' }}
+              </span>
             </td>
             <td>
               <span
@@ -158,8 +166,9 @@
                     ? 'attendance-present'
                     : 'attendance-absent'
                 "
-                >{{ item.sunday_service_3 ? "O" : "X" }}</span
               >
+                {{ item.sunday_service_3 ? 'O' : 'X' }}
+              </span>
             </td>
             <td>
               <span
@@ -168,8 +177,9 @@
                     ? 'attendance-present'
                     : 'attendance-absent'
                 "
-                >{{ item.youth_service ? "O" : "X" }}</span
               >
+                {{ item.youth_service ? 'O' : 'X' }}
+              </span>
             </td>
             <td>
               <span
@@ -178,8 +188,9 @@
                     ? 'attendance-present'
                     : 'attendance-absent'
                 "
-                >{{ item.wednesday_service ? "O" : "X" }}</span
               >
+                {{ item.wednesday_service ? 'O' : 'X' }}
+              </span>
             </td>
             <td>
               <span
@@ -188,8 +199,9 @@
                     ? 'attendance-present'
                     : 'attendance-absent'
                 "
-                >{{ item.friday_service ? "O" : "X" }}</span
               >
+                {{ item.friday_service ? 'O' : 'X' }}
+              </span>
             </td>
             <td>
               <span
@@ -198,8 +210,9 @@
                     ? 'attendance-present'
                     : 'attendance-absent'
                 "
-                >{{ item.wednesday_prayer ? "O" : "X" }}</span
               >
+                {{ item.wednesday_prayer ? 'O' : 'X' }}
+              </span>
             </td>
             <td>
               <span
@@ -208,8 +221,9 @@
                     ? 'attendance-present'
                     : 'attendance-absent'
                 "
-                >{{ item.healing_ministry ? "O" : "X" }}</span
               >
+                {{ item.healing_ministry ? 'O' : 'X' }}
+              </span>
             </td>
             <td>{{ item.attendance_rate }}</td>
           </tr>
@@ -220,202 +234,202 @@
 </template>
 
 <script>
-import { MasterCtrl } from "@/mixins/apis_v2/internal/MasterCtrl";
-import { OrganizationCtrl } from "@/mixins/apis_v2/internal/domainCtrl/OrganizationCtrl";
-import { AttendanceCtrl } from "@/mixins/apis_v2/internal/domainCtrl/AttendanceCtrl";
+  import { MasterCtrl } from '@/mixins/apis_v2/internal/MasterCtrl';
+  import { OrganizationCtrl } from '@/mixins/apis_v2/internal/domainCtrl/OrganizationCtrl';
+  import { AttendanceCtrl } from '@/mixins/apis_v2/internal/domainCtrl/AttendanceCtrl';
 
-export default {
-  name: "AdminAttendanceStats",
-  mixins: [MasterCtrl, OrganizationCtrl, AttendanceCtrl],
-  data() {
-    return {
-      loading: false,
-      selectedOrganization: null,
+  export default {
+    name: 'AdminAttendanceStats',
+    mixins: [MasterCtrl, OrganizationCtrl, AttendanceCtrl],
+    data() {
+      return {
+        loading: false,
+        selectedOrganization: null,
 
-      // 조직별 출결 헤더 (O/X 표시용)
-      organizationHeaders: [
-        { text: "조직명", value: "organization_name", align: "start" },
-        { text: "주일2부예배", value: "sunday_service_2" },
-        { text: "주일3부예배", value: "sunday_service_3" },
-        { text: "청년예배", value: "youth_service" },
-        { text: "수요예배", value: "wednesday_service" },
-        { text: "금요예배", value: "friday_service" },
-        { text: "수요제자기도회", value: "wednesday_prayer" },
-        { text: "현장치유팀사역", value: "healing_ministry" },
-        { text: "출석률", value: "attendance_rate" },
-      ],
+        // 조직별 출결 헤더 (O/X 표시용)
+        organizationHeaders: [
+          { text: '조직명', value: 'organization_name', align: 'start' },
+          { text: '주일2부예배', value: 'sunday_service_2' },
+          { text: '주일3부예배', value: 'sunday_service_3' },
+          { text: '청년예배', value: 'youth_service' },
+          { text: '수요예배', value: 'wednesday_service' },
+          { text: '금요예배', value: 'friday_service' },
+          { text: '수요제자기도회', value: 'wednesday_prayer' },
+          { text: '현장치유팀사역', value: 'healing_ministry' },
+          { text: '출석률', value: 'attendance_rate' },
+        ],
 
-      // 개인별 출결 헤더
-      memberHeaders: [
-        { text: "이름", value: "member_name", align: "start" },
-        { text: "소속", value: "organization_name" },
-        { text: "주일2부예배", value: "sunday_service_2" },
-        { text: "주일3부예배", value: "sunday_service_3" },
-        { text: "청년예배", value: "youth_service" },
-        { text: "수요예배", value: "wednesday_service" },
-        { text: "금요예배", value: "friday_service" },
-        { text: "수요제자기도회", value: "wednesday_prayer" },
-        { text: "현장치유팀사역", value: "healing_ministry" },
-        { text: "출석률", value: "attendance_rate" },
-      ],
+        // 개인별 출결 헤더
+        memberHeaders: [
+          { text: '이름', value: 'member_name', align: 'start' },
+          { text: '소속', value: 'organization_name' },
+          { text: '주일2부예배', value: 'sunday_service_2' },
+          { text: '주일3부예배', value: 'sunday_service_3' },
+          { text: '청년예배', value: 'youth_service' },
+          { text: '수요예배', value: 'wednesday_service' },
+          { text: '금요예배', value: 'friday_service' },
+          { text: '수요제자기도회', value: 'wednesday_prayer' },
+          { text: '현장치유팀사역', value: 'healing_ministry' },
+          { text: '출석률', value: 'attendance_rate' },
+        ],
 
-      // 테스트 데이터
-      attendanceDataByOrg: [
-        {
-          id: 1,
-          organization_name: "코람데오 청년선교회",
-          sunday_service_2: true,
-          sunday_service_3: false,
-          youth_service: true,
-          wednesday_service: true,
-          friday_service: false,
-          wednesday_prayer: true,
-          healing_ministry: false,
-          attendance_rate: "71.4%",
-        },
-        {
-          id: 2,
-          organization_name: "코람데오_1국",
-          sunday_service_2: true,
-          sunday_service_3: true,
-          youth_service: false,
-          wednesday_service: true,
-          friday_service: true,
-          wednesday_prayer: false,
-          healing_ministry: true,
-          attendance_rate: "71.4%",
-        },
-        {
-          id: 3,
-          organization_name: "코람데오_2국",
-          sunday_service_2: false,
-          sunday_service_3: true,
-          youth_service: true,
-          wednesday_service: false,
-          friday_service: true,
-          wednesday_prayer: true,
-          healing_ministry: false,
-          attendance_rate: "57.1%",
-        },
-      ],
+        // 테스트 데이터
+        attendanceDataByOrg: [
+          {
+            id: 1,
+            organization_name: '코람데오 청년선교회',
+            sunday_service_2: true,
+            sunday_service_3: false,
+            youth_service: true,
+            wednesday_service: true,
+            friday_service: false,
+            wednesday_prayer: true,
+            healing_ministry: false,
+            attendance_rate: '71.4%',
+          },
+          {
+            id: 2,
+            organization_name: '코람데오_1국',
+            sunday_service_2: true,
+            sunday_service_3: true,
+            youth_service: false,
+            wednesday_service: true,
+            friday_service: true,
+            wednesday_prayer: false,
+            healing_ministry: true,
+            attendance_rate: '71.4%',
+          },
+          {
+            id: 3,
+            organization_name: '코람데오_2국',
+            sunday_service_2: false,
+            sunday_service_3: true,
+            youth_service: true,
+            wednesday_service: false,
+            friday_service: true,
+            wednesday_prayer: true,
+            healing_ministry: false,
+            attendance_rate: '57.1%',
+          },
+        ],
 
-      attendanceDataByMember: [
-        {
-          id: 1,
-          member_name: "홍길동",
-          organization_name: "코람데오_1국_1팀",
-          sunday_service_2: true,
-          sunday_service_3: false,
-          youth_service: true,
-          wednesday_service: true,
-          friday_service: false,
-          wednesday_prayer: true,
-          healing_ministry: false,
-          attendance_rate: "57.1%",
-        },
-        {
-          id: 2,
-          member_name: "김철수",
-          organization_name: "코람데오_1국_1팀",
-          sunday_service_2: true,
-          sunday_service_3: true,
-          youth_service: false,
-          wednesday_service: true,
-          friday_service: true,
-          wednesday_prayer: false,
-          healing_ministry: true,
-          attendance_rate: "71.4%",
-        },
-        {
-          id: 3,
-          member_name: "이영희",
-          organization_name: "코람데오_2국",
-          sunday_service_2: false,
-          sunday_service_3: true,
-          youth_service: true,
-          wednesday_service: false,
-          friday_service: true,
-          wednesday_prayer: true,
-          healing_ministry: false,
-          attendance_rate: "57.1%",
-        },
-        {
-          id: 4,
-          member_name: "박지성",
-          organization_name: "코람데오_3국",
-          sunday_service_2: true,
-          sunday_service_3: false,
-          youth_service: true,
-          wednesday_service: true,
-          friday_service: false,
-          wednesday_prayer: false,
-          healing_ministry: true,
-          attendance_rate: "57.1%",
-        },
-      ],
-    };
-  },
-  created() {
-    // 기본 테스트 데이터 사용
-  },
-};
+        attendanceDataByMember: [
+          {
+            id: 1,
+            member_name: '홍길동',
+            organization_name: '코람데오_1국_1팀',
+            sunday_service_2: true,
+            sunday_service_3: false,
+            youth_service: true,
+            wednesday_service: true,
+            friday_service: false,
+            wednesday_prayer: true,
+            healing_ministry: false,
+            attendance_rate: '57.1%',
+          },
+          {
+            id: 2,
+            member_name: '김철수',
+            organization_name: '코람데오_1국_1팀',
+            sunday_service_2: true,
+            sunday_service_3: true,
+            youth_service: false,
+            wednesday_service: true,
+            friday_service: true,
+            wednesday_prayer: false,
+            healing_ministry: true,
+            attendance_rate: '71.4%',
+          },
+          {
+            id: 3,
+            member_name: '이영희',
+            organization_name: '코람데오_2국',
+            sunday_service_2: false,
+            sunday_service_3: true,
+            youth_service: true,
+            wednesday_service: false,
+            friday_service: true,
+            wednesday_prayer: true,
+            healing_ministry: false,
+            attendance_rate: '57.1%',
+          },
+          {
+            id: 4,
+            member_name: '박지성',
+            organization_name: '코람데오_3국',
+            sunday_service_2: true,
+            sunday_service_3: false,
+            youth_service: true,
+            wednesday_service: true,
+            friday_service: false,
+            wednesday_prayer: false,
+            healing_ministry: true,
+            attendance_rate: '57.1%',
+          },
+        ],
+      };
+    },
+    created() {
+      // 기본 테스트 데이터 사용
+    },
+  };
 </script>
 
 <style scoped>
-.attendance-stats {
-  padding: 16px;
-}
+  .attendance-stats {
+    padding: 16px;
+  }
 
-.neumorphic {
-  border-radius: 16px;
-  background: #f0f2f5;
-  box-shadow: 8px 8px 16px #d1d9e6, -8px -8px 16px #ffffff;
-  border: none;
-}
+  .neumorphic {
+    border-radius: 16px;
+    background: #f0f2f5;
+    box-shadow: 8px 8px 16px #d1d9e6, -8px -8px 16px #ffffff;
+    border: none;
+  }
 
-/* O/X 표시 스타일 */
-.v-data-table ::v-deep tbody tr td:not(:first-child) {
-  text-align: center;
-}
+  /* O/X 표시 스타일 */
+  .v-data-table ::v-deep tbody tr td:not(:first-child) {
+    text-align: center;
+  }
 
-/* O 표시 스타일 */
-.attendance-present {
-  color: #4caf50;
-  font-weight: bold;
-}
+  /* O 표시 스타일 */
+  .attendance-present {
+    color: #4caf50;
+    font-weight: bold;
+  }
 
-/* X 표시 스타일 */
-.attendance-absent {
-  color: #f44336;
-  font-weight: bold;
-}
+  /* X 표시 스타일 */
+  .attendance-absent {
+    color: #f44336;
+    font-weight: bold;
+  }
 
-/* 헤더 스타일 */
-.v-data-table ::v-deep th {
-  background-color: #f5f7fa;
-  color: #333;
-  font-weight: bold;
-}
+  /* 헤더 스타일 */
+  .v-data-table ::v-deep th {
+    background-color: #f5f7fa;
+    color: #333;
+    font-weight: bold;
+  }
 
-/* 테이블 짝수/홀수 행 스타일 */
-.v-data-table ::v-deep tbody tr:nth-child(even) {
-  background-color: #f9fafc;
-}
+  /* 테이블 짝수/홀수 행 스타일 */
+  .v-data-table ::v-deep tbody tr:nth-child(even) {
+    background-color: #f9fafc;
+  }
 
-/* 카드 스타일 */
-.v-card-title {
-  font-weight: bold;
-  color: #2c3e50;
-}
+  /* 카드 스타일 */
+  .v-card-title {
+    font-weight: bold;
+    color: #2c3e50;
+  }
 
-.v-card-subtitle {
-  color: #7f8c8d;
-}
+  .v-card-subtitle {
+    color: #7f8c8d;
+  }
 
-/* 버튼 스타일링 */
-.v-btn {
-  text-transform: none;
-  letter-spacing: 0.5px;
-  font-weight: 600;
-}
+  /* 버튼 스타일링 */
+  .v-btn {
+    text-transform: none;
+    letter-spacing: 0.5px;
+    font-weight: 600;
+  }
 </style>

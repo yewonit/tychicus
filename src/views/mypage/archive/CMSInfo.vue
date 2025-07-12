@@ -12,29 +12,29 @@
 </template>
 
 <script>
-import UpdateInfoCMS from "@/components/basic/UpdateInfoCMSComp.vue";
+  import UpdateInfoCMS from '@/components/basic/UpdateInfoCMSComp.vue';
 
-export default {
-  name: "SignUp",
-  components: {
-    UpdateInfoCMS,
-  },
-  data() {
-    return {
-      signupStep: 1,
-    };
-  },
-  mounted() {
-    this.checkLogin();
-  },
-  methods: {
-    checkLogin() {
-      if (!JSON.parse(localStorage.getItem("user_info"))) {
-        this.$router.push("/");
-      }
+  export default {
+    name: 'SignUp',
+    components: {
+      UpdateInfoCMS,
     },
-  },
-};
+    data() {
+      return {
+        signupStep: 1,
+      };
+    },
+    mounted() {
+      this.checkLogin();
+    },
+    methods: {
+      checkLogin() {
+        if (!JSON.parse(localStorage.getItem('user_info'))) {
+          this.$router.push('/');
+        }
+      },
+    },
+  };
 </script>
 
 <style></style>

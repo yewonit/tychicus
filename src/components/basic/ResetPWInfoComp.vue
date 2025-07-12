@@ -68,7 +68,7 @@
           rounded
           block
         >
-          <span class="wc-h5 white--text"> 비밀번호 재설정하기 </span>
+          <span class="wc-h5 white--text">비밀번호 재설정하기</span>
         </v-btn>
       </v-col>
     </v-row>
@@ -76,87 +76,87 @@
 </template>
 
 <script>
-import "@/styles/overrides.scss";
+  import '@/styles/overrides.scss';
 
-import { MasterCtrl } from "@/mixins/apis_v2/internal/MasterCtrl";
-import { FileBins } from "@/mixins/apis_v2/internal/FileBins";
-import { Utility } from "@/mixins/apis_v2/utility/Utility";
-export default {
-  props: {
-    userEmail: {
-      type: String,
-      default: "userName",
-    },
-  },
-  data() {
-    return {
-      userPw: "",
-      userPwCf: "",
-      show1: false,
-      show2: false,
-      checkbox: false,
-
-      rules: {
-        requiredId: (value) => !!value || "Required.",
-        requiredPw: (value) => !!value || "Required.",
-        emailMatch: () => `The email and password you entered don't match`,
+  import { MasterCtrl } from '@/mixins/apis_v2/internal/MasterCtrl';
+  import { FileBins } from '@/mixins/apis_v2/internal/FileBins';
+  import { Utility } from '@/mixins/apis_v2/utility/Utility';
+  export default {
+    props: {
+      userEmail: {
+        type: String,
+        default: 'userName',
       },
-    };
-  },
-  mixins: [MasterCtrl, FileBins, Utility],
-  methods: {
-    async resetPw() {
-      console.log("checkbox : ");
-      if (this.userPw == "") {
-        alert("비밀번호를 입력하세요");
-        return;
-      }
-      console.log("checkbox : ");
-      this.lv1_Func("view: ResetPWInfo", "resetPw()");
-      // 로컬 스토리지에서 유저 정보를 가져오기
-      this.lv1_Act("로컬 스토리지에서 유저 정보를 가져오기");
-      const userInfo = await JSON.parse(localStorage.getItem("user_info"));
-      const result = await this.authUpdateUserPassword(
-        userInfo.id,
-        this.userPw,
-        true
-      );
-      this.lv1_Data("비밀번호 재설정 결과", result);
-      if (result[0] == 1) {
-        alert("비밀번호 재설정 완료");
-        this.$router.push("/");
-      } else {
-        alert("비밀번호 재설정 실패");
-      }
     },
-  },
-};
+    data() {
+      return {
+        userPw: '',
+        userPwCf: '',
+        show1: false,
+        show2: false,
+        checkbox: false,
+
+        rules: {
+          requiredId: (value) => !!value || 'Required.',
+          requiredPw: (value) => !!value || 'Required.',
+          emailMatch: () => `The email and password you entered don't match`,
+        },
+      };
+    },
+    mixins: [MasterCtrl, FileBins, Utility],
+    methods: {
+      async resetPw() {
+        console.log('checkbox : ');
+        if (this.userPw == '') {
+          alert('비밀번호를 입력하세요');
+          return;
+        }
+        console.log('checkbox : ');
+        this.lv1_Func('view: ResetPWInfo', 'resetPw()');
+        // 로컬 스토리지에서 유저 정보를 가져오기
+        this.lv1_Act('로컬 스토리지에서 유저 정보를 가져오기');
+        const userInfo = await JSON.parse(localStorage.getItem('user_info'));
+        const result = await this.authUpdateUserPassword(
+          userInfo.id,
+          this.userPw,
+          true
+        );
+        this.lv1_Data('비밀번호 재설정 결과', result);
+        if (result[0] == 1) {
+          alert('비밀번호 재설정 완료');
+          this.$router.push('/');
+        } else {
+          alert('비밀번호 재설정 실패');
+        }
+      },
+    },
+  };
 </script>
 
 <style></style>
 
 <style scoped>
-/* Element : v-text-field */
-.v-text-field--outlined >>> fieldset {
-  /* border-color: rgba(192, 0, 250, 0.986); */
-  border: solid 1.5px rgba(236, 237, 245, 0.3);
-  border-radius: 24px;
-  background-image: #edeef3 !important;
-  box-shadow: 15px 15px 15px #00000012, -15px -15px 15px #ffffff !important;
-}
+  /* Element : v-text-field */
+  .v-text-field--outlined >>> fieldset {
+    /* border-color: rgba(192, 0, 250, 0.986); */
+    border: solid 1.5px rgba(236, 237, 245, 0.3);
+    border-radius: 24px;
+    background-image: #edeef3 !important;
+    box-shadow: 15px 15px 15px #00000012, -15px -15px 15px #ffffff !important;
+  }
 
-::v-deep .v-label {
-  font-family: NotoSansKR;
-  font-size: 13px;
-  font-weight: 500;
-  font-stretch: normal;
-  font-style: normal;
-  line-height: normal;
-  letter-spacing: 0.09px;
-  color: #b7bbcc;
-}
+  ::v-deep .v-label {
+    font-family: NotoSansKR;
+    font-size: 13px;
+    font-weight: 500;
+    font-stretch: normal;
+    font-style: normal;
+    line-height: normal;
+    letter-spacing: 0.09px;
+    color: #b7bbcc;
+  }
 
-.fb-btn .v-btn--outlined {
-  border: thin solid #cccccc;
-}
+  .fb-btn .v-btn--outlined {
+    border: thin solid #cccccc;
+  }
 </style>

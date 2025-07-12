@@ -33,9 +33,9 @@
     <v-row class="ma-0 pa-0 pt-15 pb-5 px-10">
       <v-col cols="2" class="ma-0 pa-0 pl-3">
         <!-- mdi 아이콘 총 징원에 대한 아이콘 -->
-        <v-icon size="25" class="ma-0 pa-0" color="#262626"
-          >mdi-account-check</v-icon
-        >
+        <v-icon size="25" class="ma-0 pa-0" color="#262626">
+          mdi-account-check
+        </v-icon>
       </v-col>
       <v-col class="ma-0 pa-0 wc-fs-18 wc-bold-600" cols="auto">
         장결자 여부
@@ -56,9 +56,9 @@
     <v-row class="ma-0 pa-0 pb-7 px-10">
       <v-col cols="2" class="ma-0 pa-0 pl-3">
         <!-- mdi 아이콘 총 징원에 대한 아이콘 -->
-        <v-icon size="25" class="ma-0 pa-0" color="#262626"
-          >mdi-account-multiple-plus</v-icon
-        >
+        <v-icon size="25" class="ma-0 pa-0" color="#262626">
+          mdi-account-multiple-plus
+        </v-icon>
       </v-col>
       <v-col class="ma-0 pa-0 wc-fs-18 wc-bold-600" cols="auto">
         새가족 여부
@@ -316,198 +316,198 @@
 </template>
 
 <script>
-import { mapState } from "vuex";
-import { MasterCtrl } from "@/mixins/apis_v2/internal/MasterCtrl";
-import { FileBins } from "@/mixins/apis_v2/internal/FileBins";
-import { Utility } from "@/mixins/apis_v2/utility/Utility";
-import { CurrentMemberCtrl } from "@/mixins/apis_v2/internal/domainCtrl/CurrentMemberCtrl";
-import countries from "@/assets/data/countries.json";
+  import { mapState } from 'vuex';
+  import { MasterCtrl } from '@/mixins/apis_v2/internal/MasterCtrl';
+  import { FileBins } from '@/mixins/apis_v2/internal/FileBins';
+  import { Utility } from '@/mixins/apis_v2/utility/Utility';
+  import { CurrentMemberCtrl } from '@/mixins/apis_v2/internal/domainCtrl/CurrentMemberCtrl';
+  import countries from '@/assets/data/countries.json';
 
-export default {
-  name: "MemberRegistrationView",
-  computed: {
-    ...mapState("auth", ["userInfo"]),
-  },
-  data() {
-    return {
-      menu: false,
-      menu2: false,
-      nameOfNewMember: "",
-      distinguisher: "",
-      phone: "",
-      gender: null,
-      // kakaoChatJoined: false,
-      isAbsent: false,
-      isNewMember: false,
-      email: "",
-      birthDate: null,
-      memberNumber: "",
-      registrationDate: null,
-      countryCode: "KOR",
-      countryItems: Object.entries(countries)
-        .map(([code, name]) => ({
-          text: name,
-          value: code,
-        }))
-        .sort((a, b) => a.text.localeCompare(b.text)),
-      address: "",
-      addressDetail: "",
-      postcode: "",
-      hobby: "",
-    };
-  },
-  mixins: [MasterCtrl, CurrentMemberCtrl, FileBins, Utility],
-  methods: {
-    async submitMemberData() {
-      // 필수 입력값 검증
-      if (
-        !this.nameOfNewMember ||
-        !this.distinguisher ||
-        !this.phone ||
-        !this.gender
-      ) {
-        alert("필수 정보를 모두 입력해주세요.");
-        return;
-      }
-
-      // 임의의 데이터 생성
-      const randomData = this.generateRandomData();
-
-      // 유저 데이터 객체 생성
-      const userData = {
-        name: this.nameOfNewMember,
-        name_suffix: this.distinguisher,
-        email: randomData.email,
-        phone_number: this.phone,
-        password: this.phone,
-        gender_type: this.gender === "남성" ? "M" : "F",
-        birth_date: randomData.birthDate,
-        church_member_number: randomData.memberNumber,
-        church_registration_date: randomData.registrationDate,
-        country: this.countryCode,
-        address: randomData.address,
-        address_detail: randomData.addressDetail,
-        zip_postal_code: randomData.postcode,
-        hobby: randomData.hobby,
-        // is_kakaotalk_chat_member: this.kakaoChatJoined ? "Y" : "N",
-        is_long_term_absentee: this.isAbsent ? "Y" : "N",
-        is_new_member: this.isNewMember ? "Y" : "N",
+  export default {
+    name: 'MemberRegistrationView',
+    computed: {
+      ...mapState('auth', ['userInfo']),
+    },
+    data() {
+      return {
+        menu: false,
+        menu2: false,
+        nameOfNewMember: '',
+        distinguisher: '',
+        phone: '',
+        gender: null,
+        // kakaoChatJoined: false,
+        isAbsent: false,
+        isNewMember: false,
+        email: '',
+        birthDate: null,
+        memberNumber: '',
+        registrationDate: null,
+        countryCode: 'KOR',
+        countryItems: Object.entries(countries)
+          .map(([code, name]) => ({
+            text: name,
+            value: code,
+          }))
+          .sort((a, b) => a.text.localeCompare(b.text)),
+        address: '',
+        addressDetail: '',
+        postcode: '',
+        hobby: '',
       };
+    },
+    mixins: [MasterCtrl, CurrentMemberCtrl, FileBins, Utility],
+    methods: {
+      async submitMemberData() {
+        // 필수 입력값 검증
+        if (
+          !this.nameOfNewMember ||
+          !this.distinguisher ||
+          !this.phone ||
+          !this.gender
+        ) {
+          alert('필수 정보를 모두 입력해주세요.');
+          return;
+        }
 
-      try {
-        // 조직 ID와 역할 ID를 적절한 값으로 변경해주세요.
-        const organizationId = this.userInfo.roles[0].organizationId;
-        const organizationCode = this.userInfo.roles[0].organizationCode;
+        // 임의의 데이터 생성
+        const randomData = this.generateRandomData();
 
-        const response = await this.createMember(
-          userData,
-          organizationId,
-          organizationCode,
-          this.userInfo.id,
-          true
-        );
+        // 유저 데이터 객체 생성
+        const userData = {
+          name: this.nameOfNewMember,
+          name_suffix: this.distinguisher,
+          email: randomData.email,
+          phone_number: this.phone,
+          password: this.phone,
+          gender_type: this.gender === '남성' ? 'M' : 'F',
+          birth_date: randomData.birthDate,
+          church_member_number: randomData.memberNumber,
+          church_registration_date: randomData.registrationDate,
+          country: this.countryCode,
+          address: randomData.address,
+          address_detail: randomData.addressDetail,
+          zip_postal_code: randomData.postcode,
+          hobby: randomData.hobby,
+          // is_kakaotalk_chat_member: this.kakaoChatJoined ? "Y" : "N",
+          is_long_term_absentee: this.isAbsent ? 'Y' : 'N',
+          is_new_member: this.isNewMember ? 'Y' : 'N',
+        };
 
-        if (response && response.id) {
-          // 성공 시 /member-list 화면으로 이동
-          this.$router.push("/member-list");
-        } else {
-          // 실패 시 알럿창 표시
+        try {
+          // 조직 ID와 역할 ID를 적절한 값으로 변경해주세요.
+          const organizationId = this.userInfo.roles[0].organizationId;
+          const organizationCode = this.userInfo.roles[0].organizationCode;
+
+          const response = await this.createMember(
+            userData,
+            organizationId,
+            organizationCode,
+            this.userInfo.id,
+            true
+          );
+
+          if (response && response.id) {
+            // 성공 시 /member-list 화면으로 이동
+            this.$router.push('/member-list');
+          } else {
+            // 실패 시 알럿창 표시
+            alert(
+              '멤버 생성에 실패했습니다. 관리자에게 문의해주세요.\n관리자 연락처: admin@example.com'
+            );
+          }
+        } catch (error) {
+          console.error('멤버 생성 중 오류 발생:', error);
           alert(
-            "멤버 생성에 실패했습니다. 관리자에게 문의해주세요.\n관리자 연락처: admin@example.com"
+            '멤버 생성 중 오류가 발생했습니다. 관리자에게 문의해주세요.\n관리자 연락처: admin@example.com'
           );
         }
-      } catch (error) {
-        console.error("멤버 생성 중 오류 발생:", error);
-        alert(
-          "멤버 생성 중 오류가 발생했습니다. 관리자에게 문의해주세요.\n관리자 연락처: admin@example.com"
-        );
-      }
-    },
+      },
 
-    generateRandomData() {
-      return {
-        email: `${this.nameOfNewMember
-          .toLowerCase()
-          .replace(" ", "")}@example.com`,
-        birthDate: "1990-01-01",
-        memberNumber: "12345",
-        registrationDate: "2020-01-01",
-        country: "대한민국",
-        address: "서울특별시 강남구",
-        addressDetail: "123번지",
-        postcode: "12345",
-        hobby: "독서",
-      };
-    },
+      generateRandomData() {
+        return {
+          email: `${this.nameOfNewMember
+            .toLowerCase()
+            .replace(' ', '')}@example.com`,
+          birthDate: '1990-01-01',
+          memberNumber: '12345',
+          registrationDate: '2020-01-01',
+          country: '대한민국',
+          address: '서울특별시 강남구',
+          addressDetail: '123번지',
+          postcode: '12345',
+          hobby: '독서',
+        };
+      },
 
-    // execDaumPostcode 메서드는 유지
-  },
-};
+      // execDaumPostcode 메서드는 유지
+    },
+  };
 </script>
 
 <style scoped>
-.full-size {
-  width: 100%;
-  height: 100%;
-}
+  .full-size {
+    width: 100%;
+    height: 100%;
+  }
 
-.switch {
-  position: relative;
-  display: inline-block;
-  width: 60px;
-  height: 34px;
-}
+  .switch {
+    position: relative;
+    display: inline-block;
+    width: 60px;
+    height: 34px;
+  }
 
-.switch input {
-  opacity: 0;
-  width: 0;
-  height: 0;
-}
+  .switch input {
+    opacity: 0;
+    width: 0;
+    height: 0;
+  }
 
-.slider {
-  position: absolute;
-  cursor: pointer;
-  top: 0;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  background-color: #ccc;
-  -webkit-transition: 0.4s;
-  transition: 0.4s;
-}
+  .slider {
+    position: absolute;
+    cursor: pointer;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-color: #ccc;
+    -webkit-transition: 0.4s;
+    transition: 0.4s;
+  }
 
-.slider:before {
-  position: absolute;
-  content: "";
-  height: 26px;
-  width: 26px;
-  left: 4px;
-  bottom: 4px;
-  background-color: white;
-  -webkit-transition: 0.4s;
-  transition: 0.4s;
-}
+  .slider:before {
+    position: absolute;
+    content: '';
+    height: 26px;
+    width: 26px;
+    left: 4px;
+    bottom: 4px;
+    background-color: white;
+    -webkit-transition: 0.4s;
+    transition: 0.4s;
+  }
 
-input:checked + .slider {
-  background-color: #2196f3;
-}
+  input:checked + .slider {
+    background-color: #2196f3;
+  }
 
-input:focus + .slider {
-  box-shadow: 0 0 1px #2196f3;
-}
+  input:focus + .slider {
+    box-shadow: 0 0 1px #2196f3;
+  }
 
-input:checked + .slider:before {
-  -webkit-transform: translateX(26px);
-  -ms-transform: translateX(26px);
-  transform: translateX(26px);
-}
+  input:checked + .slider:before {
+    -webkit-transform: translateX(26px);
+    -ms-transform: translateX(26px);
+    transform: translateX(26px);
+  }
 
-/* Rounded sliders */
-.slider.round {
-  border-radius: 34px;
-}
+  /* Rounded sliders */
+  .slider.round {
+    border-radius: 34px;
+  }
 
-.slider.round:before {
-  border-radius: 50%;
-}
+  .slider.round:before {
+    border-radius: 50%;
+  }
 </style>

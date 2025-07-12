@@ -25,7 +25,7 @@
               <template v-slot:prepend="{ item }">
                 <v-icon small :color="getOrgColor(item.id)">
                   {{
-                    item.isLeafNode ? "mdi-account-group" : "mdi-folder-account"
+                    item.isLeafNode ? 'mdi-account-group' : 'mdi-folder-account'
                   }}
                 </v-icon>
               </template>
@@ -49,7 +49,7 @@
             {{
               selectedOrganization
                 ? selectedOrganization.organization_name
-                : "조직"
+                : '조직'
             }}
             상세 정보
           </v-card-title>
@@ -105,12 +105,12 @@
                     <tr>
                       <td class="text-right font-weight-bold">설명</td>
                       <td>
-                        {{ selectedOrganization.description || "설명 없음" }}
+                        {{ selectedOrganization.description || '설명 없음' }}
                       </td>
                     </tr>
                     <tr v-if="selectedOrganization.path">
                       <td class="text-right font-weight-bold">조직 경로</td>
-                      <td>{{ selectedOrganization.path.join(" > ") }}</td>
+                      <td>{{ selectedOrganization.path.join(' > ') }}</td>
                     </tr>
                     <tr>
                       <td class="text-right font-weight-bold">회원 수</td>
@@ -145,10 +145,12 @@
               color="primary"
             >
               <v-btn :value="false" small>
-                <v-icon left small>mdi-domain</v-icon>본 조직만
+                <v-icon left small>mdi-domain</v-icon>
+                본 조직만
               </v-btn>
               <v-btn :value="true" small>
-                <v-icon left small>mdi-domain-plus</v-icon>하위 포함
+                <v-icon left small>mdi-domain-plus</v-icon>
+                하위 포함
               </v-btn>
             </v-btn-toggle>
           </v-card-title>
@@ -178,13 +180,16 @@
               color="primary"
             >
               <v-btn value="weekly" small>
-                <v-icon left small>mdi-calendar-week</v-icon>주간
+                <v-icon left small>mdi-calendar-week</v-icon>
+                주간
               </v-btn>
               <v-btn value="monthly" small>
-                <v-icon left small>mdi-calendar-month</v-icon>월간
+                <v-icon left small>mdi-calendar-month</v-icon>
+                월간
               </v-btn>
               <v-btn value="quarterly" small>
-                <v-icon left small>mdi-calendar-text</v-icon>분기
+                <v-icon left small>mdi-calendar-text</v-icon>
+                분기
               </v-btn>
             </v-btn-toggle>
           </v-card-title>
@@ -216,13 +221,16 @@
               color="primary"
             >
               <v-btn value="rate" small>
-                <v-icon left small>mdi-percent</v-icon>출석률
+                <v-icon left small>mdi-percent</v-icon>
+                출석률
               </v-btn>
               <v-btn value="attendance" small>
-                <v-icon left small>mdi-account-group</v-icon>출석 인원
+                <v-icon left small>mdi-account-group</v-icon>
+                출석 인원
               </v-btn>
               <v-btn value="meetings" small>
-                <v-icon left small>mdi-calendar-multiple</v-icon>모임 수
+                <v-icon left small>mdi-calendar-multiple</v-icon>
+                모임 수
               </v-btn>
             </v-btn-toggle>
           </v-card-title>
@@ -311,7 +319,7 @@
       <v-card>
         <v-card-title class="headline">
           <v-icon left color="primary">mdi-church</v-icon>
-          {{ selectedMeeting ? selectedMeeting.name : "모임 상세 정보" }}
+          {{ selectedMeeting ? selectedMeeting.name : '모임 상세 정보' }}
           <v-spacer></v-spacer>
           <v-btn icon @click="detailsDialog = false">
             <v-icon>mdi-close</v-icon>
@@ -328,9 +336,9 @@
                   </v-list-item-icon>
                   <v-list-item-content>
                     <v-list-item-title>날짜</v-list-item-title>
-                    <v-list-item-subtitle>{{
-                      formatDate(selectedMeeting.date)
-                    }}</v-list-item-subtitle>
+                    <v-list-item-subtitle>
+                      {{ formatDate(selectedMeeting.date) }}
+                    </v-list-item-subtitle>
                   </v-list-item-content>
                 </v-list-item>
 
@@ -340,9 +348,9 @@
                   </v-list-item-icon>
                   <v-list-item-content>
                     <v-list-item-title>예배 유형</v-list-item-title>
-                    <v-list-item-subtitle>{{
-                      selectedMeeting.meetingTypeName
-                    }}</v-list-item-subtitle>
+                    <v-list-item-subtitle>
+                      {{ selectedMeeting.meetingTypeName }}
+                    </v-list-item-subtitle>
                   </v-list-item-content>
                 </v-list-item>
 
@@ -352,9 +360,9 @@
                   </v-list-item-icon>
                   <v-list-item-content>
                     <v-list-item-title>장소</v-list-item-title>
-                    <v-list-item-subtitle>{{
-                      selectedMeeting.location || "정보 없음"
-                    }}</v-list-item-subtitle>
+                    <v-list-item-subtitle>
+                      {{ selectedMeeting.location || '정보 없음' }}
+                    </v-list-item-subtitle>
                   </v-list-item-content>
                 </v-list-item>
               </v-list>
@@ -368,11 +376,9 @@
                   </v-list-item-icon>
                   <v-list-item-content>
                     <v-list-item-title>출석자 수</v-list-item-title>
-                    <v-list-item-subtitle
-                      >{{
-                        selectedMeeting.presentCount || 0
-                      }}명</v-list-item-subtitle
-                    >
+                    <v-list-item-subtitle>
+                      {{ selectedMeeting.presentCount || 0 }}명
+                    </v-list-item-subtitle>
                   </v-list-item-content>
                 </v-list-item>
 
@@ -382,11 +388,9 @@
                   </v-list-item-icon>
                   <v-list-item-content>
                     <v-list-item-title>결석자 수</v-list-item-title>
-                    <v-list-item-subtitle
-                      >{{
-                        selectedMeeting.absentCount || 0
-                      }}명</v-list-item-subtitle
-                    >
+                    <v-list-item-subtitle>
+                      {{ selectedMeeting.absentCount || 0 }}명
+                    </v-list-item-subtitle>
                   </v-list-item-content>
                 </v-list-item>
 
@@ -396,11 +400,9 @@
                   </v-list-item-icon>
                   <v-list-item-content>
                     <v-list-item-title>지각자 수</v-list-item-title>
-                    <v-list-item-subtitle
-                      >{{
-                        selectedMeeting.lateCount || 0
-                      }}명</v-list-item-subtitle
-                    >
+                    <v-list-item-subtitle>
+                      {{ selectedMeeting.lateCount || 0 }}명
+                    </v-list-item-subtitle>
                   </v-list-item-content>
                 </v-list-item>
               </v-list>
@@ -423,7 +425,7 @@
               모임 노트
             </v-card-subtitle>
             <v-card-text>
-              {{ selectedMeeting.notes || "노트 정보가 없습니다." }}
+              {{ selectedMeeting.notes || '노트 정보가 없습니다.' }}
             </v-card-text>
           </v-card>
         </v-card-text>
@@ -440,220 +442,220 @@
 </template>
 
 <script>
-export default {
-  name: "DashboardOrganizationTab",
-  props: {
-    organizationTree: {
-      type: Array,
-      default: () => [],
-    },
-    flattenedOrganizations: {
-      type: Array,
-      default: () => [],
-    },
-    hierarchyStats: {
-      type: Object,
-      default: () => ({}),
-    },
-    meetings: {
-      type: Array,
-      default: () => [],
-    },
-    meetingTypes: {
-      type: Object,
-      default: () => ({}),
-    },
-  },
-  data() {
-    return {
-      selectedTreeItems: [],
-      selectedOrganization: null,
-      search: "",
-      includeChildOrgs: true,
-      timeRangeType: "weekly",
-      childOrgChartType: "rate",
-      detailsDialog: false,
-      selectedMeeting: null,
-      meetingHeaders: [
-        { text: "날짜", value: "date", width: "120px" },
-        { text: "모임명", value: "name" },
-        { text: "예배 유형", value: "meetingTypeName" },
-        { text: "출석자", value: "presentCount", width: "80px" },
-        { text: "결석자", value: "absentCount", width: "80px" },
-        { text: "지각자", value: "lateCount", width: "80px" },
-        { text: "출석률", value: "attendanceRate", width: "150px" },
-        {
-          text: "상세",
-          value: "actions",
-          sortable: false,
-          width: "60px",
-          align: "center",
-        },
-      ],
-      orgColors: {},
-      meetingTypeColors: {
-        SUNDAY_SERVICE_2: "deep-orange",
-        SUNDAY_SERVICE_3: "orange",
-        YOUTH_SERVICE: "amber",
-        WEDNESDAY_SERVICE: "blue",
-        FRIDAY_SERVICE: "indigo",
-        WEDNESDAY_PRAYER: "deep-purple",
-        HEALING_MINISTRY: "pink",
-        OTHER: "grey",
+  export default {
+    name: 'DashboardOrganizationTab',
+    props: {
+      organizationTree: {
+        type: Array,
+        default: () => [],
       },
-    };
-  },
-  computed: {
-    selectedOrgStats() {
-      if (!this.selectedOrganization) return {};
-
-      const orgId = this.selectedOrganization.id.toString();
-      const statsData = this.hierarchyStats[orgId];
-
-      if (!statsData) return {};
-
-      // 하위 포함 여부에 따라 다른 통계 반환
-      const stats = this.includeChildOrgs
-        ? statsData.aggregated
-        : statsData.own;
-
+      flattenedOrganizations: {
+        type: Array,
+        default: () => [],
+      },
+      hierarchyStats: {
+        type: Object,
+        default: () => ({}),
+      },
+      meetings: {
+        type: Array,
+        default: () => [],
+      },
+      meetingTypes: {
+        type: Object,
+        default: () => ({}),
+      },
+    },
+    data() {
       return {
-        meetingCount: stats.meetingCount || 0,
-        attendeeCount: stats.attendeeCount || 0,
-        attendanceRate: stats.attendanceRate ? stats.attendanceRate * 100 : 0,
+        selectedTreeItems: [],
+        selectedOrganization: null,
+        search: '',
+        includeChildOrgs: true,
+        timeRangeType: 'weekly',
+        childOrgChartType: 'rate',
+        detailsDialog: false,
+        selectedMeeting: null,
+        meetingHeaders: [
+          { text: '날짜', value: 'date', width: '120px' },
+          { text: '모임명', value: 'name' },
+          { text: '예배 유형', value: 'meetingTypeName' },
+          { text: '출석자', value: 'presentCount', width: '80px' },
+          { text: '결석자', value: 'absentCount', width: '80px' },
+          { text: '지각자', value: 'lateCount', width: '80px' },
+          { text: '출석률', value: 'attendanceRate', width: '150px' },
+          {
+            text: '상세',
+            value: 'actions',
+            sortable: false,
+            width: '60px',
+            align: 'center',
+          },
+        ],
+        orgColors: {},
+        meetingTypeColors: {
+          SUNDAY_SERVICE_2: 'deep-orange',
+          SUNDAY_SERVICE_3: 'orange',
+          YOUTH_SERVICE: 'amber',
+          WEDNESDAY_SERVICE: 'blue',
+          FRIDAY_SERVICE: 'indigo',
+          WEDNESDAY_PRAYER: 'deep-purple',
+          HEALING_MINISTRY: 'pink',
+          OTHER: 'grey',
+        },
       };
     },
-    hasChildOrgs() {
-      if (!this.selectedOrganization) return false;
-      const orgId = this.selectedOrganization.id.toString();
-      const statsData = this.hierarchyStats[orgId];
+    computed: {
+      selectedOrgStats() {
+        if (!this.selectedOrganization) return {};
 
-      return (
-        statsData &&
-        statsData.aggregated &&
-        statsData.aggregated.childOrgs &&
-        statsData.aggregated.childOrgs.length > 0
-      );
-    },
-    hasAttendanceData() {
-      return this.selectedOrgStats.meetingCount > 0;
-    },
-    filteredMeetings() {
-      if (!this.selectedOrganization) return [];
-
-      const orgId = this.selectedOrganization.id.toString();
-
-      if (this.includeChildOrgs) {
-        // 하위 조직 ID 목록 가져오기
+        const orgId = this.selectedOrganization.id.toString();
         const statsData = this.hierarchyStats[orgId];
-        if (
-          !statsData ||
-          !statsData.aggregated ||
-          !statsData.aggregated.childOrgs
-        ) {
+
+        if (!statsData) return {};
+
+        // 하위 포함 여부에 따라 다른 통계 반환
+        const stats = this.includeChildOrgs
+          ? statsData.aggregated
+          : statsData.own;
+
+        return {
+          meetingCount: stats.meetingCount || 0,
+          attendeeCount: stats.attendeeCount || 0,
+          attendanceRate: stats.attendanceRate ? stats.attendanceRate * 100 : 0,
+        };
+      },
+      hasChildOrgs() {
+        if (!this.selectedOrganization) return false;
+        const orgId = this.selectedOrganization.id.toString();
+        const statsData = this.hierarchyStats[orgId];
+
+        return (
+          statsData &&
+          statsData.aggregated &&
+          statsData.aggregated.childOrgs &&
+          statsData.aggregated.childOrgs.length > 0
+        );
+      },
+      hasAttendanceData() {
+        return this.selectedOrgStats.meetingCount > 0;
+      },
+      filteredMeetings() {
+        if (!this.selectedOrganization) return [];
+
+        const orgId = this.selectedOrganization.id.toString();
+
+        if (this.includeChildOrgs) {
+          // 하위 조직 ID 목록 가져오기
+          const statsData = this.hierarchyStats[orgId];
+          if (
+            !statsData ||
+            !statsData.aggregated ||
+            !statsData.aggregated.childOrgs
+          ) {
+            return this.meetings.filter(
+              (meeting) => meeting.organizationId == orgId
+            );
+          }
+
+          // 현재 조직과 하위 조직 모두 포함
+          const childOrgIds = [...statsData.aggregated.childOrgs, orgId];
+          return this.meetings.filter((meeting) =>
+            childOrgIds.includes(meeting.organizationId.toString())
+          );
+        } else {
+          // 현재 조직만
           return this.meetings.filter(
             (meeting) => meeting.organizationId == orgId
           );
         }
-
-        // 현재 조직과 하위 조직 모두 포함
-        const childOrgIds = [...statsData.aggregated.childOrgs, orgId];
-        return this.meetings.filter((meeting) =>
-          childOrgIds.includes(meeting.organizationId.toString())
-        );
-      } else {
-        // 현재 조직만
-        return this.meetings.filter(
-          (meeting) => meeting.organizationId == orgId
-        );
-      }
+      },
     },
-  },
-  methods: {
-    handleOrganizationSelect(item) {
-      if (item && item.length > 0) {
-        this.selectedOrganization = item[0];
+    methods: {
+      handleOrganizationSelect(item) {
+        if (item && item.length > 0) {
+          this.selectedOrganization = item[0];
 
-        // 차트 업데이트
-        this.$nextTick(() => {
-          // 차트 업데이트 로직 (실제 구현에서는 차트 라이브러리 사용)
+          // 차트 업데이트
+          this.$nextTick(() => {
+            // 차트 업데이트 로직 (실제 구현에서는 차트 라이브러리 사용)
+          });
+        } else {
+          this.selectedOrganization = null;
+        }
+      },
+      formatDate(dateString) {
+        if (!dateString) return '-';
+        const date = new Date(dateString);
+        return date.toLocaleDateString('ko-KR', {
+          year: 'numeric',
+          month: 'long',
+          day: 'numeric',
+          weekday: 'short',
         });
-      } else {
-        this.selectedOrganization = null;
-      }
-    },
-    formatDate(dateString) {
-      if (!dateString) return "-";
-      const date = new Date(dateString);
-      return date.toLocaleDateString("ko-KR", {
-        year: "numeric",
-        month: "long",
-        day: "numeric",
-        weekday: "short",
-      });
-    },
-    getAttendanceRateColor(rate) {
-      rate = parseFloat(rate);
-      if (rate >= 0.8) return "success";
-      if (rate >= 0.6) return "info";
-      if (rate >= 0.4) return "warning";
-      return "error";
-    },
-    getOrgColor(orgId) {
-      // 조직 ID별로 고유한 색상 반환
-      if (!this.orgColors[orgId]) {
-        const colors = [
-          "primary",
-          "purple",
-          "deep-purple",
-          "indigo",
-          "blue",
-          "teal",
-          "green",
-          "light-green",
-          "amber",
-          "orange",
-          "deep-orange",
-        ];
-        this.orgColors[orgId] =
-          colors[Object.keys(this.orgColors).length % colors.length];
-      }
-      return this.orgColors[orgId];
-    },
-    getMeetingTypeColor(type) {
-      return this.meetingTypeColors[type] || "grey";
-    },
-    showMeetingDetails(meeting) {
-      this.selectedMeeting = meeting;
-      this.detailsDialog = true;
+      },
+      getAttendanceRateColor(rate) {
+        rate = parseFloat(rate);
+        if (rate >= 0.8) return 'success';
+        if (rate >= 0.6) return 'info';
+        if (rate >= 0.4) return 'warning';
+        return 'error';
+      },
+      getOrgColor(orgId) {
+        // 조직 ID별로 고유한 색상 반환
+        if (!this.orgColors[orgId]) {
+          const colors = [
+            'primary',
+            'purple',
+            'deep-purple',
+            'indigo',
+            'blue',
+            'teal',
+            'green',
+            'light-green',
+            'amber',
+            'orange',
+            'deep-orange',
+          ];
+          this.orgColors[orgId] =
+            colors[Object.keys(this.orgColors).length % colors.length];
+        }
+        return this.orgColors[orgId];
+      },
+      getMeetingTypeColor(type) {
+        return this.meetingTypeColors[type] || 'grey';
+      },
+      showMeetingDetails(meeting) {
+        this.selectedMeeting = meeting;
+        this.detailsDialog = true;
 
-      // 다이얼로그가 열린 후 차트 초기화
-      this.$nextTick(() => {
-        // 차트 초기화 로직
-      });
+        // 다이얼로그가 열린 후 차트 초기화
+        this.$nextTick(() => {
+          // 차트 초기화 로직
+        });
+      },
     },
-  },
-};
+  };
 </script>
 
 <style scoped>
-.search-field {
-  max-width: 200px;
-}
-
-.organization-tree {
-  max-height: 500px;
-  overflow-y: auto;
-}
-
-.org-tree-label {
-  display: flex;
-  align-items: center;
-}
-
-@media (max-width: 600px) {
   .search-field {
-    max-width: 100%;
+    max-width: 200px;
   }
-}
+
+  .organization-tree {
+    max-height: 500px;
+    overflow-y: auto;
+  }
+
+  .org-tree-label {
+    display: flex;
+    align-items: center;
+  }
+
+  @media (max-width: 600px) {
+    .search-field {
+      max-width: 100%;
+    }
+  }
 </style>

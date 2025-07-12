@@ -29,7 +29,7 @@
             block
             @click="$emit('goToNextStep')"
           >
-            <span class="wc-h5 white--text"> {{ btnTitle1 }} </span>
+            <span class="wc-h5 white--text">{{ btnTitle1 }}</span>
           </v-btn>
         </v-col>
         <v-spacer />
@@ -45,7 +45,7 @@
             block
             @click="$emit('goToHome')"
           >
-            <span class="wc-h5 white--text"> {{ btnTitle2 }} </span>
+            <span class="wc-h5 white--text">{{ btnTitle2 }}</span>
           </v-btn>
         </v-col>
         <v-spacer />
@@ -80,7 +80,7 @@
             block
             @click="$emit('goToNextStep')"
           >
-            <span class="wc-h5 white--text"> {{ btnTitle1 }} </span>
+            <span class="wc-h5 white--text">{{ btnTitle1 }}</span>
           </v-btn>
         </v-col>
         <v-spacer />
@@ -96,7 +96,7 @@
             block
             @click="$emit('goToHome')"
           >
-            <span class="wc-h5 white--text"> {{ btnTitle2 }} </span>
+            <span class="wc-h5 white--text">{{ btnTitle2 }}</span>
           </v-btn>
         </v-col>
         <v-spacer />
@@ -106,31 +106,31 @@
 </template>
 
 <script>
-export default {
-  props: {
-    imgUrl: {
-      type: String,
-      default:
-        "https://images.unsplash.com/photo-1487284122274-e864e9dec2bf?crop=entropy&cs=tinysrgb&fm=jpg&ixlib=rb-1.2.1&q=80&raw_url=true&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=1472",
+  export default {
+    props: {
+      imgUrl: {
+        type: String,
+        default:
+          'https://images.unsplash.com/photo-1487284122274-e864e9dec2bf?crop=entropy&cs=tinysrgb&fm=jpg&ixlib=rb-1.2.1&q=80&raw_url=true&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=1472',
+      },
+      title: {
+        type: String,
+        default: 'Title',
+      },
+      subTitle: {
+        type: String,
+        default: 'SubTitle',
+      },
+      btnTitle1: {
+        type: String,
+        default: '다음으로',
+      },
+      btnTitle2: {
+        type: String,
+        default: '홈으로 이동',
+      },
     },
-    title: {
-      type: String,
-      default: "Title",
-    },
-    subTitle: {
-      type: String,
-      default: "SubTitle",
-    },
-    btnTitle1: {
-      type: String,
-      default: "다음으로",
-    },
-    btnTitle2: {
-      type: String,
-      default: "홈으로 이동",
-    },
-  },
-};
+  };
 </script>
 
 <style></style>

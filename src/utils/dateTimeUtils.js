@@ -1,4 +1,4 @@
-import moment from "moment-timezone";
+import moment from 'moment-timezone';
 
 /**
  * 날짜와 시간 처리를 위한 유틸리티 클래스
@@ -7,7 +7,7 @@ export const dateTimeUtils = {
   /**
    * 한국 시간대 상수
    */
-  KOREA_TIMEZONE: "Asia/Seoul",
+  KOREA_TIMEZONE: 'Asia/Seoul',
 
   /**
    * 날짜와 시간 문자열로부터 한국 시간대의 DateTime 객체 생성
@@ -15,10 +15,10 @@ export const dateTimeUtils = {
    * @param {string} time - HH:mm 형식의 시간 문자열 (기본값 "00:00")
    * @returns {moment.Moment} 한국 시간대의 moment 객체
    */
-  createDateTime(date, time = "00:00") {
+  createDateTime(date, time = '00:00') {
     return moment.tz(
       `${date} ${time}`,
-      "YYYY-MM-DD HH:mm",
+      'YYYY-MM-DD HH:mm',
       this.KOREA_TIMEZONE
     );
   },
@@ -46,7 +46,7 @@ export const dateTimeUtils = {
    * @returns {string} YYYY-MM-DD 형식의 오늘 날짜
    */
   getTodayString() {
-    return moment().tz(this.KOREA_TIMEZONE).format("YYYY-MM-DD");
+    return moment().tz(this.KOREA_TIMEZONE).format('YYYY-MM-DD');
   },
 
   /**

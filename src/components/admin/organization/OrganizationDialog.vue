@@ -2,9 +2,9 @@
   <v-dialog v-model="visible" max-width="500px">
     <v-card rounded="lg">
       <v-card-title class="wc-bold-600">
-        <span class="text-h5">{{
-          editedOrganization.id ? "조직 수정" : "조직 추가"
-        }}</span>
+        <span class="text-h5">
+          {{ editedOrganization.id ? '조직 수정' : '조직 추가' }}
+        </span>
       </v-card-title>
       <v-card-text>
         <v-container>
@@ -87,84 +87,84 @@
 </template>
 
 <script>
-export default {
-  name: "OrganizationDialog",
+  export default {
+    name: 'OrganizationDialog',
 
-  props: {
-    value: {
-      type: Boolean,
-      default: false,
-    },
-    organization: {
-      type: Object,
-      default: null,
-    },
-    organizationSelectItems: {
-      type: Array,
-      default: () => [],
-    },
-  },
-
-  data() {
-    return {
-      editedOrganization: {
-        id: null,
-        organization_name: "",
-        organization_code: "",
-        organization_description: "",
-        upper_organization_id: null,
+    props: {
+      value: {
+        type: Boolean,
+        default: false,
       },
-    };
-  },
-
-  computed: {
-    visible: {
-      get() {
-        return this.value;
+      organization: {
+        type: Object,
+        default: null,
       },
-      set(value) {
-        this.$emit("input", value);
+      organizationSelectItems: {
+        type: Array,
+        default: () => [],
       },
     },
-  },
 
-  watch: {
-    organization: {
-      handler(newVal) {
-        if (newVal) {
-          this.editedOrganization = {
-            ...newVal,
-            organization_description:
-              newVal.organization_description || newVal.description || "",
-          };
-        } else {
-          this.editedOrganization = {
-            id: null,
-            organization_name: "",
-            organization_code: "",
-            organization_description: "",
-            upper_organization_id: null,
-          };
-        }
+    data() {
+      return {
+        editedOrganization: {
+          id: null,
+          organization_name: '',
+          organization_code: '',
+          organization_description: '',
+          upper_organization_id: null,
+        },
+      };
+    },
+
+    computed: {
+      visible: {
+        get() {
+          return this.value;
+        },
+        set(value) {
+          this.$emit('input', value);
+        },
       },
-      immediate: true,
-    },
-  },
-
-  methods: {
-    save() {
-      this.$emit("save", this.editedOrganization);
     },
 
-    close() {
-      this.$emit("input", false);
+    watch: {
+      organization: {
+        handler(newVal) {
+          if (newVal) {
+            this.editedOrganization = {
+              ...newVal,
+              organization_description:
+                newVal.organization_description || newVal.description || '',
+            };
+          } else {
+            this.editedOrganization = {
+              id: null,
+              organization_name: '',
+              organization_code: '',
+              organization_description: '',
+              upper_organization_id: null,
+            };
+          }
+        },
+        immediate: true,
+      },
     },
-  },
-};
+
+    methods: {
+      save() {
+        this.$emit('save', this.editedOrganization);
+      },
+
+      close() {
+        this.$emit('input', false);
+      },
+    },
+  };
 </script>
 
 <style scoped>
-.bg-transparent {
-  background-color: transparent !important;
-}
+  .bg-transparent {
+    background-color: transparent !important;
+  }
 </style>

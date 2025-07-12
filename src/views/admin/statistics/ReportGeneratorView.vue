@@ -5,7 +5,7 @@
 </template>
 
 <script>
-export default {
-  name: "AdminReportGenerator",
-};
+  export default {
+    name: 'AdminReportGenerator',
+  };
 </script>

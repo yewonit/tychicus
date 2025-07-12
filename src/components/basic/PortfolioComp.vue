@@ -29,29 +29,29 @@
 </template>
 
 <script>
-import "@/styles/overrides.scss";
-export default {
-  props: {
-    imgUrl: {
-      type: String,
-      default:
-        "https://images.unsplash.com/photo-1561016444-14f747499547?ixlib=rb-1.2.1&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=1631&q=80",
+  import '@/styles/overrides.scss';
+  export default {
+    props: {
+      imgUrl: {
+        type: String,
+        default:
+          'https://images.unsplash.com/photo-1561016444-14f747499547?ixlib=rb-1.2.1&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=1631&q=80',
+      },
+      portfolioTitle: {
+        type: String,
+        default: 'Portfolio Title',
+      },
+      portfolioDescription: {
+        type: String,
+        default: 'Portfolio Description',
+      },
     },
-    portfolioTitle: {
-      type: String,
-      default: "Portfolio Title",
+    data() {
+      return {
+        dialog: false,
+      };
     },
-    portfolioDescription: {
-      type: String,
-      default: "Portfolio Description",
-    },
-  },
-  data() {
-    return {
-      dialog: false,
-    };
-  },
-};
+  };
 </script>
 
 <style></style>

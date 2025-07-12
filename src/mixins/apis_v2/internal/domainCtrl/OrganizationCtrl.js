@@ -1,10 +1,10 @@
-import axiosClient from "@/utils/axiosClient";
+import axiosClient from '@/utils/axiosClient';
 
 export const OrganizationCtrl = {
   data() {
     return {
       // URL List
-      Organization_EP: "organizations",
+      Organization_EP: 'organizations',
     };
   },
   created() {},
@@ -43,7 +43,7 @@ export const OrganizationCtrl = {
 
         return returnData;
       } catch (error) {
-        console.error("조직 조회 중 오류 발생:", error);
+        console.error('조직 조회 중 오류 발생:', error);
         return { error: error.message };
       }
     },
@@ -75,7 +75,7 @@ export const OrganizationCtrl = {
 
         return returnData;
       } catch (error) {
-        console.error("조직 조회 중 오류 발생:", error);
+        console.error('조직 조회 중 오류 발생:', error);
         return { error: error.message };
       }
     },
@@ -110,7 +110,7 @@ export const OrganizationCtrl = {
 
         return returnData;
       } catch (error) {
-        console.error("조직 생성 중 오류 발생:", error);
+        console.error('조직 생성 중 오류 발생:', error);
         return { error: error.message };
       }
     },
@@ -146,7 +146,7 @@ export const OrganizationCtrl = {
 
         return returnData;
       } catch (error) {
-        console.error("조직 수정 중 오류 발생:", error);
+        console.error('조직 수정 중 오류 발생:', error);
         return { error: error.message };
       }
     },
@@ -178,7 +178,7 @@ export const OrganizationCtrl = {
 
         return returnData;
       } catch (error) {
-        console.error("조직 삭제 중 오류 발생:", error);
+        console.error('조직 삭제 중 오류 발생:', error);
         return { error: error.message };
       }
     },

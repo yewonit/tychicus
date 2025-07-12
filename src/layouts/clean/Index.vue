@@ -16,14 +16,14 @@
 </template>
 
 <script>
-export default {
-  name: "CleanLayout",
-  data() {
-    return {};
-  },
-  computed: {},
-  methods: {},
-};
+  export default {
+    name: 'CleanLayout',
+    data() {
+      return {};
+    },
+    computed: {},
+    methods: {},
+  };
 </script>
 
 <style></style>

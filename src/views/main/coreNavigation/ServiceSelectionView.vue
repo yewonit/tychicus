@@ -7,11 +7,10 @@
     >
       <v-col class="text-center">
         <div
-          class="wc-direction-text wc-bold-900 wc-fs-28 blue--text organization-name"
+          class="wc-direction-text wc-bold-900 wc-fs-28 primary--text organization-name"
         >
           {{ formatOrganizationName(userInfo.roles[0].organizationName) }}
         </div>
-        <!-- <div class="wc-direction-text mt-1">사용할 서비스를 선택하세요</div> -->
       </v-col>
 
       <v-col cols="12" class="text-center mt-9 px-20">
@@ -21,12 +20,12 @@
             'mb-12': true,
             'disabled-card': !service.isActive,
           }"
-          v-for="service in services"
+          v-for="service in filteredServices"
           :key="service.id"
         >
-          <v-icon size="130" class="ma-3 mt-6 fadeIn" color="#262626">{{
-            service.icon
-          }}</v-icon>
+          <v-icon size="130" class="ma-3 mt-6 fadeIn" color="#262626">
+            {{ service.icon }}
+          </v-icon>
           <div class="wc-h3 ma-0 pa-0">{{ service.name }}</div>
           <div class="wc-info-light ma-0 pa-1 pb-7">
             {{ service.nameEn }}
@@ -46,218 +45,258 @@
             </v-btn>
           </v-card-actions>
         </v-card>
-
-        <!-- <v-btn
-          color="primary"
-          @click="startDataUpdate"
-          class="wc-bold-900 ml-4"
-        >
-          <v-icon left>mdi-database-sync</v-icon>
-          데이터 업데이트
-        </v-btn> -->
-
-        <!-- 새로운 버튼 추가 -->
-        <!-- <v-btn
-          color="info"
-          @click="showUserOrganizationsAndRoles"
-          class="wc-bold-900 ml-4"
-        >
-          <v-icon left>mdi-account-details</v-icon>
-          사용자 조직/역할 정보 보기
-        </v-btn> -->
       </v-col>
     </v-row>
   </v-container>
 </template>
 
 <script>
-import { NewExcelDataUpload } from "@/mixins/apis_v2/utility/NewExcelDataUpload";
-import { UserOrganizationsAndRolesCtrl } from "@/mixins/apis_v2/utility/UserOrganizationsAndRolesCtrl";
-import { mapState } from "vuex";
+  import { NewExcelDataUpload } from '@/mixins/apis_v2/utility/NewExcelDataUpload';
+  import { UserOrganizationsAndRolesCtrl } from '@/mixins/apis_v2/utility/UserOrganizationsAndRolesCtrl';
+  import { mapState } from 'vuex';
 
-export default {
-  name: "ServiceSelectionView",
-  mixins: [NewExcelDataUpload, UserOrganizationsAndRolesCtrl],
-  computed: {
-    ...mapState("auth", ["userInfo"]),
-  },
-  data() {
-    return {
-      services: [
-        // {
-        //   id: 0,
-        //   name: "출석현황 대시보드",
-        //   nameEn: "Attendance Dashboard",
-        //   description: "출석현항을 확인해보세요",
-        //   icon: "mdi-view-dashboard-variant-outline",
-        //   isActive: true,
-        //   path: "/attendance-dashboard", // path 속성 추가
-        // },
-        // {
-        //   id: 1,
-        //   name: "기도제목",
-        //   nameEn: "Prayer Topics",
-        //   description: "전도회의 기도제목을 입력하고 항상 기도해보세요",
-        //   icon: "mdi-hands-pray",
-        //   isActive: true,
-        //   path: "/prayer-topic", // path 속성 추가
-        // },
-        {
-          id: 2,
-          name: "재적인원관리",
-          nameEn: "Management of members",
-          description: "신규인원을 등록하고 인원들의 정보를 수정/관리해보세요",
-          icon: "mdi-account-multiple-check",
-          isActive: true,
-          path: "/member-list", // path 속성 추가
-        },
-        {
-          id: 3,
-          name: "모임기록관리",
-          nameEn: "Meeting History Management",
-          description: "모임 히스토리를 확인하고 관리할 수 있습니다.",
-          icon: "mdi-account-group",
-          isActive: true,
-          path: "/meeting-history", // 모임 히스토리 페이지로 경로 변경
-        },
-        // {
-        //   id: 4,
-        //   name: "장결자 및 새가족관리",
-        //   nameEn: "Management of deceased and new families",
-        //   description: "장결자 및 새가족의 심방정보를 입력하고 관리해보세요",
-        //   icon: "mdi-account-supervisor-circle",
-        //   isActive: true,
-        //   path: "/lost-and-new-management-selection", // path 속성 추가
-        // },
-      ],
-    };
-  },
-  methods: {
-    formatOrganizationName(name) {
-      // '_' 기준으로 분리
-      const parts = name.split("_");
-      // '코람데오'와 '237국' 부분을 제거하고 나머지 부분만 줄바꿈으로 조인
-      return parts.slice(2).join("\n");
-    },
-    /**
-     * @description [비상시운용]사용자 데이터를 업데이트하는 비동기 메서드입니다.
-     * @async
-     * @method startDataUpdate
-     * @throws {Error} 데이터 업데이트 중 발생할 수 있는 오류
-     * @returns {Promise<void>} 데이터 업데이트 작업이 완료되면 해결되는 Promise
-     */
-    async startDataUpdate() {
-      try {
-        // 로딩 표시 시작
-        this.$store.commit("SET_LOADING", true);
+  export default {
+    name: 'ServiceSelectionView',
+    mixins: [NewExcelDataUpload, UserOrganizationsAndRolesCtrl],
+    computed: {
+      ...mapState('auth', ['userInfo']),
 
-        await this.newUserDataUpdate();
-
-        // 성공 메시지 표시
-        this.$bvToast.toast("데이터 업데이트가 완료되었습니다.", {
-          title: "성공",
-          variant: "success",
-          solid: true,
-        });
-      } catch (error) {
-        // 오류 메시지 표시
-        this.$bvToast.toast(
-          "데이터 업데이트 중 오류가 발생했습니다: " + error.message,
-          {
-            title: "오류",
-            variant: "danger",
-            solid: true,
-          }
-        );
-      } finally {
-        // 로딩 표시 종료
-        this.$store.commit("SET_LOADING", false);
-      }
-    },
-
-    /**
-     * @description [콘솔확인 / 데이터확인용] 사용자의 조직 및 역할 정보를 콘솔에 출력하는 비동기 메서드입니다.
-     * @async
-     * @method showUserOrganizationsAndRoles
-     * @throws {Error} 사용자 ID를 찾을 수 없거나 정보 출력 중 발생할 수 있는 오류
-     * @returns {Promise<void>} 사용자 정보 출력 작업이 완료되면 해결되는 Promise
-     */
-    async showUserOrganizationsAndRoles() {
-      try {
-        // 로딩 표시 시작
-        this.$store.commit("SET_LOADING", true);
-
-        // userInfo에서 사용자 ID를 가져옵니다.
-        const userId = this.userInfo.id;
-
-        if (!userId) {
-          throw new Error("사용자 ID를 찾을 수 없습니다.");
+      // 사용자 권한에 따라 필터링된 서비스 목록을 반환
+      filteredServices() {
+        if (
+          !this.userInfo ||
+          !this.userInfo.roles ||
+          this.userInfo.roles.length === 0
+        ) {
+          return [];
         }
 
-        // UserOrganizationsAndRolesCtrl의 메서드를 호출합니다.
-        await this.logAllUsersOrganizationsAndRoles(userId);
+        const userPermissionName = this.userInfo.roles[0].permissionName;
 
-        // 성공 메시지 표시
-        this.$bvToast.toast(
-          "사용자 조직 및 역할 정보가 콘솔에 출력되었습니다.",
-          {
-            title: "정보 출력 완료",
-            variant: "success",
-            solid: true,
-          }
+        return this.services.filter((service) =>
+          this.hasPermissionForService(service, userPermissionName)
         );
-      } catch (error) {
-        // 오류 메시지 표시
-        this.$bvToast.toast(
-          "사용자 정보 출력 중 오류가 발생했습니다: " + error.message,
+      },
+    },
+    data() {
+      return {
+        services: [
           {
-            title: "오류",
-            variant: "danger",
-            solid: true,
+            id: 1,
+            name: '출석현황 대시보드',
+            nameEn: 'Attendance Dashboard',
+            description: '출석현항을 확인해보세요',
+            icon: 'mdi-view-dashboard-variant-outline',
+            isActive: true,
+            path: '/attendance-dashboard',
+            permissions: {
+              // roles: ['admin', '그룹장'],
+              roles: ['admin'],
+            },
+          },
+          // {
+          //   id: 1,
+          //   name: "기도제목",
+          //   nameEn: "Prayer Topics",
+          //   description: "전도회의 기도제목을 입력하고 항상 기도해보세요",
+          //   icon: "mdi-hands-pray",
+          //   isActive: true,
+          //   path: "/prayer-topic", // path 속성 추가
+          // },
+          {
+            id: 2,
+            name: '재적인원관리',
+            nameEn: 'Management of members',
+            description:
+              '신규인원을 등록하고 인원들의 정보를 수정/관리해보세요',
+            icon: 'mdi-account-multiple-check',
+            isActive: true,
+            path: '/member-list',
+          },
+          {
+            id: 3,
+            name: '모임기록관리',
+            nameEn: 'Meeting History Management',
+            description: '모임 히스토리를 확인하고 관리할 수 있습니다.',
+            icon: 'mdi-account-group',
+            isActive: true,
+            path: '/meeting-history',
+            permissions: {
+              roles: ['admin', 'EBS', '순장', '부그룹장', '그룹장'],
+            },
+          },
+          {
+            id: 4,
+            name: '심방 보고서',
+            nameEn: 'Visit Report',
+            description: '심방 보고서를 확인하고 작성할 수 있습니다.',
+            icon: 'mdi-account-group',
+            isActive: true,
+            path: '/visit-report',
+            permissions: {
+              // roles: ['admin', 'EBS', '순장', '부그룹장', '그룹장'],
+              roles: ['admin'],
+            },
+          },
+          // {
+          //   id: 4,
+          //   name: "장결자 및 새가족관리",
+          //   nameEn: "Management of deceased and new families",
+          //   description: "장결자 및 새가족의 심방정보를 입력하고 관리해보세요",
+          //   icon: "mdi-account-supervisor-circle",
+          //   isActive: true,
+          //   path: "/lost-and-new-management-selection", // path 속성 추가
+          // },
+        ],
+      };
+    },
+    methods: {
+      formatOrganizationName(name) {
+        // '_' 기준으로 분리
+        const parts = name.split('_');
+        // '코람데오'와 '237국' 부분을 제거하고 나머지 부분만 줄바꿈으로 조인
+        return parts.slice(2).join('\n');
+      },
+
+      /**
+       * 사용자가 특정 서비스에 접근할 권한이 있는지 확인합니다.
+       * @param {Object} service - 확인할 서비스 객체
+       * @param {string} userPermissionName - 사용자의 역할
+       * @param {string} organizationName - 사용자의 조직명
+       * @returns {boolean} 접근 권한 여부
+       */
+      hasPermissionForService(service, userPermissionName) {
+        // 권한 설정이 없는 서비스는 모든 사용자에게 허용
+        if (
+          !service.permissions ||
+          userPermissionName === 'admin' ||
+          this.userInfo.name === '임예원'
+        ) {
+          return true;
+        }
+
+        const roles = service.permissions.roles;
+
+        if (roles && roles.length > 0) {
+          if (roles.includes(userPermissionName)) {
+            return true;
           }
-        );
-      } finally {
-        // 로딩 표시 종료
-        this.$store.commit("SET_LOADING", false);
+          return false;
+        }
+
+        return false;
+      },
+    },
+    mounted() {
+      if (!this.userInfo) {
+        this.$router.push({ name: 'LoginView' });
       }
     },
-  },
-  mounted() {
-    if (!this.userInfo) {
-      this.$router.push({ name: "LoginView" });
-    }
-    console.log("사용자 정보:", this.userInfo);
-    // 데이터 업데이트 함수 절대 키지 말것
-    // this.newUserDataUpdate();
-    // this.createUserHasRoleData();
-  },
-};
+  };
 </script>
 
 <style scoped>
-.service-card {
-  padding: 20px;
-  margin-bottom: 20px;
-}
+  .service-card {
+    padding: 20px;
+    margin-bottom: 20px;
+  }
 
-.disabled-card {
-  opacity: 0.5;
-}
-/* 커스텀 텍스트 블루 */
-.blue--text {
-  color: #06a1cc !important;
-}
+  .disabled-card {
+    opacity: 0.5;
+  }
 
-.custom-button {
-  background-image: linear-gradient(to right, #cbdaf7, #96f2e4) !important;
-  border-radius: 50px;
-  color: rgb(83, 83, 83);
-}
+  .custom-button {
+    background-image: linear-gradient(to right, #cbdaf7, #96f2e4) !important;
+    border-radius: 50px;
+    color: rgb(83, 83, 83);
+  }
 
-.organization-name {
-  white-space: pre-line;
-  line-height: 1.4;
-  max-width: 100%;
-  padding: 0 20px;
-}
+  /* 로고 색상 기반 버튼 스타일 */
+  .wc-card-btn {
+    border-radius: 12px !important;
+    font-weight: bold !important;
+    text-transform: none !important;
+    /* Vuetify 테마 색상으로 그라데이션 */
+    background: linear-gradient(
+      135deg,
+      var(--v-gradientStart-base) 0%,
+      var(--v-gradientMiddle-base) 50%,
+      var(--v-gradientEnd-base) 100%
+    ) !important;
+    box-shadow: 0 4px 15px var(--v-shadowMedium-base),
+      inset 0 1px 0 rgba(255, 255, 255, 0.2) !important;
+    border: none !important;
+    position: relative;
+    overflow: hidden;
+    color: white !important;
+  }
+
+  /* 버튼 위에 빛나는 효과 */
+  .wc-card-btn::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: -100%;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(
+      90deg,
+      transparent,
+      rgba(255, 255, 255, 0.3),
+      transparent
+    );
+    transition: left 0.6s ease;
+  }
+
+  /* 버튼 호버 효과 */
+  .wc-card-btn:hover:not(:disabled) {
+    background: linear-gradient(
+      135deg,
+      var(--v-hoverGradientStart-base) 0%,
+      var(--v-hoverGradientMiddle-base) 50%,
+      var(--v-hoverGradientEnd-base) 100%
+    ) !important;
+    transform: translateY(-2px);
+    box-shadow: 0 8px 25px var(--v-shadowStrong-base),
+      inset 0 1px 0 rgba(255, 255, 255, 0.3) !important;
+  }
+
+  /* 호버시 빛나는 효과 */
+  .wc-card-btn:hover::before {
+    left: 100%;
+  }
+
+  /* 버튼 클릭 효과 */
+  .wc-card-btn:active {
+    transform: translateY(0px);
+    box-shadow: 0 2px 10px var(--v-shadowMedium-base),
+      inset 0 2px 4px rgba(0, 0, 0, 0.1) !important;
+  }
+
+  /* 비활성화된 버튼 */
+  .wc-card-btn:disabled {
+    background: linear-gradient(
+      135deg,
+      var(--v-disabledStart-base) 0%,
+      var(--v-disabledMiddle-base) 50%,
+      var(--v-disabledEnd-base) 100%
+    ) !important;
+    color: var(--v-disabledText-base) !important;
+    box-shadow: none !important;
+    transform: none !important;
+  }
+
+  /* 버튼 텍스트 스타일 */
+  .wc-card-btn .wc-h3 {
+    color: black !important;
+    font-weight: bold !important;
+    text-shadow: 0 1px 2px rgba(255, 255, 255, 0.3);
+  }
+
+  .organization-name {
+    white-space: pre-line;
+    line-height: 1.4;
+    max-width: 100%;
+    padding: 0 20px;
+  }
 </style>

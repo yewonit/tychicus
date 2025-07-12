@@ -11,16 +11,16 @@
 </template>
 
 <script>
-import LoginComp from "@/components/basic/LoginComp.vue";
-export default {
-  name: "LoginView",
-  components: {
-    LoginComp,
-  },
-  data() {
-    return {};
-  },
-};
+  import LoginComp from '@/components/basic/LoginComp.vue';
+  export default {
+    name: 'LoginView',
+    components: {
+      LoginComp,
+    },
+    data() {
+      return {};
+    },
+  };
 </script>
 
 <style></style>

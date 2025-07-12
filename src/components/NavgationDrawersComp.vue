@@ -126,68 +126,68 @@
 </template>
 
 <script>
-import { mapState, mapActions } from "vuex";
+  import { mapState, mapActions } from 'vuex';
 
-export default {
-  props: {
-    drawer: {
-      type: Boolean,
-      default: false,
+  export default {
+    props: {
+      drawer: {
+        type: Boolean,
+        default: false,
+      },
     },
-  },
-  data() {
-    return {
-      admins: [
-        ["서비스업", 100],
-        ["금융∙은행업", 200],
-        ["IT∙정보통신업", 300],
-        ["판매유통업", 400],
-        ["제조∙생산∙화학업", 500],
-        ["교육업", 600],
-        ["건설업", 700],
-        ["의료∙제약업", 800],
-        ["미디어∙광고업", 900],
-        ["문화∙예술∙디자인업", 1000],
-        ["기관∙협회", 1100],
-      ],
-      drawerState: false,
-    };
-  },
-  computed: {
-    ...mapState(["isLogin", "userInfo", "yewonbizAxios"]),
-  },
-  watch: {
-    drawer(val) {
-      if (val) {
-        this.$nextTick(() => {
-          this.drawerState = val;
-        });
-      }
+    data() {
+      return {
+        admins: [
+          ['서비스업', 100],
+          ['금융∙은행업', 200],
+          ['IT∙정보통신업', 300],
+          ['판매유통업', 400],
+          ['제조∙생산∙화학업', 500],
+          ['교육업', 600],
+          ['건설업', 700],
+          ['의료∙제약업', 800],
+          ['미디어∙광고업', 900],
+          ['문화∙예술∙디자인업', 1000],
+          ['기관∙협회', 1100],
+        ],
+        drawerState: false,
+      };
     },
-  },
+    computed: {
+      ...mapState(['isLogin', 'userInfo', 'yewonbizAxios']),
+    },
+    watch: {
+      drawer(val) {
+        if (val) {
+          this.$nextTick(() => {
+            this.drawerState = val;
+          });
+        }
+      },
+    },
 
-  methods: {
-    ...mapActions(["logout"]),
-  },
-};
+    methods: {
+      ...mapActions(['logout']),
+    },
+  };
 </script>
 
 <style>
-.nav-drawer-menu-1 {
-  font-size: 0.825rem !important;
-  font-weight: 500;
-  color: rgb(77, 77, 77);
-}
+  .nav-drawer-menu-1 {
+    font-size: 0.825rem !important;
+    font-weight: 500;
+    color: rgb(77, 77, 77);
+  }
 
-.nav-drawer-menu-2 {
-  font-size: 0.825rem !important;
-  font-weight: 400;
-  color: rgb(91, 91, 91);
-}
+  .nav-drawer-menu-2 {
+    font-size: 0.825rem !important;
+    font-weight: 400;
+    color: rgb(91, 91, 91);
+  }
 
-.nav-drawer-menu-3 {
-  font-size: 0.825rem !important;
-  font-weight: 300;
-  color: rgb(91, 91, 91);
-}
+  .nav-drawer-menu-3 {
+    font-size: 0.825rem !important;
+    font-weight: 300;
+    color: rgb(91, 91, 91);
+  }
 </style>

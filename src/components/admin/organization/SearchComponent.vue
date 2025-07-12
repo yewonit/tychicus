@@ -50,9 +50,9 @@
                   <v-icon small color="#7EA394">mdi-folder-outline</v-icon>
                 </v-list-item-icon>
                 <v-list-item-content>
-                  <v-list-item-title>{{
-                    org.organization_name
-                  }}</v-list-item-title>
+                  <v-list-item-title>
+                    {{ org.organization_name }}
+                  </v-list-item-title>
                   <v-list-item-subtitle>
                     코드: {{ org.organization_code }} | 멤버:
                     {{ org.memberCount || 0 }}명
@@ -86,7 +86,7 @@
                 <v-list-item-content>
                   <v-list-item-title>{{ member.name }}</v-list-item-title>
                   <v-list-item-subtitle>
-                    {{ member.phoneNumber || "번호 없음" }} |
+                    {{ member.phoneNumber || '번호 없음' }} |
                     {{ member.roleName }}
                     <span
                       v-if="member.organizationName"
@@ -120,183 +120,189 @@
 </template>
 
 <script>
-export default {
-  name: "SearchComponent",
+  export default {
+    name: 'SearchComponent',
 
-  props: {
-    organizations: {
-      type: Array,
-      default: () => [],
-    },
-    getMembers: {
-      type: Function,
-      required: true,
-    },
-  },
-
-  data() {
-    return {
-      query: "",
-      type: "all", // 'all', 'group', 'order', 'name'
-      activeTab: 0,
-      groupResults: [],
-      memberResults: [],
-      searchTimer: null,
-    };
-  },
-
-  computed: {
-    hasResults() {
-      return this.groupResults.length > 0 || this.memberResults.length > 0;
-    },
-  },
-
-  methods: {
-    onQueryChange() {
-      // 디바운스 적용해서 타이핑 완료 후 검색 실행
-      clearTimeout(this.searchTimer);
-
-      if (!this.query || this.query.trim().length < 2) {
-        this.groupResults = [];
-        this.memberResults = [];
-        return;
-      }
-
-      this.searchTimer = setTimeout(() => {
-        this.performSearch();
-      }, 300);
+    props: {
+      organizations: {
+        type: Array,
+        default: () => [],
+      },
+      getMembers: {
+        type: Function,
+        required: true,
+      },
     },
 
-    onTypeChange() {
-      if (this.query && this.query.trim().length >= 2) {
-        this.performSearch();
-      }
+    data() {
+      return {
+        query: '',
+        type: 'all', // 'all', 'group', 'order', 'name'
+        activeTab: 0,
+        groupResults: [],
+        memberResults: [],
+        searchTimer: null,
+      };
     },
 
-    async performSearch() {
-      const query = this.query.toLowerCase().trim();
+    computed: {
+      hasResults() {
+        return this.groupResults.length > 0 || this.memberResults.length > 0;
+      },
+    },
 
-      // 그룹 검색
-      if (this.type === "all" || this.type === "group") {
-        this.searchOrganizations(query);
-      } else {
-        this.groupResults = [];
-      }
+    methods: {
+      onQueryChange() {
+        // 디바운스 적용해서 타이핑 완료 후 검색 실행
+        clearTimeout(this.searchTimer);
 
-      // 멤버 검색
-      if (
-        this.type === "all" ||
-        this.type === "name" ||
-        this.type === "order"
-      ) {
-        await this.searchMembers(query);
-      } else {
-        this.memberResults = [];
-      }
-
-      // 검색 결과가 있는 탭으로 활성화
-      this.$nextTick(() => {
-        if (this.hasResults) {
-          if (this.groupResults.length > 0) {
-            this.activeTab = 0;
-          } else if (this.memberResults.length > 0) {
-            this.activeTab = this.groupResults.length > 0 ? 1 : 0;
-          }
+        if (!this.query || this.query.trim().length < 2) {
+          this.groupResults = [];
+          this.memberResults = [];
+          return;
         }
-      });
-    },
 
-    searchOrganizations(query) {
-      this.groupResults = this.organizations.filter((org) => {
-        return (
-          org.organization_name.toLowerCase().includes(query) ||
-          (org.organization_code &&
-            org.organization_code.toLowerCase().includes(query))
-        );
-      });
-    },
+        this.searchTimer = setTimeout(() => {
+          this.performSearch();
+        }, 300);
+      },
 
-    async searchMembers(query) {
-      this.memberResults = [];
-      this.$emit("search-start");
+      onTypeChange() {
+        if (this.query && this.query.trim().length >= 2) {
+          this.performSearch();
+        }
+      },
 
-      try {
-        // 최하위 조직들 찾기
-        const leafOrgs = this.organizations.filter(
-          (org) =>
-            !this.organizations.some(
-              (other) => other.upper_organization_id === org.id
-            )
-        );
+      async performSearch() {
+        const query = this.query.toLowerCase().trim();
 
-        // 개별 조직의 멤버를 모두 가져와서 통합 검색
-        for (const org of leafOrgs) {
-          try {
-            const members = await this.getMembers(org.id);
+        // 그룹 검색
+        if (this.type === 'all' || this.type === 'group') {
+          this.searchOrganizations(query);
+        } else {
+          this.groupResults = [];
+        }
 
-            if (members && Array.isArray(members)) {
-              const filteredMembers = members.filter((member) => {
-                // 모든 검색은 이름을 기반으로 합니다
-                const nameMatches = member.name.toLowerCase().includes(query);
+        // 멤버 검색
+        if (
+          this.type === 'all' ||
+          this.type === 'name' ||
+          this.type === 'order'
+        ) {
+          await this.searchMembers(query);
+        } else {
+          this.memberResults = [];
+        }
 
-                if (!nameMatches) return false; // 이름이 일치하지 않으면 항상 제외
-
-                // 검색 타입에 따른 추가 필터링
-                if (this.type === "all") {
-                  return true; // 이름이 일치하면 모든 멤버 포함
-                } else if (this.type === "name") {
-                  return true; // 이름 검색은 이미 위에서 필터링됨
-                } else if (this.type === "order") {
-                  // 순 검색: 순장이나 순원인 멤버만 포함 (이름 일치 조건 포함)
-                  return (
-                    member.roleName === "순장" || member.roleName === "순원"
-                  );
-                }
-
-                return false;
-              });
-
-              // 검색 결과에 조직 정보 추가
-              filteredMembers.forEach((member) => {
-                member.organizationId = org.id;
-                member.organizationName = org.organization_name;
-              });
-
-              this.memberResults = [...this.memberResults, ...filteredMembers];
+        // 검색 결과가 있는 탭으로 활성화
+        this.$nextTick(() => {
+          if (this.hasResults) {
+            if (this.groupResults.length > 0) {
+              this.activeTab = 0;
+            } else if (this.memberResults.length > 0) {
+              this.activeTab = this.groupResults.length > 0 ? 1 : 0;
             }
-          } catch (error) {
-            console.error(`${org.organization_name} 멤버 검색 중 오류`, error);
           }
-        }
-      } finally {
-        this.$emit("search-end");
-      }
-    },
+        });
+      },
 
-    clearSearch() {
-      this.query = "";
-      this.groupResults = [];
-      this.memberResults = [];
+      searchOrganizations(query) {
+        this.groupResults = this.organizations.filter((org) => {
+          return (
+            org.organization_name.toLowerCase().includes(query) ||
+            (org.organization_code &&
+              org.organization_code.toLowerCase().includes(query))
+          );
+        });
+      },
+
+      async searchMembers(query) {
+        this.memberResults = [];
+        this.$emit('search-start');
+
+        try {
+          // 최하위 조직들 찾기
+          const leafOrgs = this.organizations.filter(
+            (org) =>
+              !this.organizations.some(
+                (other) => other.upper_organization_id === org.id
+              )
+          );
+
+          // 개별 조직의 멤버를 모두 가져와서 통합 검색
+          for (const org of leafOrgs) {
+            try {
+              const members = await this.getMembers(org.id);
+
+              if (members && Array.isArray(members)) {
+                const filteredMembers = members.filter((member) => {
+                  // 모든 검색은 이름을 기반으로 합니다
+                  const nameMatches = member.name.toLowerCase().includes(query);
+
+                  if (!nameMatches) return false; // 이름이 일치하지 않으면 항상 제외
+
+                  // 검색 타입에 따른 추가 필터링
+                  if (this.type === 'all') {
+                    return true; // 이름이 일치하면 모든 멤버 포함
+                  } else if (this.type === 'name') {
+                    return true; // 이름 검색은 이미 위에서 필터링됨
+                  } else if (this.type === 'order') {
+                    // 순 검색: 순장이나 순원인 멤버만 포함 (이름 일치 조건 포함)
+                    return (
+                      member.roleName === '순장' || member.roleName === '순원'
+                    );
+                  }
+
+                  return false;
+                });
+
+                // 검색 결과에 조직 정보 추가
+                filteredMembers.forEach((member) => {
+                  member.organizationId = org.id;
+                  member.organizationName = org.organization_name;
+                });
+
+                this.memberResults = [
+                  ...this.memberResults,
+                  ...filteredMembers,
+                ];
+              }
+            } catch (error) {
+              console.error(
+                `${org.organization_name} 멤버 검색 중 오류`,
+                error
+              );
+            }
+          }
+        } finally {
+          this.$emit('search-end');
+        }
+      },
+
+      clearSearch() {
+        this.query = '';
+        this.groupResults = [];
+        this.memberResults = [];
+      },
     },
-  },
-};
+  };
 </script>
 
 <style scoped>
-/* 검색 카드 스타일 */
-.search-card {
-  border-radius: 8px;
-  background-color: transparent !important;
-  transition: all 0.3s;
-}
+  /* 검색 카드 스타일 */
+  .search-card {
+    border-radius: 8px;
+    background-color: transparent !important;
+    transition: all 0.3s;
+  }
 
-.search-card:hover {
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1) !important;
-}
+  .search-card:hover {
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1) !important;
+  }
 
-/* 이름 아바타 스타일 */
-.name-avatar {
-  background: linear-gradient(135deg, #7ea394, #c2e0c2) !important;
-  font-weight: bold;
-}
+  /* 이름 아바타 스타일 */
+  .name-avatar {
+    background: linear-gradient(135deg, #7ea394, #c2e0c2) !important;
+    font-weight: bold;
+  }
 </style>

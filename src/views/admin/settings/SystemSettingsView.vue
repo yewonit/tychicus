@@ -5,7 +5,7 @@
 </template>
 
 <script>
-export default {
-  name: "AdminSystemSettings",
-};
+  export default {
+    name: 'AdminSystemSettings',
+  };
 </script>

@@ -175,100 +175,100 @@
 </template>
 
 <script>
-/**
- * @description 커스텀 CSS
- */
-import "@/styles/overrides.scss";
-/**
- * @description NEO CORE 라이브러리
- */
-import { mapState, mapActions } from "vuex";
-import { AccountUtil } from "@/mixins/apis_v2/internal/AccountUtil";
-import { MasterCtrl } from "@/mixins/apis_v2/internal/MasterCtrl";
-import { FileBins } from "@/mixins/apis_v2/internal/FileBins";
-import { Utility } from "@/mixins/apis_v2/utility/Utility";
-import { TokenCtrl } from "@/mixins/apis_v2/utility/TokenCtrl";
-/**
- * @description 컴포넌트
- */
+  /**
+   * @description 커스텀 CSS
+   */
+  import '@/styles/overrides.scss';
+  /**
+   * @description NEO CORE 라이브러리
+   */
+  import { mapState, mapActions } from 'vuex';
+  import { AccountUtil } from '@/mixins/apis_v2/internal/AccountUtil';
+  import { MasterCtrl } from '@/mixins/apis_v2/internal/MasterCtrl';
+  import { FileBins } from '@/mixins/apis_v2/internal/FileBins';
+  import { Utility } from '@/mixins/apis_v2/utility/Utility';
+  import { TokenCtrl } from '@/mixins/apis_v2/utility/TokenCtrl';
+  /**
+   * @description 컴포넌트
+   */
 
-/**
- * @description 카카오맵 관련 임포트
- */
-/**
- * @description 가상 API 데이터
- */
-/**
- * @description 상태체크
- */
+  /**
+   * @description 카카오맵 관련 임포트
+   */
+  /**
+   * @description 가상 API 데이터
+   */
+  /**
+   * @description 상태체크
+   */
 
-export default {
-  mixins: [TokenCtrl, Utility, FileBins, MasterCtrl, AccountUtil],
-  props: {},
-  data() {
-    return {
-      userEmail: "",
-      userPhoneNumber: "",
-      show1: false,
-      checkbox: false,
-    };
-  },
-  computed: {
-    ...mapState(["isLogin", "userInfo", "yewonbizAxios"]),
-  },
-  methods: {
-    ...mapActions(["login", "refreshAccessTokenAtVuex", "logout"]),
-
-    async resetAccountPasswordCheckEmailLocal(userEmail, showLog) {
-      const tempUser = await this.resetAccountPasswordCheckEmail(
-        userEmail,
-        showLog
-      );
-      this.lv1_Data("tempUser", tempUser);
-      if (tempUser.message == "존재하지 않는 이메일입니다.") {
-        alert("존재하지 않는 이메일입니다.");
-        this.userEmail = "";
-        return;
-      } else if (tempUser.message == "존재하는 이메일입니다.") {
-        alert(`비밀번호 재설정 링크가 ${userEmail}로 발송되었습니다.`);
-        this.$router.push("/sub/login");
-      } else {
-        alert(
-          "비밀번호 재설정 링크 발송에 실패하였습니다. 관리자에게 문의해주세요. 관리자번호 : 010-3383-4177"
-        );
-        return;
-      }
-      // /find-email-result 페이지로 이동
+  export default {
+    mixins: [TokenCtrl, Utility, FileBins, MasterCtrl, AccountUtil],
+    props: {},
+    data() {
+      return {
+        userEmail: '',
+        userPhoneNumber: '',
+        show1: false,
+        checkbox: false,
+      };
     },
-  },
-  mounted() {},
-};
+    computed: {
+      ...mapState(['isLogin', 'userInfo', 'yewonbizAxios']),
+    },
+    methods: {
+      ...mapActions(['login', 'refreshAccessTokenAtVuex', 'logout']),
+
+      async resetAccountPasswordCheckEmailLocal(userEmail, showLog) {
+        const tempUser = await this.resetAccountPasswordCheckEmail(
+          userEmail,
+          showLog
+        );
+        this.lv1_Data('tempUser', tempUser);
+        if (tempUser.message == '존재하지 않는 이메일입니다.') {
+          alert('존재하지 않는 이메일입니다.');
+          this.userEmail = '';
+          return;
+        } else if (tempUser.message == '존재하는 이메일입니다.') {
+          alert(`비밀번호 재설정 링크가 ${userEmail}로 발송되었습니다.`);
+          this.$router.push('/sub/login');
+        } else {
+          alert(
+            '비밀번호 재설정 링크 발송에 실패하였습니다. 관리자에게 문의해주세요. 관리자번호 : 010-3383-4177'
+          );
+          return;
+        }
+        // /find-email-result 페이지로 이동
+      },
+    },
+    mounted() {},
+  };
 </script>
 
 <style></style>
 
 <style scoped>
-/* Element : v-text-field */
-.v-text-field--outlined >>> fieldset {
-  /* border-color: rgba(192, 0, 250, 0.986); */
-  border: solid 1.5px rgba(236, 237, 245, 0.3);
-  border-radius: 24px;
-  background-image: #edeef3 !important;
-  box-shadow: 15px 15px 15px #00000012, -15px -15px 15px #ffffff !important;
-}
+  /* Element : v-text-field */
+  .v-text-field--outlined >>> fieldset {
+    /* border-color: rgba(192, 0, 250, 0.986); */
+    border: solid 1.5px rgba(236, 237, 245, 0.3);
+    border-radius: 24px;
+    background-image: #edeef3 !important;
+    box-shadow: 15px 15px 15px #00000012, -15px -15px 15px #ffffff !important;
+  }
 
-::v-deep .v-label {
-  font-family: NotoSansKR;
-  font-size: 13px;
-  font-weight: 500;
-  font-stretch: normal;
-  font-style: normal;
-  line-height: normal;
-  letter-spacing: 0.09px;
-  color: #b7bbcc;
-}
+  ::v-deep .v-label {
+    font-family: NotoSansKR;
+    font-size: 13px;
+    font-weight: 500;
+    font-stretch: normal;
+    font-style: normal;
+    line-height: normal;
+    letter-spacing: 0.09px;
+    color: #b7bbcc;
+  }
 
-.fb-btn .v-btn--outlined {
-  border: thin solid #cccccc;
-}
+  .fb-btn .v-btn--outlined {
+    border: thin solid #cccccc;
+  }
 </style>

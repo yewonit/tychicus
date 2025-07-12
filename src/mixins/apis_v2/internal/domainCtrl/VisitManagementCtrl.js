@@ -1,10 +1,10 @@
-import { ModelCtrl } from "@/mixins/apis_v2/internal/core/ModelCtrl";
-import axiosClient from "@/utils/axiosClient";
+import { ModelCtrl } from '@/mixins/apis_v2/internal/core/ModelCtrl';
+import axiosClient from '@/utils/axiosClient';
 
 export const VisitManagementCtrl = {
   data() {
     return {
-      Visitation_EP: "visitation",
+      Visitation_EP: 'visitation',
     };
   },
   mixins: [ModelCtrl],
@@ -19,13 +19,13 @@ export const VisitManagementCtrl = {
       if (showLog) {
         console.log(
           `%c[ Mixin : VisitManagementCtrl ] getVisitPost() visiteeId: ${visiteeId}`,
-          "color: #6495ED;"
+          'color: #6495ED;'
         );
       }
       const res = await axiosClient.api.get(`/get-visit-post/${visiteeId}`);
       let returnData = res.data;
       if (showLog) {
-        console.log(`%c[ return ] :`, "color: #6495ED;", returnData);
+        console.log(`%c[ return ] :`, 'color: #6495ED;', returnData);
       }
       return returnData;
     },
