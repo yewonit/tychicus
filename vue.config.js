@@ -1,8 +1,8 @@
 module.exports = {
-  transpileDependencies: ['vuetify'],
+  transpileDependencies: ["vuetify"],
   chainWebpack: (config) => {
-    config.plugin('html').tap((args) => {
-      args[0].title = '<Your new title>'; // Replace your title here
+    config.plugin("html").tap((args) => {
+      args[0].title = "<Your new title>"; // Replace your title here
       return args;
     });
   },
@@ -14,22 +14,25 @@ module.exports = {
 
   // 개발 서버 설정 추가
   devServer: {
-    allowedHosts: 'all',
-    host: '0.0.0.0',
+    allowedHosts: "all",
+    host: "0.0.0.0",
     port: 8080,
-    https: false,
+    server: "http",
+    hot: process.env.NODE_ENV === "local",
+    liveReload: process.env.NODE_ENV === "local",
+    webSocketServer: process.env.NODE_ENV === "local",
   },
 
   // PWA 설정 추가
   pwa: {
-    name: '두기고',
-    themeColor: '#7EA394',
-    msTileColor: '#7EA394',
-    appleMobileWebAppCapable: 'yes',
-    appleMobileWebAppStatusBarStyle: 'black',
+    name: "두기고",
+    themeColor: "#7EA394",
+    msTileColor: "#7EA394",
+    appleMobileWebAppCapable: "yes",
+    appleMobileWebAppStatusBarStyle: "black",
 
     // Workbox 모드 설정 (GenerateSW로 명시적 설정)
-    workboxPluginMode: 'GenerateSW',
+    workboxPluginMode: "GenerateSW",
 
     // Workbox 옵션
     workboxOptions: {
@@ -37,15 +40,15 @@ module.exports = {
       clientsClaim: true,
 
       // 버전 정보는 캐싱에서 제외
-      navigateFallback: '/index.html',
+      navigateFallback: "/index.html",
 
       // 런타임 캐싱 설정
       runtimeCaching: [
         {
-          urlPattern: new RegExp('^https://'),
-          handler: 'NetworkFirst',
+          urlPattern: new RegExp("^https://"),
+          handler: "NetworkFirst",
           options: {
-            cacheName: 'api-cache',
+            cacheName: "api-cache",
             expiration: {
               maxAgeSeconds: 60 * 60, // 1시간 캐싱
             },
@@ -59,7 +62,7 @@ module.exports = {
 
     // manifest.json 설정
     manifestOptions: {
-      background_color: '#FFFFFF',
+      background_color: "#FFFFFF",
     },
   },
 
