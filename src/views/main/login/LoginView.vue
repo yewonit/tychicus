@@ -48,10 +48,9 @@
           <v-col cols="12" sm="6" class="pa-1 pa-sm-0">
             <v-btn
               text
-              class="text-decoration-none text-caption text-sm-body-2"
+              class="text-decoration-none"
               color="primary"
               @click="$router.push('/name-input')"
-              block
             >
               이메일과 비밀번호가 없나요?
             </v-btn>
@@ -59,7 +58,7 @@
           <v-col cols="12" sm="6" class="pa-1 pa-sm-0">
             <v-btn
               text
-              class="text-decoration-none text-caption text-sm-body-2"
+              class="text-decoration-none"
               color="primary"
               @click="
                 $router.push({
@@ -67,7 +66,6 @@
                   query: { isPasswordRecovery: true },
                 })
               "
-              block
             >
               비밀번호를 잃어버렸어요.
             </v-btn>
