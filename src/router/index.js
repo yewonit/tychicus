@@ -666,7 +666,14 @@ router.beforeEach((to, from, next) => {
 // 인증 및 권한 관련 네비게이션 가드
 router.beforeEach((to, from, next) => {
   // 로그인 페이지는 인증 없이 접근 가능
-  const publicRoutes = ['/login', '/'];
+  const publicRoutes = [
+    '/login',
+    '/',
+    '/name-input',
+    '/email-input',
+    '/password-input',
+    '/phone-input',
+  ];
   if (publicRoutes.includes(to.path)) {
     next();
     return;
