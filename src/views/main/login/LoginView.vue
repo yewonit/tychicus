@@ -209,10 +209,15 @@
         this.isNavigating = true;
 
         try {
-          this.$router.push({
+          await this.$router.push({
             name: 'NameInputView',
             query: { isPasswordRecovery },
           });
+        } catch (error) {
+          // NavigationDuplicated 에러는 무시 (같은 페이지로 이동할 때 발생)
+          if (error.name !== 'NavigationDuplicated') {
+            console.error('Navigation error:', error);
+          }
         } finally {
           // 500ms 후 플래그 리셋
           setTimeout(() => {
