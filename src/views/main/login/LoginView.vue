@@ -53,7 +53,6 @@
               class="text-decoration-none mobile-touch-btn"
               color="primary"
               @click="fnNameInput(false)"
-              @touchstart="fnNameInput(false)"
             >
               이메일과 비밀번호가 없나요?
             </v-btn>
@@ -66,7 +65,6 @@
               class="text-decoration-none mobile-touch-btn"
               color="primary"
               @click="fnNameInput(true)"
-              @touchstart="fnNameInput(true)"
             >
               비밀번호를 잃어버렸어요.
             </v-btn>
@@ -206,7 +204,6 @@
       },
 
       async fnNameInput(isPasswordRecovery) {
-        alert('눌림');
         // 중복 실행 방지
         if (this.isNavigating) return;
         this.isNavigating = true;
@@ -230,16 +227,21 @@
 <style scoped>
   /* 모바일 터치 버튼 스타일 */
   .mobile-touch-btn {
+    /* 300ms 터치 지연 제거 및 더블탭 줌 방지 */
     touch-action: manipulation;
+    /* 터치 시 선택/복사 방지 */
     -webkit-touch-callout: none;
     -webkit-user-select: none;
     -khtml-user-select: none;
     -moz-user-select: none;
     -ms-user-select: none;
     user-select: none;
+    /* 커서 및 레이어 설정 */
     cursor: pointer;
     position: relative;
     z-index: 1;
+    /* 터치 영역 최적화 */
+    -webkit-tap-highlight-color: transparent;
   }
 
   /* 모바일에서 버튼 터치 영역 최적화 */
