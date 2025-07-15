@@ -5,6 +5,27 @@
       <!-- 상단 컨텐츠 -->
       <v-col cols="12" class="text-center mt-16 px-15">
         <!-- 아이콘 -->
+        <v-col cols="12" sm="6" class="pa-1 pa-sm-0">
+          <v-btn
+            text
+            class="text-decoration-none"
+            color="primary"
+            @click="$router.push('/name-input')"
+          >
+            이메일과 비밀번호가 없나요?1
+          </v-btn>
+        </v-col>
+        <br />
+        <v-col cols="12">
+          <v-btn
+            text
+            class="text-decoration-none"
+            color="primary"
+            @click="$router.push('/name-input')"
+          >
+            이메일과 비밀번호가 없나요?2
+          </v-btn>
+        </v-col>
         <v-icon size="150" class="mb-10 fadeIn" color="#262626">
           mdi-account-circle
         </v-icon>
