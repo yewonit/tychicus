@@ -11,7 +11,7 @@
               text
               class="text-decoration-none"
               color="primary"
-              @click="() => alert('눌림1')"
+              @click="showAlert"
             >
               이메일과 비밀번호가 없나요?1
             </v-btn>
@@ -21,7 +21,7 @@
               text
               class="text-decoration-none"
               color="primary"
-              @click="() => alert('눌림2')"
+              @click="showAlert"
             >
               이메일과 비밀번호가 없나요?2
             </v-btn>
@@ -193,6 +193,10 @@
     methods: {
       // Vuex 저장소의 "auth" 모듈에서 "setUserName" 액션을 매핑합니다.
       ...mapActions('auth', ['setUserName', 'setUserList']),
+
+      showAlert() {
+        window.alert('눌림'); // 또는 그냥 alert('눌림')
+      },
 
       // 사용자 이름 중복 체크를 수행하는 비동기 메서드입니다.
       async fnLogin() {
