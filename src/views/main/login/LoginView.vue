@@ -48,9 +48,12 @@
           <v-col cols="12" sm="6" class="pa-1 pa-sm-0">
             <v-btn
               text
-              class="text-decoration-none"
+              block
+              min-height="44"
+              class="text-decoration-none mobile-touch-btn"
               color="primary"
-              @click="fnNameInput()"
+              @click="fnNameInput(false)"
+              @touchstart="fnNameInput(false)"
             >
               이메일과 비밀번호가 없나요?
             </v-btn>
@@ -58,9 +61,12 @@
           <v-col cols="12" sm="6" class="pa-1 pa-sm-0">
             <v-btn
               text
-              class="text-decoration-none"
+              block
+              min-height="44"
+              class="text-decoration-none mobile-touch-btn"
               color="primary"
               @click="fnNameInput(true)"
+              @touchstart="fnNameInput(true)"
             >
               비밀번호를 잃어버렸어요.
             </v-btn>
@@ -141,6 +147,8 @@
         showPassword: false,
         // 로그인 관련 안내 메세지
         loginCheckMessage: '',
+        // 네비게이션 중복 실행 방지
+        isNavigating: false,
       };
     },
 
@@ -155,9 +163,6 @@
 
     // 컴포넌트가 마운트될 때 호출되는 라이프사이클 훅입니다.
     mounted() {
-      document.addEventListener('click', (e) => {
-        console.log('Clicked element:', e.target);
-      });
       // 유저 프로필 이미지를 불러오는 로직을 여기에 추가할 수 있습니다.
     },
 
@@ -200,16 +205,54 @@
         }
       },
 
-      fnNameInput(isPasswordRecovery = false) {
-        this.$router.push({
-          name: 'NameInputView',
-          query: { isPasswordRecovery },
-        });
+      async fnNameInput(isPasswordRecovery) {
+        // 중복 실행 방지
+        if (this.isNavigating) return;
+        this.isNavigating = true;
+
+        try {
+          this.$router.push({
+            name: 'NameInputView',
+            query: { isPasswordRecovery },
+          });
+        } finally {
+          // 500ms 후 플래그 리셋
+          setTimeout(() => {
+            this.isNavigating = false;
+          }, 500);
+        }
       },
     },
   };
 </script>
 
 <style scoped>
-  /* 스타일은 Vuetify 클래스를 사용하여 이미 정의되어 있으므로 추가적인 스타일링이 필요하지 않을 수 있습니다. 필요하다면 여기에 추가하세요. */
+  /* 모바일 터치 버튼 스타일 */
+  .mobile-touch-btn {
+    touch-action: manipulation;
+    -webkit-touch-callout: none;
+    -webkit-user-select: none;
+    -khtml-user-select: none;
+    -moz-user-select: none;
+    -ms-user-select: none;
+    user-select: none;
+    cursor: pointer;
+    position: relative;
+    z-index: 1;
+  }
+
+  /* 모바일에서 버튼 터치 영역 최적화 */
+  @media (max-width: 600px) {
+    .mobile-touch-btn {
+      min-height: 48px !important;
+      padding: 12px 16px !important;
+      font-size: 14px !important;
+    }
+  }
+
+  /* 터치 시 시각적 피드백 */
+  .mobile-touch-btn:active {
+    transform: scale(0.98);
+    background-color: rgba(126, 163, 148, 0.1) !important;
+  }
 </style>
