@@ -5,29 +5,6 @@
       <!-- 상단 컨텐츠 -->
       <v-col cols="12" class="text-center mt-16 px-15">
         <!-- 아이콘 -->
-        <v-row>
-          <v-col cols="12" sm="6" class="pa-1 pa-sm-0">
-            <v-btn
-              text
-              class="text-decoration-none"
-              color="primary"
-              @click="showAlert"
-            >
-              이메일과 비밀번호가 없나요?1
-            </v-btn>
-          </v-col>
-          <v-col cols="12">
-            <v-btn
-              text
-              class="text-decoration-none"
-              color="primary"
-              @click="showAlert"
-            >
-              이메일과 비밀번호가 없나요?2
-            </v-btn>
-          </v-col>
-        </v-row>
-
         <v-icon size="150" class="mb-10 fadeIn" color="#262626">
           mdi-account-circle
         </v-icon>
@@ -73,7 +50,12 @@
               text
               class="text-decoration-none"
               color="primary"
-              @click="$router.push('/name-input')"
+              @click="
+                () => {
+                  document.activeElement && document.activeElement.blur(); // 포커스 해제
+                  $router.push('/name-input').catch(() => {});
+                }
+              "
             >
               이메일과 비밀번호가 없나요?
             </v-btn>
@@ -84,10 +66,15 @@
               class="text-decoration-none"
               color="primary"
               @click="
-                $router.push({
-                  name: 'NameInputView',
-                  query: { isPasswordRecovery: true },
-                })
+                () => {
+                  document.activeElement && document.activeElement.blur(); // 포커스 해제
+                  $router
+                    .push({
+                      name: 'NameInputView',
+                      query: { isPasswordRecovery: true },
+                    })
+                    .catch(() => {}); // 중복 이동 등 예외 무시
+                }
               "
             >
               비밀번호를 잃어버렸어요.
@@ -193,11 +180,6 @@
     methods: {
       // Vuex 저장소의 "auth" 모듈에서 "setUserName" 액션을 매핑합니다.
       ...mapActions('auth', ['setUserName', 'setUserList']),
-
-      showAlert() {
-        window.alert('눌림'); // 또는 그냥 alert('눌림')
-      },
-
       // 사용자 이름 중복 체크를 수행하는 비동기 메서드입니다.
       async fnLogin() {
         const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
@@ -237,10 +219,5 @@
 </script>
 
 <style scoped>
-  .v-btn {
-    z-index: 9999 !important;
-    background: rgba(255, 0, 0, 0.2); /* 시각화 */
-    pointer-events: auto !important;
-  }
   /* 스타일은 Vuetify 클래스를 사용하여 이미 정의되어 있으므로 추가적인 스타일링이 필요하지 않을 수 있습니다. 필요하다면 여기에 추가하세요. */
 </style>
