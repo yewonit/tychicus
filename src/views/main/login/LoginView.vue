@@ -50,7 +50,7 @@
               text
               class="text-decoration-none"
               color="primary"
-              @click="fnNameInput()"
+              @click="fnNameInput(false)"
             >
               이메일과 비밀번호가 없나요?
             </v-btn>
@@ -200,7 +200,8 @@
         }
       },
 
-      fnNameInput(isPasswordRecovery = false) {
+      async fnNameInput(isPasswordRecovery) {
+        alert('눌림');
         this.$router.push({
           name: 'NameInputView',
           query: { isPasswordRecovery },
