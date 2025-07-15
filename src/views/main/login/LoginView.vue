@@ -50,12 +50,7 @@
               text
               class="text-decoration-none"
               color="primary"
-              @click="
-                () => {
-                  document.activeElement && document.activeElement.blur(); // 포커스 해제
-                  $router.push('/name-input').catch(() => {});
-                }
-              "
+              @click="fnNameInput()"
             >
               이메일과 비밀번호가 없나요?
             </v-btn>
@@ -65,17 +60,7 @@
               text
               class="text-decoration-none"
               color="primary"
-              @click="
-                () => {
-                  document.activeElement && document.activeElement.blur(); // 포커스 해제
-                  $router
-                    .push({
-                      name: 'NameInputView',
-                      query: { isPasswordRecovery: true },
-                    })
-                    .catch(() => {}); // 중복 이동 등 예외 무시
-                }
-              "
+              @click="fnNameInput(true)"
             >
               비밀번호를 잃어버렸어요.
             </v-btn>
@@ -213,6 +198,13 @@
           console.error('Login error:', error.message);
           this.loginCheckMessage = '로그인 중 오류가 발생했습니다.';
         }
+      },
+
+      fnNameInput(isPasswordRecovery = false) {
+        this.$router.push({
+          name: 'NameInputView',
+          query: { isPasswordRecovery },
+        });
       },
     },
   };
