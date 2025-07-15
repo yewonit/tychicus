@@ -206,6 +206,7 @@
       },
 
       async fnNameInput(isPasswordRecovery) {
+        alert('눌림');
         // 중복 실행 방지
         if (this.isNavigating) return;
         this.isNavigating = true;
