@@ -475,15 +475,15 @@
 </template>
 
 <script>
-  import { AWSS3Ctrl } from '@/mixins/apis_v2/external/AWSS3Ctrl.js';
-import { AttendanceCtrl } from '@/mixins/apis_v2/internal/domainCtrl/AttendanceCtrl';
-import { CurrentMemberCtrl } from '@/mixins/apis_v2/internal/domainCtrl/CurrentMemberCtrl';
-import { FileBins } from '@/mixins/apis_v2/internal/FileBins';
-import { MasterCtrl } from '@/mixins/apis_v2/internal/MasterCtrl';
-import { Utility } from '@/mixins/apis_v2/utility/Utility';
-import { dateTimeUtils } from '@/utils/dateTimeUtils';
-import moment from 'moment-timezone';
-import { mapState } from 'vuex';
+import { AWSS3Ctrl } from "@/mixins/apis_v2/external/AWSS3Ctrl.js";
+import { AttendanceCtrl } from "@/mixins/apis_v2/internal/domainCtrl/AttendanceCtrl";
+import { CurrentMemberCtrl } from "@/mixins/apis_v2/internal/domainCtrl/CurrentMemberCtrl";
+import { FileBins } from "@/mixins/apis_v2/internal/FileBins";
+import { MasterCtrl } from "@/mixins/apis_v2/internal/MasterCtrl";
+import { Utility } from "@/mixins/apis_v2/utility/Utility";
+import { dateTimeUtils } from "@/utils/dateTimeUtils";
+import moment from "moment-timezone";
+import { mapState } from "vuex";
 
   export default {
     name: 'MeetingRegistrationView',
@@ -735,27 +735,24 @@ import { mapState } from 'vuex';
 
           console.log('🏢 현재 조직 ID:', this.currentOrganizationId);
 
-          const response = await this.getOrganizationActivities(
-            this.currentOrganizationId,
-            true
-          );
+        const response = await this.getActivities(true);
 
           console.log('📥 API 응답 데이터:', response);
 
-          if (
-            response &&
-            response.activities &&
-            Array.isArray(response.activities)
-          ) {
-            console.log('✅ 활동 데이터 유효성 검사 통과');
-            console.log('📋 원본 활동 데이터:', response.activities);
+        if (
+          response &&
+          response.data &&
+          Array.isArray(response.data)
+        ) {
+          console.log("✅ 활동 데이터 유효성 검사 통과");
+          console.log("📋 원본 활동 데이터:", response.data);
 
-            this.activities = response.activities.map((activity) => ({
-              id: activity.id,
-              name: activity.name,
-              category: activity.category,
-              description: activity.description,
-            }));
+          this.activities = response.data.map((activity) => ({
+            id: activity.id,
+            name: activity.name,
+            description: activity.description,
+            category: activity.activityCategory,
+          }));
 
             console.log('🔄 변환된 활동 데이터:', this.activities);
           } else {

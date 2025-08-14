@@ -382,14 +382,14 @@
 
 <script>
   import moment from 'moment';
-  import 'moment/locale/ko';
-  import { mapGetters } from 'vuex';
+import 'moment/locale/ko';
+import { mapGetters } from 'vuex';
 
-  // OrganizationManagementView.vue에서 사용하는 믹스인 참조
-  import { OrganizationCtrl } from '@/mixins/apis_v2/internal/domainCtrl/OrganizationCtrl';
-  import { MasterCtrl } from '@/mixins/apis_v2/internal/MasterCtrl';
-  import { CurrentMemberCtrl } from '@/mixins/apis_v2/internal/domainCtrl/CurrentMemberCtrl';
-  import { AttendanceCtrl } from '@/mixins/apis_v2/internal/domainCtrl/AttendanceCtrl';
+// OrganizationManagementView.vue에서 사용하는 믹스인 참조
+import { AttendanceCtrl } from "@/mixins/apis_v2/internal/domainCtrl/AttendanceCtrl";
+import { CurrentMemberCtrl } from "@/mixins/apis_v2/internal/domainCtrl/CurrentMemberCtrl";
+import { OrganizationCtrl } from "@/mixins/apis_v2/internal/domainCtrl/OrganizationCtrl";
+import { MasterCtrl } from "@/mixins/apis_v2/internal/MasterCtrl";
 
   // 추가: ExcelJS 라이브러리 import
   import { saveAs } from 'file-saver';
@@ -837,9 +837,9 @@
         try {
           // console.log(`조직 ID ${orgId}의 모임 데이터 로딩 시작`);
 
-          // MeetingHistoryView.vue 참고: 활동 및 인스턴스 가져오기
-          const response = await this.getOrganizationActivities(orgId, true);
-          let meetings = [];
+        // TODO: instance 가져오는 메서드임. 다른 api로 수정 필요
+        const response = await this.getActivities(true);
+        let meetings = [];
 
           if (
             response &&
@@ -1510,9 +1510,9 @@
           this.loadingMeetings = true;
           console.log(`조직 ID ${orgId}의 모임 데이터 로드 시작`);
 
-          // MeetingHistoryView.vue 참고: API 호출 패턴 적용
-          const response = await this.getOrganizationActivities(orgId, true);
-          let meetings = [];
+        // TODO: instance 가져오는 메서드임. 다른 api로 수정 필요
+        const response = await this.getActivities(true);
+        let meetings = [];
 
           if (
             response &&

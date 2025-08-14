@@ -32,17 +32,9 @@ export const AttendanceCtrl = {
      * @param {Boolean} showLog 조회 결과를 로그에 표시할지 여부
      * @returns {Array} 조직의 활동 목록 (array: 성공, {result:0}: 실패)
      */
-    async getOrganizationActivities(organizationId, showLog) {
-      if (showLog) {
-        console.log(
-          `%c[ Mixin : AttendanceCtrl ] getOrganizationActivities() organizationId: ${organizationId}`,
-          `color: #6495ED;`
-        );
-      }
+    async getActivities(showLog) {
       try {
-        const res = await axiosClient.api.get(
-          `/${this.Organization_EP}/${organizationId}/${this.Activity_EP}`
-        );
+        const res = await axiosClient.api.get(`/${this.Activity_EP}`);
         let returnData = res.data;
         if (showLog) {
           console.log(`%c[ return ] :`, `color: #6495ED;`, returnData);

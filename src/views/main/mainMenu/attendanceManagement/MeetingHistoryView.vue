@@ -118,55 +118,57 @@
 
 <script>
   import { AttendanceCtrl } from '@/mixins/apis_v2/internal/domainCtrl/AttendanceCtrl';
-  import { mapGetters } from 'vuex';
+import { mapGetters } from 'vuex';
 
-  export default {
-    name: 'MeetingHistoryView',
-    mixins: [AttendanceCtrl],
-    data() {
-      return {
-        meetings: [],
-        basicImage: require('@/assets/images/basic_image.png'),
-        dialog: false,
-        dialogMessage: '',
-        loading: false,
-      };
-    },
-    computed: {
-      ...mapGetters({
-        userInfo: 'auth/userInfo',
-      }),
-      currentOrganizationId() {
-        if (
-          this.userInfo &&
-          this.userInfo.roles &&
-          this.userInfo.roles.length > 0
-        ) {
-          return this.userInfo.roles[0].organizationId;
-        }
-        return null;
-      },
-    },
-    created() {
-      if (this.currentOrganizationId) {
-        this.fetchMeetings();
-      } else {
-        console.error('조직 ID를 찾을 수 없습니다.');
+export default {
+  name: "MeetingHistoryView",
+  mixins: [AttendanceCtrl],
+  data() {
+    return {
+      meetings: [],
+      basicImage: require("@/assets/images/basic_image.png"),
+      dialog: false,
+      dialogMessage: "",
+      loading: false,
+    };
+  },
+  computed: {
+    ...mapGetters({
+      userInfo: "auth/userInfo",
+    }),
+    currentOrganizationId() {
+      if (
+        this.userInfo &&
+        this.userInfo.roles &&
+        this.userInfo.roles.length > 0
+      ) {
+        return this.userInfo.roles[0].organizationId;
       }
+      return null;
     },
-    methods: {
-      async fetchMeetings() {
-        console.log('🚀 미팅 정보 조회를 시작합니다.');
-        this.loading = true;
-        try {
-          console.log(
-            `📊 조직 ID ${this.currentOrganizationId}에 대한 활동 정보를 요청합니다.`
-          );
-          const response = await this.getOrganizationActivities(
-            this.currentOrganizationId,
-            true
-          );
-          console.log('✅ 활동 정보 요청 완료:', response);
+  },
+  created() {
+    if (this.currentOrganizationId) {
+      this.fetchMeetings();
+    } else {
+      console.error("조직 ID를 찾을 수 없습니다.");
+    }
+  },
+  methods: {
+    async fetchMeetings() {
+      console.log("🚀 미팅 정보 조회를 시작합니다.");
+      this.loading = true;
+      try {
+        console.log(
+          `📊 조직 ID ${this.currentOrganizationId}에 대한 활동 정보를 요청합니다.`
+        );
+
+        // TODO: instance 가져오는 메서드임. 다른 api로 수정 필요
+        const response = await this.getOrganizationActivities(
+          this.currentOrganizationId,
+          true
+        );
+        console.log("✅ 활동 정보 요청 완료:", response);
 
           if (
             response &&
