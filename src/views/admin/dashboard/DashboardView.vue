@@ -572,14 +572,13 @@
 </template>
 
 <script>
-  import { MasterCtrl } from '@/mixins/apis_v2/internal/MasterCtrl';
-  import { OrganizationCtrl } from '@/mixins/apis_v2/internal/domainCtrl/OrganizationCtrl';
-  import { AttendanceCtrl } from '@/mixins/apis_v2/internal/domainCtrl/AttendanceCtrl';
-  import { CurrentMemberCtrl } from '@/mixins/apis_v2/internal/domainCtrl/CurrentMemberCtrl';
-  import moment from 'moment';
   import AttendanceChartSection from '@/components/admin/dashboard/AttendanceChartSection.vue';
+  import { MasterCtrl } from '@/mixins/apis_v2/internal/MasterCtrl';
+  import { AttendanceCtrl } from '@/mixins/apis_v2/internal/domainCtrl/AttendanceCtrl';
+  import { OrganizationCtrl } from '@/mixins/apis_v2/internal/domainCtrl/OrganizationCtrl';
   import ExcelJS from 'exceljs';
   import { saveAs } from 'file-saver';
+  import moment from 'moment';
 
   export default {
     name: 'AdminDashboard',
@@ -1047,13 +1046,8 @@
             // 조직 경로 찾기
             const orgPath = this.findOrganizationPath(org.id);
 
-            // 🐌 API 요청 간 지연 추가 (Race Condition 방지)
-            if (processedCount > 1) {
-              await new Promise((resolve) => setTimeout(resolve, 50)); // 50ms 지연
-            }
-
-            // API에서 모임 정보 가져오기 (직렬 처리)
-            let response = await this.getOrganizationActivities(org.id, true);
+            // TODO: instance 가져오는 메서드임. 다른 api로 수정 필요
+            const response = await this.getActivities(org.id, true);
 
             // 🚨 중요: API 응답 검증 - 요청한 조직 ID와 응답 조직 ID가 일치하는지 확인
             if (

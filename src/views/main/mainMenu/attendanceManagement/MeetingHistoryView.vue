@@ -162,6 +162,8 @@
           console.log(
             `📊 조직 ID ${this.currentOrganizationId}에 대한 활동 정보를 요청합니다.`
           );
+
+          // TODO: instance 가져오는 메서드임. 다른 api로 수정 필요
           const response = await this.getOrganizationActivities(
             this.currentOrganizationId,
             true
