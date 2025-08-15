@@ -313,15 +313,15 @@
 </template>
 
 <script>
-  import { AWSS3Ctrl } from '@/mixins/apis_v2/external/AWSS3Ctrl.js';
-import { AttendanceCtrl } from '@/mixins/apis_v2/internal/domainCtrl/AttendanceCtrl';
-import { CurrentMemberCtrl } from '@/mixins/apis_v2/internal/domainCtrl/CurrentMemberCtrl';
-import { FileBins } from '@/mixins/apis_v2/internal/FileBins';
-import { MasterCtrl } from '@/mixins/apis_v2/internal/MasterCtrl';
-import { Utility } from '@/mixins/apis_v2/utility/Utility';
-import { dateTimeUtils } from '@/utils/dateTimeUtils';
-import moment from 'moment-timezone';
-import { mapState } from 'vuex';
+import { AWSS3Ctrl } from "@/mixins/apis_v2/external/AWSS3Ctrl.js";
+import { AttendanceCtrl } from "@/mixins/apis_v2/internal/domainCtrl/AttendanceCtrl";
+import { CurrentMemberCtrl } from "@/mixins/apis_v2/internal/domainCtrl/CurrentMemberCtrl";
+import { FileBins } from "@/mixins/apis_v2/internal/FileBins";
+import { MasterCtrl } from "@/mixins/apis_v2/internal/MasterCtrl";
+import { Utility } from "@/mixins/apis_v2/utility/Utility";
+import { dateTimeUtils } from "@/utils/dateTimeUtils";
+import moment from "moment-timezone";
+import { mapState } from "vuex";
 
   export default {
     name: 'AttendanceUpdateView',
@@ -633,20 +633,20 @@ import { mapState } from 'vuex';
             true // showLog
           );
 
-          if (response && response.result !== 0) {
-            console.log('모임 정보 업데이트 성공');
-            alert('모임 정보가 성공적으로 업데이트되었습니다.');
-            this.$router.push({ name: 'MeetingHistoryView' });
-          } else {
-            throw new Error('모임 정보 업데이트에 실패했습니다.');
-          }
-        } catch (error) {
-          console.error('❌ 모임 정보 수정 중 오류 발생:', error);
-          alert('모임 정보 수정에 실패했습니다. 다시 시도해 주세요.');
-        } finally {
-          this.isUploading = false; // 업로드 완료 또는 실패 시
+        if (response) {
+          console.log("모임 정보 업데이트 성공");
+          alert("모임 정보가 성공적으로 업데이트되었습니다.");
+          this.$router.push({ name: "MeetingHistoryView" });
+        } else {
+          throw new Error("모임 정보 업데이트에 실패했습니다.");
         }
-      },
+      } catch (error) {
+        console.error("❌ 모임 정보 수정 중 오류 발생:", error);
+        alert("모임 정보 수정에 실패했습니다. 다시 시도해 주세요.");
+      } finally {
+        this.isUploading = false; // 업로드 완료 또는 실패 시
+      }
+    },
 
       /**
        * 회원 목록 조회

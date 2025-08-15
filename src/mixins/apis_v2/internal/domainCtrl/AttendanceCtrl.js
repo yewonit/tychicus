@@ -113,11 +113,11 @@ export const AttendanceCtrl = {
         console.log(`🎯 activityId: ${activityId}`);
       }
       try {
-        const instanceUrl = `/${this.Organization_EP}/${organizationId}/${this.Activity_EP}/${activityId}/attendance`;
-        console.log('🌐 활동 인스턴스 생성 URL:', instanceUrl);
-        console.log('📦 instanceData:', instanceData);
-        console.log('👥 attendances:', attendances);
-        console.log('📸 imageInfo:', imageInfo);
+        const instanceUrl = `/${this.Activity_EP}?organizationId=${organizationId}&activityTemplateId=${activityId}`;
+        console.log("🌐 활동 인스턴스 생성 URL:", instanceUrl);
+        console.log("📦 instanceData:", instanceData);
+        console.log("👥 attendances:", attendances);
+        console.log("📸 imageInfo:", imageInfo);
 
         const requestData = {
           instanceData,
@@ -144,17 +144,6 @@ export const AttendanceCtrl = {
         );
         return { result: 0, error: error.message };
       }
-    },
-
-    // 출석 데이터 생성을 위한 헬퍼 메서드
-    createAttendanceData(userId, status, checkInTime, checkOutTime, note) {
-      return {
-        userId,
-        status,
-        check_in_time: checkInTime,
-        check_out_time: checkOutTime,
-        note,
-      };
     },
 
     /**
@@ -185,8 +174,8 @@ export const AttendanceCtrl = {
       }
 
       try {
-        const deleteUrl = `/organizations/${organizationId}/activities/${activityId}/instances/${activityInstanceId}`;
-        console.log('🌐 활동 인스턴스 삭제 URL:', deleteUrl);
+        const deleteUrl = `/activities/${activityInstanceId}`;
+        console.log("🌐 활동 인스턴스 삭제 URL:", deleteUrl);
 
         const res = await axiosClient.api.delete(deleteUrl);
         let returnData = res.data;
@@ -237,11 +226,11 @@ export const AttendanceCtrl = {
       }
 
       try {
-        const updateUrl = `/organizations/${organizationId}/activities/${activityId}/instances/${activityInstanceId}/attendance`;
-        console.log('🌐 출석 정보 업데이트 URL:', updateUrl);
-        console.log('📦 instanceData:', instanceData);
-        console.log('👥 attendances:', attendances);
-        console.log('📸 imageInfo:', imageInfo);
+        const updateUrl = `/activities/${activityInstanceId}`;
+        console.log("🌐 출석 정보 업데이트 URL:", updateUrl);
+        console.log("📦 instanceData:", instanceData);
+        console.log("👥 attendances:", attendances);
+        console.log("📸 imageInfo:", imageInfo);
 
         const requestData = { instanceData, attendances, imageInfo };
         const res = await axiosClient.api.put(updateUrl, requestData);
@@ -279,7 +268,7 @@ export const AttendanceCtrl = {
       }
 
       try {
-        const url = `/organizations/${organizationId}/activities/${activityId}/instances/${activityInstanceId}`;
+        const url = `/activities/${activityInstanceId}`;
         const res = await axiosClient.api.get(url);
         let returnData = res.data;
 

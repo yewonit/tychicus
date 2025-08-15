@@ -378,43 +378,43 @@ export default {
 
           console.log('삭제 응답:', response);
 
-          if (response && response.deletedActivityInstanceId) {
-            console.log(`✅ 모임 ID ${instanceId} 삭제 성공`);
-            this.showDialog(
-              `모임 "${meeting.activityName}"이(가) 성공적으로 삭제되었습니다.`
-            );
-            await this.fetchMeetings();
-          } else {
-            console.error(`❌ 모임 ID ${instanceId} 삭제 실패:`, response);
-            this.showDialog(
-              `모임 "${meeting.activityName}" 삭제에 실패했습니다. 다시 시도해 주세요.`
-            );
-          }
-        } catch (error) {
-          console.error(`🚨 모임 삭제 중 오류 발생:`, error);
-          this.showDialog(`모임 삭제 중 오류가 발생했습니다: ${error.message}`);
+        if (response) {
+          console.log(`✅ 모임 ID ${instanceId} 삭제 성공`);
+          this.showDialog(
+            `모임 "${meeting.activityName}"이(가) 성공적으로 삭제되었습니다.`
+          );
+          await this.fetchMeetings();
+        } else {
+          console.error(`❌ 모임 ID ${instanceId} 삭제 실패:`, response);
+          this.showDialog(
+            `모임 "${meeting.activityName}" 삭제에 실패했습니다. 다시 시도해 주세요.`
+          );
         }
-      },
-      async createNewMeeting() {
-        console.log('새 모임 생성');
-        const newActivity = {
-          name: '새 모임',
-          description: '새로운 모임 설명',
-          start_date: new Date().toISOString(),
-          end_date: new Date().toISOString(),
-          organization_id: this.currentOrganizationId,
-          category: '목장모임',
-        };
-        try {
-          await this.createActivity(newActivity, true);
-          this.fetchMeetings();
-        } catch (error) {
-          console.error('새 모임 생성 중 오류 발생:', error);
-        }
-      },
-      viewMeetingDetails(meeting) {
-        console.log('🔍 미팅 상세 정보 보기 시작');
-        console.log('📦 전달할 미팅 데이터:', meeting);
+      } catch (error) {
+        console.error(`🚨 모임 삭제 중 오류 발생:`, error);
+        this.showDialog(`모임 삭제 중 오류가 발생했습니다: ${error.message}`);
+      }
+    },
+    async createNewMeeting() {
+      console.log("새 모임 생성");
+      const newActivity = {
+        name: "새 모임",
+        description: "새로운 모임 설명",
+        start_date: new Date().toISOString(),
+        end_date: new Date().toISOString(),
+        organization_id: this.currentOrganizationId,
+        category: "목장모임",
+      };
+      try {
+        await this.createActivity(newActivity, true);
+        this.fetchMeetings();
+      } catch (error) {
+        console.error("새 모임 생성 중 오류 발생:", error);
+      }
+    },
+    viewMeetingDetails(meeting) {
+      console.log("🔍 미팅 상세 정보 보기 시작");
+      console.log("📦 전달할 미팅 데이터:", meeting);
 
         this.$router.push({
           name: 'MeetingDetailView',

@@ -905,19 +905,15 @@ import { mapState } from "vuex";
           // 모임 정보 저장 단계로 진행
           this.updateLoadingState(4, '모임 정보 저장 중...', 80);
 
-          // 개발 환경 체크 제거하고 바로 데이터 저장
-          const response = await this.recordAttendance(
-            this.finalData.organizationId,
-            this.finalData.activityId,
-            this.finalData.instanceData,
-            this.finalData.attendances,
-            this.finalData.imageInfo,
-            process.env.NODE_ENV === 'development' // showLog 파라미터는 유지
-          );
-
-          if (response.result === 0) {
-            throw new Error('출석 정보 저장에 실패했습니다.');
-          }
+        // 개발 환경 체크 제거하고 바로 데이터 저장
+        await this.recordAttendance(
+          this.finalData.organizationId,
+          this.finalData.activityId,
+          this.finalData.instanceData,
+          this.finalData.attendances,
+          this.finalData.imageInfo,
+          process.env.NODE_ENV === "development" // showLog 파라미터는 유지
+        );
 
           // 완료 단계로 진행
           this.updateLoadingState(5, '모임 정보 저장 완료', 100);
