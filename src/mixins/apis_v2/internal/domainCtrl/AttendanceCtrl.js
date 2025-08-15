@@ -113,7 +113,7 @@ export const AttendanceCtrl = {
         console.log(`🎯 activityId: ${activityId}`);
       }
       try {
-        const instanceUrl = `/${this.Organization_EP}/${organizationId}/${this.Activity_EP}/${activityId}/attendance`;
+        const instanceUrl = `/${this.Activity_EP}?organizationId=${organizationId}&activityTemplateId=${activityId}`;
         console.log('🌐 활동 인스턴스 생성 URL:', instanceUrl);
         console.log('📦 instanceData:', instanceData);
         console.log('👥 attendances:', attendances);
@@ -146,17 +146,6 @@ export const AttendanceCtrl = {
       }
     },
 
-    // 출석 데이터 생성을 위한 헬퍼 메서드
-    createAttendanceData(userId, status, checkInTime, checkOutTime, note) {
-      return {
-        userId,
-        status,
-        check_in_time: checkInTime,
-        check_out_time: checkOutTime,
-        note,
-      };
-    },
-
     /**
      * @description 활동 인스턴스 삭제 API
      * @param {Number} organizationId 조직 ID
@@ -185,7 +174,7 @@ export const AttendanceCtrl = {
       }
 
       try {
-        const deleteUrl = `/organizations/${organizationId}/activities/${activityId}/instances/${activityInstanceId}`;
+        const deleteUrl = `/activities/${activityInstanceId}`;
         console.log('🌐 활동 인스턴스 삭제 URL:', deleteUrl);
 
         const res = await axiosClient.api.delete(deleteUrl);
@@ -237,7 +226,7 @@ export const AttendanceCtrl = {
       }
 
       try {
-        const updateUrl = `/organizations/${organizationId}/activities/${activityId}/instances/${activityInstanceId}/attendance`;
+        const updateUrl = `/activities/${activityInstanceId}`;
         console.log('🌐 출석 정보 업데이트 URL:', updateUrl);
         console.log('📦 instanceData:', instanceData);
         console.log('👥 attendances:', attendances);
@@ -279,7 +268,7 @@ export const AttendanceCtrl = {
       }
 
       try {
-        const url = `/organizations/${organizationId}/activities/${activityId}/instances/${activityInstanceId}`;
+        const url = `/activities/${activityInstanceId}`;
         const res = await axiosClient.api.get(url);
         let returnData = res.data;
 

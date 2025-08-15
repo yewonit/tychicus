@@ -378,7 +378,7 @@
 
           console.log('삭제 응답:', response);
 
-          if (response && response.deletedActivityInstanceId) {
+          if (response) {
             console.log(`✅ 모임 ID ${instanceId} 삭제 성공`);
             this.showDialog(
               `모임 "${meeting.activityName}"이(가) 성공적으로 삭제되었습니다.`

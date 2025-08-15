@@ -313,15 +313,15 @@
 </template>
 
 <script>
-  import { mapState } from 'vuex';
-  import { MasterCtrl } from '@/mixins/apis_v2/internal/MasterCtrl';
-  import { FileBins } from '@/mixins/apis_v2/internal/FileBins';
-  import { Utility } from '@/mixins/apis_v2/utility/Utility';
-  import { CurrentMemberCtrl } from '@/mixins/apis_v2/internal/domainCtrl/CurrentMemberCtrl';
-  import { AttendanceCtrl } from '@/mixins/apis_v2/internal/domainCtrl/AttendanceCtrl';
   import { AWSS3Ctrl } from '@/mixins/apis_v2/external/AWSS3Ctrl.js';
-  import moment from 'moment-timezone';
+  import { AttendanceCtrl } from '@/mixins/apis_v2/internal/domainCtrl/AttendanceCtrl';
+  import { CurrentMemberCtrl } from '@/mixins/apis_v2/internal/domainCtrl/CurrentMemberCtrl';
+  import { FileBins } from '@/mixins/apis_v2/internal/FileBins';
+  import { MasterCtrl } from '@/mixins/apis_v2/internal/MasterCtrl';
+  import { Utility } from '@/mixins/apis_v2/utility/Utility';
   import { dateTimeUtils } from '@/utils/dateTimeUtils';
+  import moment from 'moment-timezone';
+  import { mapState } from 'vuex';
 
   export default {
     name: 'AttendanceUpdateView',
@@ -633,7 +633,7 @@
             true // showLog
           );
 
-          if (response && response.result !== 0) {
+          if (response) {
             console.log('모임 정보 업데이트 성공');
             alert('모임 정보가 성공적으로 업데이트되었습니다.');
             this.$router.push({ name: 'MeetingHistoryView' });
