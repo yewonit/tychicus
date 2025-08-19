@@ -32,16 +32,12 @@ export const AttendanceCtrl = {
      * @param {Boolean} showLog 조회 결과를 로그에 표시할지 여부
      * @returns {Array} 조직의 활동 목록 (array: 성공, {result:0}: 실패)
      */
-    async getActivities(organizationId = null, showLog = false) {
+    async getActivities(organizationId = null) {
       try {
         let url = `/${this.Activity_EP}?organizationId=${organizationId}`;
 
         const res = await axiosClient.api.get(url);
         let returnData = res.data;
-
-        if (showLog) {
-          console.log(`%c[ return ] :`, `color: #6495ED;`, returnData);
-        }
 
         // 데이터 가공 처리
         return this.processActivitiesData(returnData);
@@ -62,10 +58,10 @@ export const AttendanceCtrl = {
       // 응답 데이터 구조 검증 및 추출
       if (
         responseData &&
-        responseData.activities &&
-        Array.isArray(responseData.activities)
+        responseData.data &&
+        Array.isArray(responseData.data)
       ) {
-        activities = responseData.activities;
+        activities = responseData.data;
       } else if (Array.isArray(responseData)) {
         activities = responseData;
       } else {
@@ -124,9 +120,6 @@ export const AttendanceCtrl = {
           attendance.user_email,
         status: attendance.attendance_status || attendance.status || "",
         note: attendance.description || attendance.note || "",
-        // 백엔드에서 제공하지 않는 필드들 (필요)
-        // check_in_time: null, // 필요
-        // filePath: null, // 필요
       }));
     },
 
@@ -177,33 +170,48 @@ export const AttendanceCtrl = {
       formatMeetingTime,
       formatAttendances
     ) {
-      return activities.flatMap((activity) => {
-        // 출석 및 결석 인원 계산
-        const attendances = activity.attendances || [];
-        const presentCount = attendances.filter(
+      return activities.map((activity) => {
+        const organizationName = getOrganizationName(orgId);
+
+        const activityAttendances = activity.attendances;
+        const presentCount = activityAttendances.filter(
           (a) => a.status === "출석"
         ).length;
-        const absentCount = attendances.filter(
+        const absentCount = activityAttendances.filter(
           (a) => a.status === "결석"
         ).length;
-        const lateCount = attendances.filter((a) => a.status === "지각").length;
+        const lateCount = activityAttendances.filter(
+          (a) => a.status === "지각"
+        ).length;
+
+        const dateValue = activity.startDateTime || null;
 
         return {
+          // 기본/식별자
           id: activity.id,
           organization_id: orgId,
-          organization_name: getOrganizationName(orgId),
+          organization_name: organizationName,
+
+          // 표시용 필드 (기존 키 유지 + 별칭 추가)
           activity_name: activity.name,
-          meeting_date: activity.startDateTime || null,
-          meeting_time: formatMeetingTime(activity.startDateTime || null),
+          activityName: activity.name,
+          meeting_date: dateValue,
+          meeting_time: formatMeetingTime(dateValue),
+          date: dateValue,
           location: activity.location || "-",
+          image:
+            (activity.images &&
+              activity.images.length > 0 &&
+              activity.images[0].path) ||
+            require("@/assets/images/basic_image.png"),
+          createdAt: activity.created_at || activity.createdAt || null,
+          category: activity.category,
+
+          // 출결 집계 및 목록
           present_count: presentCount,
           absent_count: absentCount,
           late_count: lateCount,
-          attendances: formatAttendances(attendances),
-          image:
-            activity.images && activity.images.length > 0
-              ? activity.images[0].path
-              : require("@/assets/images/basic_image.png"),
+          attendances: formatAttendances(activityAttendances),
         };
       });
     },
