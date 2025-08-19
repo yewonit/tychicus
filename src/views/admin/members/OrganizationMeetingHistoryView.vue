@@ -569,15 +569,7 @@
             // console.log("API 응답이 직접 배열인 경우:", organizations.length);
           } else {
             console.error('API 응답 형식이 예상과 다릅니다:', response);
-            // 더미 데이터 사용
-            organizations = this.getDummyOrganizations();
             // console.log("더미 데이터 사용:", organizations.length);
-          }
-
-          // 유효한 조직 데이터가 있는지 확인
-          if (!organizations || organizations.length === 0) {
-            // console.log("조직 데이터가 없습니다. 더미 데이터를 사용합니다.");
-            organizations = this.getDummyOrganizations();
           }
 
           // 각 조직의 멤버 수 초기화
@@ -604,59 +596,11 @@
             '조직 정보를 불러오는 중 오류가 발생했습니다.'
           );
 
-          // 더미 데이터 사용
-          this.organizations = this.getDummyOrganizations();
           this.buildOrganizationTree();
           this.generateSampleMeetings();
         } finally {
           this.loadingOrganizations = false;
         }
-      },
-
-      getDummyOrganizations() {
-        return [
-          {
-            id: 1,
-            organization_name: '코람데오 청년선교회',
-            organization_code: 'CORAMDEO',
-            description:
-              '코람데오 청년선교회는 청년들의 신앙과 교제를 위한 조직입니다.',
-            upper_organization_id: null,
-            memberCount: 16,
-          },
-          {
-            id: 2,
-            organization_name: '코람데오_1국',
-            organization_code: 'CORAMDEO_DEPT1',
-            description: '코람데오 청년선교회 1국입니다.',
-            upper_organization_id: 1,
-            memberCount: 8,
-          },
-          {
-            id: 3,
-            organization_name: '코람데오_2국',
-            organization_code: 'CORAMDEO_DEPT2',
-            description: '코람데오 청년선교회 2국입니다.',
-            upper_organization_id: 1,
-            memberCount: 5,
-          },
-          {
-            id: 4,
-            organization_name: '코람데오_3국',
-            organization_code: 'CORAMDEO_DEPT3',
-            description: '코람데오 청년선교회 3국입니다.',
-            upper_organization_id: 1,
-            memberCount: 3,
-          },
-          {
-            id: 5,
-            organization_name: '코람데오_1국_1팀',
-            organization_code: 'CORAMDEO_DEPT1_TEAM1',
-            description: '코람데오 청년선교회 1국 1팀입니다.',
-            upper_organization_id: 2,
-            memberCount: 8,
-          },
-        ];
       },
 
       buildOrganizationTree() {
@@ -838,77 +782,16 @@
           // console.log(`조직 ID ${orgId}의 모임 데이터 로딩 시작`);
 
           // TODO: instance 가져오는 메서드임. 다른 api로 수정 필요
-          const response = await this.getActivities(true);
-          let meetings = [];
+          const activities = await this.getActivities(true);
 
-          if (
-            response &&
-            response.activities &&
-            Array.isArray(response.activities)
-          ) {
-            // console.log(`${response.activities.length}개의 활동을 처리합니다.`);
-
-            // 각 활동에서 인스턴스(모임) 가져오기
-            meetings = response.activities.flatMap((activity) => {
-              // console.log(`활동 "${activity.name}" 처리 중...`);
-              if (activity.instances && activity.instances.length > 0) {
-                // console.log(
-                //   `${activity.instances.length}개의 인스턴스를 발견했습니다.`
-                // );
-
-                return activity.instances.map((instance) => {
-                  // 출석 및 결석 인원 계산
-                  const attendances = instance.attendances || [];
-                  const presentCount = attendances.filter(
-                    (a) => a.status === '출석'
-                  ).length;
-                  const absentCount = attendances.filter(
-                    (a) => a.status === '결석'
-                  ).length;
-                  const lateCount = attendances.filter(
-                    (a) => a.status === '지각'
-                  ).length;
-
-                  // 출석한 사람들의 check_in_time 중 하나를 가져옴
-                  const presentAttendance = attendances.find(
-                    (a) => a.status === '출석' && a.check_in_time
-                  );
-                  const checkInTime = presentAttendance
-                    ? presentAttendance.check_in_time
-                    : null;
-
-                  return {
-                    id: instance.id,
-                    activityId: activity.id,
-                    organization_id: orgId,
-                    organization_name: this.getOrganizationName(orgId),
-                    activity_name: activity.name,
-                    meeting_date:
-                      checkInTime ||
-                      instance.start_datetime ||
-                      instance.startDateTime ||
-                      instance.created_at ||
-                      instance.date,
-                    meeting_time: this.formatMeetingTime(
-                      checkInTime ||
-                        instance.start_datetime ||
-                        instance.startDateTime
-                    ),
-                    location: instance.location || '-',
-                    present_count: presentCount,
-                    absent_count: absentCount,
-                    late_count: lateCount,
-                    attendances: this.formatAttendances(attendances),
-                    image:
-                      instance.images && instance.images.length > 0
-                        ? instance.images[0].filePath
-                        : require('@/assets/images/basic_image.png'),
-                  };
-                });
-              }
-              return [];
-            });
-          }
+          // 각 활동에서 인스턴스(모임) 가져오기
+          const meetings = this.processActivitiesForMeetingHistory(
+            activities,
+            orgId,
+            this.getOrganizationName,
+            this.formatMeetingTime,
+            this.formatAttendances
+          );
 
           // 해당 조직의 모임 카운트 업데이트
           const org = this.organizations.find((o) => o.id === orgId);
@@ -1511,77 +1394,16 @@
           console.log(`조직 ID ${orgId}의 모임 데이터 로드 시작`);
 
           // TODO: instance 가져오는 메서드임. 다른 api로 수정 필요
-          const response = await this.getActivities(true);
-          let meetings = [];
+          const activities = await this.getActivities(true);
 
-          if (
-            response &&
-            response.activities &&
-            Array.isArray(response.activities)
-          ) {
-            console.log(`${response.activities.length}개의 활동을 처리합니다.`);
-
-            // 각 활동에서 인스턴스(모임) 가져오기
-            meetings = response.activities.flatMap((activity) => {
-              console.log(`활동 "${activity.name}" 처리 중...`);
-              if (activity.instances && activity.instances.length > 0) {
-                console.log(
-                  `${activity.instances.length}개의 인스턴스를 발견했습니다.`
-                );
-
-                return activity.instances.map((instance) => {
-                  // 출석 및 결석 인원 계산
-                  const attendances = instance.attendances || [];
-                  const presentCount = attendances.filter(
-                    (a) => a.status === '출석'
-                  ).length;
-                  const absentCount = attendances.filter(
-                    (a) => a.status === '결석'
-                  ).length;
-                  const lateCount = attendances.filter(
-                    (a) => a.status === '지각'
-                  ).length;
-
-                  // 출석한 사람들의 check_in_time 중 하나를 가져옴
-                  const presentAttendance = attendances.find(
-                    (a) => a.status === '출석' && a.check_in_time
-                  );
-                  const checkInTime = presentAttendance
-                    ? presentAttendance.check_in_time
-                    : null;
-
-                  return {
-                    id: instance.id,
-                    activityId: activity.id,
-                    organization_id: orgId,
-                    organization_name: this.getOrganizationName(orgId),
-                    activity_name: activity.name,
-                    meeting_date:
-                      checkInTime ||
-                      instance.start_datetime ||
-                      instance.startDateTime ||
-                      instance.created_at ||
-                      instance.date,
-                    meeting_time: this.formatMeetingTime(
-                      checkInTime ||
-                        instance.start_datetime ||
-                        instance.startDateTime
-                    ),
-                    location: instance.location || '-',
-                    present_count: presentCount,
-                    absent_count: absentCount,
-                    late_count: lateCount,
-                    attendances: this.formatAttendances(attendances),
-                    image:
-                      instance.images && instance.images.length > 0
-                        ? instance.images[0].filePath
-                        : require('@/assets/images/basic_image.png'),
-                  };
-                });
-              }
-              return [];
-            });
-          }
+          // 각 활동에서 인스턴스(모임) 가져오기
+          const meetings = this.processActivitiesForMeetingHistory(
+            activities,
+            orgId,
+            this.getOrganizationName,
+            this.formatMeetingTime,
+            this.formatAttendances
+          );
 
           // 날짜 필터 적용
           if (this.startDate) {

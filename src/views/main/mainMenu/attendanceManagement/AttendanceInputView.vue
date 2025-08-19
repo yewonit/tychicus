@@ -726,24 +726,12 @@
        */
       async fetchActivities() {
         try {
-          console.log('📢 fetchActivities 함수 시작');
-
-          if (!this.currentOrganizationId) {
-            console.error('❌ 조직 ID를 찾을 수 없습니다.');
-            return;
-          }
-
-          console.log('🏢 현재 조직 ID:', this.currentOrganizationId);
-
-          const response = await this.getActivities(true);
+          const response = await this.getActivityTemplate(true);
 
           console.log('📥 API 응답 데이터:', response);
 
           if (response && response.data && Array.isArray(response.data)) {
-            console.log('✅ 활동 데이터 유효성 검사 통과');
-            console.log('📋 원본 활동 데이터:', response.data);
-
-            this.activities = response.data.map((activity) => ({
+            this.activities = response.map((activity) => ({
               id: activity.id,
               name: activity.name,
               description: activity.description,
