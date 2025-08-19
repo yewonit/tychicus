@@ -591,7 +591,7 @@
               block
               @click="updateWork()"
             >
-              <span class="wc-h5 white--text"> 산업 정보 수정 </span>
+              <span class="wc-h5 white--text">산업 정보 수정</span>
             </v-btn>
           </v-col>
           <v-spacer></v-spacer>
@@ -1173,7 +1173,7 @@
               block
               @click="updateWork()"
             >
-              <span class="wc-h5 white--text"> 산업 정보 수정 </span>
+              <span class="wc-h5 white--text">산업 정보 수정</span>
             </v-btn>
           </v-col>
           <v-spacer></v-spacer>
@@ -1184,1276 +1184,1283 @@
 </template>
 
 <script>
-import "@/styles/overrides.scss";
-import { mapState, mapActions } from "vuex";
+  import '@/styles/overrides.scss';
+  import { mapState, mapActions } from 'vuex';
 
-import { MasterCtrl } from "@/mixins/apis_v2/internal/MasterCtrl";
-import { FileBins } from "@/mixins/apis_v2/internal/FileBins";
-import { Utility } from "@/mixins/apis_v2/utility/Utility";
+  import { MasterCtrl } from '@/mixins/apis_v2/internal/MasterCtrl';
+  import { FileBins } from '@/mixins/apis_v2/internal/FileBins';
+  import { Utility } from '@/mixins/apis_v2/utility/Utility';
 
-export default {
-  data() {
-    return {
-      // 상테 데이터
-      isWorkExist: false,
-      logingDialog: false,
-      value: 0,
+  export default {
+    data() {
+      return {
+        // 상테 데이터
+        isWorkExist: false,
+        logingDialog: false,
+        value: 0,
 
-      // 산업 관련 데이터
-      workModel: {
-        id: 0,
-        user_id: "",
-        business_domain_lv1_idx: "",
-        business_domain_lv2_idx: "",
-        company_name: "",
-        job_domain_idx: "",
-        job_position_idx: "",
-        work_type: "",
-        work_description: "",
-        work_start_date: "",
-        work_end_date: "",
-        working_place_postcode: "",
-        working_place_address: "",
-        working_place_address_detail: "",
-        uri_instagram: "",
-        uri_homepage: "",
-        career_type: "",
-        tel: "",
-      },
-      // BUSINDESS KEYWORD
-      // Business Keywords data
-      businessKeywordList: [],
-      editedItemBusinessKeywords: "",
-
-      // FILE
-      workId: "",
-      key: "",
-      location: "",
-      fileId: 0,
-      // Representative Image
-      workRefImg: {
-        id: 0,
-        file_for: "",
-        file_name: "",
-        file_title: "",
-        file_description: "",
-        file_path: "",
-        file_size: "",
-        file_type: "",
-        fileName: "",
-        fileObject: null,
-        tempUrl: "",
-      },
-
-      // Portfolio List
-      portfolioList: [
-        {
+        // 산업 관련 데이터
+        workModel: {
           id: 0,
-          file_for: "",
-          file_name: "",
-          file_title: "",
-          file_description: "",
-          file_path: "",
-          file_size: "",
-          file_type: "",
-          fileName: "",
-          fileObject: null,
-          tempUrl: "",
+          user_id: '',
+          business_domain_lv1_idx: '',
+          business_domain_lv2_idx: '',
+          company_name: '',
+          job_domain_idx: '',
+          job_position_idx: '',
+          work_type: '',
+          work_description: '',
+          work_start_date: '',
+          work_end_date: '',
+          working_place_postcode: '',
+          working_place_address: '',
+          working_place_address_detail: '',
+          uri_instagram: '',
+          uri_homepage: '',
+          career_type: '',
+          tel: '',
         },
-        {
+        // BUSINDESS KEYWORD
+        // Business Keywords data
+        businessKeywordList: [],
+        editedItemBusinessKeywords: '',
+
+        // FILE
+        workId: '',
+        key: '',
+        location: '',
+        fileId: 0,
+        // Representative Image
+        workRefImg: {
           id: 0,
-          file_for: "",
-          file_name: "",
-          file_title: "",
-          file_description: "",
-          file_path: "",
-          file_size: "",
-          file_type: "",
-          fileName: "",
+          file_for: '',
+          file_name: '',
+          file_title: '',
+          file_description: '',
+          file_path: '',
+          file_size: '',
+          file_type: '',
+          fileName: '',
           fileObject: null,
-          tempUrl: "",
+          tempUrl: '',
         },
-        {
-          id: 0,
-          file_for: "",
-          file_name: "",
-          file_title: "",
-          file_description: "",
-          file_path: "",
-          file_size: "",
-          file_type: "",
-          fileName: "",
-          fileObject: null,
-          tempUrl: "",
-        },
-        {
-          id: 0,
-          file_for: "",
-          file_name: "",
-          file_title: "",
-          file_description: "",
-          file_path: "",
-          file_size: "",
-          file_type: "",
-          fileName: "",
-          fileObject: null,
-          tempUrl: "",
-        },
-        {
-          id: 0,
-          file_for: "",
-          file_name: "",
-          file_title: "",
-          file_description: "",
-          file_path: "",
-          file_size: "",
-          file_type: "",
-          fileName: "",
-          fileObject: null,
-          tempUrl: "",
-        },
-        {
-          id: 0,
-          file_for: "",
-          file_name: "",
-          file_title: "",
-          file_description: "",
-          file_path: "",
-          file_size: "",
-          file_type: "",
-          fileName: "",
-          fileObject: null,
-          tempUrl: "",
-        },
-      ],
 
-      // Image Holder
-      imageHolderWide: 100,
-
-      // Data for Env --------------------------------------------------------
-
-      // AWS-S3
-      albumBucketName: "wisechurch-t-1",
-      bucketRegion: "ap-northeast-2",
-      IdentityPoolId: "ap-northeast-2:5e8b852b-4649-4451-a8e1-a831049355a1",
-
-      // Data For Component Controls -----------------------------------------
-
-      // Data Control : DB저장형식 & 사용자 표현형식 치환을 위한 데이터 테이블
-      business_domain_lv1_table: [
-        { text: "서비스업", value: 100 },
-        { text: "금융∙은행업", value: 200 },
-        { text: "IT∙정보통신업", value: 300 },
-        { text: "판매유통업", value: 400 },
-        { text: "제조∙생산∙화학업", value: 500 },
-        { text: "교육업", value: 600 },
-        { text: "건설업", value: 700 },
-        { text: "의료∙제약업", value: 800 },
-        { text: "미디어∙광고업", value: 900 },
-        { text: "문화∙예술∙디자인업", value: 1000 },
-        { text: "기관∙협회", value: 1100 },
-      ],
-      business_domain_lv2_table: [],
-      business_domain_lv2_1_table: [
-        { text: "호텔∙여행∙항공", value: 101 },
-        { text: "음식료∙외식∙프랜차이즈", value: 102 },
-        { text: "스포츠∙여가∙레저", value: 103 },
-        { text: "뷰티∙미용", value: 104 },
-        { text: "콜센터∙아웃소싱∙기타", value: 105 },
-        { text: "정비∙A/S∙카센터", value: 106 },
-        { text: "렌탈∙임대∙리스", value: 107 },
-        { text: "서치펌∙헤드헌팅", value: 108 },
-        { text: "시설관리∙보안∙경비", value: 109 },
-        { text: "웨딩∙상조∙이벤트", value: 110 },
-      ],
-      business_domain_lv2_2_table: [
-        { text: "은행∙금융", value: 201 },
-        { text: "캐피탈∙대출", value: 202 },
-        { text: "증권∙보험∙카드", value: 203 },
-      ],
-      business_domain_lv2_3_table: [
-        { text: "솔루션∙SI∙CRM∙ERP", value: 301 },
-        { text: "웹에이전시", value: 302 },
-        { text: "쇼핑몰∙오픈마켓∙소셜커머스", value: 303 },
-        { text: "포털∙컨텐츠∙커뮤니티", value: 304 },
-        { text: "네트워크∙통신서비스", value: 305 },
-        { text: "정보보안", value: 306 },
-        { text: "컴퓨터∙하드웨어∙장비", value: 307 },
-        { text: "게임∙애니메이션", value: 308 },
-        { text: "모바일∙APP", value: 309 },
-        { text: "IT컨설팅", value: 310 },
-      ],
-      business_domain_lv2_4_table: [
-        { text: "백화점∙유통∙도소매", value: 301 },
-        { text: "무역∙상사", value: 302 },
-        { text: "물류∙운송∙배송", value: 303 },
-      ],
-      business_domain_lv2_5_table: [
-        { text: "전기∙전자∙제어", value: 501 },
-        { text: "반도체∙디스플레이∙광학", value: 502 },
-        { text: "기계∙기계설비", value: 503 },
-        { text: "자동차∙조선∙철강∙항공", value: 504 },
-        { text: "금속∙재료∙자재", value: 505 },
-        { text: "화학∙에너지∙환경", value: 506 },
-        { text: "섬유∙의류∙패션", value: 507 },
-        { text: "생활화학∙화장품", value: 508 },
-        { text: "생활용품∙소비재∙기타", value: 509 },
-        { text: "목재∙제자∙가구", value: 510 },
-        { text: "식품가공", value: 511 },
-        { text: "농축산∙어업∙임업", value: 512 },
-      ],
-      business_domain_lv2_6_table: [
-        { text: "학교(초∙중∙고∙대학∙특수)", value: 601 },
-        { text: "유아∙유치원∙어린이집", value: 602 },
-        { text: "학원∙어하원∙교육원", value: 603 },
-        { text: "학습지∙방문교육", value: 604 },
-      ],
-      business_domain_lv2_7_table: [
-        { text: "건축∙설비∙환경", value: 701 },
-        { text: "건설∙시공∙토목∙조경", value: 702 },
-        { text: "인테리어∙자재", value: 703 },
-        { text: "부동산∙중개∙임대", value: 704 },
-      ],
-      business_domain_lv2_8_table: [
-        { text: "의료(병원분류별)", value: 801 },
-        { text: "의료(진료과별)", value: 802 },
-        { text: "의료(간호∙원무∙상담)", value: 803 },
-        { text: "제약∙보건∙바이오", value: 804 },
-        { text: "사회복지∙요양", value: 805 },
-      ],
-      business_domain_lv2_9_table: [
-        { text: "방송∙케이블∙프로덕션", value: 901 },
-        { text: "신문∙잡지∙언론사", value: 902 },
-        { text: "광고∙홍보∙전시", value: 903 },
-        { text: "영화∙음반∙배급", value: 904 },
-        { text: "연예∙엔터테인먼트", value: 905 },
-        { text: "출판∙인쇄∙사진", value: 906 },
-      ],
-      business_domain_lv2_10_table: [
-        { text: "문화∙공연∙예술", value: 1001 },
-        { text: "디자인∙CAD", value: 1002 },
-      ],
-      business_domain_lv2_11_table: [
-        { text: "공기업∙공공기관", value: 1101 },
-        { text: "협회∙단체", value: 1102 },
-        { text: "컨설팅∙연구∙조사", value: 1103 },
-        { text: "회계∙세무∙법무", value: 1104 },
-        { text: "연예∙엔터테인먼트", value: 1105 },
-        { text: "출판∙인쇄∙사진", value: 1106 },
-      ],
-      business_domain_table: [
-        { text: "건설", value: 100 },
-        { text: "경찰", value: 200 },
-        { text: "공공", value: 300 },
-        { text: "공기업", value: 400 },
-        { text: "공연예술", value: 500 },
-        { text: "광고 & 마케팅", value: 600 },
-        { text: "교육", value: 700 },
-        { text: "상담", value: 800 },
-        { text: "기관 & 협회", value: 900 },
-        { text: "유통 & 물류", value: 1000 },
-        { text: "문화 & 예술", value: 1100 },
-        { text: "미디어", value: 1200 },
-        { text: "디자인", value: 1300 },
-        { text: "방송", value: 1400 },
-        { text: "행사", value: 1500 },
-        { text: "법률 & 법조", value: 1600 },
-        { text: "부동산", value: 1700 },
-        { text: "사회복지", value: 1800 },
-        { text: "서비스", value: 1900 },
-        { text: "세관", value: 2000 },
-        { text: "세무 & 회계", value: 2100 },
-        { text: "스포츠", value: 2200 },
-        { text: "식품", value: 2300 },
-        { text: "에너지", value: 2400 },
-        { text: "애니메이션", value: 2500 },
-        { text: "연구개발", value: 2600 },
-        { text: "연예계", value: 2700 },
-        { text: "은행 & 금융", value: 2800 },
-        { text: "음악", value: 2900 },
-        { text: "의료", value: 3000 },
-        { text: "제약", value: 3100 },
-        { text: "패션 & 의류", value: 3200 },
-        { text: "제조 & 화학", value: 3300 },
-        { text: "춤 & 댄스", value: 3400 },
-        { text: "판매 & 유통", value: 3500 },
-        { text: "항공", value: 3600 },
-        { text: "해충 & 방역", value: 3700 },
-        { text: "감사 & 컨설팅", value: 3800 },
-        { text: "IT & 웹", value: 3900 },
-        { text: "통신", value: 4000 },
-      ],
-      job_domain_table: [
-        { text: "IT & 인터넷", value: 100 },
-        { text: "감정 & 평가", value: 200 },
-        { text: "건설", value: 300 },
-        { text: "경영 & 사무", value: 400 },
-        { text: "경찰", value: 500 },
-        { text: "교육", value: 600 },
-        { text: "군인", value: 700 },
-        { text: "디자인", value: 800 },
-        { text: "마케팅", value: 900 },
-        { text: "문화예술", value: 1000 },
-        { text: "미디어", value: 1100 },
-        { text: "법무 & 법조", value: 1200 },
-        { text: "부동산", value: 1300 },
-        { text: "사회복지", value: 1400 },
-        { text: "상담", value: 1500 },
-        { text: "생산 & 제조", value: 1600 },
-        { text: "서비스", value: 1700 },
-        { text: "세관", value: 1800 },
-        { text: "세무 & 회계", value: 1900 },
-        { text: "스포츠", value: 2000 },
-        { text: "심리상담", value: 2100 },
-        { text: "안전 & 환경", value: 2200 },
-        { text: "연구", value: 2300 },
-        { text: "연예", value: 2400 },
-        { text: "영업 & 고객상담", value: 2500 },
-        { text: "요식업", value: 2600 },
-        { text: "유통 & 무역", value: 2700 },
-        { text: "음악", value: 2800 },
-        { text: "의료", value: 2900 },
-        { text: "인사", value: 3000 },
-        { text: "소매 & 도매", value: 3100 },
-        { text: "컨설팅", value: 3200 },
-        { text: "특수계층 & 공공", value: 3300 },
-        { text: "항공", value: 3400 },
-      ],
-      job_position_table: [
-        { text: "미등록", value: 0 },
-        { text: "대표", value: 100 },
-        // { text: "회장", value: 101 },
-        // { text: "회장", value: 1 },
-        // { text: "대표", value: 102 },
-        // { text: "대표", value: 2 },
-        // { text: "공동대표", value: 103 },
-        // { text: "공동대표", value: 3 },
-        { text: "임원", value: 200 },
-        // { text: "이사", value: 201 },
-        // { text: "이사", value: 4 },
-        // { text: "사장", value: 202 },
-        // { text: "사장", value: 5 },
-        // { text: "부사장", value: 203 },
-        // { text: "부사장", value: 6 },
-        // { text: "전무", value: 204 },
-        // { text: "전무", value: 7 },
-        // { text: "상무", value: 205 },
-        // { text: "상무", value: 8 },
-        // { text: "상무보", value: 206 },
-        // { text: "상무보", value: 9 },
-        { text: "중간관리자(부차과장 등)", value: 300 },
-        // { text: "부장", value: 301 },
-        // { text: "부장", value: 10 },
-        // { text: "차장", value: 302 },
-        // { text: "차장", value: 11 },
-        // { text: "과장", value: 303 },
-        // { text: "과장", value: 12 },
-        { text: "대리", value: 13 },
-        { text: "주임", value: 14 },
-        { text: "매니저", value: 15 },
-        { text: "사원", value: 16 },
-        // { text: "사원", value: 15 },
-        { text: "인턴", value: 17 },
-        // { text: "인턴", value: 16 },
-        { text: "프리렌서", value: 18 },
-        // { text: "프리렌서", value: 17 },
-      ],
-      work_table: [
-        { text: "법인사업자", value: "CB" },
-        { text: "개인사업자", value: "PB" },
-        { text: "협회 및 단체", value: "EP" },
-        { text: "정규직 직원", value: "RE" },
-        { text: "계약직 직원", value: "TE" },
-        { text: "아르바이트", value: "AB" },
-        { text: "프리렌서", value: "FR" },
-        { text: "기타", value: "EC" },
-      ],
-      authority_table_table: [
-        { text: "일반회원", value: "1" },
-        { text: "비즈니스등록회원", value: "2" },
-        { text: "정회원", value: "3" },
-        { text: "일반관리자A", value: "4" },
-        { text: "일반관리자B", value: "5" },
-        { text: "중급관리자A", value: "6" },
-        { text: "중급관리자B", value: "7" },
-        { text: "최고관리자", value: "8" },
-        { text: "SystemMaster", value: "9" },
-      ],
-      career_table: [
-        { text: "1년 미만", value: 10 },
-        { text: "1년 이상 3년 미만", value: 20 },
-        { text: "3년 이상 5년 미만", value: 30 },
-        { text: "5년 이상 10년 미만", value: 40 },
-        { text: "10년 이상", value: 50 },
-      ],
-
-      // Rules for handling data ----------------------------------------------
-      // Rule Definition
-      fileAccept: "image/png, image/jpeg, image/bmp",
-      rules: [
-        (value) =>
-          !value ||
-          value.size < 5000000 ||
-          "Avatar size should be less than 2 MB!",
-      ],
-    };
-  },
-  computed: {
-    ...mapState(["isLogin", "userInfo"]),
-  },
-  watch: {
-    "workModel.business_domain_lv1_idx"(val) {
-      switch (val) {
-        case 100:
-          this.business_domain_lv2_table = this.business_domain_lv2_1_table;
-          break;
-        case 200:
-          this.business_domain_lv2_table = this.business_domain_lv2_2_table;
-
-          break;
-        case 300:
-          this.business_domain_lv2_table = this.business_domain_lv2_3_table;
-
-          break;
-        case 400:
-          this.business_domain_lv2_table = this.business_domain_lv2_4_table;
-
-          break;
-        case 500:
-          this.business_domain_lv2_table = this.business_domain_lv2_5_table;
-
-          break;
-        case 600:
-          this.business_domain_lv2_table = this.business_domain_lv2_6_table;
-
-          break;
-        case 700:
-          this.business_domain_lv2_table = this.business_domain_lv2_7_table;
-
-          break;
-        case 800:
-          this.business_domain_lv2_table = this.business_domain_lv2_8_table;
-
-          break;
-        case 900:
-          this.business_domain_lv2_table = this.business_domain_lv2_9_table;
-
-          break;
-        case 1000:
-          this.business_domain_lv2_table = this.business_domain_lv2_10_table;
-
-          break;
-        case 1100:
-          this.business_domain_lv2_table = this.business_domain_lv2_11_table;
-
-          break;
-        default:
-      }
-    },
-  },
-  created() {
-    this.init();
-  },
-  mixins: [MasterCtrl, FileBins, Utility],
-  methods: {
-    ...mapActions([
-      "hideLogin",
-      "login",
-      "checkLogin",
-      "refreshAccessTokenAtVuex",
-      "logout",
-    ]),
-    async init() {
-      await this.getWorkInfo();
-      // await this.test();
-    },
-    /**
-     * @description 사용자 산업 정보를 조회
-     */
-    async getWorkInfo() {
-      this.lv1_Func("Comp: UpdateInfoWork", "getWorkInfo()");
-      // 1. 사용자 정보 가져오기
-      this.lv1_Act("사용자 정보 가져오기");
-      const loginUserInfo = await JSON.parse(localStorage.getItem("user_info"));
-      this.lv1_Data("loginUserInfo", loginUserInfo);
-
-      // 2. 산업 정보 조회
-      this.lv1_Act("산업 정보 조회");
-      const tempWorkList = await this.authReadWorkListByUserId(
-        loginUserInfo.id
-      );
-
-      this.lv1_Data("tempWorkList", tempWorkList);
-      if (tempWorkList.length == 0) {
-        this.lv1_Case("산업 정보가 없음");
-        this.lv1_Data("this.isWorkExist", this.isWorkExist);
-        this.lv1_SubAct("리턴 처리됨");
-        return;
-      } else {
-        this.lv1_Case("산업 정보가 있음");
-        this.isWorkExist = true;
-        this.lv1_Data("this.isWorkExist", this.isWorkExist);
-        this.lv1_Data("tempWorkList[0]", tempWorkList[0]);
-      }
-      // case : 산업정보가 있을 경우
-      this.lv1_Case("산업 정보가 있음");
-      this.lv1_SubAct("산업정보배열에서 첫번째 산업정보 가져오기");
-      const tempWork = await tempWorkList[0];
-      this.lv1_Data("tempWork", tempWork);
-
-      // 3. 유저 정보 조회
-      this.lv1_Act("유저 정보 조회");
-      const tempUser = await this.authReadDataItemById(
-        this.User,
-        tempWork.user_id
-      );
-      this.lv1_Data("tempUser", tempUser);
-
-      // 4. 유저 프로필 이미지 조회
-      this.lv1_Act("유저 프로필 이미지 조회");
-      this.userProfileImage = await this.readUserFileList(
-        tempWork.user_id,
-        "UP"
-      );
-      this.lv1_Data("this.userProfileImage", this.userProfileImage);
-      this.lv1_SubAct("프로필 이미지 없을 경우 기본 이미지 설정");
-      if (this.userProfileImage.length == 0) {
-        this.userProfileImage = [
+        // Portfolio List
+        portfolioList: [
           {
-            file_path:
-              "https://images.unsplash.com/photo-1612629131312-8f9a21a1b2c9?ixlib=rb-1.2.1&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=1470&q=80",
+            id: 0,
+            file_for: '',
+            file_name: '',
+            file_title: '',
+            file_description: '',
+            file_path: '',
+            file_size: '',
+            file_type: '',
+            fileName: '',
+            fileObject: null,
+            tempUrl: '',
           },
-        ];
-      }
+          {
+            id: 0,
+            file_for: '',
+            file_name: '',
+            file_title: '',
+            file_description: '',
+            file_path: '',
+            file_size: '',
+            file_type: '',
+            fileName: '',
+            fileObject: null,
+            tempUrl: '',
+          },
+          {
+            id: 0,
+            file_for: '',
+            file_name: '',
+            file_title: '',
+            file_description: '',
+            file_path: '',
+            file_size: '',
+            file_type: '',
+            fileName: '',
+            fileObject: null,
+            tempUrl: '',
+          },
+          {
+            id: 0,
+            file_for: '',
+            file_name: '',
+            file_title: '',
+            file_description: '',
+            file_path: '',
+            file_size: '',
+            file_type: '',
+            fileName: '',
+            fileObject: null,
+            tempUrl: '',
+          },
+          {
+            id: 0,
+            file_for: '',
+            file_name: '',
+            file_title: '',
+            file_description: '',
+            file_path: '',
+            file_size: '',
+            file_type: '',
+            fileName: '',
+            fileObject: null,
+            tempUrl: '',
+          },
+          {
+            id: 0,
+            file_for: '',
+            file_name: '',
+            file_title: '',
+            file_description: '',
+            file_path: '',
+            file_size: '',
+            file_type: '',
+            fileName: '',
+            fileObject: null,
+            tempUrl: '',
+          },
+        ],
 
-      // 5. 비즈니스 포트폴리오 세팅
-      this.lv1_Act("비즈니스 포트폴리오 세팅");
-      // 5.1. 비즈니스 포트폴리오 이미지 리스트 조회
-      this.lv1_SubAct("비즈니스 포트폴리오 이미지 리스트 조회");
-      const portfolios = await this.readWorkFileList(tempWork.id, "WP");
-      this.lv1_Data("portfolios", portfolios);
-      // 5.2. 비즈니스 포트폴리오 이미지를 this.portfolioList에 세팅
-      this.lv1_SubAct("비즈니스 포트폴리오 이미지를 this.portfolioList에 세팅");
-      if (portfolios.length > 0) {
-        for (let i = 0; i < portfolios.length; i++) {
-          this.portfolioList[i] = portfolios[i];
-          this.portfolioList[i].tempUrl = portfolios[i].file_path;
-          this.portfolioList[i].fileObject = null;
-        }
-      }
-      this.lv1_Data("this.portfolioList", this.portfolioList);
+        // Image Holder
+        imageHolderWide: 100,
 
-      // 6. 비즈니스 대표이미지 리스트 조회
-      this.lv1_Act("비즈니스 대표이미지 리스트 조회");
-      const representativeImageList = await this.readWorkFileList(
-        tempWork.id,
-        "WR"
-      );
-      this.lv1_Data("representativeImageList", representativeImageList);
+        // Data for Env --------------------------------------------------------
 
-      if (representativeImageList.length == 0) {
-        // 6.1. 대표이미지 없으면 첫 프로필 이미지를 대표로 설정
-        this.lv1_SubAct("대표이미지 없으면 첫 프로필 이미지를 대표로 설정");
-        if (portfolios.length !== 0) {
-          portfolios.reverse();
-          // 6.2. 이미지파일 경로를 화면표시를 위한 임시변수에 저장
-          this.lv1_SubAct("이미지파일 경로를 화면표시를 위한 임시변수에 저장");
-          this.workRefImg.tempUrl = portfolios[0].file_path;
-          this.workRefImg.fileObject = null;
-          portfolios.reverse();
-        }
-      } else {
-        // 6.1. 비즈니스 대표이미지 중 가장 첫번째 이미지 선택
-        this.lv1_SubAct("비즈니스 대표이미지 중 가장 첫번째 이미지 선택");
-        this.workRefImg = representativeImageList[0];
-        // 6.2. 이미지파일 경로를 화면표시를 위한 임시변수에 저장
-        this.lv1_SubAct("이미지파일 경로를 화면표시를 위한 임시변수에 저장");
-        this.workRefImg.tempUrl = representativeImageList[0].file_path;
-        this.workRefImg.fileObject = null;
-        this.lv1_Data("this.workRefImg", this.workRefImg);
-      }
+        // AWS-S3
+        albumBucketName: 'wisechurch-t-1',
+        bucketRegion: 'ap-northeast-2',
+        IdentityPoolId: 'ap-northeast-2:5e8b852b-4649-4451-a8e1-a831049355a1',
 
-      // 7. 비즈니스 키워드 조회
-      this.lv1_Act("비즈니스 키워드 조회");
-      this.businessKeywordList = await this.authReadBusinessKeywordListByWorkId(
-        tempWork.id
-      );
-      this.lv1_Data("this.businessKeywordList", this.businessKeywordList);
+        // Data For Component Controls -----------------------------------------
 
-      // 7.1. 비즈니스 키워드리스트의 요소들을 ,로 구분하여 문자열로 만들기
-      this.lv1_SubAct("키워드 리스트의 요소들을 ,로 구분하여 문자열로 만들기");
-      this.editedItemBusinessKeywords = this.getObjectArrayToString(
-        this.businessKeywordList,
-        "keyword_name"
-      );
-      this.lv1_Data(
-        "this.editedItemBusinessKeywords",
-        this.editedItemBusinessKeywords
-      );
+        // Data Control : DB저장형식 & 사용자 표현형식 치환을 위한 데이터 테이블
+        business_domain_lv1_table: [
+          { text: '서비스업', value: 100 },
+          { text: '금융∙은행업', value: 200 },
+          { text: 'IT∙정보통신업', value: 300 },
+          { text: '판매유통업', value: 400 },
+          { text: '제조∙생산∙화학업', value: 500 },
+          { text: '교육업', value: 600 },
+          { text: '건설업', value: 700 },
+          { text: '의료∙제약업', value: 800 },
+          { text: '미디어∙광고업', value: 900 },
+          { text: '문화∙예술∙디자인업', value: 1000 },
+          { text: '기관∙협회', value: 1100 },
+        ],
+        business_domain_lv2_table: [],
+        business_domain_lv2_1_table: [
+          { text: '호텔∙여행∙항공', value: 101 },
+          { text: '음식료∙외식∙프랜차이즈', value: 102 },
+          { text: '스포츠∙여가∙레저', value: 103 },
+          { text: '뷰티∙미용', value: 104 },
+          { text: '콜센터∙아웃소싱∙기타', value: 105 },
+          { text: '정비∙A/S∙카센터', value: 106 },
+          { text: '렌탈∙임대∙리스', value: 107 },
+          { text: '서치펌∙헤드헌팅', value: 108 },
+          { text: '시설관리∙보안∙경비', value: 109 },
+          { text: '웨딩∙상조∙이벤트', value: 110 },
+        ],
+        business_domain_lv2_2_table: [
+          { text: '은행∙금융', value: 201 },
+          { text: '캐피탈∙대출', value: 202 },
+          { text: '증권∙보험∙카드', value: 203 },
+        ],
+        business_domain_lv2_3_table: [
+          { text: '솔루션∙SI∙CRM∙ERP', value: 301 },
+          { text: '웹에이전시', value: 302 },
+          { text: '쇼핑몰∙오픈마켓∙소셜커머스', value: 303 },
+          { text: '포털∙컨텐츠∙커뮤니티', value: 304 },
+          { text: '네트워크∙통신서비스', value: 305 },
+          { text: '정보보안', value: 306 },
+          { text: '컴퓨터∙하드웨어∙장비', value: 307 },
+          { text: '게임∙애니메이션', value: 308 },
+          { text: '모바일∙APP', value: 309 },
+          { text: 'IT컨설팅', value: 310 },
+        ],
+        business_domain_lv2_4_table: [
+          { text: '백화점∙유통∙도소매', value: 301 },
+          { text: '무역∙상사', value: 302 },
+          { text: '물류∙운송∙배송', value: 303 },
+        ],
+        business_domain_lv2_5_table: [
+          { text: '전기∙전자∙제어', value: 501 },
+          { text: '반도체∙디스플레이∙광학', value: 502 },
+          { text: '기계∙기계설비', value: 503 },
+          { text: '자동차∙조선∙철강∙항공', value: 504 },
+          { text: '금속∙재료∙자재', value: 505 },
+          { text: '화학∙에너지∙환경', value: 506 },
+          { text: '섬유∙의류∙패션', value: 507 },
+          { text: '생활화학∙화장품', value: 508 },
+          { text: '생활용품∙소비재∙기타', value: 509 },
+          { text: '목재∙제자∙가구', value: 510 },
+          { text: '식품가공', value: 511 },
+          { text: '농축산∙어업∙임업', value: 512 },
+        ],
+        business_domain_lv2_6_table: [
+          { text: '학교(초∙중∙고∙대학∙특수)', value: 601 },
+          { text: '유아∙유치원∙어린이집', value: 602 },
+          { text: '학원∙어하원∙교육원', value: 603 },
+          { text: '학습지∙방문교육', value: 604 },
+        ],
+        business_domain_lv2_7_table: [
+          { text: '건축∙설비∙환경', value: 701 },
+          { text: '건설∙시공∙토목∙조경', value: 702 },
+          { text: '인테리어∙자재', value: 703 },
+          { text: '부동산∙중개∙임대', value: 704 },
+        ],
+        business_domain_lv2_8_table: [
+          { text: '의료(병원분류별)', value: 801 },
+          { text: '의료(진료과별)', value: 802 },
+          { text: '의료(간호∙원무∙상담)', value: 803 },
+          { text: '제약∙보건∙바이오', value: 804 },
+          { text: '사회복지∙요양', value: 805 },
+        ],
+        business_domain_lv2_9_table: [
+          { text: '방송∙케이블∙프로덕션', value: 901 },
+          { text: '신문∙잡지∙언론사', value: 902 },
+          { text: '광고∙홍보∙전시', value: 903 },
+          { text: '영화∙음반∙배급', value: 904 },
+          { text: '연예∙엔터테인먼트', value: 905 },
+          { text: '출판∙인쇄∙사진', value: 906 },
+        ],
+        business_domain_lv2_10_table: [
+          { text: '문화∙공연∙예술', value: 1001 },
+          { text: '디자인∙CAD', value: 1002 },
+        ],
+        business_domain_lv2_11_table: [
+          { text: '공기업∙공공기관', value: 1101 },
+          { text: '협회∙단체', value: 1102 },
+          { text: '컨설팅∙연구∙조사', value: 1103 },
+          { text: '회계∙세무∙법무', value: 1104 },
+          { text: '연예∙엔터테인먼트', value: 1105 },
+          { text: '출판∙인쇄∙사진', value: 1106 },
+        ],
+        business_domain_table: [
+          { text: '건설', value: 100 },
+          { text: '경찰', value: 200 },
+          { text: '공공', value: 300 },
+          { text: '공기업', value: 400 },
+          { text: '공연예술', value: 500 },
+          { text: '광고 & 마케팅', value: 600 },
+          { text: '교육', value: 700 },
+          { text: '상담', value: 800 },
+          { text: '기관 & 협회', value: 900 },
+          { text: '유통 & 물류', value: 1000 },
+          { text: '문화 & 예술', value: 1100 },
+          { text: '미디어', value: 1200 },
+          { text: '디자인', value: 1300 },
+          { text: '방송', value: 1400 },
+          { text: '행사', value: 1500 },
+          { text: '법률 & 법조', value: 1600 },
+          { text: '부동산', value: 1700 },
+          { text: '사회복지', value: 1800 },
+          { text: '서비스', value: 1900 },
+          { text: '세관', value: 2000 },
+          { text: '세무 & 회계', value: 2100 },
+          { text: '스포츠', value: 2200 },
+          { text: '식품', value: 2300 },
+          { text: '에너지', value: 2400 },
+          { text: '애니메이션', value: 2500 },
+          { text: '연구개발', value: 2600 },
+          { text: '연예계', value: 2700 },
+          { text: '은행 & 금융', value: 2800 },
+          { text: '음악', value: 2900 },
+          { text: '의료', value: 3000 },
+          { text: '제약', value: 3100 },
+          { text: '패션 & 의류', value: 3200 },
+          { text: '제조 & 화학', value: 3300 },
+          { text: '춤 & 댄스', value: 3400 },
+          { text: '판매 & 유통', value: 3500 },
+          { text: '항공', value: 3600 },
+          { text: '해충 & 방역', value: 3700 },
+          { text: '감사 & 컨설팅', value: 3800 },
+          { text: 'IT & 웹', value: 3900 },
+          { text: '통신', value: 4000 },
+        ],
+        job_domain_table: [
+          { text: 'IT & 인터넷', value: 100 },
+          { text: '감정 & 평가', value: 200 },
+          { text: '건설', value: 300 },
+          { text: '경영 & 사무', value: 400 },
+          { text: '경찰', value: 500 },
+          { text: '교육', value: 600 },
+          { text: '군인', value: 700 },
+          { text: '디자인', value: 800 },
+          { text: '마케팅', value: 900 },
+          { text: '문화예술', value: 1000 },
+          { text: '미디어', value: 1100 },
+          { text: '법무 & 법조', value: 1200 },
+          { text: '부동산', value: 1300 },
+          { text: '사회복지', value: 1400 },
+          { text: '상담', value: 1500 },
+          { text: '생산 & 제조', value: 1600 },
+          { text: '서비스', value: 1700 },
+          { text: '세관', value: 1800 },
+          { text: '세무 & 회계', value: 1900 },
+          { text: '스포츠', value: 2000 },
+          { text: '심리상담', value: 2100 },
+          { text: '안전 & 환경', value: 2200 },
+          { text: '연구', value: 2300 },
+          { text: '연예', value: 2400 },
+          { text: '영업 & 고객상담', value: 2500 },
+          { text: '요식업', value: 2600 },
+          { text: '유통 & 무역', value: 2700 },
+          { text: '음악', value: 2800 },
+          { text: '의료', value: 2900 },
+          { text: '인사', value: 3000 },
+          { text: '소매 & 도매', value: 3100 },
+          { text: '컨설팅', value: 3200 },
+          { text: '특수계층 & 공공', value: 3300 },
+          { text: '항공', value: 3400 },
+        ],
+        job_position_table: [
+          { text: '미등록', value: 0 },
+          { text: '대표', value: 100 },
+          // { text: "회장", value: 101 },
+          // { text: "회장", value: 1 },
+          // { text: "대표", value: 102 },
+          // { text: "대표", value: 2 },
+          // { text: "공동대표", value: 103 },
+          // { text: "공동대표", value: 3 },
+          { text: '임원', value: 200 },
+          // { text: "이사", value: 201 },
+          // { text: "이사", value: 4 },
+          // { text: "사장", value: 202 },
+          // { text: "사장", value: 5 },
+          // { text: "부사장", value: 203 },
+          // { text: "부사장", value: 6 },
+          // { text: "전무", value: 204 },
+          // { text: "전무", value: 7 },
+          // { text: "상무", value: 205 },
+          // { text: "상무", value: 8 },
+          // { text: "상무보", value: 206 },
+          // { text: "상무보", value: 9 },
+          { text: '중간관리자(부차과장 등)', value: 300 },
+          // { text: "부장", value: 301 },
+          // { text: "부장", value: 10 },
+          // { text: "차장", value: 302 },
+          // { text: "차장", value: 11 },
+          // { text: "과장", value: 303 },
+          // { text: "과장", value: 12 },
+          { text: '대리', value: 13 },
+          { text: '주임', value: 14 },
+          { text: '매니저', value: 15 },
+          { text: '사원', value: 16 },
+          // { text: "사원", value: 15 },
+          { text: '인턴', value: 17 },
+          // { text: "인턴", value: 16 },
+          { text: '프리렌서', value: 18 },
+          // { text: "프리렌서", value: 17 },
+        ],
+        work_table: [
+          { text: '법인사업자', value: 'CB' },
+          { text: '개인사업자', value: 'PB' },
+          { text: '협회 및 단체', value: 'EP' },
+          { text: '정규직 직원', value: 'RE' },
+          { text: '계약직 직원', value: 'TE' },
+          { text: '아르바이트', value: 'AB' },
+          { text: '프리렌서', value: 'FR' },
+          { text: '기타', value: 'EC' },
+        ],
+        authority_table_table: [
+          { text: '일반회원', value: '1' },
+          { text: '비즈니스등록회원', value: '2' },
+          { text: '정회원', value: '3' },
+          { text: '일반관리자A', value: '4' },
+          { text: '일반관리자B', value: '5' },
+          { text: '중급관리자A', value: '6' },
+          { text: '중급관리자B', value: '7' },
+          { text: '최고관리자', value: '8' },
+          { text: 'SystemMaster', value: '9' },
+        ],
+        career_table: [
+          { text: '1년 미만', value: 10 },
+          { text: '1년 이상 3년 미만', value: 20 },
+          { text: '3년 이상 5년 미만', value: 30 },
+          { text: '5년 이상 10년 미만', value: 40 },
+          { text: '10년 이상', value: 50 },
+        ],
 
-      // 8. 비즈니스 데이터 세팅
-      this.lv1_Act("비즈니스 데이터 세팅");
-      this.setWorkData(tempWork);
-      this.lv1_Data("this.workModel", this.workModel);
+        // Rules for handling data ----------------------------------------------
+        // Rule Definition
+        fileAccept: 'image/png, image/jpeg, image/bmp',
+        rules: [
+          (value) =>
+            !value ||
+            value.size < 5000000 ||
+            'Avatar size should be less than 2 MB!',
+        ],
+      };
     },
-    // 비즈니스 데이터 업데이트
-    async updateWork() {
-      this.lv1_Func("Comp: UpdateInfoWork", "updateWork()");
-      if (this.isWorkExist) {
-        // 1. 형식검사 진행
-        // this.lv1_Act("형식검사 진행");
-        // if (!(await this.checkEmptyData())) {
-        //   return;
-        // }
-        // 2. 산업정보 업데이트
-        this.lv1_Act("산업정보 업데이트");
-        const updatedWork = await this.authUpdateData(
-          this.Work,
-          this.workModel.id,
-          this.workModel
-        );
-        this.lv1_Data("updatedWork", updatedWork);
+    computed: {
+      ...mapState(['isLogin', 'userInfo']),
+    },
+    watch: {
+      'workModel.business_domain_lv1_idx'(val) {
+        switch (val) {
+          case 100:
+            this.business_domain_lv2_table = this.business_domain_lv2_1_table;
+            break;
+          case 200:
+            this.business_domain_lv2_table = this.business_domain_lv2_2_table;
 
-        // 3. 비즈니스 이미지 업데이트
-        this.lv1_Act("비즈니스 관련 이미지 저장");
-        // 3.1. 대표이미지
-        this.lv1_SubAct("대표이미지");
-        if (this.workRefImg.fileObject !== null) {
-          // case : 새로운 대표이미지 파일이 업로드 됨
-          this.lv1_Case("새로운 대표이미지 파일이 업로드 됨");
-          if (this.workRefImg.file_name !== "") {
-            // case : 기존 대표이미지가 있는 경우
-            this.lv1_Case("기존 대표이미지가 있는 경우");
-            // 3.1.1. 기존 대표이미지파일을 교체(by FileId)
-            this.lv1_SubAct("기존 대표이미지파일을 교체(by FileId)");
-            this.updateFile(
-              this.workRefImg.id,
-              this.workRefImg.fileObject,
-              this.workRefImg.fileName,
-              this.workRefImg.file_title,
-              this.workRefImg.file_description,
-              true
-            );
-          } else {
-            // case : 기존 대표이미지가 없는 경우
-            this.lv1_Case("기존 대표이미지가 없는 경우");
-            // 3.1.1. 이미지파일을 새롭게 생성
-            this.lv1_SubAct("이미지파일을 새롭게 생성");
-            this.createWorkFile(
-              this.workModel.id,
-              "WR",
-              this.workRefImg.fileObject,
-              this.workRefImg.fileName,
-              this.workRefImg.file_title,
-              this.workRefImg.file_description,
-              true
-            );
+            break;
+          case 300:
+            this.business_domain_lv2_table = this.business_domain_lv2_3_table;
+
+            break;
+          case 400:
+            this.business_domain_lv2_table = this.business_domain_lv2_4_table;
+
+            break;
+          case 500:
+            this.business_domain_lv2_table = this.business_domain_lv2_5_table;
+
+            break;
+          case 600:
+            this.business_domain_lv2_table = this.business_domain_lv2_6_table;
+
+            break;
+          case 700:
+            this.business_domain_lv2_table = this.business_domain_lv2_7_table;
+
+            break;
+          case 800:
+            this.business_domain_lv2_table = this.business_domain_lv2_8_table;
+
+            break;
+          case 900:
+            this.business_domain_lv2_table = this.business_domain_lv2_9_table;
+
+            break;
+          case 1000:
+            this.business_domain_lv2_table = this.business_domain_lv2_10_table;
+
+            break;
+          case 1100:
+            this.business_domain_lv2_table = this.business_domain_lv2_11_table;
+
+            break;
+          default:
+        }
+      },
+    },
+    created() {
+      this.init();
+    },
+    mixins: [MasterCtrl, FileBins, Utility],
+    methods: {
+      ...mapActions([
+        'hideLogin',
+        'login',
+        'checkLogin',
+        'refreshAccessTokenAtVuex',
+        'logout',
+      ]),
+      async init() {
+        await this.getWorkInfo();
+        // await this.test();
+      },
+      /**
+       * @description 사용자 산업 정보를 조회
+       */
+      async getWorkInfo() {
+        this.lv1_Func('Comp: UpdateInfoWork', 'getWorkInfo()');
+        // 1. 사용자 정보 가져오기
+        this.lv1_Act('사용자 정보 가져오기');
+        const loginUserInfo = await JSON.parse(
+          localStorage.getItem('user_info')
+        );
+        this.lv1_Data('loginUserInfo', loginUserInfo);
+
+        // 2. 산업 정보 조회
+        this.lv1_Act('산업 정보 조회');
+        const tempWorkList = await this.authReadWorkListByUserId(
+          loginUserInfo.id
+        );
+
+        this.lv1_Data('tempWorkList', tempWorkList);
+        if (tempWorkList.length == 0) {
+          this.lv1_Case('산업 정보가 없음');
+          this.lv1_Data('this.isWorkExist', this.isWorkExist);
+          this.lv1_SubAct('리턴 처리됨');
+          return;
+        } else {
+          this.lv1_Case('산업 정보가 있음');
+          this.isWorkExist = true;
+          this.lv1_Data('this.isWorkExist', this.isWorkExist);
+          this.lv1_Data('tempWorkList[0]', tempWorkList[0]);
+        }
+        // case : 산업정보가 있을 경우
+        this.lv1_Case('산업 정보가 있음');
+        this.lv1_SubAct('산업정보배열에서 첫번째 산업정보 가져오기');
+        const tempWork = await tempWorkList[0];
+        this.lv1_Data('tempWork', tempWork);
+
+        // 3. 유저 정보 조회
+        this.lv1_Act('유저 정보 조회');
+        const tempUser = await this.authReadDataItemById(
+          this.User,
+          tempWork.user_id
+        );
+        this.lv1_Data('tempUser', tempUser);
+
+        // 4. 유저 프로필 이미지 조회
+        this.lv1_Act('유저 프로필 이미지 조회');
+        this.userProfileImage = await this.readUserFileList(
+          tempWork.user_id,
+          'UP'
+        );
+        this.lv1_Data('this.userProfileImage', this.userProfileImage);
+        this.lv1_SubAct('프로필 이미지 없을 경우 기본 이미지 설정');
+        if (this.userProfileImage.length == 0) {
+          this.userProfileImage = [
+            {
+              file_path:
+                'https://images.unsplash.com/photo-1612629131312-8f9a21a1b2c9?ixlib=rb-1.2.1&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=1470&q=80',
+            },
+          ];
+        }
+
+        // 5. 비즈니스 포트폴리오 세팅
+        this.lv1_Act('비즈니스 포트폴리오 세팅');
+        // 5.1. 비즈니스 포트폴리오 이미지 리스트 조회
+        this.lv1_SubAct('비즈니스 포트폴리오 이미지 리스트 조회');
+        const portfolios = await this.readWorkFileList(tempWork.id, 'WP');
+        this.lv1_Data('portfolios', portfolios);
+        // 5.2. 비즈니스 포트폴리오 이미지를 this.portfolioList에 세팅
+        this.lv1_SubAct(
+          '비즈니스 포트폴리오 이미지를 this.portfolioList에 세팅'
+        );
+        if (portfolios.length > 0) {
+          for (let i = 0; i < portfolios.length; i++) {
+            this.portfolioList[i] = portfolios[i];
+            this.portfolioList[i].tempUrl = portfolios[i].file_path;
+            this.portfolioList[i].fileObject = null;
           }
         }
+        this.lv1_Data('this.portfolioList', this.portfolioList);
 
-        // 4.2. 포트폴리오
-        this.lv1_SubAct("포트폴리오");
-        this.portfolioList.forEach(async (portfolio) => {
-          console.log("portfolio check", portfolio);
-          if (portfolio.fileObject !== null) {
-            // case : 새로운 포트폴리오 파일이 업로드 됨
-            this.lv1_Case("새로운 포트폴리오 파일이 업로드 됨");
-            if (portfolio.file_name !== "") {
-              // case : 기존 포트폴리오가 있는 경우
-              this.lv1_Case("기존 포트폴리오가 있는 경우");
-              // 4.2.1. 기존 포트폴리오파일을 교체(by FileId)
-              this.lv1_SubAct("기존 포트폴리오파일을 교체(by FileId)");
-              console.log("portfolio 타겟", portfolio);
+        // 6. 비즈니스 대표이미지 리스트 조회
+        this.lv1_Act('비즈니스 대표이미지 리스트 조회');
+        const representativeImageList = await this.readWorkFileList(
+          tempWork.id,
+          'WR'
+        );
+        this.lv1_Data('representativeImageList', representativeImageList);
+
+        if (representativeImageList.length == 0) {
+          // 6.1. 대표이미지 없으면 첫 프로필 이미지를 대표로 설정
+          this.lv1_SubAct('대표이미지 없으면 첫 프로필 이미지를 대표로 설정');
+          if (portfolios.length !== 0) {
+            portfolios.reverse();
+            // 6.2. 이미지파일 경로를 화면표시를 위한 임시변수에 저장
+            this.lv1_SubAct(
+              '이미지파일 경로를 화면표시를 위한 임시변수에 저장'
+            );
+            this.workRefImg.tempUrl = portfolios[0].file_path;
+            this.workRefImg.fileObject = null;
+            portfolios.reverse();
+          }
+        } else {
+          // 6.1. 비즈니스 대표이미지 중 가장 첫번째 이미지 선택
+          this.lv1_SubAct('비즈니스 대표이미지 중 가장 첫번째 이미지 선택');
+          this.workRefImg = representativeImageList[0];
+          // 6.2. 이미지파일 경로를 화면표시를 위한 임시변수에 저장
+          this.lv1_SubAct('이미지파일 경로를 화면표시를 위한 임시변수에 저장');
+          this.workRefImg.tempUrl = representativeImageList[0].file_path;
+          this.workRefImg.fileObject = null;
+          this.lv1_Data('this.workRefImg', this.workRefImg);
+        }
+
+        // 7. 비즈니스 키워드 조회
+        this.lv1_Act('비즈니스 키워드 조회');
+        this.businessKeywordList =
+          await this.authReadBusinessKeywordListByWorkId(tempWork.id);
+        this.lv1_Data('this.businessKeywordList', this.businessKeywordList);
+
+        // 7.1. 비즈니스 키워드리스트의 요소들을 ,로 구분하여 문자열로 만들기
+        this.lv1_SubAct(
+          '키워드 리스트의 요소들을 ,로 구분하여 문자열로 만들기'
+        );
+        this.editedItemBusinessKeywords = this.getObjectArrayToString(
+          this.businessKeywordList,
+          'keyword_name'
+        );
+        this.lv1_Data(
+          'this.editedItemBusinessKeywords',
+          this.editedItemBusinessKeywords
+        );
+
+        // 8. 비즈니스 데이터 세팅
+        this.lv1_Act('비즈니스 데이터 세팅');
+        this.setWorkData(tempWork);
+        this.lv1_Data('this.workModel', this.workModel);
+      },
+      // 비즈니스 데이터 업데이트
+      async updateWork() {
+        this.lv1_Func('Comp: UpdateInfoWork', 'updateWork()');
+        if (this.isWorkExist) {
+          // 1. 형식검사 진행
+          // this.lv1_Act("형식검사 진행");
+          // if (!(await this.checkEmptyData())) {
+          //   return;
+          // }
+          // 2. 산업정보 업데이트
+          this.lv1_Act('산업정보 업데이트');
+          const updatedWork = await this.authUpdateData(
+            this.Work,
+            this.workModel.id,
+            this.workModel
+          );
+          this.lv1_Data('updatedWork', updatedWork);
+
+          // 3. 비즈니스 이미지 업데이트
+          this.lv1_Act('비즈니스 관련 이미지 저장');
+          // 3.1. 대표이미지
+          this.lv1_SubAct('대표이미지');
+          if (this.workRefImg.fileObject !== null) {
+            // case : 새로운 대표이미지 파일이 업로드 됨
+            this.lv1_Case('새로운 대표이미지 파일이 업로드 됨');
+            if (this.workRefImg.file_name !== '') {
+              // case : 기존 대표이미지가 있는 경우
+              this.lv1_Case('기존 대표이미지가 있는 경우');
+              // 3.1.1. 기존 대표이미지파일을 교체(by FileId)
+              this.lv1_SubAct('기존 대표이미지파일을 교체(by FileId)');
               this.updateFile(
-                portfolio.id,
-                portfolio.fileObject,
-                portfolio.fileName,
-                portfolio.file_title,
-                portfolio.file_description,
+                this.workRefImg.id,
+                this.workRefImg.fileObject,
+                this.workRefImg.fileName,
+                this.workRefImg.file_title,
+                this.workRefImg.file_description,
                 true
               );
             } else {
-              // case : 기존 포트폴리오가 없는 경우
-              this.lv1_Case("기존 포트폴리오가 없는 경우");
-              // 4.2.1. 이미지파일을 새롭게 생성
-              this.lv1_SubAct("이미지파일을 새롭게 생성");
+              // case : 기존 대표이미지가 없는 경우
+              this.lv1_Case('기존 대표이미지가 없는 경우');
+              // 3.1.1. 이미지파일을 새롭게 생성
+              this.lv1_SubAct('이미지파일을 새롭게 생성');
               this.createWorkFile(
                 this.workModel.id,
-                "WP",
+                'WR',
+                this.workRefImg.fileObject,
+                this.workRefImg.fileName,
+                this.workRefImg.file_title,
+                this.workRefImg.file_description,
+                true
+              );
+            }
+          }
+
+          // 4.2. 포트폴리오
+          this.lv1_SubAct('포트폴리오');
+          this.portfolioList.forEach(async (portfolio) => {
+            console.log('portfolio check', portfolio);
+            if (portfolio.fileObject !== null) {
+              // case : 새로운 포트폴리오 파일이 업로드 됨
+              this.lv1_Case('새로운 포트폴리오 파일이 업로드 됨');
+              if (portfolio.file_name !== '') {
+                // case : 기존 포트폴리오가 있는 경우
+                this.lv1_Case('기존 포트폴리오가 있는 경우');
+                // 4.2.1. 기존 포트폴리오파일을 교체(by FileId)
+                this.lv1_SubAct('기존 포트폴리오파일을 교체(by FileId)');
+                console.log('portfolio 타겟', portfolio);
+                this.updateFile(
+                  portfolio.id,
+                  portfolio.fileObject,
+                  portfolio.fileName,
+                  portfolio.file_title,
+                  portfolio.file_description,
+                  true
+                );
+              } else {
+                // case : 기존 포트폴리오가 없는 경우
+                this.lv1_Case('기존 포트폴리오가 없는 경우');
+                // 4.2.1. 이미지파일을 새롭게 생성
+                this.lv1_SubAct('이미지파일을 새롭게 생성');
+                this.createWorkFile(
+                  this.workModel.id,
+                  'WP',
+                  portfolio.fileObject,
+                  portfolio.fileName,
+                  portfolio.file_title,
+                  portfolio.file_description,
+                  false
+                );
+              }
+            } else {
+              // case : 새로운 포트폴리오가 업로드 되지 않음
+              this.lv1_Case('새로운 포트폴리오가 업로드 되지 않음');
+              if (portfolio.file_name !== '') {
+                // case : 기존 포트폴리오가 있는 경우
+                this.lv1_Case('기존 포트폴리오가 있는 경우');
+                // 타이틀 수정 가능성을 염두한 업데이트 진행
+                this.lv1_SubAct('타이틀 수정 가능성을 염두한 업데이트 진행');
+                this.authUpdateData(this.File, portfolio.id, {
+                  file_for: portfolio.file_for,
+                  file_name: portfolio.file_name,
+                  file_title: portfolio.file_title,
+                  file_description: portfolio.file_description,
+                  file_path: portfolio.file_path,
+                  file_size: portfolio.file_size,
+                  file_type: portfolio.file_type,
+                });
+              }
+            }
+          });
+
+          // 5. 비즈니스 키워드
+          this.lv1_Act('비즈니스 키워드 저장');
+          this.processBusinessKeyword();
+        } else {
+          this.lv1_Func('comp:SignUpWork', 'saveWork()');
+          await this.lv1_Act('작성된 산업정보를 DB에 저장합니다.');
+          this.logingDialog = true;
+          this.value = '10';
+
+          //필수정보의 입력이 누락되었는지 검사합니다.
+          await this.lv1_Act('필수정보의 입력이 누락되었는지 검사합니다.');
+          if (!(await this.checkEmptyData())) {
+            await this.lv1_Case('입력되지 않은 필수 데이터가 있음');
+            await this.lv1_Act('함수를 종료합니다.');
+            return;
+          }
+
+          // 로그인된 유저정보를 가져옵니다
+          await this.lv1_Act('로그인된 유저정보 가져오기');
+          const userInfo = JSON.parse(localStorage.getItem('user_info'));
+          await this.lv1_Data('userInfo', userInfo);
+
+          // 산업정보모델에 사용자 userId를 추가합니다.
+          await this.lv1_Act('산업정보모델에 사용자 userId를 추가합니다.');
+          this.workModel.user_id = userInfo.id;
+          await this.lv1_Data('this.workModel', this.workModel);
+
+          // 산업정보를 생성합니다.
+          await this.lv1_Act('산업정보를 생성합니다.');
+          const newWork = await this.authCreateData(this.Work, this.workModel);
+          await this.lv1_Data('newWork', newWork);
+
+          // 비즈니스 관련 이미지 저장
+          this.value = '30';
+          // 대표이미지를 저장합니다.
+          await this.lv1_Act('대표이미지를 저장합니다.');
+          if (this.workRefImg.fileObject !== null) {
+            await this.lv1_Case('유저가 산업 대표이미지 업로드함');
+            await this.lv1_Act('산업 대표이미지 업로드합니다.');
+            const workRefImg = await this.createWorkFile(
+              newWork.id,
+              'WR',
+              this.workRefImg.fileObject,
+              this.workRefImg.fileName,
+              this.workRefImg.file_title,
+              this.workRefImg.file_description
+            );
+            await this.lv1_Data('workRefImg', workRefImg);
+          }
+          // 포트폴리오 이미지를 저장합니다.
+          this.value = '70';
+          await this.lv1_Act('포트폴리오 이미지를 저장합니다.');
+          await this.portfolioList.forEach(async (portfolio) => {
+            await this.lv1_Act('포트폴리오 리스트배열을 순회합니다.');
+            if (portfolio.fileObject !== null) {
+              await this.lv1_Case('사용자가 포트폴리오 이미지 업로드함');
+              await this.lv1_Act('포트폴리오 이미지를 저장합니다.');
+              const workPortfolio = await this.createWorkFile(
+                newWork.id,
+                'WP',
                 portfolio.fileObject,
                 portfolio.fileName,
                 portfolio.file_title,
-                portfolio.file_description,
-                false
+                portfolio.file_description
               );
+              await this.lv1_Data('workPortfolio', workPortfolio);
             }
-          } else {
-            // case : 새로운 포트폴리오가 업로드 되지 않음
-            this.lv1_Case("새로운 포트폴리오가 업로드 되지 않음");
-            if (portfolio.file_name !== "") {
-              // case : 기존 포트폴리오가 있는 경우
-              this.lv1_Case("기존 포트폴리오가 있는 경우");
-              // 타이틀 수정 가능성을 염두한 업데이트 진행
-              this.lv1_SubAct("타이틀 수정 가능성을 염두한 업데이트 진행");
-              this.authUpdateData(this.File, portfolio.id, {
-                file_for: portfolio.file_for,
-                file_name: portfolio.file_name,
-                file_title: portfolio.file_title,
-                file_description: portfolio.file_description,
-                file_path: portfolio.file_path,
-                file_size: portfolio.file_size,
-                file_type: portfolio.file_type,
-              });
-            }
-          }
-        });
+          });
 
-        // 5. 비즈니스 키워드
-        this.lv1_Act("비즈니스 키워드 저장");
-        this.processBusinessKeyword();
-      } else {
-        this.lv1_Func("comp:SignUpWork", "saveWork()");
-        await this.lv1_Act("작성된 산업정보를 DB에 저장합니다.");
-        this.logingDialog = true;
-        this.value = "10";
-
-        //필수정보의 입력이 누락되었는지 검사합니다.
-        await this.lv1_Act("필수정보의 입력이 누락되었는지 검사합니다.");
-        if (!(await this.checkEmptyData())) {
-          await this.lv1_Case("입력되지 않은 필수 데이터가 있음");
-          await this.lv1_Act("함수를 종료합니다.");
-          return;
-        }
-
-        // 로그인된 유저정보를 가져옵니다
-        await this.lv1_Act("로그인된 유저정보 가져오기");
-        const userInfo = JSON.parse(localStorage.getItem("user_info"));
-        await this.lv1_Data("userInfo", userInfo);
-
-        // 산업정보모델에 사용자 userId를 추가합니다.
-        await this.lv1_Act("산업정보모델에 사용자 userId를 추가합니다.");
-        this.workModel.user_id = userInfo.id;
-        await this.lv1_Data("this.workModel", this.workModel);
-
-        // 산업정보를 생성합니다.
-        await this.lv1_Act("산업정보를 생성합니다.");
-        const newWork = await this.authCreateData(this.Work, this.workModel);
-        await this.lv1_Data("newWork", newWork);
-
-        // 비즈니스 관련 이미지 저장
-        this.value = "30";
-        // 대표이미지를 저장합니다.
-        await this.lv1_Act("대표이미지를 저장합니다.");
-        if (this.workRefImg.fileObject !== null) {
-          await this.lv1_Case("유저가 산업 대표이미지 업로드함");
-          await this.lv1_Act("산업 대표이미지 업로드합니다.");
-          const workRefImg = await this.createWorkFile(
-            newWork.id,
-            "WR",
-            this.workRefImg.fileObject,
-            this.workRefImg.fileName,
-            this.workRefImg.file_title,
-            this.workRefImg.file_description
+          // 5. 비즈니스 관련 키워드 저장
+          this.value = '90';
+          // 비즈니스 키워드를 저장합니다.
+          await this.lv1_Act('비즈니스 키워드를 저장합니다.');
+          await this.lv1_Act(
+            '작성된 키워드를 , 기준으로 나누어 배열로 만듭니다.'
           );
-          await this.lv1_Data("workRefImg", workRefImg);
-        }
-        // 포트폴리오 이미지를 저장합니다.
-        this.value = "70";
-        await this.lv1_Act("포트폴리오 이미지를 저장합니다.");
-        await this.portfolioList.forEach(async (portfolio) => {
-          await this.lv1_Act("포트폴리오 리스트배열을 순회합니다.");
-          if (portfolio.fileObject !== null) {
-            await this.lv1_Case("사용자가 포트폴리오 이미지 업로드함");
-            await this.lv1_Act("포트폴리오 이미지를 저장합니다.");
-            const workPortfolio = await this.createWorkFile(
-              newWork.id,
-              "WP",
-              portfolio.fileObject,
-              portfolio.fileName,
-              portfolio.file_title,
-              portfolio.file_description
+          let tempArray = this.editedItemBusinessKeywords.split(',');
+          tempArray = tempArray.filter((item) => item !== '');
+          tempArray.forEach(async (element) => {
+            await this.lv1_Act('배열을 순회하면서 키워드를 저장합니다.');
+            await this.lv1_Act('키워드 모델 생성');
+            const busnessKeywordModel = {
+              work_id: newWork.id,
+              keyword_name: element,
+            };
+            await this.lv1_Act('키워드 저장');
+            const newBusinessKeyword = await this.authCreateData(
+              this.BusinessKeyword,
+              busnessKeywordModel
             );
-            await this.lv1_Data("workPortfolio", workPortfolio);
-          }
-        });
+            await this.lv1_Data('newBusinessKeyword', newBusinessKeyword);
+          });
+          // 6. 다음화면으로 이동
+          this.value = '100';
+          this.logingDialog = false;
+        }
+        alert('정보가 정상적으로 변경되었습니다.');
+      },
+      // 워크 데이터 세팅
+      async setWorkData(tempWork) {
+        // SET DATA > workModel
+        // [ Work ] id
+        if (tempWork.id !== null && tempWork.id !== '') {
+          this.$set(this.workModel, 'id', tempWork.id);
+        }
+        // [ Work ] company_name
+        if (tempWork.company_name !== null && tempWork.company_name !== '') {
+          this.$set(this.workModel, 'company_name', tempWork.company_name);
+        }
 
-        // 5. 비즈니스 관련 키워드 저장
-        this.value = "90";
-        // 비즈니스 키워드를 저장합니다.
-        await this.lv1_Act("비즈니스 키워드를 저장합니다.");
-        await this.lv1_Act(
-          "작성된 키워드를 , 기준으로 나누어 배열로 만듭니다."
-        );
-        let tempArray = this.editedItemBusinessKeywords.split(",");
-        tempArray = tempArray.filter((item) => item !== "");
-        tempArray.forEach(async (element) => {
-          await this.lv1_Act("배열을 순회하면서 키워드를 저장합니다.");
-          await this.lv1_Act("키워드 모델 생성");
-          const busnessKeywordModel = {
-            work_id: newWork.id,
-            keyword_name: element,
-          };
-          await this.lv1_Act("키워드 저장");
-          const newBusinessKeyword = await this.authCreateData(
-            this.BusinessKeyword,
-            busnessKeywordModel
+        // [ Work ] user_id
+        if (tempWork.user_id !== null && tempWork.user_id !== '') {
+          this.$set(this.workModel, 'user_id', tempWork.user_id);
+        }
+        // [ Work ] business_domain_lv1_idx
+        if (
+          tempWork.business_domain_lv1_idx !== null &&
+          tempWork.business_domain_lv1_idx !== ''
+        ) {
+          this.$set(
+            this.workModel,
+            'business_domain_lv1_idx',
+            tempWork.business_domain_lv1_idx
           );
-          await this.lv1_Data("newBusinessKeyword", newBusinessKeyword);
-        });
-        // 6. 다음화면으로 이동
-        this.value = "100";
-        this.logingDialog = false;
-      }
-      alert("정보가 정상적으로 변경되었습니다.");
-    },
-    // 워크 데이터 세팅
-    async setWorkData(tempWork) {
-      // SET DATA > workModel
-      // [ Work ] id
-      if (tempWork.id !== null && tempWork.id !== "") {
-        this.$set(this.workModel, "id", tempWork.id);
-      }
-      // [ Work ] company_name
-      if (tempWork.company_name !== null && tempWork.company_name !== "") {
-        this.$set(this.workModel, "company_name", tempWork.company_name);
-      }
-
-      // [ Work ] user_id
-      if (tempWork.user_id !== null && tempWork.user_id !== "") {
-        this.$set(this.workModel, "user_id", tempWork.user_id);
-      }
-      // [ Work ] business_domain_lv1_idx
-      if (
-        tempWork.business_domain_lv1_idx !== null &&
-        tempWork.business_domain_lv1_idx !== ""
-      ) {
-        this.$set(
-          this.workModel,
-          "business_domain_lv1_idx",
-          tempWork.business_domain_lv1_idx
-        );
-      }
-      // [ Work ] business_domain_lv2_idx
-      if (
-        tempWork.business_domain_lv2_idx !== null &&
-        tempWork.business_domain_lv2_idx !== ""
-      ) {
-        this.$set(
-          this.workModel,
-          "business_domain_lv2_idx",
-          tempWork.business_domain_lv2_idx
-        );
-      }
-      // [ Work ] work_type
-      if (tempWork.work_type !== null && tempWork.work_type !== "") {
-        this.$set(this.workModel, "work_type", tempWork.work_type);
-      }
-      // [ Work ] career_type
-      if (tempWork.career_type !== null && tempWork.career_type !== "") {
-        this.$set(this.workModel, "career_type", tempWork.career_type);
-      }
-      // [ Work ] work_description
-      if (
-        tempWork.work_description !== null &&
-        tempWork.work_description !== ""
-      ) {
-        this.$set(
-          this.workModel,
-          "work_description",
-          tempWork.work_description
-        );
-      }
-      // [ Work ] job_position_idx
-      if (
-        tempWork.job_position_idx !== null &&
-        tempWork.job_position_idx !== ""
-      ) {
-        this.$set(
-          this.workModel,
-          "job_position_idx",
-          tempWork.job_position_idx
-        );
-      }
-      // [ Work ] uri_homepage
-      if (tempWork.uri_homepage !== null && tempWork.uri_homepage !== "") {
-        this.$set(this.workModel, "uri_homepage", tempWork.uri_homepage);
-      }
-      // [ Work ] uri_instagram
-      if (tempWork.uri_instagram !== null && tempWork.uri_instagram !== "") {
-        this.$set(this.workModel, "uri_instagram", tempWork.uri_instagram);
-      }
-      // [ Work ] tel
-      if (tempWork.tel !== null && tempWork.tel !== "") {
-        this.$set(this.workModel, "tel", tempWork.tel);
-      }
-      // [ Work ] working_place_postcode
-      if (
-        tempWork.working_place_postcode !== null &&
-        tempWork.working_place_postcode !== ""
-      ) {
-        this.$set(
-          this.workModel,
-          "working_place_postcode",
-          tempWork.working_place_postcode
-        );
-      }
-      // [ Work ] working_place_address
-      if (
-        tempWork.working_place_address !== null &&
-        tempWork.working_place_address !== ""
-      ) {
-        this.$set(
-          this.workModel,
-          "working_place_address",
-          tempWork.working_place_address
-        );
-      }
-      // [ Work ] working_place_address_detail
-      if (
-        tempWork.working_place_address_detail !== null &&
-        tempWork.working_place_address_detail !== ""
-      ) {
-        this.$set(
-          this.workModel,
-          "working_place_address_detail",
-          tempWork.working_place_address_detail
-        );
-      }
-    },
-    // 빈 데이터 체크
-    async checkEmptyData() {
-      // // 빈 데이터방지 확인
-      if (this.company_name == "") {
-        alert("회사 이름을 입력하세요.");
-        this.logingDialog = false;
-        this.value = 0;
-        return false;
-      }
-      if (this.business_domain_lv1_idx == "") {
-        alert("비즈니스 대분류를 입력하세요.");
-        this.logingDialog = false;
-        this.value = 0;
-        return false;
-      }
-      if (this.business_domain_lv2_idx == "") {
-        alert("비즈니스 소분류를 입력하세요.");
-        this.logingDialog = false;
-        this.value = 0;
-        return false;
-      }
-      if (this.work_type == "") {
-        alert("회사,업무의 유형을 입력하세요.");
-        this.logingDialog = false;
-        this.value = 0;
-        return false;
-      }
-      if (this.job_position_idx == "") {
-        alert("직급을 입력하세요.");
-        this.logingDialog = false;
-        this.value = 0;
-        return false;
-      }
-      if (this.career_type == "") {
-        alert("경력을 입력하세요.");
-        this.logingDialog = false;
-        this.value = 0;
-        return false;
-      }
-
-      if (this.working_place_postcode == "") {
-        alert("우편번호를 입력하세요.");
-        this.logingDialog = false;
-        this.value = 0;
-        return false;
-      }
-      if (this.working_place_address == "") {
-        alert("주소를 입력하세요.");
-        this.logingDialog = false;
-        this.value = 0;
-        return false;
-      }
-      if (this.working_place_address_detail == "") {
-        alert("세부주소를 입력하세요.");
-        this.logingDialog = false;
-        this.value = 0;
-        return false;
-      }
-      if (this.work_description == "") {
-        alert("사업,직무 한 줄 설명을 입력하세요.");
-        this.logingDialog = false;
-        this.value = 0;
-        return false;
-      }
-      if (this.editedItemBusinessKeywords == "") {
-        alert("산업을 잘 설명할 키워드를 입력하세요. 검색에 활용됩니다.");
-        this.logingDialog = false;
-        this.value = 0;
-        return false;
-      }
-      if (this.editedItemBusinessKeywords == "") {
-        alert("사업,직무 키워드를 입력하세요.");
-        this.logingDialog = false;
-        this.value = 0;
-        return false;
-      }
-
-      return true;
-    },
-    // IMAGE HANDELER
-    async fileHendlerWR() {
-      console.log(`%c[ Comp: SignUpWork ] fileHendlerWR()`, `color:#BFFF00;`);
-      const userEmail = JSON.parse(localStorage.getItem("user_info")).email;
-      await this.setTempFileData(userEmail, "WR", this.workRefImg, true);
-    },
-    async fileHendlerWP1() {
-      if (this.portfolioList[0].file !== null) {
-        console.log(
-          `%c[ Comp: SignUpWork ] fileHendlerWP1()`,
-          `color:#BFFF00;`
-        );
-        const userEmail = JSON.parse(localStorage.getItem("user_info")).email;
-        await this.setTempFileData(
-          userEmail,
-          "WP",
-          this.portfolioList[0],
-          true
-        );
-      } else {
-        this.portfolioList[0].file_path =
-          "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTEddFPyFQa3czMdjTSMulgvCKmt3rJMqYuMwTSDEpZtdWzgxc1PLYF-NfJMSlqbgXbaoE&usqp=CAU";
-      }
-    },
-    async fileHendlerWP2() {
-      if (this.portfolioList[1].file !== null) {
-        console.log(
-          `%c[ Comp: SignUpWork ] fileHendlerWP2()`,
-          `color:#BFFF00;`
-        );
-        const userEmail = JSON.parse(localStorage.getItem("user_info")).email;
-        await this.setTempFileData(
-          userEmail,
-          "WP",
-          this.portfolioList[1],
-          true
-        );
-      } else {
-        this.portfolioList[1].file_path =
-          "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTEddFPyFQa3czMdjTSMulgvCKmt3rJMqYuMwTSDEpZtdWzgxc1PLYF-NfJMSlqbgXbaoE&usqp=CAU";
-      }
-    },
-    async fileHendlerWP3() {
-      if (this.portfolioList[2].file !== null) {
-        console.log(
-          `%c[ Comp: SignUpWork ] fileHendlerWP3()`,
-          `color:#BFFF00;`
-        );
-        const userEmail = JSON.parse(localStorage.getItem("user_info")).email;
-        await this.setTempFileData(
-          userEmail,
-          "WP",
-          this.portfolioList[2],
-          true
-        );
-      } else {
-        this.portfolioList[2].file_path =
-          "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTEddFPyFQa3czMdjTSMulgvCKmt3rJMqYuMwTSDEpZtdWzgxc1PLYF-NfJMSlqbgXbaoE&usqp=CAU";
-      }
-    },
-    async fileHendlerWP4() {
-      if (this.portfolioList[3].file !== null) {
-        console.log(
-          `%c[ Comp: SignUpWork ] fileHendlerWP4()`,
-          `color:#BFFF00;`
-        );
-        const userEmail = JSON.parse(localStorage.getItem("user_info")).email;
-        await this.setTempFileData(
-          userEmail,
-          "WP",
-          this.portfolioList[3],
-          true
-        );
-      } else {
-        this.portfolioList[3].file_path =
-          "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTEddFPyFQa3czMdjTSMulgvCKmt3rJMqYuMwTSDEpZtdWzgxc1PLYF-NfJMSlqbgXbaoE&usqp=CAU";
-      }
-    },
-    async fileHendlerWP5() {
-      if (this.portfolioList[4].file !== null) {
-        console.log(
-          `%c[ Comp: SignUpWork ] fileHendlerWP5()`,
-          `color:#BFFF00;`
-        );
-        const userEmail = JSON.parse(localStorage.getItem("user_info")).email;
-        await this.setTempFileData(
-          userEmail,
-          "WP",
-          this.portfolioList[4],
-          true
-        );
-      } else {
-        this.portfolioList[4].file_path =
-          "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTEddFPyFQa3czMdjTSMulgvCKmt3rJMqYuMwTSDEpZtdWzgxc1PLYF-NfJMSlqbgXbaoE&usqp=CAU";
-      }
-    },
-    async fileHendlerWP6() {
-      if (this.portfolioList[5].file !== null) {
-        console.log(
-          `%c[ Comp: SignUpWork ] fileHendlerWP6()`,
-          `color:#BFFF00;`
-        );
-        const userEmail = JSON.parse(localStorage.getItem("user_info")).email;
-        await this.setTempFileData(
-          userEmail,
-          "WP",
-          this.portfolioList[5],
-          true
-        );
-      } else {
-        this.portfolioList[5].file_path =
-          "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTEddFPyFQa3czMdjTSMulgvCKmt3rJMqYuMwTSDEpZtdWzgxc1PLYF-NfJMSlqbgXbaoE&usqp=CAU";
-      }
-    },
-    // PHSTCODE
-    execDaumPostcode() {
-      new window.daum.Postcode({
-        oncomplete: (data) => {
-          if (this.workModel.working_place_address_detail !== "") {
-            this.workModel.working_place_address_detail = "";
-          }
-          if (data.userSelectedType === "R") {
-            // 사용자가 도로명 주소를 선택했을 경우
-            this.workModel.working_place_address = data.roadAddress;
-          } else {
-            // 사용자가 지번 주소를 선택했을 경우(J)
-            this.workModel.working_place_address = data.jibunAddress;
-          }
-
-          // 사용자가 선택한 주소가 도로명 타입일때 참고항목을 조합한다.
-          if (data.userSelectedType === "R") {
-            // 법정동명이 있을 경우 추가한다. (법정리는 제외)
-            // 법정동의 경우 마지막 문자가 "동/로/가"로 끝난다.
-            if (data.bname !== "" && /[동|로|가]$/g.test(data.bname)) {
-              this.workModel.working_place_address_detail += data.bname;
-            }
-            // 건물명이 있고, 공동주택일 경우 추가한다.
-            if (data.buildingName !== "" && data.apartment === "Y") {
-              this.workModel.working_place_address_detail +=
-                this.workModel.working_place_address_detail !== ""
-                  ? `, ${data.buildingName}`
-                  : data.buildingName;
-            }
-            // 표시할 참고항목이 있을 경우, 괄호까지 추가한 최종 문자열을 만든다.
-            if (this.workModel.working_place_address_detail !== "") {
-              this.workModel.working_place_address_detail = `(${this.workModel.working_place_address_detail})`;
-            }
-          } else {
-            this.workModel.working_place_address_detail = "";
-          }
-          // 우편번호를 입력한다.
-          this.workModel.working_place_postcode = data.zonecode;
-        },
-      }).open();
-    },
-    // 비즈니스 키워드 처리
-    async processBusinessKeyword() {
-      this.editedItemBusinessKeywords.trim();
-      const newBKList = this.editedItemBusinessKeywords.split(",");
-      const oldBKList = this.getObjectArrayToArray(
-        this.businessKeywordList,
-        "keyword_name"
-      );
-      this.lv1_Data("newBKList", newBKList);
-      this.lv1_Data("oldBKList", oldBKList);
-      const removedEs = await this.getRemovedElements(oldBKList, newBKList);
-      const addedEs = await this.getAddedElements(oldBKList, newBKList);
-      this.lv1_Data("removedElements", removedEs);
-      this.lv1_Data("addedElements", addedEs);
-      if (removedEs.length == 0 && addedEs.length == 0) {
-        this.lv1_Case("키워드 변동 없음");
-      } else if (removedEs.length > 0 && addedEs.length == 0) {
-        this.lv1_Case("제거된 키워드가 있음");
-        // 사라진거 삭제
-        removedEs.forEach(async (element) => {
-          for (let i = 0; i < this.businessKeywordList.length; i++) {
-            if (this.businessKeywordList[i]["keyword_name"] === element) {
-              // 삭제통신 수행
-              const deletedWorkResult = await this.authDeleteData(
-                this.BusinessKeyword,
-                this.businessKeywordList[i].id
-              );
-              this.lv1_Data("deletedWorkResult", deletedWorkResult);
-            }
-          }
-        });
-      } else if (removedEs.length == 0 && addedEs.length > 0) {
-        this.lv1_Case("추가된 키워드가 있음");
-        // 추가된거 추가
-        addedEs.forEach(async (element) => {
-          const newBKModel = {
-            work_id: this.workModel.id,
-            keyword_name: element,
-          };
-          const newBusinessKeyword = await this.authCreateData(
-            this.BusinessKeyword,
-            newBKModel
+        }
+        // [ Work ] business_domain_lv2_idx
+        if (
+          tempWork.business_domain_lv2_idx !== null &&
+          tempWork.business_domain_lv2_idx !== ''
+        ) {
+          this.$set(
+            this.workModel,
+            'business_domain_lv2_idx',
+            tempWork.business_domain_lv2_idx
           );
-          this.lv1_Data("newBusinessKeyword", newBusinessKeyword);
-        });
-      } else if (removedEs.length > 0 && addedEs.length > 0) {
-        this.lv1_Case("제거된 키워드가 있고, 추가된 키워드가 있음");
-        // 사라진거 삭제
-        removedEs.forEach(async (element) => {
-          for (let i = 0; i < this.businessKeywordList.length; i++) {
-            if (this.businessKeywordList[i]["keyword_name"] === element) {
-              // 삭제통신 수행
-              const deletedWorkResult = await this.authDeleteData(
-                this.BusinessKeyword,
-                this.businessKeywordList[i].id
-              );
-              this.lv1_Data("deletedWorkResult", deletedWorkResult);
-            }
-          }
-        });
-        // 추가된거 추가
-        addedEs.forEach(async (element) => {
-          const newBKModel = {
-            work_id: this.workModel.id,
-            keyword_name: element,
-          };
-          const newBusinessKeyword = await this.authCreateData(
-            this.BusinessKeyword,
-            newBKModel
+        }
+        // [ Work ] work_type
+        if (tempWork.work_type !== null && tempWork.work_type !== '') {
+          this.$set(this.workModel, 'work_type', tempWork.work_type);
+        }
+        // [ Work ] career_type
+        if (tempWork.career_type !== null && tempWork.career_type !== '') {
+          this.$set(this.workModel, 'career_type', tempWork.career_type);
+        }
+        // [ Work ] work_description
+        if (
+          tempWork.work_description !== null &&
+          tempWork.work_description !== ''
+        ) {
+          this.$set(
+            this.workModel,
+            'work_description',
+            tempWork.work_description
           );
-          this.lv1_Data("newBusinessKeyword", newBusinessKeyword);
-        });
-      }
+        }
+        // [ Work ] job_position_idx
+        if (
+          tempWork.job_position_idx !== null &&
+          tempWork.job_position_idx !== ''
+        ) {
+          this.$set(
+            this.workModel,
+            'job_position_idx',
+            tempWork.job_position_idx
+          );
+        }
+        // [ Work ] uri_homepage
+        if (tempWork.uri_homepage !== null && tempWork.uri_homepage !== '') {
+          this.$set(this.workModel, 'uri_homepage', tempWork.uri_homepage);
+        }
+        // [ Work ] uri_instagram
+        if (tempWork.uri_instagram !== null && tempWork.uri_instagram !== '') {
+          this.$set(this.workModel, 'uri_instagram', tempWork.uri_instagram);
+        }
+        // [ Work ] tel
+        if (tempWork.tel !== null && tempWork.tel !== '') {
+          this.$set(this.workModel, 'tel', tempWork.tel);
+        }
+        // [ Work ] working_place_postcode
+        if (
+          tempWork.working_place_postcode !== null &&
+          tempWork.working_place_postcode !== ''
+        ) {
+          this.$set(
+            this.workModel,
+            'working_place_postcode',
+            tempWork.working_place_postcode
+          );
+        }
+        // [ Work ] working_place_address
+        if (
+          tempWork.working_place_address !== null &&
+          tempWork.working_place_address !== ''
+        ) {
+          this.$set(
+            this.workModel,
+            'working_place_address',
+            tempWork.working_place_address
+          );
+        }
+        // [ Work ] working_place_address_detail
+        if (
+          tempWork.working_place_address_detail !== null &&
+          tempWork.working_place_address_detail !== ''
+        ) {
+          this.$set(
+            this.workModel,
+            'working_place_address_detail',
+            tempWork.working_place_address_detail
+          );
+        }
+      },
+      // 빈 데이터 체크
+      async checkEmptyData() {
+        // // 빈 데이터방지 확인
+        if (this.company_name == '') {
+          alert('회사 이름을 입력하세요.');
+          this.logingDialog = false;
+          this.value = 0;
+          return false;
+        }
+        if (this.business_domain_lv1_idx == '') {
+          alert('비즈니스 대분류를 입력하세요.');
+          this.logingDialog = false;
+          this.value = 0;
+          return false;
+        }
+        if (this.business_domain_lv2_idx == '') {
+          alert('비즈니스 소분류를 입력하세요.');
+          this.logingDialog = false;
+          this.value = 0;
+          return false;
+        }
+        if (this.work_type == '') {
+          alert('회사,업무의 유형을 입력하세요.');
+          this.logingDialog = false;
+          this.value = 0;
+          return false;
+        }
+        if (this.job_position_idx == '') {
+          alert('직급을 입력하세요.');
+          this.logingDialog = false;
+          this.value = 0;
+          return false;
+        }
+        if (this.career_type == '') {
+          alert('경력을 입력하세요.');
+          this.logingDialog = false;
+          this.value = 0;
+          return false;
+        }
+
+        if (this.working_place_postcode == '') {
+          alert('우편번호를 입력하세요.');
+          this.logingDialog = false;
+          this.value = 0;
+          return false;
+        }
+        if (this.working_place_address == '') {
+          alert('주소를 입력하세요.');
+          this.logingDialog = false;
+          this.value = 0;
+          return false;
+        }
+        if (this.working_place_address_detail == '') {
+          alert('세부주소를 입력하세요.');
+          this.logingDialog = false;
+          this.value = 0;
+          return false;
+        }
+        if (this.work_description == '') {
+          alert('사업,직무 한 줄 설명을 입력하세요.');
+          this.logingDialog = false;
+          this.value = 0;
+          return false;
+        }
+        if (this.editedItemBusinessKeywords == '') {
+          alert('산업을 잘 설명할 키워드를 입력하세요. 검색에 활용됩니다.');
+          this.logingDialog = false;
+          this.value = 0;
+          return false;
+        }
+        if (this.editedItemBusinessKeywords == '') {
+          alert('사업,직무 키워드를 입력하세요.');
+          this.logingDialog = false;
+          this.value = 0;
+          return false;
+        }
+
+        return true;
+      },
+      // IMAGE HANDELER
+      async fileHendlerWR() {
+        console.log(`%c[ Comp: SignUpWork ] fileHendlerWR()`, `color:#BFFF00;`);
+        const userEmail = JSON.parse(localStorage.getItem('user_info')).email;
+        await this.setTempFileData(userEmail, 'WR', this.workRefImg, true);
+      },
+      async fileHendlerWP1() {
+        if (this.portfolioList[0].file !== null) {
+          console.log(
+            `%c[ Comp: SignUpWork ] fileHendlerWP1()`,
+            `color:#BFFF00;`
+          );
+          const userEmail = JSON.parse(localStorage.getItem('user_info')).email;
+          await this.setTempFileData(
+            userEmail,
+            'WP',
+            this.portfolioList[0],
+            true
+          );
+        } else {
+          this.portfolioList[0].file_path =
+            'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTEddFPyFQa3czMdjTSMulgvCKmt3rJMqYuMwTSDEpZtdWzgxc1PLYF-NfJMSlqbgXbaoE&usqp=CAU';
+        }
+      },
+      async fileHendlerWP2() {
+        if (this.portfolioList[1].file !== null) {
+          console.log(
+            `%c[ Comp: SignUpWork ] fileHendlerWP2()`,
+            `color:#BFFF00;`
+          );
+          const userEmail = JSON.parse(localStorage.getItem('user_info')).email;
+          await this.setTempFileData(
+            userEmail,
+            'WP',
+            this.portfolioList[1],
+            true
+          );
+        } else {
+          this.portfolioList[1].file_path =
+            'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTEddFPyFQa3czMdjTSMulgvCKmt3rJMqYuMwTSDEpZtdWzgxc1PLYF-NfJMSlqbgXbaoE&usqp=CAU';
+        }
+      },
+      async fileHendlerWP3() {
+        if (this.portfolioList[2].file !== null) {
+          console.log(
+            `%c[ Comp: SignUpWork ] fileHendlerWP3()`,
+            `color:#BFFF00;`
+          );
+          const userEmail = JSON.parse(localStorage.getItem('user_info')).email;
+          await this.setTempFileData(
+            userEmail,
+            'WP',
+            this.portfolioList[2],
+            true
+          );
+        } else {
+          this.portfolioList[2].file_path =
+            'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTEddFPyFQa3czMdjTSMulgvCKmt3rJMqYuMwTSDEpZtdWzgxc1PLYF-NfJMSlqbgXbaoE&usqp=CAU';
+        }
+      },
+      async fileHendlerWP4() {
+        if (this.portfolioList[3].file !== null) {
+          console.log(
+            `%c[ Comp: SignUpWork ] fileHendlerWP4()`,
+            `color:#BFFF00;`
+          );
+          const userEmail = JSON.parse(localStorage.getItem('user_info')).email;
+          await this.setTempFileData(
+            userEmail,
+            'WP',
+            this.portfolioList[3],
+            true
+          );
+        } else {
+          this.portfolioList[3].file_path =
+            'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTEddFPyFQa3czMdjTSMulgvCKmt3rJMqYuMwTSDEpZtdWzgxc1PLYF-NfJMSlqbgXbaoE&usqp=CAU';
+        }
+      },
+      async fileHendlerWP5() {
+        if (this.portfolioList[4].file !== null) {
+          console.log(
+            `%c[ Comp: SignUpWork ] fileHendlerWP5()`,
+            `color:#BFFF00;`
+          );
+          const userEmail = JSON.parse(localStorage.getItem('user_info')).email;
+          await this.setTempFileData(
+            userEmail,
+            'WP',
+            this.portfolioList[4],
+            true
+          );
+        } else {
+          this.portfolioList[4].file_path =
+            'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTEddFPyFQa3czMdjTSMulgvCKmt3rJMqYuMwTSDEpZtdWzgxc1PLYF-NfJMSlqbgXbaoE&usqp=CAU';
+        }
+      },
+      async fileHendlerWP6() {
+        if (this.portfolioList[5].file !== null) {
+          console.log(
+            `%c[ Comp: SignUpWork ] fileHendlerWP6()`,
+            `color:#BFFF00;`
+          );
+          const userEmail = JSON.parse(localStorage.getItem('user_info')).email;
+          await this.setTempFileData(
+            userEmail,
+            'WP',
+            this.portfolioList[5],
+            true
+          );
+        } else {
+          this.portfolioList[5].file_path =
+            'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTEddFPyFQa3czMdjTSMulgvCKmt3rJMqYuMwTSDEpZtdWzgxc1PLYF-NfJMSlqbgXbaoE&usqp=CAU';
+        }
+      },
+      // PHSTCODE
+      execDaumPostcode() {
+        new window.daum.Postcode({
+          oncomplete: (data) => {
+            if (this.workModel.working_place_address_detail !== '') {
+              this.workModel.working_place_address_detail = '';
+            }
+            if (data.userSelectedType === 'R') {
+              // 사용자가 도로명 주소를 선택했을 경우
+              this.workModel.working_place_address = data.roadAddress;
+            } else {
+              // 사용자가 지번 주소를 선택했을 경우(J)
+              this.workModel.working_place_address = data.jibunAddress;
+            }
+
+            // 사용자가 선택한 주소가 도로명 타입일때 참고항목을 조합한다.
+            if (data.userSelectedType === 'R') {
+              // 법정동명이 있을 경우 추가한다. (법정리는 제외)
+              // 법정동의 경우 마지막 문자가 "동/로/가"로 끝난다.
+              if (data.bname !== '' && /[동|로|가]$/g.test(data.bname)) {
+                this.workModel.working_place_address_detail += data.bname;
+              }
+              // 건물명이 있고, 공동주택일 경우 추가한다.
+              if (data.buildingName !== '' && data.apartment === 'Y') {
+                this.workModel.working_place_address_detail +=
+                  this.workModel.working_place_address_detail !== ''
+                    ? `, ${data.buildingName}`
+                    : data.buildingName;
+              }
+              // 표시할 참고항목이 있을 경우, 괄호까지 추가한 최종 문자열을 만든다.
+              if (this.workModel.working_place_address_detail !== '') {
+                this.workModel.working_place_address_detail = `(${this.workModel.working_place_address_detail})`;
+              }
+            } else {
+              this.workModel.working_place_address_detail = '';
+            }
+            // 우편번호를 입력한다.
+            this.workModel.working_place_postcode = data.zonecode;
+          },
+        }).open();
+      },
+      // 비즈니스 키워드 처리
+      async processBusinessKeyword() {
+        this.editedItemBusinessKeywords.trim();
+        const newBKList = this.editedItemBusinessKeywords.split(',');
+        const oldBKList = this.getObjectArrayToArray(
+          this.businessKeywordList,
+          'keyword_name'
+        );
+        this.lv1_Data('newBKList', newBKList);
+        this.lv1_Data('oldBKList', oldBKList);
+        const removedEs = await this.getRemovedElements(oldBKList, newBKList);
+        const addedEs = await this.getAddedElements(oldBKList, newBKList);
+        this.lv1_Data('removedElements', removedEs);
+        this.lv1_Data('addedElements', addedEs);
+        if (removedEs.length == 0 && addedEs.length == 0) {
+          this.lv1_Case('키워드 변동 없음');
+        } else if (removedEs.length > 0 && addedEs.length == 0) {
+          this.lv1_Case('제거된 키워드가 있음');
+          // 사라진거 삭제
+          removedEs.forEach(async (element) => {
+            for (let i = 0; i < this.businessKeywordList.length; i++) {
+              if (this.businessKeywordList[i]['keyword_name'] === element) {
+                // 삭제통신 수행
+                const deletedWorkResult = await this.authDeleteData(
+                  this.BusinessKeyword,
+                  this.businessKeywordList[i].id
+                );
+                this.lv1_Data('deletedWorkResult', deletedWorkResult);
+              }
+            }
+          });
+        } else if (removedEs.length == 0 && addedEs.length > 0) {
+          this.lv1_Case('추가된 키워드가 있음');
+          // 추가된거 추가
+          addedEs.forEach(async (element) => {
+            const newBKModel = {
+              work_id: this.workModel.id,
+              keyword_name: element,
+            };
+            const newBusinessKeyword = await this.authCreateData(
+              this.BusinessKeyword,
+              newBKModel
+            );
+            this.lv1_Data('newBusinessKeyword', newBusinessKeyword);
+          });
+        } else if (removedEs.length > 0 && addedEs.length > 0) {
+          this.lv1_Case('제거된 키워드가 있고, 추가된 키워드가 있음');
+          // 사라진거 삭제
+          removedEs.forEach(async (element) => {
+            for (let i = 0; i < this.businessKeywordList.length; i++) {
+              if (this.businessKeywordList[i]['keyword_name'] === element) {
+                // 삭제통신 수행
+                const deletedWorkResult = await this.authDeleteData(
+                  this.BusinessKeyword,
+                  this.businessKeywordList[i].id
+                );
+                this.lv1_Data('deletedWorkResult', deletedWorkResult);
+              }
+            }
+          });
+          // 추가된거 추가
+          addedEs.forEach(async (element) => {
+            const newBKModel = {
+              work_id: this.workModel.id,
+              keyword_name: element,
+            };
+            const newBusinessKeyword = await this.authCreateData(
+              this.BusinessKeyword,
+              newBKModel
+            );
+            this.lv1_Data('newBusinessKeyword', newBusinessKeyword);
+          });
+        }
+      },
     },
-  },
-};
+  };
 </script>
 
 <style scoped>
-/* Element : v-text-field */
-.v-text-field--outlined >>> fieldset {
-  /* border-color: rgba(192, 0, 250, 0.986); */
-  border: solid 1.5px rgba(236, 237, 245, 0.3);
-  border-radius: 24px;
-  background-image: #edeef3 !important;
-  box-shadow: 15px 15px 15px #00000012, -15px -15px 15px #ffffff !important;
-}
+  /* Element : v-text-field */
+  .v-text-field--outlined >>> fieldset {
+    /* border-color: rgba(192, 0, 250, 0.986); */
+    border: solid 1.5px rgba(236, 237, 245, 0.3);
+    border-radius: 24px;
+    background-image: #edeef3 !important;
+    box-shadow: 15px 15px 15px #00000012, -15px -15px 15px #ffffff !important;
+  }
 
-::v-deep .v-label {
-  font-family: NotoSansKR;
-  font-size: 13px;
-  font-weight: 500;
-  font-stretch: normal;
-  font-style: normal;
-  line-height: normal;
-  letter-spacing: 0.09px;
-  color: #b7bbcc;
-}
+  ::v-deep .v-label {
+    font-family: NotoSansKR;
+    font-size: 13px;
+    font-weight: 500;
+    font-stretch: normal;
+    font-style: normal;
+    line-height: normal;
+    letter-spacing: 0.09px;
+    color: #b7bbcc;
+  }
 
-.fb-btn .v-btn--outlined {
-  border: thin solid #cccccc;
-}
+  .fb-btn .v-btn--outlined {
+    border: thin solid #cccccc;
+  }
 </style>

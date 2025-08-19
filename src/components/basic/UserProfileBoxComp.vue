@@ -73,58 +73,58 @@
 </template>
 
 <script>
-import "@/styles/overrides.scss";
-import { mapState } from "vuex";
-export default {
-  props: {
-    userProfile: {
-      type: String,
-      default: "userName",
+  import '@/styles/overrides.scss';
+  import { mapState } from 'vuex';
+  export default {
+    props: {
+      userProfile: {
+        type: String,
+        default: 'userName',
+      },
+      userName: {
+        type: String,
+        default: 'userName',
+      },
+      jopPosition: {
+        type: String,
+        default: '직급',
+      },
+      churchOffice: {
+        type: String,
+        default: '직분',
+      },
+      organization: {
+        type: String,
+        default: '기관',
+      },
+      phoneNumber: {
+        type: String,
+        default: '000 0000 0000',
+      },
+      address: {
+        type: String,
+        default: '서울특별시 강서구 가양동',
+      },
     },
-    userName: {
-      type: String,
-      default: "userName",
+    computed: {
+      ...mapState(['isLogin', 'userInfo', 'yewonbizAxios']),
     },
-    jopPosition: {
-      type: String,
-      default: "직급",
+    watch: {
+      churchOffice(val) {
+        if (val == '청년') {
+          this.org = '청년회';
+        } else {
+          this.org = '전도회';
+        }
+      },
     },
-    churchOffice: {
-      type: String,
-      default: "직분",
+    data() {
+      return {
+        org: '',
+        dialog: false,
+      };
     },
-    organization: {
-      type: String,
-      default: "기관",
-    },
-    phoneNumber: {
-      type: String,
-      default: "000 0000 0000",
-    },
-    address: {
-      type: String,
-      default: "서울특별시 강서구 가양동",
-    },
-  },
-  computed: {
-    ...mapState(["isLogin", "userInfo", "yewonbizAxios"]),
-  },
-  watch: {
-    churchOffice(val) {
-      if (val == "청년") {
-        this.org = "청년회";
-      } else {
-        this.org = "전도회";
-      }
-    },
-  },
-  data() {
-    return {
-      org: "",
-      dialog: false,
-    };
-  },
-};
+  };
 </script>
 
 <style></style>

@@ -1,9 +1,9 @@
 // src/store/index.js
 
-import Vue from "vue";
-import Vuex from "vuex";
-import createPersistedState from "vuex-persistedstate";
-import auth from "./auth";
+import Vue from 'vue';
+import Vuex from 'vuex';
+import createPersistedState from 'vuex-persistedstate';
+import auth from './auth';
 // import tempUsers from "./tempUsers";
 // import visitations from "./visitations"; // visitations 모듈 가져오기
 

@@ -11,7 +11,7 @@
 
         <!-- 중앙: 버전 정보 -->
         <v-col cols="auto" class="mx-4">
-          <span class="text-caption grey--text"> Version {{ version }} </span>
+          <span class="text-caption grey--text">Version {{ version }}</span>
         </v-col>
 
         <!-- 우측: 링크들 -->
@@ -37,62 +37,62 @@
 </template>
 
 <script>
-export default {
-  name: "AdminFooter",
+  export default {
+    name: 'AdminFooter',
 
-  data: () => ({
-    version: process.env.VUE_APP_VERSION || "1.0.0",
-    links: [
-      {
-        text: "이용약관",
-        href: "#",
-      },
-      {
-        text: "개인정보처리방침",
-        href: "#",
-      },
-      {
-        text: "문의하기",
-        href: "#",
-      },
-    ],
-  }),
-};
+    data: () => ({
+      version: process.env.VUE_APP_VERSION || '1.0.0',
+      links: [
+        {
+          text: '이용약관',
+          href: '#',
+        },
+        {
+          text: '개인정보처리방침',
+          href: '#',
+        },
+        {
+          text: '문의하기',
+          href: '#',
+        },
+      ],
+    }),
+  };
 </script>
 
 <style scoped>
-.admin-footer {
-  border-top: 1px solid #e0e0e0;
-  background-color: #f5f5f5 !important;
-}
-
-.v-btn {
-  text-transform: none !important;
-  letter-spacing: normal !important;
-}
-
-.v-btn::before {
-  background-color: transparent;
-}
-
-.v-btn:hover {
-  background-color: transparent !important;
-}
-
-.v-btn:hover .text-caption {
-  color: #1976d2 !important;
-}
-
-/* 반응형 스타일 */
-@media (max-width: 600px) {
-  .v-row {
-    flex-direction: column;
-    align-items: center;
-    text-align: center;
+  .admin-footer {
+    border-top: 1px solid #e0e0e0;
+    background-color: #f5f5f5 !important;
   }
 
-  .v-col {
-    margin: 4px 0;
+  .v-btn {
+    text-transform: none !important;
+    letter-spacing: normal !important;
   }
-}
+
+  .v-btn::before {
+    background-color: transparent;
+  }
+
+  .v-btn:hover {
+    background-color: transparent !important;
+  }
+
+  .v-btn:hover .text-caption {
+    color: #1976d2 !important;
+  }
+
+  /* 반응형 스타일 */
+  @media (max-width: 600px) {
+    .v-row {
+      flex-direction: column;
+      align-items: center;
+      text-align: center;
+    }
+
+    .v-col {
+      margin: 4px 0;
+    }
+  }
 </style>

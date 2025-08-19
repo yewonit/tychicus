@@ -31,66 +31,70 @@
 </template>
 
 <script>
-import { AWSS3Ctrl } from "@/mixins/apis_v2/external/AWSS3Ctrl.js";
+  import { AWSS3Ctrl } from '@/mixins/apis_v2/external/AWSS3Ctrl.js';
 
-export default {
-  name: "AWSImageCRUDTest",
-  mixins: [AWSS3Ctrl],
-  data() {
-    return {
-      selectedFile: null,
-      images: [],
-      selectedImage: null,
-    };
-  },
-  methods: {
-    handleFileUpload(event) {
-      this.selectedFile = event.target.files[0];
+  export default {
+    name: 'AWSImageCRUDTest',
+    mixins: [AWSS3Ctrl],
+    data() {
+      return {
+        selectedFile: null,
+        images: [],
+        selectedImage: null,
+      };
     },
-    async uploadImage() {
-      if (!this.selectedFile) {
-        alert("파일을 선택해주세요.");
-        return;
-      }
-      const fileName = `meetings/${Date.now()}_${this.selectedFile.name}`;
-      const result = await this.s3CreateFile(fileName, this.selectedFile, true);
-      if (result) {
-        alert("이미지 업로드 성공");
-        this.listImages();
-      }
-    },
-    async listImages() {
-      this.images = await this.s3ReadFileList();
-      this.images = this.images.filter((img) =>
-        img.Key.startsWith("meetings/")
-      );
-    },
-    async viewImage(key) {
-      const imageData = await this.s3GetFile(key, true);
-      if (imageData) {
-        const blob = new Blob([imageData], { type: "image/jpeg" });
-        this.selectedImage = URL.createObjectURL(blob);
-      }
-    },
-    async deleteImage(key) {
-      const result = await this.s3DeleteFile(key, true);
-      if (result) {
-        alert("이미지 삭제 성공");
-        this.listImages();
-        if (this.selectedImage && this.selectedImage.includes(key)) {
-          this.selectedImage = null;
+    methods: {
+      handleFileUpload(event) {
+        this.selectedFile = event.target.files[0];
+      },
+      async uploadImage() {
+        if (!this.selectedFile) {
+          alert('파일을 선택해주세요.');
+          return;
         }
-      }
+        const fileName = `meetings/${Date.now()}_${this.selectedFile.name}`;
+        const result = await this.s3CreateFile(
+          fileName,
+          this.selectedFile,
+          true
+        );
+        if (result) {
+          alert('이미지 업로드 성공');
+          this.listImages();
+        }
+      },
+      async listImages() {
+        this.images = await this.s3ReadFileList();
+        this.images = this.images.filter((img) =>
+          img.Key.startsWith('meetings/')
+        );
+      },
+      async viewImage(key) {
+        const imageData = await this.s3GetFile(key, true);
+        if (imageData) {
+          const blob = new Blob([imageData], { type: 'image/jpeg' });
+          this.selectedImage = URL.createObjectURL(blob);
+        }
+      },
+      async deleteImage(key) {
+        const result = await this.s3DeleteFile(key, true);
+        if (result) {
+          alert('이미지 삭제 성공');
+          this.listImages();
+          if (this.selectedImage && this.selectedImage.includes(key)) {
+            this.selectedImage = null;
+          }
+        }
+      },
     },
-  },
-  mounted() {
-    this.listImages();
-  },
-};
+    mounted() {
+      this.listImages();
+    },
+  };
 </script>
 
 <style scoped>
-.aws-image-crud-test {
-  padding: 20px;
-}
+  .aws-image-crud-test {
+    padding: 20px;
+  }
 </style>

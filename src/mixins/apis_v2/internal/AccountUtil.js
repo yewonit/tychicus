@@ -1,9 +1,9 @@
 /**
  * @description NEO CORE 믹스인
  */
-import { MasterCtrl } from "@/mixins/apis_v2/internal/MasterCtrl";
-import { AWSS3Ctrl } from "@/mixins/apis_v2/external/AWSS3Ctrl";
-import { Utility } from "@/mixins/apis_v2/utility/Utility";
+import { MasterCtrl } from '@/mixins/apis_v2/internal/MasterCtrl';
+import { AWSS3Ctrl } from '@/mixins/apis_v2/external/AWSS3Ctrl';
+import { Utility } from '@/mixins/apis_v2/utility/Utility';
 
 export const AccountUtil = {
   data() {

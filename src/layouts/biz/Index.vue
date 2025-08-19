@@ -5,19 +5,19 @@
       <v-tabs v-model="value" right color="primary" slider-color="primary">
         <v-spacer></v-spacer>
         <v-tab>
-          <router-link tag="a" :to="'/biz'">예원산업인 </router-link>
+          <router-link tag="a" :to="'/biz'">예원산업인</router-link>
         </v-tab>
         <v-tab>
-          <router-link tag="a" :to="'/biz'">예원비즈 </router-link>
+          <router-link tag="a" :to="'/biz'">예원비즈</router-link>
         </v-tab>
         <v-tab>
-          <router-link tag="a" :to="'/biz'">아카이브 </router-link>
+          <router-link tag="a" :to="'/biz'">아카이브</router-link>
         </v-tab>
         <v-tab>
-          <router-link tag="a" :to="'/biz'">공지사항 </router-link>
+          <router-link tag="a" :to="'/biz'">공지사항</router-link>
         </v-tab>
         <v-tab>
-          <router-link tag="a" :to="'/biz'">로그인 </router-link>
+          <router-link tag="a" :to="'/biz'">로그인</router-link>
         </v-tab>
         <!-- <v-tab> 아카이브 </v-tab>
         <v-tab> 공지사항 </v-tab>
@@ -37,13 +37,13 @@
 </template>
 
 <script>
-export default {
-  name: "MainIndex",
+  export default {
+    name: 'MainIndex',
 
-  data: () => ({
-    icons: ["mdi-facebook", "mdi-twitter", "mdi-linkedin", "mdi-instagram"],
-  }),
-};
+    data: () => ({
+      icons: ['mdi-facebook', 'mdi-twitter', 'mdi-linkedin', 'mdi-instagram'],
+    }),
+  };
 </script>
 
 <style></style>

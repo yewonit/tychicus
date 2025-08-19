@@ -1,7 +1,7 @@
 .DS_Store
 node_modules
 /dist
-
+package-*.json
 
 # local env files
 .env.local
@@ -20,8 +20,7 @@ pnpm-debug.log*
 *.ntvs*
 *.njsproj
 *.sln
-*.sw?
+*.sw
 
-package-lock.json
 *.cache
 .firebase

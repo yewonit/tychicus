@@ -5,12 +5,12 @@ export const ArrayCtrl = {
   methods: {
     // 오브젝트 배열에 특정 키값을 추출하여 ,로 구분된 문자열로 반환하는 함수
     getObjectArrayToString(objArray, key) {
-      let str = "";
+      let str = '';
       for (let i = 0; i < objArray.length; i++) {
         if (i === 0) {
           str += objArray[i][key];
         } else {
-          str += "," + objArray[i][key];
+          str += ',' + objArray[i][key];
         }
       }
       return str;
@@ -35,18 +35,18 @@ export const ArrayCtrl = {
 
     // 배열을 ,로 구분하여 문자열로 반환하는 함수
     getArrayToString(array) {
-      let str = "";
+      let str = '';
       for (let i = 0; i < array.length; i++) {
         str += array[i];
         if (i < array.length - 1) {
-          str += ",";
+          str += ',';
         }
       }
       return str;
     },
     // 문자열을 ,로 구분하여 배열로 반환하는 함수
     getStringToArray(str) {
-      let array = str.split(",");
+      let array = str.split(',');
       return array;
     },
 

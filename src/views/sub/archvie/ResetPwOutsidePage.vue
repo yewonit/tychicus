@@ -98,7 +98,7 @@
                     rounded
                     block
                   >
-                    <span class="wc-h5 white--text"> 비밀번호 재설정 </span>
+                    <span class="wc-h5 white--text">비밀번호 재설정</span>
                   </v-btn>
                 </v-col>
                 <v-spacer></v-spacer>
@@ -187,7 +187,7 @@
                     rounded
                     block
                   >
-                    <span class="wc-h5 white--text"> 비밀번호 재설정 </span>
+                    <span class="wc-h5 white--text">비밀번호 재설정</span>
                   </v-btn>
                   <!-- <v-btn
             @click="refreshAccessTokenAtVuex()"
@@ -220,123 +220,123 @@
 </template>
 
 <script>
-/**
- * @description 커스텀 CSS
- */
-import "@/styles/overrides.scss";
-/**
- * @description NEO CORE 라이브러리
- */
-import { mapState, mapActions } from "vuex";
-import { AccountUtil } from "@/mixins/apis_v2/internal/AccountUtil";
-import { MasterCtrl } from "@/mixins/apis_v2/internal/MasterCtrl";
-import { FileBins } from "@/mixins/apis_v2/internal/FileBins";
-import { Utility } from "@/mixins/apis_v2/utility/Utility";
-import { TokenCtrl } from "@/mixins/apis_v2/utility/TokenCtrl";
-/**
- * @description 컴포넌트
- */
+  /**
+   * @description 커스텀 CSS
+   */
+  import '@/styles/overrides.scss';
+  /**
+   * @description NEO CORE 라이브러리
+   */
+  import { mapState, mapActions } from 'vuex';
+  import { AccountUtil } from '@/mixins/apis_v2/internal/AccountUtil';
+  import { MasterCtrl } from '@/mixins/apis_v2/internal/MasterCtrl';
+  import { FileBins } from '@/mixins/apis_v2/internal/FileBins';
+  import { Utility } from '@/mixins/apis_v2/utility/Utility';
+  import { TokenCtrl } from '@/mixins/apis_v2/utility/TokenCtrl';
+  /**
+   * @description 컴포넌트
+   */
 
-/**
- * @description 카카오맵 관련 임포트
- */
-/**
- * @description 가상 API 데이터
- */
-/**
- * @description 상태체크
- */
+  /**
+   * @description 카카오맵 관련 임포트
+   */
+  /**
+   * @description 가상 API 데이터
+   */
+  /**
+   * @description 상태체크
+   */
 
-export default {
-  mixins: [TokenCtrl, Utility, FileBins, MasterCtrl, AccountUtil],
-  props: {},
-  data() {
-    return {
-      userPassword: "138",
-      userPasswordConfirm: "138",
-      show1: false,
-      show2: false,
-      checkbox: false,
-    };
-  },
-  computed: {
-    ...mapState(["isLogin", "userInfo", "yewonbizAxios"]),
-    userEmail() {
-      return this.$route.params.userEmail;
+  export default {
+    mixins: [TokenCtrl, Utility, FileBins, MasterCtrl, AccountUtil],
+    props: {},
+    data() {
+      return {
+        userPassword: '138',
+        userPasswordConfirm: '138',
+        show1: false,
+        show2: false,
+        checkbox: false,
+      };
     },
-    userId() {
-      return this.$route.params.userId;
+    computed: {
+      ...mapState(['isLogin', 'userInfo', 'yewonbizAxios']),
+      userEmail() {
+        return this.$route.params.userEmail;
+      },
+      userId() {
+        return this.$route.params.userId;
+      },
     },
-  },
-  methods: {
-    ...mapActions(["login", "refreshAccessTokenAtVuex", "logout"]),
+    methods: {
+      ...mapActions(['login', 'refreshAccessTokenAtVuex', 'logout']),
 
-    async resetAccountPasswordLocal(userPassword, userPasswordConfirm) {
-      if (this.userEmail == null || this.userEmail == "") {
-        alert("잘못된 접근입니다.");
-        this.$router.push({ name: "Login" });
-        return;
-      }
-      if (!userPassword || !userPasswordConfirm) {
-        alert("비밀번호를 입력해주세요.");
-        return;
-      }
-      if (userPassword !== userPasswordConfirm) {
-        alert("비밀번호가 일치하지 않습니다.");
-        return;
-      }
+      async resetAccountPasswordLocal(userPassword, userPasswordConfirm) {
+        if (this.userEmail == null || this.userEmail == '') {
+          alert('잘못된 접근입니다.');
+          this.$router.push({ name: 'Login' });
+          return;
+        }
+        if (!userPassword || !userPasswordConfirm) {
+          alert('비밀번호를 입력해주세요.');
+          return;
+        }
+        if (userPassword !== userPasswordConfirm) {
+          alert('비밀번호가 일치하지 않습니다.');
+          return;
+        }
 
-      const tempUser = await this.resetAccountPassword(
-        this.userId,
-        this.userEmail,
-        userPassword,
-        userPasswordConfirm
-      );
+        const tempUser = await this.resetAccountPassword(
+          this.userId,
+          this.userEmail,
+          userPassword,
+          userPasswordConfirm
+        );
 
-      this.lv1_Data("tempUser", tempUser);
+        this.lv1_Data('tempUser', tempUser);
 
-      if (tempUser.message == "존재하지 않는 번호입니다.") {
-        alert("존재하지 않는 정보입니다.");
-        this.userPassword = "";
-        this.userPasswordConfirm = "";
-        return;
-      }
-      // 로그인 페이지로 이동
-      alert("정상적으로 비밀번호가 변경되었습니다.");
-      this.$router.push({ name: "Login" });
+        if (tempUser.message == '존재하지 않는 번호입니다.') {
+          alert('존재하지 않는 정보입니다.');
+          this.userPassword = '';
+          this.userPasswordConfirm = '';
+          return;
+        }
+        // 로그인 페이지로 이동
+        alert('정상적으로 비밀번호가 변경되었습니다.');
+        this.$router.push({ name: 'Login' });
+      },
     },
-  },
-  mounted() {
-    console.log(this.$route.params.userId);
-    console.log(this.$route.params.userEmail);
-  },
-};
+    mounted() {
+      console.log(this.$route.params.userId);
+      console.log(this.$route.params.userEmail);
+    },
+  };
 </script>
 
 <style></style>
 
 <style scoped>
-/* Element : v-text-field */
-.v-text-field--outlined >>> fieldset {
-  /* border-color: rgba(192, 0, 250, 0.986); */
-  border: solid 1.5px rgba(236, 237, 245, 0.3);
-  border-radius: 24px;
-  background-image: #edeef3 !important;
-  box-shadow: 15px 15px 15px #00000012, -15px -15px 15px #ffffff !important;
-}
+  /* Element : v-text-field */
+  .v-text-field--outlined >>> fieldset {
+    /* border-color: rgba(192, 0, 250, 0.986); */
+    border: solid 1.5px rgba(236, 237, 245, 0.3);
+    border-radius: 24px;
+    background-image: #edeef3 !important;
+    box-shadow: 15px 15px 15px #00000012, -15px -15px 15px #ffffff !important;
+  }
 
-::v-deep .v-label {
-  font-family: NotoSansKR;
-  font-size: 13px;
-  font-weight: 500;
-  font-stretch: normal;
-  font-style: normal;
-  line-height: normal;
-  letter-spacing: 0.09px;
-  color: #b7bbcc;
-}
+  ::v-deep .v-label {
+    font-family: NotoSansKR;
+    font-size: 13px;
+    font-weight: 500;
+    font-stretch: normal;
+    font-style: normal;
+    line-height: normal;
+    letter-spacing: 0.09px;
+    color: #b7bbcc;
+  }
 
-.fb-btn .v-btn--outlined {
-  border: thin solid #cccccc;
-}
+  .fb-btn .v-btn--outlined {
+    border: thin solid #cccccc;
+  }
 </style>

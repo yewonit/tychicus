@@ -12,27 +12,27 @@
 </template>
 
 <script>
-import UpdateInfoUser from "@/components/basic/UpdateInfoUserComp.vue";
+  import UpdateInfoUser from '@/components/basic/UpdateInfoUserComp.vue';
 
-export default {
-  name: "SignUp",
-  components: {
-    UpdateInfoUser,
-  },
-  data() {
-    return {};
-  },
-  mounted() {
-    this.checkLogin();
-  },
-  methods: {
-    checkLogin() {
-      if (!JSON.parse(localStorage.getItem("user_info"))) {
-        this.$router.push("/");
-      }
+  export default {
+    name: 'SignUp',
+    components: {
+      UpdateInfoUser,
     },
-  },
-};
+    data() {
+      return {};
+    },
+    mounted() {
+      this.checkLogin();
+    },
+    methods: {
+      checkLogin() {
+        if (!JSON.parse(localStorage.getItem('user_info'))) {
+          this.$router.push('/');
+        }
+      },
+    },
+  };
 </script>
 
 <style></style>

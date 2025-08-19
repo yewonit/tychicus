@@ -1,20 +1,20 @@
-import axios from "axios";
+import axios from 'axios';
 
 export const TokenCtrl = {
   data() {
     return {
-      TokenCtrlmixinData: " TokenCtrlmixinData",
+      TokenCtrlmixinData: ' TokenCtrlmixinData',
     };
   },
   methods: {
     // CRUD Access Token
     saveAccessToken: (accessToken) => {
       // console.log("[mixins: TokenCtrl ]saveAccessToken", accessToken);
-      localStorage.setItem("access_token", accessToken);
+      localStorage.setItem('access_token', accessToken);
     },
     getAccessToken: () => {
       // console.log("[mixins: TokenCtrl ]getAccessToken");
-      return localStorage.getItem("access_token");
+      return localStorage.getItem('access_token');
     },
     updateAccessToken: (accessToken) => {
       // console.log("[mixins: TokenCtrl ]updateAccessToken", accessToken);
@@ -22,17 +22,17 @@ export const TokenCtrl = {
     },
     deleteAccessToken: () => {
       // console.log("[mixins: TokenCtrl ]deleteAccessToken");
-      localStorage.removeItem("access_token");
+      localStorage.removeItem('access_token');
     },
 
     // CRUD Refresh Token
     saveRefreshToken: (refreshToken) => {
       // console.log("[mixins: TokenCtrl ]saveRefreshToken", refreshToken);
-      localStorage.setItem("refresh_token", refreshToken);
+      localStorage.setItem('refresh_token', refreshToken);
     },
     getRefreshToken: () => {
       // console.log("[mixins: TokenCtrl ]getRefreshToken");
-      return localStorage.getItem("refresh_token");
+      return localStorage.getItem('refresh_token');
     },
     updateRefreshToken: (refreshToken) => {
       // console.log("[mixins: TokenCtrl ]updateRefreshToken", refreshToken);
@@ -40,7 +40,7 @@ export const TokenCtrl = {
     },
     deleteRefreshToken: () => {
       // console.log("[mixins: TokenCtrl ]deleteRefreshToken");
-      localStorage.removeItem("refresh_token");
+      localStorage.removeItem('refresh_token');
     },
 
     // Refresh Access Token
@@ -49,16 +49,16 @@ export const TokenCtrl = {
       const refreshToken = this.getRefreshToken();
       if (refreshToken) {
         axios
-          .post("https://www.yewon-remnant.net/api/refresh", {
-            refreshToken: localStorage.getItem("refresh_token"),
+          .post('https://www.yewon-remnant.net/api/refresh', {
+            refreshToken: localStorage.getItem('refresh_token'),
           })
           .then((res) => {
             // console.log("refresh res", res);
-            localStorage.removeItem("access_token");
-            localStorage.setItem("access_token", res.data.accessToken);
+            localStorage.removeItem('access_token');
+            localStorage.setItem('access_token', res.data.accessToken);
           })
           .catch((err) => {
-            console.log("refresh err", err);
+            console.log('refresh err', err);
           });
       }
     },

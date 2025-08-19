@@ -160,53 +160,53 @@
 </template>
 
 <script>
-// import axios from "axios";
-import PotoBox from "@/components/basic/PotoBoxComp.vue";
-import TopicBox from "@/components/basic/TopicBoxComp.vue";
-import People from "@/components/basic/PeopleComp.vue";
-import { mapState, mapActions } from "vuex";
+  // import axios from "axios";
+  import PotoBox from '@/components/basic/PotoBoxComp.vue';
+  import TopicBox from '@/components/basic/TopicBoxComp.vue';
+  import People from '@/components/basic/PeopleComp.vue';
+  import { mapState, mapActions } from 'vuex';
 
-export default {
-  name: "HomeView",
-  components: {
-    PotoBox,
-    TopicBox,
-    People,
-  },
-  data() {
-    return {};
-  },
-  computed: {
-    ...mapState([
-      "isLogin",
-      "userInfo",
-      "workList",
-      "userList",
-      "whfileList",
-      "uhfileList",
-      "fileList",
-      "businessKeywordList",
-    ]),
-  },
-  created() {
-    // this.checkLogin();
-    // this.getDatabase();
-  },
-  mounted() {},
-  methods: {
-    ...mapActions([
-      "login",
-      "checkLogin",
-      "refreshAccessTokenAtVuex",
-      "logout",
-      "getDatabase",
-    ]),
-  },
-};
+  export default {
+    name: 'HomeView',
+    components: {
+      PotoBox,
+      TopicBox,
+      People,
+    },
+    data() {
+      return {};
+    },
+    computed: {
+      ...mapState([
+        'isLogin',
+        'userInfo',
+        'workList',
+        'userList',
+        'whfileList',
+        'uhfileList',
+        'fileList',
+        'businessKeywordList',
+      ]),
+    },
+    created() {
+      // this.checkLogin();
+      // this.getDatabase();
+    },
+    mounted() {},
+    methods: {
+      ...mapActions([
+        'login',
+        'checkLogin',
+        'refreshAccessTokenAtVuex',
+        'logout',
+        'getDatabase',
+      ]),
+    },
+  };
 </script>
 
 <style>
-/* .v-text-field input {
+  /* .v-text-field input {
   font-size: 1em;
   line-height: 1em;
 }
@@ -218,27 +218,27 @@ export default {
 </style>
 
 <style scoped>
-/* Element : v-text-field */
-.v-text-field--outlined >>> fieldset {
-  /* border-color: rgba(192, 0, 250, 0.986); */
-  border: solid 1.5px rgba(236, 237, 245, 0.3);
-  border-radius: 24px;
-  background-image: #edeef3 !important;
-  box-shadow: 15px 15px 15px #00000012, -15px -15px 15px #ffffff !important;
-}
+  /* Element : v-text-field */
+  .v-text-field--outlined >>> fieldset {
+    /* border-color: rgba(192, 0, 250, 0.986); */
+    border: solid 1.5px rgba(236, 237, 245, 0.3);
+    border-radius: 24px;
+    background-image: #edeef3 !important;
+    box-shadow: 15px 15px 15px #00000012, -15px -15px 15px #ffffff !important;
+  }
 
-::v-deep .v-label {
-  font-family: NotoSansKR;
-  font-size: 13px;
-  font-weight: 500;
-  font-stretch: normal;
-  font-style: normal;
-  line-height: normal;
-  letter-spacing: 0.09px;
-  color: #b7bbcc;
-}
+  ::v-deep .v-label {
+    font-family: NotoSansKR;
+    font-size: 13px;
+    font-weight: 500;
+    font-stretch: normal;
+    font-style: normal;
+    line-height: normal;
+    letter-spacing: 0.09px;
+    color: #b7bbcc;
+  }
 
-.fb-btn .v-btn--outlined {
-  border: thin solid #cccccc;
-}
+  .fb-btn .v-btn--outlined {
+    border: thin solid #cccccc;
+  }
 </style>

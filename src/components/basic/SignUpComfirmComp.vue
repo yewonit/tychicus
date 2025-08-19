@@ -16,9 +16,10 @@
         <v-row class="pb-14">
           <v-col class="pt-10 px-1 pb-1" cols="12">
             <div class="wc-dark-box pa-10">
-              <span class="wc-h5"> {{ bodyTitle }} </span><br />
-              <span class="wc-body2"> {{ bodyText }}</span
-              ><br />
+              <span class="wc-h5">{{ bodyTitle }}</span>
+              <br />
+              <span class="wc-body2">{{ bodyText }}</span>
+              <br />
             </div>
           </v-col>
 
@@ -31,7 +32,7 @@
               rounded
               block
             >
-              <span class="wc-h5 white--text"> {{ buttonText }} </span>
+              <span class="wc-h5 white--text">{{ buttonText }}</span>
             </v-btn>
           </v-col>
         </v-row>
@@ -49,9 +50,10 @@
         <v-row class="pb-14">
           <v-col class="pt-10 px-10 pb-1" cols="12">
             <div class="wc-dark-box pa-10">
-              <span class="wc-h5"> {{ bodyTitle }} </span><br />
-              <span class="wc-body2"> {{ bodyText }}</span
-              ><br />
+              <span class="wc-h5">{{ bodyTitle }}</span>
+              <br />
+              <span class="wc-body2">{{ bodyText }}</span>
+              <br />
             </div>
           </v-col>
 
@@ -64,7 +66,7 @@
               rounded
               block
             >
-              <span class="wc-h5 white--text"> {{ buttonText }} </span>
+              <span class="wc-h5 white--text">{{ buttonText }}</span>
             </v-btn>
           </v-col>
         </v-row>
@@ -74,80 +76,80 @@
 </template>
 
 <script>
-import "@/styles/overrides.scss";
-export default {
-  props: {
-    title: {
-      type: String,
-      default: "Title",
+  import '@/styles/overrides.scss';
+  export default {
+    props: {
+      title: {
+        type: String,
+        default: 'Title',
+      },
+      subTitle: {
+        type: String,
+        default: 'SubTitle',
+      },
+      bodyTitle: {
+        type: String,
+        default: 'BodyTitle',
+      },
+      bodyText: {
+        type: String,
+        default: ``,
+      },
+      buttonText: {
+        type: String,
+        default: 'ButtonText',
+      },
     },
-    subTitle: {
-      type: String,
-      default: "SubTitle",
+    data() {
+      return {
+        checkbox: false,
+      };
     },
-    bodyTitle: {
-      type: String,
-      default: "BodyTitle",
+    computed: {
+      card_class() {
+        switch (this.$vuetify.breakpoint.name) {
+          case 'xs':
+            return 'nm-card-plain';
+          case 'sm':
+            return 'nm-card-plain';
+          case 'md':
+            return 'nm-card-plain';
+          case 'lg':
+            return 'nm-card';
+          case 'xl':
+            return 'nm-card';
+          default:
+            return 'font-size: 1.0rem';
+        }
+      },
     },
-    bodyText: {
-      type: String,
-      default: ``,
-    },
-    buttonText: {
-      type: String,
-      default: "ButtonText",
-    },
-  },
-  data() {
-    return {
-      checkbox: false,
-    };
-  },
-  computed: {
-    card_class() {
-      switch (this.$vuetify.breakpoint.name) {
-        case "xs":
-          return "nm-card-plain";
-        case "sm":
-          return "nm-card-plain";
-        case "md":
-          return "nm-card-plain";
-        case "lg":
-          return "nm-card";
-        case "xl":
-          return "nm-card";
-        default:
-          return "font-size: 1.0rem";
-      }
-    },
-  },
-};
+  };
 </script>
 
 <style></style>
 
 <style scoped>
-/* Element : v-text-field */
-.v-text-field--outlined >>> fieldset {
-  /* border-color: rgba(192, 0, 250, 0.986); */
-  border: solid 1.5px rgba(236, 237, 245, 0.3);
-  border-radius: 24px;
-  background-image: #edeef3 !important;
-  box-shadow: 15px 15px 15px #00000012, -15px -15px 15px #ffffff !important;
-}
+  /* Element : v-text-field */
+  .v-text-field--outlined >>> fieldset {
+    /* border-color: rgba(192, 0, 250, 0.986); */
+    border: solid 1.5px rgba(236, 237, 245, 0.3);
+    border-radius: 24px;
+    background-image: #edeef3 !important;
+    box-shadow: 15px 15px 15px #00000012, -15px -15px 15px #ffffff !important;
+  }
 
-::v-deep .v-label {
-  font-family: NotoSansKR;
-  font-size: 13px;
-  font-weight: 500;
-  font-stretch: normal;
-  font-style: normal;
-  line-height: normal;
-  letter-spacing: 0.09px;
-  color: #b7bbcc;
-}
+  ::v-deep .v-label {
+    font-family: NotoSansKR;
+    font-size: 13px;
+    font-weight: 500;
+    font-stretch: normal;
+    font-style: normal;
+    line-height: normal;
+    letter-spacing: 0.09px;
+    color: #b7bbcc;
+  }
 
-.fb-btn .v-btn--outlined {
-  border: thin solid #cccccc;
-}
+  .fb-btn .v-btn--outlined {
+    border: thin solid #cccccc;
+  }
 </style>

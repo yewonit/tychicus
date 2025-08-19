@@ -20,8 +20,8 @@
           <v-icon small color="#7EA394">
             {{
               item.children && item.children.length > 0
-                ? "mdi-folder"
-                : "mdi-folder-outline"
+                ? 'mdi-folder'
+                : 'mdi-folder-outline'
             }}
           </v-icon>
         </template>
@@ -66,33 +66,33 @@
 </template>
 
 <script>
-export default {
-  name: "OrganizationTree",
+  export default {
+    name: 'OrganizationTree',
 
-  props: {
-    organizationTree: {
-      type: Array,
-      default: () => [],
+    props: {
+      organizationTree: {
+        type: Array,
+        default: () => [],
+      },
     },
-  },
 
-  data() {
-    return {
-      activeOrganization: [],
-    };
-  },
-
-  methods: {
-    handleOrganizationSelect(active) {
-      this.$emit("organization-selected", active);
+    data() {
+      return {
+        activeOrganization: [],
+      };
     },
-  },
-};
+
+    methods: {
+      handleOrganizationSelect(active) {
+        this.$emit('organization-selected', active);
+      },
+    },
+  };
 </script>
 
 <style scoped>
-/* 조직 트리뷰 아이템 간격 조정 */
-.v-treeview-node__root {
-  margin-bottom: 4px;
-}
+  /* 조직 트리뷰 아이템 간격 조정 */
+  .v-treeview-node__root {
+    margin-bottom: 4px;
+  }
 </style>
