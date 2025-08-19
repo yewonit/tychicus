@@ -783,7 +783,7 @@ import { MasterCtrl } from "@/mixins/apis_v2/internal/MasterCtrl";
 
         // TODO: instance 가져오는 메서드임. 다른 api로 수정 필요
         const activities = await this.getActivities(true);
-        
+
         // 각 활동에서 인스턴스(모임) 가져오기
         const meetings = this.processActivitiesForMeetingHistory(
           activities,
@@ -1395,9 +1395,9 @@ import { MasterCtrl } from "@/mixins/apis_v2/internal/MasterCtrl";
 
         // TODO: instance 가져오는 메서드임. 다른 api로 수정 필요
         const activities = await this.getActivities(true);
-        
+
         // 각 활동에서 인스턴스(모임) 가져오기
-        const meetings = this.processActivitiesForMeetingHistory(
+        let meetings = this.processActivitiesForMeetingHistory(
           activities,
           orgId,
           this.getOrganizationName,

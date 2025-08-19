@@ -1053,42 +1053,45 @@ import moment from "moment";
 
           // 모든 활동을 가공 (날짜 필터링은 나중에 수행)
           const processedActivities = this.processActivitiesForDashboard(
-            activities, 
-            org, 
-            this.identifyMeetingType, 
+            activities,
+            org,
+            this.identifyMeetingType,
             this.meetingTypes
           );
 
-          const processedActivitiesWithExtraFields = processedActivities.map(activity => {
-            const hasInstances = activity.instances && 
-                               Array.isArray(activity.instances) && 
-                               activity.instances.length > 0;
+          const processedActivitiesWithExtraFields = processedActivities.map(
+            (activity) => {
+              const hasInstances =
+                activity.instances &&
+                Array.isArray(activity.instances) &&
+                activity.instances.length > 0;
 
-            // 인스턴스 날짜 정보 로깅
-            if (hasInstances) {
-              const instanceDates = activity.instances.map((instance) => {
-                if (instance.start_datetime) {
-                  return moment(instance.start_datetime).format("YYYY-MM-DD");
-                }
-                return "날짜 없음";
-              });
-              console.log(
-                `활동 "${
-                  activity.name || "이름 없음"
-                }"의 인스턴스 날짜: ${instanceDates.join(", ")}`
-              );
+              // 인스턴스 날짜 정보 로깅
+              if (hasInstances) {
+                const instanceDates = activity.instances.map((instance) => {
+                  if (instance.start_datetime) {
+                    return moment(instance.start_datetime).format("YYYY-MM-DD");
+                  }
+                  return "날짜 없음";
+                });
+                console.log(
+                  `활동 "${
+                    activity.name || "이름 없음"
+                  }"의 인스턴스 날짜: ${instanceDates.join(", ")}`
+                );
+              }
+
+              return {
+                ...activity,
+                // 인스턴스가 있을 경우 해당 정보로 date 설정 (없으면 기존 date 사용)
+                date: hasInstances
+                  ? moment(activity.instances[0].start_datetime).format(
+                      "YYYY-MM-DD"
+                    )
+                  : activity.date,
+              };
             }
-
-            return {
-              ...activity,
-              // 인스턴스가 있을 경우 해당 정보로 date 설정 (없으면 기존 date 사용)
-              date: hasInstances
-                ? moment(activity.instances[0].start_datetime).format(
-                    "YYYY-MM-DD"
-                  )
-                : activity.date,
-            };
-          });
+          );
 
           // 유효한 활동이 있으면 추가
           if (processedActivitiesWithExtraFields.length > 0) {
@@ -2007,29 +2010,41 @@ import moment from "moment";
             (orgData) => orgData.activities && orgData.activities.length > 0
           );
 
-          // 필터링된 데이터를 attendanceData에 설정
-          this.attendanceData.meetings = finalFilteredMeetings;
+        // 필터링 결과 요약
+        console.log(
+          `필터링 결과: 전체 ${totalInstancesBefore}개 중 ${totalInstancesAfter}개 인스턴스 포함`
+        );
+        console.log(
+          `포함된 날짜: ${[...new Set(filteredDates)].sort().join(", ")}`
+        );
 
-          // 🔧 테이블 데이터 재구성 - 새로운 구조 사용
-          await this.fetchAndPrepareMemberData();
-          await this.finalizeTableData();
-        } catch (error) {
-          // 오류 발생 시 원본 데이터라도 사용
-          if (
-            this.originalMeetingsData &&
-            this.originalMeetingsData.length > 0
-          ) {
-            this.attendanceData.meetings = JSON.parse(
-              JSON.stringify(this.originalMeetingsData)
-            );
-            this.prepareMeetingDates();
-            this.prepareOrganizationSelectItems();
-            await this.prepareMemberAttendanceData();
-          }
+        // 테이블 데이터 재구성 (중요)
+        this.prepareMeetingDates();
+        this.prepareOrganizationSelectItems();
+        this.prepareMemberAttendanceData();
+
+        // 조직 선택 적용
+        if (
+          this.selectedOrganization &&
+          this.organizationSelectItems.some(
+            (item) => item.value === this.selectedOrganization
+          )
+        ) {
+          // 이전 선택 유지
+          this.handleOrganizationChange();
+        } else if (this.organizationSelectItems.length > 0) {
+          // 기본 조직 선택
+          this.selectedOrganization = this.organizationSelectItems[0].value;
+          this.handleOrganizationChange();
         }
-      },
 
-
+        console.log(
+          `필터링 결과: ${this.memberAttendanceData.length}명 중 ${this.filteredMemberAttendanceData.length}명 표시`
+        );
+      } catch (error) {
+        console.error("데이터 필터링 중 오류 발생:", error);
+      }
+    },
 
       // 모임 유형 식별 함수
       identifyMeetingType(activityName) {

@@ -730,11 +730,7 @@ import { mapState } from "vuex";
 
           console.log('📥 API 응답 데이터:', response);
 
-        if (
-          response &&
-          response.data &&
-          Array.isArray(response.data)
-        ) {
+        if (response && response.data && Array.isArray(response.data)) {
           this.activities = response.map((activity) => ({
             id: activity.id,
             name: activity.name,
