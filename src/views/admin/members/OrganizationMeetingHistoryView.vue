@@ -1397,7 +1397,7 @@
           const activities = await this.getActivities(true);
 
           // 각 활동에서 인스턴스(모임) 가져오기
-          const meetings = this.processActivitiesForMeetingHistory(
+          let meetings = this.processActivitiesForMeetingHistory(
             activities,
             orgId,
             this.getOrganizationName,
