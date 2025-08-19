@@ -715,27 +715,18 @@ import { mapState } from "vuex";
         this.memberList = memberList;
       },
 
-      /**
-       * 활동 목록 조회
-       * @async
-       * @returns {Promise<void>}
-       * @description
-       * - 현재 조직의 모든 활동 유형을 가져옴 (예: 주일예배, 수요예배 등)
-       * - activities 상태를 업데이트하여 모임 종류 선택 드롭다운에 표시
-       * @related setMeetingName에서 선택된 활동에 따라 모임 이름 자동 설정에 사용
-       */
-      async fetchActivities() {
-        try {
-          console.log('📢 fetchActivities 함수 시작');
-
-          if (!this.currentOrganizationId) {
-            console.error('❌ 조직 ID를 찾을 수 없습니다.');
-            return;
-          }
-
-          console.log('🏢 현재 조직 ID:', this.currentOrganizationId);
-
-        const response = await this.getActivities(true);
+    /**
+     * 활동 목록 조회
+     * @async
+     * @returns {Promise<void>}
+     * @description
+     * - 현재 조직의 모든 활동 유형을 가져옴 (예: 주일예배, 수요예배 등)
+     * - activities 상태를 업데이트하여 모임 종류 선택 드롭다운에 표시
+     * @related setMeetingName에서 선택된 활동에 따라 모임 이름 자동 설정에 사용
+     */
+    async fetchActivities() {
+      try {
+        const response = await this.getActivityTemplate(true);
 
           console.log('📥 API 응답 데이터:', response);
 
@@ -744,10 +735,7 @@ import { mapState } from "vuex";
           response.data &&
           Array.isArray(response.data)
         ) {
-          console.log("✅ 활동 데이터 유효성 검사 통과");
-          console.log("📋 원본 활동 데이터:", response.data);
-
-          this.activities = response.data.map((activity) => ({
+          this.activities = response.map((activity) => ({
             id: activity.id,
             name: activity.name,
             description: activity.description,
