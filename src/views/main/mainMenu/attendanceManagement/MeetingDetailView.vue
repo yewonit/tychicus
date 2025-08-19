@@ -20,12 +20,7 @@
           <v-card-title class="wc-h2 wc-card-title">기본 정보</v-card-title>
           <v-card-text>
             <p class="wc-body-1 wc-text-primary">
-              <strong>모임 이름:</strong>
-              {{ meetingData.activityName }}
-            </p>
-            <p class="wc-body-1 wc-text-secondary">
-              <strong>설명:</strong>
-              {{ meetingData.activityDescription }}
+              <strong>모임 이름:</strong> {{ meetingData.name }}
             </p>
             <p class="wc-body-1 wc-text-secondary">
               <strong>날짜:</strong>
@@ -160,37 +155,33 @@
 
 <script>
   import { AttendanceCtrl } from '@/mixins/apis_v2/internal/domainCtrl/AttendanceCtrl';
-  import moment from 'moment-timezone';
+import moment from 'moment-timezone';
 
-  export default {
-    name: 'MeetingDetailView',
-    mixins: [AttendanceCtrl],
-    props: {
-      organizationId: {
-        type: [String, Number],
-        required: true,
-      },
-      activityId: {
-        type: [String, Number],
-        required: true,
-      },
-      activityInstanceId: {
-        type: [String, Number],
-        required: true,
-      },
+export default {
+  name: "MeetingDetailView",
+  mixins: [AttendanceCtrl],
+  props: {
+    organizationId: {
+      type: [String, Number],
+      required: true,
     },
-    data() {
-      return {
-        meetingData: null,
-        allMembers: [],
-        presentMembers: [],
-        absentMembers: [],
-        isDataLoaded: false,
-        meetingImageUrl: '',
-        internalTotalMembers: 0,
-        organizationMembers: [], // 조직 멤버 목록을 저장할 배열
-      };
+    activityInstanceId: {
+      type: [String, Number],
+      required: true,
     },
+  },
+  data() {
+    return {
+      meetingData: null,
+      allMembers: [],
+      presentMembers: [],
+      absentMembers: [],
+      isDataLoaded: false,
+      meetingImageUrl: "",
+      internalTotalMembers: 0,
+      organizationMembers: [], // 조직 멤버 목록을 저장할 배열
+    };
+  },
 
     computed: {
       totalMembers: {
@@ -218,25 +209,25 @@
       this.fetchAllMembers();
     },
 
-    methods: {
-      async fetchMeetingData() {
-        try {
-          const response = await this.getActivityInstanceDetails(
-            this.organizationId,
-            this.activityId,
-            this.activityInstanceId,
-            true
-          );
+  methods: {
+    async fetchMeetingData() {
+      try {
+        const response = await this.getActivityInstanceDetails(
+          this.organizationId,
+          null,
+          this.activityInstanceId,
+          true
+        );
 
-          if (response && response.activityInstance) {
-            this.meetingData = response.activityInstance;
-            this.presentMembers = this.meetingData.attendances.filter(
-              (a) => a.status === '출석'
-            );
-            this.absentMembers = this.meetingData.attendances.filter(
-              (a) => a.status === '결석'
-            );
-            this.totalMembers = this.meetingData.attendances.length;
+        if (response && response.data) {
+          this.meetingData = response.data;
+          this.presentMembers = this.meetingData.attendances.filter(
+            (a) => a.status === "출석"
+          );
+          this.absentMembers = this.meetingData.attendances.filter(
+            (a) => a.status === "결석"
+          );
+          this.totalMembers = this.meetingData.attendances.length;
 
             if (this.meetingData.images && this.meetingData.images.length > 0) {
               this.meetingImageUrl = this.meetingData.images[0].filePath;

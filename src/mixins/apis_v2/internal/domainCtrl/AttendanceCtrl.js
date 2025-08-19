@@ -450,7 +450,7 @@ export const AttendanceCtrl = {
       try {
         const url = `/activities/${activityInstanceId}`;
         const res = await axiosClient.api.get(url);
-        let returnData = res.data;
+        let returnData = res.data.data;
 
         if (showLog) {
           console.log(
