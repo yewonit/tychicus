@@ -731,7 +731,7 @@
           console.log('📥 API 응답 데이터:', response);
 
           if (response && response.data && Array.isArray(response.data)) {
-            this.activities = response.map((activity) => ({
+            this.activities = response.data.map((activity) => ({
               id: activity.id,
               name: activity.name,
               description: activity.description,
@@ -848,7 +848,7 @@
           console.log('👥 선택된 참여자:', selectedParticipants);
 
           // UTC 시간으로 변환
-          const instanceData = {
+          const activityData = {
             startDateTime: dateTimeUtils.toUTCString(this.meetingStartDateTime),
             endDateTime: dateTimeUtils.toUTCString(this.meetingEndDateTime),
             location: this.meetingLocation || '',
@@ -869,10 +869,10 @@
             userId: member.id || member.userId,
             status: member.isParticipating ? '출석' : '결석',
             checkInTime: member.isParticipating
-              ? instanceData.startDateTime
+              ? activityData.startDateTime
               : null,
             checkOutTime: member.isParticipating
-              ? instanceData.endDateTime
+              ? activityData.endDateTime
               : null,
             note: '',
           }));
@@ -880,8 +880,8 @@
           // 최종 데이터 준비
           this.finalData = {
             organizationId: this.currentOrganizationId,
-            activityId: this.selectedActivity,
-            instanceData,
+            activityTemplateId: this.selectedActivity,
+            activityData,
             attendances: allAttendances,
             imageInfo: imageInfo,
           };
@@ -892,11 +892,10 @@
           // 개발 환경 체크 제거하고 바로 데이터 저장
           await this.recordAttendance(
             this.finalData.organizationId,
-            this.finalData.activityId,
-            this.finalData.instanceData,
+            this.finalData.activityTemplateId,
+            this.finalData.activityData,
             this.finalData.attendances,
-            this.finalData.imageInfo,
-            process.env.NODE_ENV === 'development' // showLog 파라미터는 유지
+            this.finalData.imageInfo
           );
 
           // 완료 단계로 진행
@@ -934,16 +933,17 @@
         const file = Array.isArray(this.photos) ? this.photos[0] : this.photos;
         const fileExtension = file.name.split('.').pop();
         const organizationId = this.currentOrganizationId;
-        const activityId = this.selectedActivity;
+        const activityTemplateId = this.selectedActivity;
         const activityName =
-          this.activities.find((a) => a.id === activityId)?.name || 'unknown';
+          this.activities.find((a) => a.id === activityTemplateId)?.name ||
+          'unknown';
         const timestamp = new Date()
           .toISOString()
           .replace(/[-:]/g, '')
           .split('.')[0];
 
         // 새로운 파일 이름 생성
-        const newFileName = `org_${organizationId}_activity_${activityId}_${activityName}_instance_${timestamp}.${fileExtension}`;
+        const newFileName = `org_${organizationId}_activity_${activityTemplateId}_${activityName}_instance_${timestamp}.${fileExtension}`;
 
         // 'meetings/' 폴더를 추가하여 파일 경로를 생성합니다.
         const filePath = `meetings/${newFileName}`;

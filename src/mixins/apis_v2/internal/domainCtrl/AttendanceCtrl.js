@@ -65,7 +65,7 @@ export const AttendanceCtrl = {
       } else if (Array.isArray(responseData)) {
         activities = responseData;
       } else {
-        console.warn("활동 데이터 형식이 올바르지 않습니다:", responseData);
+        console.warn('활동 데이터 형식이 올바르지 않습니다:', responseData);
         return [];
       }
 
@@ -81,14 +81,14 @@ export const AttendanceCtrl = {
     normalizeActivityData(activity) {
       return {
         id: activity.id,
-        name: activity.name || "",
-        description: activity.description || "",
-        location: activity.location || "",
+        name: activity.name || '',
+        description: activity.description || '',
+        location: activity.location || '',
         startDateTime:
           activity.start_time ||
           activity.startDateTime ||
           activity.start_datetime ||
-          "",
+          '',
 
         // 출석 데이터 정규화
         attendances: this.normalizeAttendances(activity.attendances || []),
@@ -118,8 +118,8 @@ export const AttendanceCtrl = {
           attendance.User?.email ||
           attendance.userEmail ||
           attendance.user_email,
-        status: attendance.attendance_status || attendance.status || "",
-        note: attendance.description || attendance.note || "",
+        status: attendance.attendance_status || attendance.status || '',
+        note: attendance.description || attendance.note || '',
       }));
     },
 
@@ -140,13 +140,13 @@ export const AttendanceCtrl = {
       return activities.map((activity) => {
         // 모임 유형 식별 및 분류
         const meetingType = identifyMeetingType(
-          activity.name || activity.type || ""
+          activity.name || activity.type || ''
         );
 
         return {
           ...activity,
           meetingType: meetingType,
-          meetingTypeName: meetingTypes[meetingType] || "기타",
+          meetingTypeName: meetingTypes[meetingType] || '기타',
           organizationId: organization.id,
           organizationName: organization.organization_name,
           date: activity.startDateTime,
@@ -175,13 +175,13 @@ export const AttendanceCtrl = {
 
         const activityAttendances = activity.attendances;
         const presentCount = activityAttendances.filter(
-          (a) => a.status === "출석"
+          (a) => a.status === '출석'
         ).length;
         const absentCount = activityAttendances.filter(
-          (a) => a.status === "결석"
+          (a) => a.status === '결석'
         ).length;
         const lateCount = activityAttendances.filter(
-          (a) => a.status === "지각"
+          (a) => a.status === '지각'
         ).length;
 
         const dateValue = activity.startDateTime || null;
@@ -198,12 +198,12 @@ export const AttendanceCtrl = {
           meeting_date: dateValue,
           meeting_time: formatMeetingTime(dateValue),
           date: dateValue,
-          location: activity.location || "-",
+          location: activity.location || '-',
           image:
             (activity.images &&
               activity.images.length > 0 &&
               activity.images[0].path) ||
-            require("@/assets/images/basic_image.png"),
+            require('@/assets/images/basic_image.png'),
           createdAt: activity.created_at || activity.createdAt || null,
           category: activity.category,
 
@@ -221,7 +221,7 @@ export const AttendanceCtrl = {
         const res = await axiosClient.api.get(`/${this.Activity_EP}/templates`);
         return res.data;
       } catch (error) {
-        console.error("활동 템플릿 정보 조회 중 오류 발생: ", error);
+        console.error('활동 템플릿 정보 조회 중 오류 발생: ', error);
         return { result: 0 };
       }
     },
@@ -269,38 +269,16 @@ export const AttendanceCtrl = {
      */
     async recordAttendance(
       organizationId,
-      activityId,
-      instanceData,
+      activityTemplateId,
+      activityData,
       attendances,
-      imageInfo = null,
-      showLog = false
+      imageInfo = null
     ) {
-      console.log('📥 recordAttendance 입력 파라미터:', {
-        organizationId,
-        activityId,
-        instanceData,
-        attendances,
-        imageInfo,
-        showLog,
-      });
-
-      if (showLog) {
-        console.log(
-          `%c🔍 [ Mixin : AttendanceCtrl ] recordAttendance() 호출됨`,
-          `color: #6495ED; font-weight: bold;`
-        );
-        console.log(`🏢 organizationId: ${organizationId}`);
-        console.log(`🎯 activityId: ${activityId}`);
-      }
       try {
-        const instanceUrl = `/${this.Activity_EP}?organizationId=${organizationId}&activityTemplateId=${activityId}`;
-        console.log('🌐 활동 인스턴스 생성 URL:', instanceUrl);
-        console.log('📦 instanceData:', instanceData);
-        console.log('👥 attendances:', attendances);
-        console.log('📸 imageInfo:', imageInfo);
+        const instanceUrl = `/${this.Activity_EP}?organizationId=${organizationId}&activityTemplateId=${activityTemplateId}`;
 
         const requestData = {
-          instanceData,
+          activityData,
           attendances,
           imageInfo,
         };
@@ -308,13 +286,6 @@ export const AttendanceCtrl = {
         const res = await axiosClient.api.post(instanceUrl, requestData);
         let returnData = res.data;
 
-        if (showLog) {
-          console.log(
-            `%c📊 출석 기록 결과:`,
-            `color: #6495ED; font-weight: bold;`,
-            returnData
-          );
-        }
         return returnData;
       } catch (error) {
         console.error('❌ 출석 정보 기록 중 오류 발생:', error);
