@@ -269,38 +269,16 @@ export const AttendanceCtrl = {
      */
     async recordAttendance(
       organizationId,
-      activityId,
-      instanceData,
+      activityTemplateId,
+      activityData,
       attendances,
-      imageInfo = null,
-      showLog = false
+      imageInfo = null
     ) {
-      console.log('📥 recordAttendance 입력 파라미터:', {
-        organizationId,
-        activityId,
-        instanceData,
-        attendances,
-        imageInfo,
-        showLog,
-      });
-
-      if (showLog) {
-        console.log(
-          `%c🔍 [ Mixin : AttendanceCtrl ] recordAttendance() 호출됨`,
-          `color: #6495ED; font-weight: bold;`
-        );
-        console.log(`🏢 organizationId: ${organizationId}`);
-        console.log(`🎯 activityId: ${activityId}`);
-      }
       try {
-        const instanceUrl = `/${this.Activity_EP}?organizationId=${organizationId}&activityTemplateId=${activityId}`;
-        console.log("🌐 활동 인스턴스 생성 URL:", instanceUrl);
-        console.log("📦 instanceData:", instanceData);
-        console.log("👥 attendances:", attendances);
-        console.log("📸 imageInfo:", imageInfo);
+        const instanceUrl = `/${this.Activity_EP}?organizationId=${organizationId}&activityTemplateId=${activityTemplateId}`;
 
         const requestData = {
-          instanceData,
+          activityData,
           attendances,
           imageInfo,
         };
@@ -308,13 +286,6 @@ export const AttendanceCtrl = {
         const res = await axiosClient.api.post(instanceUrl, requestData);
         let returnData = res.data;
 
-        if (showLog) {
-          console.log(
-            `%c📊 출석 기록 결과:`,
-            `color: #6495ED; font-weight: bold;`,
-            returnData
-          );
-        }
         return returnData;
       } catch (error) {
         console.error('❌ 출석 정보 기록 중 오류 발생:', error);
