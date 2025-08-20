@@ -356,14 +356,6 @@
 
           const { id: instanceId, activityId } = meeting;
 
-          if (!activityId) {
-            console.error('❌ 활동 ID를 찾을 수 없습니다.');
-            this.showDialog(
-              '모임 삭제에 실패했습니다. 활동 ID를 찾을 수 없습니다.'
-            );
-            return;
-          }
-
           const response = await this.deleteActivityInstance(
             this.currentOrganizationId,
             activityId,
@@ -371,10 +363,7 @@
             true
           );
 
-          console.log('삭제 응답:', response);
-
           if (response) {
-            console.log(`✅ 모임 ID ${instanceId} 삭제 성공`);
             this.showDialog(
               `모임 "${meeting.activityName}"이(가) 성공적으로 삭제되었습니다.`
             );
