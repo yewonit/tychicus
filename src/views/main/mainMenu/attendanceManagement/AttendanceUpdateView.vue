@@ -497,11 +497,11 @@ import { mapState } from "vuex";
 
           console.log('API 응답:', response);
 
-          if (response && response.activityInstance) {
-            const activityInstance = response.activityInstance;
-            this.activityId = activityId;
-            this.activityInstanceId = activityInstanceId;
-            this.meetingName = activityInstance.activityName || '';
+        if (response && response.data) {
+          const activityInstance = response.data;
+          this.activityId = activityId;
+          this.activityInstanceId = activityInstanceId;
+          this.meetingName = activityInstance.name || "";
 
             // UTC 문자열을 한국 시간대의 DateTime 객체로 변환
             const startDateTime = dateTimeUtils.fromUTCString(
@@ -563,43 +563,30 @@ import { mapState } from "vuex";
       async updateMeeting() {
         console.log('🚀 updateMeeting 함수 시작');
 
-        if (!this.meetingDate || !this.activityId) {
-          console.warn('⚠️ 필수 정보 누락');
-          alert('필수 정보를 모두 입력해주세요.');
-          return;
-        }
+      if (!this.meetingDate) {
+        console.warn("⚠️ 필수 정보 누락");
+        alert("필수 정보를 모두 입력해주세요.");
+        return;
+      }
 
         // 내부 DateTime 객체 업데이트
         this.updateDateTime();
 
-        // 인스턴스 데이터 준비 (UTC ISO 형식으로 변환)
-        const instanceData = {
-          startDateTime: dateTimeUtils.toUTCString(this.meetingStartDateTime),
-          endDateTime: dateTimeUtils.toUTCString(this.meetingEndDateTime),
-          location: this.meetingLocation || '',
-          notes: this.meetingNotes || '',
-        };
+      // 인스턴스 데이터 준비 (UTC ISO 형식으로 변환)
+      const activityData = {
+        startDateTime: dateTimeUtils.toUTCString(this.meetingStartDateTime),
+        endDateTime: dateTimeUtils.toUTCString(this.meetingEndDateTime),
+        location: this.meetingLocation || "",
+        notes: this.meetingNotes || "",
+      };
 
-        console.log(
-          '📅 시작 시간:',
-          this.meetingStartDateTime.format('YYYY-MM-DD HH:mm:ss')
-        );
-        console.log(
-          '📅 종료 시간:',
-          this.meetingEndDateTime.format('YYYY-MM-DD HH:mm:ss')
-        );
-
-        const attendances = this.memberList.map((member) => ({
-          userId: member.id || member.userId,
-          status: member.isParticipating ? '출석' : '결석',
-          checkInTime: member.isParticipating
-            ? instanceData.startDateTime
-            : null,
-          checkOutTime: member.isParticipating
-            ? instanceData.endDateTime
-            : null,
-          note: '',
-        }));
+      const attendances = this.memberList.map((member) => ({
+        userId: member.id || member.userId,
+        status: member.isParticipating ? "출석" : "결석",
+        checkInTime: member.isParticipating ? activityData.startDateTime : null,
+        checkOutTime: member.isParticipating ? activityData.endDateTime : null,
+        note: "",
+      }));
 
         try {
           // 이미지 처리
@@ -623,15 +610,14 @@ import { mapState } from "vuex";
             }
           }
 
-          const response = await this.updateAttendance(
-            this.currentOrganizationId,
-            this.activityId,
-            this.activityInstanceId,
-            instanceData,
-            attendances,
-            imageInfo,
-            true // showLog
-          );
+        const response = await this.updateAttendance(
+          this.currentOrganizationId,
+          this.activityId,
+          this.activityInstanceId,
+          activityData,
+          attendances,
+          imageInfo
+        );
 
         if (response) {
           console.log("모임 정보 업데이트 성공");

@@ -294,33 +294,29 @@ export default {
         return (roleOrder[roleA] || 4) - (roleOrder[roleB] || 4);
       },
 
-      async fetchOrganizationMembers() {
-        try {
-          const response = await this.getOrganizationMembers(
-            this.organizationId
-          );
-          if (response && response.members) {
-            this.organizationMembers = response.members;
-            console.log('조직 멤버 정보:', this.organizationMembers); // 디버깅용
-          }
-        } catch (error) {
-          console.error('조직 멤버 정보를 가져오는 중 오류 발생:', error);
+    async fetchOrganizationMembers() {
+      try {
+        const response = await this.getOrganizationMembers(this.organizationId);
+        if (response && response.members) {
+          this.organizationMembers = response.members;
         }
-      },
-
-      addRoleInfo(member) {
-        const orgMember = this.organizationMembers.find(
-          (m) => m.id === member.userId
-        );
-        const roleName = orgMember ? orgMember.roleName : '일반 회원';
-        console.log(`${member.userName}의 역할: ${roleName}`); // 디버깅용
-        return {
-          ...member,
-          roleName: roleName,
-        };
-      },
+      } catch (error) {
+        console.error("조직 멤버 정보를 가져오는 중 오류 발생:", error);
+      }
     },
-  };
+
+    addRoleInfo(member) {
+      const orgMember = this.organizationMembers.find(
+        (m) => m.id === member.userId
+      );
+      const roleName = orgMember ? orgMember.roleName : "일반 회원";
+      return {
+        ...member,
+        roleName: roleName,
+      };
+    },
+  },
+};
 </script>
 
 <style scoped>
