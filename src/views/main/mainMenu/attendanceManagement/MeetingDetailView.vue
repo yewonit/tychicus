@@ -21,11 +21,7 @@
           <v-card-text>
             <p class="wc-body-1 wc-text-primary">
               <strong>모임 이름:</strong>
-              {{ meetingData.activityName }}
-            </p>
-            <p class="wc-body-1 wc-text-secondary">
-              <strong>설명:</strong>
-              {{ meetingData.activityDescription }}
+              {{ meetingData.name }}
             </p>
             <p class="wc-body-1 wc-text-secondary">
               <strong>날짜:</strong>
@@ -170,10 +166,6 @@
         type: [String, Number],
         required: true,
       },
-      activityId: {
-        type: [String, Number],
-        required: true,
-      },
       activityInstanceId: {
         type: [String, Number],
         required: true,
@@ -223,13 +215,13 @@
         try {
           const response = await this.getActivityInstanceDetails(
             this.organizationId,
-            this.activityId,
+            null,
             this.activityInstanceId,
             true
           );
 
-          if (response && response.activityInstance) {
-            this.meetingData = response.activityInstance;
+          if (response && response.data) {
+            this.meetingData = response.data;
             this.presentMembers = this.meetingData.attendances.filter(
               (a) => a.status === '출석'
             );
@@ -310,7 +302,6 @@
           );
           if (response && response.members) {
             this.organizationMembers = response.members;
-            console.log('조직 멤버 정보:', this.organizationMembers); // 디버깅용
           }
         } catch (error) {
           console.error('조직 멤버 정보를 가져오는 중 오류 발생:', error);
@@ -322,7 +313,6 @@
           (m) => m.id === member.userId
         );
         const roleName = orgMember ? orgMember.roleName : '일반 회원';
-        console.log(`${member.userName}의 역할: ${roleName}`); // 디버깅용
         return {
           ...member,
           roleName: roleName,

@@ -162,63 +162,32 @@
           console.log(
             `📊 조직 ID ${this.currentOrganizationId}에 대한 활동 정보를 요청합니다.`
           );
-          const response = await this.getOrganizationActivities(
+
+          // 활동 목록 조회 (정규화 포함)
+          const activities = await this.getActivities(
             this.currentOrganizationId,
             true
           );
-          console.log('✅ 활동 정보 요청 완료:', response);
 
-          if (
-            response &&
-            response.activities &&
-            Array.isArray(response.activities)
-          ) {
-            console.log(
-              `🔍 ${response.activities.length}개의 활동을 처리합니다.`
-            );
-            this.meetings = response.activities.flatMap((activity) => {
-              console.log(`📌 활동 "${activity.name}" 처리 중...`);
-              if (activity.instances && activity.instances.length > 0) {
-                console.log(
-                  `🗓️ ${activity.instances.length}개의 인스턴스를 발견했습니다.`
-                );
-                return activity.instances.map((instance) => {
-                  console.log(`📅 인스턴스 ID ${instance.id} 처리 중...`);
-                  return {
-                    id: instance.id,
-                    activityId: activity.id,
-                    activityName: activity.name,
-                    date: instance.start_datetime || '날짜 미정',
-                    image:
-                      instance.images && instance.images.length > 0
-                        ? instance.images[0].filePath
-                        : this.basicImage,
-                    category: activity.category,
-                    createdAt:
-                      instance.created_at ||
-                      instance.createdAt ||
-                      new Date().toISOString(),
-                  };
-                });
-              }
-              console.log(`⚠️ 활동 "${activity.name}"에 인스턴스가 없습니다.`);
-              return [];
-            });
+          // 모임 히스토리용으로 가공 (인스턴스 단위)
+          const processed = this.processActivitiesForMeetingHistory(
+            activities,
+            this.currentOrganizationId,
+            this.getOrganizationName,
+            this.formatMeetingTime,
+            this.formatAttendances
+          );
 
-            // 최신순으로 정렬 (날짜 기준)
-            this.meetings.sort((a, b) => {
-              if (a.date === '날짜 미정') return 1;
-              if (b.date === '날짜 미정') return -1;
-              return new Date(b.date) - new Date(a.date);
-            });
+          // 최신순 정렬 (날짜 기준)
+          this.meetings = processed.sort((a, b) => {
+            if (a.date === '날짜 미정') return 1;
+            if (b.date === '날짜 미정') return -1;
+            return new Date(b.date) - new Date(a.date);
+          });
 
-            console.log(
-              `✅ 총 ${this.meetings.length}개의 미팅 정보를 처리했습니다.`
-            );
-          } else {
-            console.error('❌ 활동 데이터가 예상한 형식이 아닙니다:', response);
-            this.meetings = [];
-          }
+          console.log(
+            `✅ 총 ${this.meetings.length}개의 미팅 정보를 처리했습니다.`
+          );
         } catch (error) {
           console.error('🚨 미팅 정보 조회 중 오류 발생:', error);
           this.meetings = [];
@@ -227,6 +196,34 @@
           console.log('🏁 미팅 정보 조회를 완료했습니다.');
         }
       },
+
+      // 보조 함수들 (간단 버전)
+      getOrganizationName() {
+        // 이 뷰에서는 조직명 노출을 사용하지 않으므로 기본값 반환
+        return '-';
+      },
+      formatMeetingTime(dateTimeString) {
+        // HH:mm 또는 날짜 포맷으로 단순 변환
+        if (!dateTimeString) return '-';
+        const date = new Date(dateTimeString);
+        if (Number.isNaN(date.getTime())) return '-';
+        const hours = String(date.getHours()).padStart(2, '0');
+        const minutes = String(date.getMinutes()).padStart(2, '0');
+        return `${hours}:${minutes}`;
+      },
+      formatAttendances(attendances) {
+        if (!Array.isArray(attendances)) return [];
+        return attendances.map((a) => ({
+          id: a.id,
+          userId: a.userId || a.user_id,
+          userName: a.userName || a.user_name || a.name || '이름 없음',
+          status: a.status,
+          note: a.note || '',
+          phone: a.phone || '',
+          roleName: a.roleName || a.role_name || '일반 회원',
+        }));
+      },
+
       getMonthWeekTag(dateString) {
         if (dateString === '날짜 미정') return '';
 
@@ -359,14 +356,6 @@
 
           const { id: instanceId, activityId } = meeting;
 
-          if (!activityId) {
-            console.error('❌ 활동 ID를 찾을 수 없습니다.');
-            this.showDialog(
-              '모임 삭제에 실패했습니다. 활동 ID를 찾을 수 없습니다.'
-            );
-            return;
-          }
-
           const response = await this.deleteActivityInstance(
             this.currentOrganizationId,
             activityId,
@@ -374,10 +363,7 @@
             true
           );
 
-          console.log('삭제 응답:', response);
-
-          if (response && response.deletedActivityInstanceId) {
-            console.log(`✅ 모임 ID ${instanceId} 삭제 성공`);
+          if (response) {
             this.showDialog(
               `모임 "${meeting.activityName}"이(가) 성공적으로 삭제되었습니다.`
             );

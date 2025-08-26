@@ -572,14 +572,14 @@
 </template>
 
 <script>
-  import { MasterCtrl } from '@/mixins/apis_v2/internal/MasterCtrl';
-  import { OrganizationCtrl } from '@/mixins/apis_v2/internal/domainCtrl/OrganizationCtrl';
-  import { AttendanceCtrl } from '@/mixins/apis_v2/internal/domainCtrl/AttendanceCtrl';
-  import { CurrentMemberCtrl } from '@/mixins/apis_v2/internal/domainCtrl/CurrentMemberCtrl';
-  import moment from 'moment';
   import AttendanceChartSection from '@/components/admin/dashboard/AttendanceChartSection.vue';
+  import { MasterCtrl } from '@/mixins/apis_v2/internal/MasterCtrl';
+  import { AttendanceCtrl } from '@/mixins/apis_v2/internal/domainCtrl/AttendanceCtrl';
+  import { OrganizationCtrl } from '@/mixins/apis_v2/internal/domainCtrl/OrganizationCtrl';
+  import { CurrentMemberCtrl } from '@/mixins/apis_v2/internal/domainCtrl/CurrentMemberCtrl';
   import ExcelJS from 'exceljs';
   import { saveAs } from 'file-saver';
+  import moment from 'moment';
 
   export default {
     name: 'AdminDashboard',
@@ -1041,137 +1041,71 @@
 
             this.loadingDetails = `조직 정보 처리 중 (${processedCount}/${totalOrganizations}, ${progressPercent}%): ${org.organization_name}`;
 
-            // 🔧 실시간 진행률 업데이트 (2단계: 10% 기준점 + 30% 가중치)
-            this.updateSubProgress(10, processedCount, totalOrganizations, 30);
+            // TODO: instance 가져오는 메서드임. 다른 api로 수정 필요
+            const activities = await this.getActivities(org.id, true);
 
-            // 조직 경로 찾기
-            const orgPath = this.findOrganizationPath(org.id);
+            // 활동 개수 로깅
+            console.log(
+              `조직 ${org.organization_name}의 활동 수: ${activities.length}`
+            );
 
-            // 🐌 API 요청 간 지연 추가 (Race Condition 방지)
-            if (processedCount > 1) {
-              await new Promise((resolve) => setTimeout(resolve, 50)); // 50ms 지연
-            }
-
-            // API에서 모임 정보 가져오기 (직렬 처리)
-            let response = await this.getOrganizationActivities(org.id, true);
-
-            // 🚨 중요: API 응답 검증 - 요청한 조직 ID와 응답 조직 ID가 일치하는지 확인
-            if (
-              response &&
-              response.organizationId &&
-              response.organizationId !== org.id
-            ) {
-              // 재시도 (최대 2번)
-              let retryCount = 0;
-              let validResponse = null;
-              while (retryCount < 2 && !validResponse) {
-                retryCount++;
-                await new Promise((resolve) => setTimeout(resolve, 100)); // 100ms 대기
-                const retryResponse = await this.getOrganizationActivities(
-                  org.id,
-                  true
-                );
-
-                if (retryResponse && retryResponse.organizationId === org.id) {
-                  validResponse = retryResponse;
-                }
-              }
-
-              if (!validResponse) {
-                failedOrganizations.push({
-                  id: org.id,
-                  name: org.organization_name,
-                  reason: `API 응답 불일치 (요청: ${org.id}, 응답: ${response?.organizationId})`,
-                });
-                continue;
-              }
-
-              // 올바른 응답으로 교체
-              response = validResponse;
-            }
-
-            // 응답 데이터 처리 - 더 유연한 처리
-            let activities = [];
-            if (response) {
-              if (response.activities && Array.isArray(response.activities)) {
-                activities = response.activities;
-              } else if (Array.isArray(response)) {
-                activities = response;
-              } else if (response.data && Array.isArray(response.data)) {
-                activities = response.data;
-              }
-            }
-
-            // 각 활동 상세 정보 처리
             // 모든 활동을 가공 (날짜 필터링은 나중에 수행)
-            const processedActivities = activities.map((activity) => {
-              // 모임 유형 식별 및 분류
-              const activityName = activity.name || activity.type || '';
-              const meetingType = this.identifyMeetingType(activityName);
+            const processedActivities = this.processActivitiesForDashboard(
+              activities,
+              org,
+              this.identifyMeetingType,
+              this.meetingTypes
+            );
 
-              // 🔍 디버깅: 청년예배 관련 로그
-              if (activityName.toLowerCase().includes('청년')) {
-                console.log(
-                  `[청년예배 감지] 조직: ${org.organization_name}, 활동명: "${activityName}", 식별된 유형: ${meetingType}`
-                );
+            const processedActivitiesWithExtraFields = processedActivities.map(
+              (activity) => {
+                const hasInstances =
+                  activity.instances &&
+                  Array.isArray(activity.instances) &&
+                  activity.instances.length > 0;
+
+                // 인스턴스 날짜 정보 로깅
+                if (hasInstances) {
+                  const instanceDates = activity.instances.map((instance) => {
+                    if (instance.start_datetime) {
+                      return moment(instance.start_datetime).format(
+                        'YYYY-MM-DD'
+                      );
+                    }
+                    return '날짜 없음';
+                  });
+                  console.log(
+                    `활동 "${
+                      activity.name || '이름 없음'
+                    }"의 인스턴스 날짜: ${instanceDates.join(', ')}`
+                  );
+                }
+
+                return {
+                  ...activity,
+                  // 인스턴스가 있을 경우 해당 정보로 date 설정 (없으면 기존 date 사용)
+                  date: hasInstances
+                    ? moment(activity.instances[0].start_datetime).format(
+                        'YYYY-MM-DD'
+                      )
+                    : activity.date,
+                };
               }
-
-              // 인스턴스 정보가 있는지 확인
-              const hasInstances =
-                activity.instances &&
-                Array.isArray(activity.instances) &&
-                activity.instances.length > 0;
-
-              // 각 활동에 필요한 정보 추가
-              const processedActivity = {
-                ...activity,
-                instance_id: hasInstances
-                  ? activity.instances[0].id
-                  : activity.latest_instance_id || activity.id,
-                meetingType: meetingType,
-                meetingTypeName: this.meetingTypes[meetingType] || '기타',
-                organizationId: org.id,
-                organizationName: org.organization_name,
-                organizationPath: orgPath,
-                // 인스턴스가 있을 경우 해당 정보로 date 설정 (없으면 기존 date 사용)
-                date: hasInstances
-                  ? moment(activity.instances[0].start_datetime).format(
-                      'YYYY-MM-DD'
-                    )
-                  : activity.date,
-              };
-
-              return processedActivity;
-            });
+            );
 
             // 유효한 활동이 있으면 추가
-            if (processedActivities.length > 0) {
+            if (processedActivitiesWithExtraFields.length > 0) {
               this.attendanceData.meetings.push({
                 organizationId: org.id,
                 organizationName: org.organization_name,
-                organizationPath: orgPath,
-                activities: processedActivities,
-              });
-            } else {
-              // 활동이 없는 조직도 빈 배열로 추가하여 추적
-              this.attendanceData.meetings.push({
-                organizationId: org.id,
-                organizationName: org.organization_name,
-                organizationPath: orgPath,
-                activities: [],
+                activities: processedActivitiesWithExtraFields,
               });
             }
           } catch (error) {
-            // 실패한 조직 추가
-            failedOrganizations.push(org.organization_name);
-
-            // 실패해도 빈 조직 정보는 추가하여 구조 유지
-            this.attendanceData.meetings.push({
-              organizationId: org.id,
-              organizationName: org.organization_name,
-              organizationPath: this.findOrganizationPath(org.id),
-              activities: [],
-            });
+            console.error(
+              `${org.organization_name}의 모임 정보 가져오기 실패:`,
+              error
+            );
           }
         }
 
@@ -2096,26 +2030,6 @@
             await this.prepareMemberAttendanceData();
           }
         }
-      },
-
-      // 조직 ID에 대한 경로 찾기
-      findOrganizationPath(orgId) {
-        // flattenedOrganizations에서 해당 ID를 찾아 경로 반환
-        const org = this.flattenedOrganizations.find((o) => o.id === orgId);
-        if (org) {
-          return {
-            pathNames: org.path || [],
-            pathIds: org.pathIds || [],
-            level: org.level || 0,
-          };
-        }
-
-        // 찾지 못한 경우 기본값 반환
-        return {
-          pathNames: [],
-          pathIds: [],
-          level: 0,
-        };
       },
 
       // 모임 유형 식별 함수

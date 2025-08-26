@@ -313,15 +313,15 @@
 </template>
 
 <script>
-  import { mapState } from 'vuex';
-  import { MasterCtrl } from '@/mixins/apis_v2/internal/MasterCtrl';
-  import { FileBins } from '@/mixins/apis_v2/internal/FileBins';
-  import { Utility } from '@/mixins/apis_v2/utility/Utility';
-  import { CurrentMemberCtrl } from '@/mixins/apis_v2/internal/domainCtrl/CurrentMemberCtrl';
-  import { AttendanceCtrl } from '@/mixins/apis_v2/internal/domainCtrl/AttendanceCtrl';
   import { AWSS3Ctrl } from '@/mixins/apis_v2/external/AWSS3Ctrl.js';
-  import moment from 'moment-timezone';
+  import { AttendanceCtrl } from '@/mixins/apis_v2/internal/domainCtrl/AttendanceCtrl';
+  import { CurrentMemberCtrl } from '@/mixins/apis_v2/internal/domainCtrl/CurrentMemberCtrl';
+  import { FileBins } from '@/mixins/apis_v2/internal/FileBins';
+  import { MasterCtrl } from '@/mixins/apis_v2/internal/MasterCtrl';
+  import { Utility } from '@/mixins/apis_v2/utility/Utility';
   import { dateTimeUtils } from '@/utils/dateTimeUtils';
+  import moment from 'moment-timezone';
+  import { mapState } from 'vuex';
 
   export default {
     name: 'AttendanceUpdateView',
@@ -497,11 +497,11 @@
 
           console.log('API 응답:', response);
 
-          if (response && response.activityInstance) {
-            const activityInstance = response.activityInstance;
+          if (response && response.data) {
+            const activityInstance = response.data;
             this.activityId = activityId;
             this.activityInstanceId = activityInstanceId;
-            this.meetingName = activityInstance.activityName || '';
+            this.meetingName = activityInstance.name || '';
 
             // UTC 문자열을 한국 시간대의 DateTime 객체로 변환
             const startDateTime = dateTimeUtils.fromUTCString(
@@ -563,7 +563,7 @@
       async updateMeeting() {
         console.log('🚀 updateMeeting 함수 시작');
 
-        if (!this.meetingDate || !this.activityId) {
+        if (!this.meetingDate) {
           console.warn('⚠️ 필수 정보 누락');
           alert('필수 정보를 모두 입력해주세요.');
           return;
@@ -573,30 +573,21 @@
         this.updateDateTime();
 
         // 인스턴스 데이터 준비 (UTC ISO 형식으로 변환)
-        const instanceData = {
+        const activityData = {
           startDateTime: dateTimeUtils.toUTCString(this.meetingStartDateTime),
           endDateTime: dateTimeUtils.toUTCString(this.meetingEndDateTime),
           location: this.meetingLocation || '',
           notes: this.meetingNotes || '',
         };
 
-        console.log(
-          '📅 시작 시간:',
-          this.meetingStartDateTime.format('YYYY-MM-DD HH:mm:ss')
-        );
-        console.log(
-          '📅 종료 시간:',
-          this.meetingEndDateTime.format('YYYY-MM-DD HH:mm:ss')
-        );
-
         const attendances = this.memberList.map((member) => ({
           userId: member.id || member.userId,
           status: member.isParticipating ? '출석' : '결석',
           checkInTime: member.isParticipating
-            ? instanceData.startDateTime
+            ? activityData.startDateTime
             : null,
           checkOutTime: member.isParticipating
-            ? instanceData.endDateTime
+            ? activityData.endDateTime
             : null,
           note: '',
         }));
@@ -627,13 +618,12 @@
             this.currentOrganizationId,
             this.activityId,
             this.activityInstanceId,
-            instanceData,
+            activityData,
             attendances,
-            imageInfo,
-            true // showLog
+            imageInfo
           );
 
-          if (response && response.result !== 0) {
+          if (response) {
             console.log('모임 정보 업데이트 성공');
             alert('모임 정보가 성공적으로 업데이트되었습니다.');
             this.$router.push({ name: 'MeetingHistoryView' });

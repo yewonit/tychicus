@@ -20,7 +20,7 @@ module.exports = {
     server: 'http',
     hot: process.env.NODE_ENV === 'local',
     liveReload: process.env.NODE_ENV === 'local',
-    webSocketServer: process.env.NODE_ENV === 'local',
+    webSocketServer: process.env.NODE_ENV === 'local' ? 'ws' : false,
   },
 
   // PWA 설정 추가

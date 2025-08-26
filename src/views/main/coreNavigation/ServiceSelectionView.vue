@@ -155,7 +155,7 @@
         // '_' 기준으로 분리
         const parts = name.split('_');
         // '코람데오'와 '237국' 부분을 제거하고 나머지 부분만 줄바꿈으로 조인
-        return parts.slice(2).join('\n');
+        return parts.slice(1).join('\n');
       },
 
       /**

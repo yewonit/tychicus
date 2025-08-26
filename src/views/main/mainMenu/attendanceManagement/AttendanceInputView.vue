@@ -475,15 +475,15 @@
 </template>
 
 <script>
-  import { mapState } from 'vuex';
-  import { MasterCtrl } from '@/mixins/apis_v2/internal/MasterCtrl';
-  import { FileBins } from '@/mixins/apis_v2/internal/FileBins';
-  import { Utility } from '@/mixins/apis_v2/utility/Utility';
-  import { CurrentMemberCtrl } from '@/mixins/apis_v2/internal/domainCtrl/CurrentMemberCtrl';
-  import { AttendanceCtrl } from '@/mixins/apis_v2/internal/domainCtrl/AttendanceCtrl';
   import { AWSS3Ctrl } from '@/mixins/apis_v2/external/AWSS3Ctrl.js';
-  import moment from 'moment-timezone';
+  import { AttendanceCtrl } from '@/mixins/apis_v2/internal/domainCtrl/AttendanceCtrl';
+  import { CurrentMemberCtrl } from '@/mixins/apis_v2/internal/domainCtrl/CurrentMemberCtrl';
+  import { FileBins } from '@/mixins/apis_v2/internal/FileBins';
+  import { MasterCtrl } from '@/mixins/apis_v2/internal/MasterCtrl';
+  import { Utility } from '@/mixins/apis_v2/utility/Utility';
   import { dateTimeUtils } from '@/utils/dateTimeUtils';
+  import moment from 'moment-timezone';
+  import { mapState } from 'vuex';
 
   export default {
     name: 'MeetingRegistrationView',
@@ -726,35 +726,16 @@
        */
       async fetchActivities() {
         try {
-          console.log('📢 fetchActivities 함수 시작');
-
-          if (!this.currentOrganizationId) {
-            console.error('❌ 조직 ID를 찾을 수 없습니다.');
-            return;
-          }
-
-          console.log('🏢 현재 조직 ID:', this.currentOrganizationId);
-
-          const response = await this.getOrganizationActivities(
-            this.currentOrganizationId,
-            true
-          );
+          const response = await this.getActivityTemplate(true);
 
           console.log('📥 API 응답 데이터:', response);
 
-          if (
-            response &&
-            response.activities &&
-            Array.isArray(response.activities)
-          ) {
-            console.log('✅ 활동 데이터 유효성 검사 통과');
-            console.log('📋 원본 활동 데이터:', response.activities);
-
-            this.activities = response.activities.map((activity) => ({
+          if (response && response.data && Array.isArray(response.data)) {
+            this.activities = response.data.map((activity) => ({
               id: activity.id,
               name: activity.name,
-              category: activity.category,
               description: activity.description,
+              category: activity.activityCategory,
             }));
 
             console.log('🔄 변환된 활동 데이터:', this.activities);
@@ -867,7 +848,7 @@
           console.log('👥 선택된 참여자:', selectedParticipants);
 
           // UTC 시간으로 변환
-          const instanceData = {
+          const activityData = {
             startDateTime: dateTimeUtils.toUTCString(this.meetingStartDateTime),
             endDateTime: dateTimeUtils.toUTCString(this.meetingEndDateTime),
             location: this.meetingLocation || '',
@@ -888,10 +869,10 @@
             userId: member.id || member.userId,
             status: member.isParticipating ? '출석' : '결석',
             checkInTime: member.isParticipating
-              ? instanceData.startDateTime
+              ? activityData.startDateTime
               : null,
             checkOutTime: member.isParticipating
-              ? instanceData.endDateTime
+              ? activityData.endDateTime
               : null,
             note: '',
           }));
@@ -899,8 +880,8 @@
           // 최종 데이터 준비
           this.finalData = {
             organizationId: this.currentOrganizationId,
-            activityId: this.selectedActivity,
-            instanceData,
+            activityTemplateId: this.selectedActivity,
+            activityData,
             attendances: allAttendances,
             imageInfo: imageInfo,
           };
@@ -909,18 +890,13 @@
           this.updateLoadingState(4, '모임 정보 저장 중...', 80);
 
           // 개발 환경 체크 제거하고 바로 데이터 저장
-          const response = await this.recordAttendance(
+          await this.recordAttendance(
             this.finalData.organizationId,
-            this.finalData.activityId,
-            this.finalData.instanceData,
+            this.finalData.activityTemplateId,
+            this.finalData.activityData,
             this.finalData.attendances,
-            this.finalData.imageInfo,
-            process.env.NODE_ENV === 'development' // showLog 파라미터는 유지
+            this.finalData.imageInfo
           );
-
-          if (response.result === 0) {
-            throw new Error('출석 정보 저장에 실패했습니다.');
-          }
 
           // 완료 단계로 진행
           this.updateLoadingState(5, '모임 정보 저장 완료', 100);
@@ -957,16 +933,17 @@
         const file = Array.isArray(this.photos) ? this.photos[0] : this.photos;
         const fileExtension = file.name.split('.').pop();
         const organizationId = this.currentOrganizationId;
-        const activityId = this.selectedActivity;
+        const activityTemplateId = this.selectedActivity;
         const activityName =
-          this.activities.find((a) => a.id === activityId)?.name || 'unknown';
+          this.activities.find((a) => a.id === activityTemplateId)?.name ||
+          'unknown';
         const timestamp = new Date()
           .toISOString()
           .replace(/[-:]/g, '')
           .split('.')[0];
 
         // 새로운 파일 이름 생성
-        const newFileName = `org_${organizationId}_activity_${activityId}_${activityName}_instance_${timestamp}.${fileExtension}`;
+        const newFileName = `org_${organizationId}_activity_${activityTemplateId}_${activityName}_instance_${timestamp}.${fileExtension}`;
 
         // 'meetings/' 폴더를 추가하여 파일 경로를 생성합니다.
         const filePath = `meetings/${newFileName}`;
