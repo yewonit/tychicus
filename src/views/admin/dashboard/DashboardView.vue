@@ -576,6 +576,7 @@
   import { MasterCtrl } from '@/mixins/apis_v2/internal/MasterCtrl';
   import { AttendanceCtrl } from '@/mixins/apis_v2/internal/domainCtrl/AttendanceCtrl';
   import { OrganizationCtrl } from '@/mixins/apis_v2/internal/domainCtrl/OrganizationCtrl';
+  import { CurrentMemberCtrl } from '@/mixins/apis_v2/internal/domainCtrl/CurrentMemberCtrl';
   import ExcelJS from 'exceljs';
   import { saveAs } from 'file-saver';
   import moment from 'moment';
@@ -1039,9 +1040,6 @@
             );
 
             this.loadingDetails = `조직 정보 처리 중 (${processedCount}/${totalOrganizations}, ${progressPercent}%): ${org.organization_name}`;
-
-            // 세부 진행률 업데이트
-            updateDetailedProgress(processedCount, totalOrganizations);
 
             // TODO: instance 가져오는 메서드임. 다른 api로 수정 필요
             const activities = await this.getActivities(org.id, true);
