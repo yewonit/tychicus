@@ -36,9 +36,7 @@ function checkForUpdates() {
       // 현재 버전 저장
       localStorage.setItem('appVersion', data.version);
     })
-    .catch((error) => {
-      console.error('버전 확인 중 오류 발생:', error);
-    });
+    .catch((error) => { });
 }
 
 if (process.env.NODE_ENV === 'production') {
@@ -48,7 +46,7 @@ if (process.env.NODE_ENV === 'production') {
     ready() {
       console.log(
         'App is being served from cache by a service worker.\n' +
-          'For more details, visit https://goo.gl/AFskqB'
+        'For more details, visit https://goo.gl/AFskqB'
       );
 
       // 앱 로드 시 버전 체크
@@ -63,12 +61,8 @@ if (process.env.NODE_ENV === 'production') {
         checkForUpdates();
       }, 5 * 60 * 1000);
     },
-    cached() {
-      console.log('Content has been cached for offline use.');
-    },
-    updatefound() {
-      console.log('New content is downloading.');
-    },
+    cached() { },
+    updatefound() { },
     updated(registration) {
       console.log('New content is available; please refresh.');
 
@@ -80,21 +74,17 @@ if (process.env.NODE_ENV === 'production') {
       // 서비스 워커 변경 시 자동 새로고침
       registration.waiting.postMessage({ type: 'SKIP_WAITING' });
     },
-    offline() {
-      console.log(
-        'No internet connection found. App is running in offline mode.'
-      );
-    },
-    error(error) {
-      console.error('Error during service worker registration:', error);
-    },
+    offline() { },
+    error(error) { },
   });
 
-  // 서비스 워커 컨트롤러 변경 시 페이지 새로고침
-  navigator.serviceWorker.addEventListener('controllerchange', () => {
-    if (refreshing) return;
-    refreshing = true;
-    console.log('Controller changed, refreshing...');
-    window.location.reload();
-  });
+  if ("serviceWorker" in navigator) {
+    let refreshing = false;
+
+    navigator.serviceWorker.addEventListener("controllerchange", () => {
+      if (refreshing) return;
+      refreshing = true;
+      window.location.reload();
+    });
+  }
 }
