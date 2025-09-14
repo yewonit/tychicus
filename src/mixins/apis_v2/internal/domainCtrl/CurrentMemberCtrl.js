@@ -1,10 +1,11 @@
-import axiosClient from '@/utils/axiosClient';
+import axios from "axios";
+import env from "@/config/environments.js";
 
 export const CurrentMemberCtrl = {
   data() {
     return {
       // URL List
-      CurrentMember_EP: 'current-members',
+      CurrentMember_EP: "current-members",
     };
   },
   created() {},
@@ -24,11 +25,14 @@ export const CurrentMemberCtrl = {
       }
 
       try {
-        const res = await axiosClient.api.get(`/${this.CurrentMember_EP}`, {
-          params: {
-            organizationId: organizationId,
-          },
-        });
+        const res = await axios.get(
+          `${env.API_BASE_URL}/${this.CurrentMember_EP}`,
+          {
+            params: {
+              organizationId: organizationId,
+            },
+          }
+        );
 
         let returnData = res.data;
 
@@ -38,7 +42,7 @@ export const CurrentMemberCtrl = {
 
         return returnData;
       } catch (error) {
-        console.error('멤버 조회 중 오류 발생:', error);
+        console.error("멤버 조회 중 오류 발생:", error);
         return { error: error.message };
       }
     },
@@ -59,30 +63,30 @@ export const CurrentMemberCtrl = {
       showLog
     ) {
       // API 엔드포인트 구성
-      const apiEndpoint = `/${this.CurrentMember_EP}`;
+      const apiEndpoint = `${env.API_BASE_URL}/${this.CurrentMember_EP}`;
 
       if (showLog) {
         console.group(
-          '%c🚀 [API 요청] createMember() 실행',
-          'color: #6495ED; font-weight: bold;'
+          "%c🚀 [API 요청] createMember() 실행",
+          "color: #6495ED; font-weight: bold;"
         );
         console.log(
-          '%c📌 API 엔드포인트:',
-          'color: #6495ED; font-weight: bold;',
+          "%c📌 API 엔드포인트:",
+          "color: #6495ED; font-weight: bold;",
           apiEndpoint
         );
 
         // 요청 파라미터 로깅
-        console.log('%c📝 요청 파라미터:', 'color: #6495ED;');
-        console.log('- userData:', userData);
-        console.log('- organizationId:', organizationId);
-        console.log('- organizationCode:', organizationCode);
-        console.log('- idOfCreatingUser:', idOfCreatingUser);
+        console.log("%c📝 요청 파라미터:", "color: #6495ED;");
+        console.log("- userData:", userData);
+        console.log("- organizationId:", organizationId);
+        console.log("- organizationCode:", organizationCode);
+        console.log("- idOfCreatingUser:", idOfCreatingUser);
 
         // 요청 본문의 중요 필드 표로 표시
-        console.log('%c📋 userData 중요 필드:', 'color: #6495ED;');
+        console.log("%c📋 userData 중요 필드:", "color: #6495ED;");
         console.table({
-          id: userData.id || '신규 멤버',
+          id: userData.id || "신규 멤버",
           name: userData.name,
           name_suffix: userData.name_suffix,
           phone_number: userData.phone_number,
@@ -105,51 +109,51 @@ export const CurrentMemberCtrl = {
 
         if (showLog) {
           console.group(
-            '%c📨 API 요청 세부 정보',
-            'color: #6495ED; font-weight: bold;'
+            "%c📨 API 요청 세부 정보",
+            "color: #6495ED; font-weight: bold;"
           );
-          console.log('HTTP 메서드:', 'POST');
-          console.log('API 엔드포인트:', apiEndpoint);
-          console.log('요청 헤더:', {
-            'Content-Type': 'application/json',
+          console.log("HTTP 메서드:", "POST");
+          console.log("API 엔드포인트:", apiEndpoint);
+          console.log("요청 헤더:", {
+            "Content-Type": "application/json",
             Authorization:
-              axiosClient.api.defaults.headers.common['Authorization'] ||
-              '인증 정보 없음',
+              axios.defaults.headers.common["Authorization"] ||
+              "인증 정보 없음",
           });
-          console.log('요청 본문:', requestBody);
+          console.log("요청 본문:", requestBody);
           console.groupEnd();
         }
 
         // API 요청 실행
-        console.time('API 요청 시간');
-        const res = await axiosClient.api.post(apiEndpoint, requestBody);
-        console.timeEnd('API 요청 시간');
+        console.time("API 요청 시간");
+        const res = await axios.post(apiEndpoint, requestBody);
+        console.timeEnd("API 요청 시간");
 
         // 응답 처리
         let returnData = res.data;
 
         if (showLog) {
           console.group(
-            '%c📬 API 응답 데이터',
-            'color: #2E8B57; font-weight: bold;'
+            "%c📬 API 응답 데이터",
+            "color: #2E8B57; font-weight: bold;"
           );
-          console.log('응답 상태:', res.status);
-          console.log('응답 헤더:', res.headers);
-          console.log('응답 본문:', returnData);
+          console.log("응답 상태:", res.status);
+          console.log("응답 헤더:", res.headers);
+          console.log("응답 본문:", returnData);
 
           // 응답 데이터 중요 필드 표로 표시
-          if (returnData && typeof returnData === 'object') {
-            console.log('%c📋 응답 데이터 중요 필드:', 'color: #2E8B57;');
+          if (returnData && typeof returnData === "object") {
+            console.log("%c📋 응답 데이터 중요 필드:", "color: #2E8B57;");
             try {
               console.table({
-                id: returnData.id || returnData.userId || '알 수 없음',
-                status: '성공',
+                id: returnData.id || returnData.userId || "알 수 없음",
+                status: "성공",
                 created_at:
-                  returnData.created_at || returnData.createdAt || '알 수 없음',
-                message: returnData.message || '응답 메시지 없음',
+                  returnData.created_at || returnData.createdAt || "알 수 없음",
+                message: returnData.message || "응답 메시지 없음",
               });
             } catch (e) {
-              console.log('응답 데이터를 표로 표시할 수 없음:', e);
+              console.log("응답 데이터를 표로 표시할 수 없음:", e);
             }
           }
 
@@ -161,26 +165,26 @@ export const CurrentMemberCtrl = {
 
         return returnData;
       } catch (error) {
-        console.group('%c❌ API 오류 발생', 'color: red; font-weight: bold;');
-        console.error('맴버 생성 중 오류 발생:', error);
+        console.group("%c❌ API 오류 발생", "color: red; font-weight: bold;");
+        console.error("맴버 생성 중 오류 발생:", error);
 
         // 오류 세부 정보 로깅
         if (error.response) {
-          console.error('응답 상태:', error.response.status);
-          console.error('응답 헤더:', error.response.headers);
-          console.error('응답 데이터:', error.response.data);
+          console.error("응답 상태:", error.response.status);
+          console.error("응답 헤더:", error.response.headers);
+          console.error("응답 데이터:", error.response.data);
 
           // 오류 데이터 표로 표시
-          console.log('%c📋 오류 세부 정보:', 'color: red;');
+          console.log("%c📋 오류 세부 정보:", "color: red;");
           try {
             console.table({
               status: error.response.status,
-              statusText: error.response.statusText || '상태 텍스트 없음',
+              statusText: error.response.statusText || "상태 텍스트 없음",
               message: error.response.data?.message || error.message,
-              error: error.response.data?.error || '알 수 없는 오류',
+              error: error.response.data?.error || "알 수 없는 오류",
             });
           } catch (e) {
-            console.log('오류 데이터를 표로 표시할 수 없음:', e);
+            console.log("오류 데이터를 표로 표시할 수 없음:", e);
           }
 
           console.groupEnd();
@@ -190,11 +194,11 @@ export const CurrentMemberCtrl = {
             data: error.response.data,
           };
         } else if (error.request) {
-          console.error('요청만 전송됨, 응답 없음:', error.request);
+          console.error("요청만 전송됨, 응답 없음:", error.request);
           console.groupEnd();
-          return { error: '서버로부터 응답이 없습니다.' };
+          return { error: "서버로부터 응답이 없습니다." };
         } else {
-          console.error('요청 설정 중 오류:', error.message);
+          console.error("요청 설정 중 오류:", error.message);
           console.groupEnd();
           return { error: error.message };
         }
@@ -215,8 +219,8 @@ export const CurrentMemberCtrl = {
       }
 
       try {
-        const res = await axiosClient.api.delete(
-          `/${this.CurrentMember_EP}/${userId}`
+        const res = await axios.delete(
+          `${env.API_BASE_URL}/${this.CurrentMember_EP}/${userId}`
         );
 
         let returnData = res.data;
@@ -227,7 +231,7 @@ export const CurrentMemberCtrl = {
 
         return returnData;
       } catch (error) {
-        console.error('멤버 삭제 중 오류 발생:', error);
+        console.error("멤버 삭제 중 오류 발생:", error);
         return { error: error.message };
       }
     },
@@ -249,8 +253,8 @@ export const CurrentMemberCtrl = {
       }
 
       try {
-        const res = await axiosClient.api.put(
-          `/${this.CurrentMember_EP}/${userId}`,
+        const res = await axios.put(
+          `${env.API_BASE_URL}/${this.CurrentMember_EP}/${userId}`,
           userData
         );
 
@@ -262,7 +266,7 @@ export const CurrentMemberCtrl = {
 
         return returnData;
       } catch (error) {
-        console.error('멤버 업데이트 중 오류 발생:', error);
+        console.error("멤버 업데이트 중 오류 발생:", error);
         return { error: error.message };
       }
     },

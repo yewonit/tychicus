@@ -22,19 +22,19 @@
 </template>
 
 <script>
-  export default {
-    name: 'SubLayout',
-    data() {
-      return {};
+export default {
+  name: "SubLayout",
+  data() {
+    return {};
+  },
+  computed: {},
+  methods: {
+    goBack() {
+      this.$router.go(-1);
+      [2];
     },
-    computed: {},
-    methods: {
-      goBack() {
-        this.$router.go(-1);
-        [2];
-      },
-    },
-  };
+  },
+};
 </script>
 
 <style></style>
