@@ -34,7 +34,7 @@ jobs:
       - name: Deploy
         run: |
           sshpass -p ${{ secrets.DEV_MACHINE_SSH_PASSWORD }} ssh -o StrictHostKeyChecking=no -t ${{ secrets.DEV_MACHINE_SSH_USER }}@${{ secrets.DEV_MACHINE_SSH_HOST }} -p ${{ secrets.DEV_MACHINE_SSH_PORT }} << 'EOF'
-            docker rm -f tychicus:prod
+            docker rm -f tychicus-prod
             docker rmi coramdeoyouth/tychicus:prod
             docker pull coramdeoyouth/tychicus:prod
             docker run -d -p 8081:8080 --name tychicus-prod --network hephai-bridge --restart unless-stopped coramdeoyouth/tychicus:prod
