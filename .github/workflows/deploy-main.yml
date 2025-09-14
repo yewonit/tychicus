@@ -1,0 +1,41 @@
+name: Deploy to main machine
+
+on:
+  push:
+    branches:
+      - main
+      - switch
+
+jobs:
+  build-and-push:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Log in to Docker Hub
+        uses: docker/login-action@v3
+        with:
+          username: ${{ secrets.DOCKER_HUB_USERNAME }}
+          password: ${{ secrets.DOCKER_HUB_ACCESS_TOKEN }}
+
+      - name: Build Docker Image
+        run: |
+          docker buildx build -t ${{ secrets.DOCKER_HUB_USERNAME }}/tychicus:prod --platform linux/amd64 .
+
+      - name: Push Docker Image to Docker Hub
+        run: |
+          docker push ${{ secrets.DOCKER_HUB_USERNAME }}/tychicus:prod
+
+      - name: Install sshpass
+        run: sudo apt-get install -y sshpass
+
+      - name: Deploy
+        run: |
+          sshpass -p ${{ secrets.DEV_MACHINE_SSH_PASSWORD }} ssh -o StrictHostKeyChecking=no -t ${{ secrets.DEV_MACHINE_SSH_USER }}@${{ secrets.DEV_MACHINE_SSH_HOST }} -p ${{ secrets.DEV_MACHINE_SSH_PORT }} << 'EOF'
+            docker rm -f tychicus:prod
+            docker rmi coramdeoyouth/tychicus:prod
+            docker pull coramdeoyouth/tychicus:prod
+            docker run -d -p 8080:8080 --name tychicus-prod --network hephai-bridge --restart unless-stopped coramdeoyouth/tychicus:prod
+          EOF
