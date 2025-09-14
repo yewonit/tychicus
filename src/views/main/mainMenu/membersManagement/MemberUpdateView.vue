@@ -33,9 +33,9 @@
     <!-- 장결자 여부 -->
     <v-row class="ma-0 pa-0 pb-5 px-10">
       <v-col cols="2" class="ma-0 pa-0 pl-3">
-        <v-icon size="25" class="ma-0 pa-0" color="#262626">
-          mdi-account-check
-        </v-icon>
+        <v-icon size="25" class="ma-0 pa-0" color="#262626"
+          >mdi-account-check</v-icon
+        >
       </v-col>
       <v-col class="ma-0 pa-0 wc-fs-18 wc-bold-600" cols="auto">
         장결자 여부
@@ -57,9 +57,9 @@
     <!-- 새가족 여부 -->
     <v-row class="ma-0 pa-0 pb-7 px-10">
       <v-col cols="2" class="ma-0 pa-0 pl-3">
-        <v-icon size="25" class="ma-0 pa-0" color="#262626">
-          mdi-account-multiple-plus
-        </v-icon>
+        <v-icon size="25" class="ma-0 pa-0" color="#262626"
+          >mdi-account-multiple-plus</v-icon
+        >
       </v-col>
       <v-col class="ma-0 pa-0 wc-fs-18 wc-bold-600" cols="auto">
         새가족 여부
@@ -331,225 +331,223 @@
 </template>
 
 <script>
-  import { mapState } from 'vuex';
-  import { MasterCtrl } from '@/mixins/apis_v2/internal/MasterCtrl';
-  import { FileBins } from '@/mixins/apis_v2/internal/FileBins';
-  import { Utility } from '@/mixins/apis_v2/utility/Utility';
-  import { CurrentMemberCtrl } from '@/mixins/apis_v2/internal/domainCtrl/CurrentMemberCtrl';
-  import countries from '@/assets/data/countries.json';
+import { mapState } from "vuex";
+import { MasterCtrl } from "@/mixins/apis_v2/internal/MasterCtrl";
+import { FileBins } from "@/mixins/apis_v2/internal/FileBins";
+import { Utility } from "@/mixins/apis_v2/utility/Utility";
+import { CurrentMemberCtrl } from "@/mixins/apis_v2/internal/domainCtrl/CurrentMemberCtrl";
+import countries from "@/assets/data/countries.json";
 
-  export default {
-    name: 'MemberUpdateView',
-    computed: {
-      ...mapState('auth', ['userInfo']),
-      isDataChanged() {
-        return (
-          JSON.stringify(this.member) !== JSON.stringify(this.originalMember)
-        );
+export default {
+  name: "MemberUpdateView",
+  computed: {
+    ...mapState("auth", ["userInfo"]),
+    isDataChanged() {
+      return (
+        JSON.stringify(this.member) !== JSON.stringify(this.originalMember)
+      );
+    },
+  },
+  data() {
+    return {
+      menu: false,
+      menu2: false,
+      member: {
+        id: null,
+        name: "",
+        name_suffix: "",
+        phone_number: "",
+        gender_type: null,
+        is_kakaotalk_chat_member: "N",
+        is_long_term_absentee: "N",
+        is_new_member: "N",
+        email: "",
+        birth_date: null,
+        church_member_number: "",
+        church_registration_date: null,
+        country: "KOR",
+        address: "",
+        address_detail: "",
+        zip_postal_code: "",
+        hobby: "",
       },
-    },
-    data() {
-      return {
-        menu: false,
-        menu2: false,
-        member: {
-          id: null,
-          name: '',
-          name_suffix: '',
-          phone_number: '',
-          gender_type: null,
-          is_kakaotalk_chat_member: 'N',
-          is_long_term_absentee: 'N',
-          is_new_member: 'N',
-          email: '',
-          birth_date: null,
-          church_member_number: '',
-          church_registration_date: null,
-          country: 'KOR',
-          address: '',
-          address_detail: '',
-          zip_postal_code: '',
-          hobby: '',
-        },
-        originalMember: null,
-        countryItems: Object.entries(countries)
-          .map(([code, name]) => ({
-            text: name,
-            value: code,
-          }))
-          .sort((a, b) => a.text.localeCompare(b.text)),
-      };
-    },
-    mixins: [MasterCtrl, CurrentMemberCtrl, FileBins, Utility],
-    created() {
-      console.log('UpdateView created');
+      originalMember: null,
+      countryItems: Object.entries(countries)
+        .map(([code, name]) => ({
+          text: name,
+          value: code,
+        }))
+        .sort((a, b) => a.text.localeCompare(b.text)),
+    };
+  },
+  mixins: [MasterCtrl, CurrentMemberCtrl, FileBins, Utility],
+  created() {
+    console.log("UpdateView created");
+    const memberId = this.$route.params.id;
+    this.member.id = memberId;
+    console.log("memberId", memberId);
+  },
+  mounted() {
+    this.getMemberData();
+  },
+  methods: {
+    /**
+     * @description 멤버 상세 정보를 조회하는 비동기 메서드
+     * @method getMemberData
+     * @async
+     * @returns {Promise<void>} 멤버 정보 조회가 완료되면 해결되는 Promise
+     * @throws {Error} 멤버 정보 조회 실패 시 발생하는 오류
+     */
+    async getMemberData() {
       const memberId = this.$route.params.id;
-      this.member.id = memberId;
-      console.log('memberId', memberId);
+      const response = await this.openReadDataItemById(
+        this.User,
+        memberId,
+        true
+      );
+      console.log("response", response);
+
+      if (response && response.data) {
+        this.member = response.data;
+        this.originalMember = { ...response.data };
+        console.log("member", this.member);
+      } else {
+        alert(
+          "멤버 정보 조회에 실패했습니다. 관리자에게 문의해주세요.\n관리자 연락처: 010-1234-5678"
+        );
+      }
     },
-    mounted() {
-      this.getMemberData();
-    },
-    methods: {
-      /**
-       * @description 멤버 상세 정보를 조회하는 비동기 메서드
-       * @method getMemberData
-       * @async
-       * @returns {Promise<void>} 멤버 정보 조회가 완료되면 해결되는 Promise
-       * @throws {Error} 멤버 정보 조회 실패 시 발생하는 오류
-       */
-      async getMemberData() {
-        const memberId = this.$route.params.id;
-        const response = await this.openReadDataItemById(
+
+    /**
+     * @description 멤버 정보를 업데이트하는 비동기 메서드
+     * @method updateMemberData
+     * @async
+     * @returns {Promise<void>} 멤버 정보 업데이트가 완료되면 해결되는 Promise
+     * @throws {Error} 멤버 정보 업데이트 실패 시 발생하는 오류
+     */
+    async updateMemberData() {
+      console.log("🛠️ [Update Member Data] 멤버 정보 업데이트를 시작합니다.");
+
+      // 필수 입력값 검증
+      const requiredFields = {
+        name: "이름",
+        name_suffix: "구분자",
+        phone_number: "전화번호",
+        gender_type: "성별",
+        email: "이메일",
+      };
+
+      const missingFields = Object.entries(requiredFields)
+        .filter(([key]) => !this.member[key])
+        .map(([, label]) => label);
+
+      if (missingFields.length > 0) {
+        console.warn("⚠️ [Validation] 필수 정보가 누락되었습니다.");
+        alert(`다음 필수 항목을 입력해주세요:\n\n${missingFields.join("\n")}`);
+        return;
+      }
+
+      try {
+        // 멤버 정보 업데이트 API 호출
+        console.log("🔄 [Update Member Data] 멤버 정보를 업데이트합니다.");
+        const response = await this.openUpdateData(
           this.User,
-          memberId,
+          this.member.id,
+          this.member,
           true
         );
-        console.log('response', response);
+        console.log("✅ [Update Member Data] 업데이트 응답:", response);
 
-        if (response && response.data) {
-          this.member = response.data;
-          this.originalMember = { ...response.data };
-          console.log('member', this.member);
+        // 업데이트 결과 처리
+        if (response.message === "업데이트 완료") {
+          console.log(
+            "🚀 [Update Member Data] 멤버 정보 업데이트가 완료되었습니다. 회원 목록 페이지로 이동합니다."
+          );
+          this.$router.push("/member-list");
         } else {
-          alert(
-            '멤버 정보 조회에 실패했습니다. 관리자에게 문의해주세요.\n관리자 연락처: 010-1234-5678'
-          );
-        }
-      },
-
-      /**
-       * @description 멤버 정보를 업데이트하는 비동기 메서드
-       * @method updateMemberData
-       * @async
-       * @returns {Promise<void>} 멤버 정보 업데이트가 완료되면 해결되는 Promise
-       * @throws {Error} 멤버 정보 업데이트 실패 시 발생하는 오류
-       */
-      async updateMemberData() {
-        console.log('🛠️ [Update Member Data] 멤버 정보 업데이트를 시작합니다.');
-
-        // 필수 입력값 검증
-        const requiredFields = {
-          name: '이름',
-          name_suffix: '구분자',
-          phone_number: '전화번호',
-          gender_type: '성별',
-          email: '이메일',
-        };
-
-        const missingFields = Object.entries(requiredFields)
-          .filter(([key]) => !this.member[key])
-          .map(([, label]) => label);
-
-        if (missingFields.length > 0) {
-          console.warn('⚠️ [Validation] 필수 정보가 누락되었습니다.');
-          alert(
-            `다음 필수 항목을 입력해주세요:\n\n${missingFields.join('\n')}`
-          );
-          return;
-        }
-
-        try {
-          // 멤버 정보 업데이트 API 호출
-          console.log('🔄 [Update Member Data] 멤버 정보를 업데이트합니다.');
-          const response = await this.openUpdateData(
-            this.User,
-            this.member.id,
-            this.member,
-            true
-          );
-          console.log('✅ [Update Member Data] 업데이트 응답:', response);
-
-          // 업데이트 결과 처리
-          if (response.message === '업데이트 완료') {
-            console.log(
-              '🚀 [Update Member Data] 멤버 정보 업데이트가 완료되었습니다. 회원 목록 페이지로 이동합니다.'
-            );
-            this.$router.push('/member-list');
-          } else {
-            console.error(
-              '❌ [Update Member Data] 멤버 정보 수정에 실패했습니다.'
-            );
-            alert(
-              '멤버 정보 수정에 실패했습니다. 관리자에게 문의해주세요.\n관리자 연락처: admin@example.com'
-            );
-          }
-        } catch (error) {
           console.error(
-            '🚨 [Update Member Data] 멤버 정보 수정 중 오류 발생:',
-            error
+            "❌ [Update Member Data] 멤버 정보 수정에 실패했습니다."
           );
           alert(
-            '멤버 정보 수정 중 오류가 발생했습니다. 관리자에게 문의해주세요.\n관리자 연락처: admin@example.com'
+            "멤버 정보 수정에 실패했습니다. 관리자에게 문의해주세요.\n관리자 연락처: admin@example.com"
           );
         }
-      },
+      } catch (error) {
+        console.error(
+          "🚨 [Update Member Data] 멤버 정보 수정 중 오류 발생:",
+          error
+        );
+        alert(
+          "멤버 정보 수정 중 오류가 발생했습니다. 관리자에게 문의해주세요.\n관리자 연락처: admin@example.com"
+        );
+      }
     },
-  };
+  },
+};
 </script>
 
 <style scoped>
-  .full-size {
-    width: 100%;
-    height: 100%;
-  }
+.full-size {
+  width: 100%;
+  height: 100%;
+}
 
-  .switch {
-    position: relative;
-    display: inline-block;
-    width: 60px;
-    height: 34px;
-  }
+.switch {
+  position: relative;
+  display: inline-block;
+  width: 60px;
+  height: 34px;
+}
 
-  .switch input {
-    opacity: 0;
-    width: 0;
-    height: 0;
-  }
+.switch input {
+  opacity: 0;
+  width: 0;
+  height: 0;
+}
 
-  .slider {
-    position: absolute;
-    cursor: pointer;
-    top: 0;
-    left: 0;
-    right: 0;
-    bottom: 0;
-    background-color: #ccc;
-    -webkit-transition: 0.4s;
-    transition: 0.4s;
-  }
+.slider {
+  position: absolute;
+  cursor: pointer;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: #ccc;
+  -webkit-transition: 0.4s;
+  transition: 0.4s;
+}
 
-  .slider:before {
-    position: absolute;
-    content: '';
-    height: 26px;
-    width: 26px;
-    left: 4px;
-    bottom: 4px;
-    background-color: white;
-    -webkit-transition: 0.4s;
-    transition: 0.4s;
-  }
+.slider:before {
+  position: absolute;
+  content: "";
+  height: 26px;
+  width: 26px;
+  left: 4px;
+  bottom: 4px;
+  background-color: white;
+  -webkit-transition: 0.4s;
+  transition: 0.4s;
+}
 
-  input:checked + .slider {
-    background-color: #2196f3;
-  }
+input:checked + .slider {
+  background-color: #2196f3;
+}
 
-  input:focus + .slider {
-    box-shadow: 0 0 1px #2196f3;
-  }
+input:focus + .slider {
+  box-shadow: 0 0 1px #2196f3;
+}
 
-  input:checked + .slider:before {
-    -webkit-transform: translateX(26px);
-    -ms-transform: translateX(26px);
-    transform: translateX(26px);
-  }
+input:checked + .slider:before {
+  -webkit-transform: translateX(26px);
+  -ms-transform: translateX(26px);
+  transform: translateX(26px);
+}
 
-  .slider.round {
-    border-radius: 34px;
-  }
+.slider.round {
+  border-radius: 34px;
+}
 
-  .slider.round:before {
-    border-radius: 50%;
-  }
+.slider.round:before {
+  border-radius: 50%;
+}
 </style>

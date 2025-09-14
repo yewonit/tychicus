@@ -1,26 +1,27 @@
-import { ModelCtrl } from '@/mixins/apis_v2/internal/core/ModelCtrl';
-import axiosClient from '@/utils/axiosClient';
+import { ModelCtrl } from "@/mixins/apis_v2/internal/core/ModelCtrl";
+import axios from "axios";
+import env from "@/config/environments";
 
 export const AttendanceCtrl = {
   data() {
     return {
       // URL List
-      Organization_EP: 'organizations',
-      Activity_EP: 'activities',
+      Organization_EP: "organizations",
+      Activity_EP: "activities",
 
       // Model List
       modelActivity: {
         id: 0,
-        name: '',
-        description: '',
-        start_date: '',
-        end_date: '',
+        name: "",
+        description: "",
+        start_date: "",
+        end_date: "",
         organization_id: 0,
         is_deleted: false,
         creator_id: 0,
         updater_id: 0,
-        creator_ip: '',
-        updater_ip: '',
+        creator_ip: "",
+        updater_ip: "",
       },
     };
   },
@@ -40,8 +41,8 @@ export const AttendanceCtrl = {
         );
       }
       try {
-        const res = await axiosClient.api.get(
-          `/${this.Organization_EP}/${organizationId}/${this.Activity_EP}`
+        const res = await axios.get(
+          `${env.API_BASE_URL}/${this.Organization_EP}/${organizationId}/${this.Activity_EP}`
         );
         let returnData = res.data;
         if (showLog) {
@@ -49,7 +50,7 @@ export const AttendanceCtrl = {
         }
         return returnData;
       } catch (error) {
-        console.error('활동 정보 조회 중 오류 발생:', error);
+        console.error("활동 정보 조회 중 오류 발생:", error);
         return { result: 0 };
       }
     },
@@ -70,8 +71,8 @@ export const AttendanceCtrl = {
         );
       }
       try {
-        const res = await axiosClient.api.post(
-          `/${this.Activity_EP}`,
+        const res = await axios.post(
+          `${env.API_BASE_URL}/${this.Activity_EP}`,
           activityData
         );
         let returnData = res.data;
@@ -80,7 +81,7 @@ export const AttendanceCtrl = {
         }
         return returnData;
       } catch (error) {
-        console.error('활동 정보 생 중 오류 발생:', error);
+        console.error("활동 정보 생 중 오류 발생:", error);
         return { result: 0 };
       }
     },
@@ -103,7 +104,7 @@ export const AttendanceCtrl = {
       imageInfo = null,
       showLog = false
     ) {
-      console.log('📥 recordAttendance 입력 파라미터:', {
+      console.log("📥 recordAttendance 입력 파라미터:", {
         organizationId,
         activityId,
         instanceData,
@@ -121,11 +122,11 @@ export const AttendanceCtrl = {
         console.log(`🎯 activityId: ${activityId}`);
       }
       try {
-        const instanceUrl = `/${this.Organization_EP}/${organizationId}/${this.Activity_EP}/${activityId}/attendance`;
-        console.log('🌐 활동 인스턴스 생성 URL:', instanceUrl);
-        console.log('📦 instanceData:', instanceData);
-        console.log('👥 attendances:', attendances);
-        console.log('📸 imageInfo:', imageInfo);
+        const instanceUrl = `${env.API_BASE_URL}/${this.Organization_EP}/${organizationId}/${this.Activity_EP}/${activityId}/attendance`;
+        console.log("🌐 활동 인스턴스 생성 URL:", instanceUrl);
+        console.log("📦 instanceData:", instanceData);
+        console.log("👥 attendances:", attendances);
+        console.log("📸 imageInfo:", imageInfo);
 
         const requestData = {
           instanceData,
@@ -133,7 +134,7 @@ export const AttendanceCtrl = {
           imageInfo,
         };
 
-        const res = await axiosClient.api.post(instanceUrl, requestData);
+        const res = await axios.post(instanceUrl, requestData);
         let returnData = res.data;
 
         if (showLog) {
@@ -145,10 +146,10 @@ export const AttendanceCtrl = {
         }
         return returnData;
       } catch (error) {
-        console.error('❌ 출석 정보 기록 중 오류 발생:', error);
+        console.error("❌ 출석 정보 기록 중 오류 발생:", error);
         console.error(
-          '오류 상세 정보:',
-          error.response ? error.response.data : '응답 데이터 없음'
+          "오류 상세 정보:",
+          error.response ? error.response.data : "응답 데이터 없음"
         );
         return { result: 0, error: error.message };
       }
@@ -179,7 +180,7 @@ export const AttendanceCtrl = {
       activityInstanceId,
       showLog = false
     ) {
-      console.log('🗑️ deleteActivityInstance 호출됨:', {
+      console.log("🗑️ deleteActivityInstance 호출됨:", {
         organizationId,
         activityId,
         activityInstanceId,
@@ -193,10 +194,10 @@ export const AttendanceCtrl = {
       }
 
       try {
-        const deleteUrl = `/organizations/${organizationId}/activities/${activityId}/instances/${activityInstanceId}`;
-        console.log('🌐 활동 인스턴스 삭제 URL:', deleteUrl);
+        const deleteUrl = `${env.API_BASE_URL}/organizations/${organizationId}/activities/${activityId}/instances/${activityInstanceId}`;
+        console.log("🌐 활동 인스턴스 삭제 URL:", deleteUrl);
 
-        const res = await axiosClient.api.delete(deleteUrl);
+        const res = await axios.delete(deleteUrl);
         let returnData = res.data;
 
         if (showLog) {
@@ -208,10 +209,10 @@ export const AttendanceCtrl = {
         }
         return returnData;
       } catch (error) {
-        console.error('❌ 활동 인스턴스 삭제 중 오류 발생:', error);
+        console.error("❌ 활동 인스턴스 삭제 중 오류 발생:", error);
         console.error(
-          '오류 상세 정보:',
-          error.response ? error.response.data : '응답 데이터 없음'
+          "오류 상세 정보:",
+          error.response ? error.response.data : "응답 데이터 없음"
         );
         return { result: 0, error: error.message };
       }
@@ -245,14 +246,14 @@ export const AttendanceCtrl = {
       }
 
       try {
-        const updateUrl = `/organizations/${organizationId}/activities/${activityId}/instances/${activityInstanceId}/attendance`;
-        console.log('🌐 출석 정보 업데이트 URL:', updateUrl);
-        console.log('📦 instanceData:', instanceData);
-        console.log('👥 attendances:', attendances);
-        console.log('📸 imageInfo:', imageInfo);
+        const updateUrl = `${env.API_BASE_URL}/organizations/${organizationId}/activities/${activityId}/instances/${activityInstanceId}/attendance`;
+        console.log("🌐 출석 정보 업데이트 URL:", updateUrl);
+        console.log("📦 instanceData:", instanceData);
+        console.log("👥 attendances:", attendances);
+        console.log("📸 imageInfo:", imageInfo);
 
         const requestData = { instanceData, attendances, imageInfo };
-        const res = await axiosClient.api.put(updateUrl, requestData);
+        const res = await axios.put(updateUrl, requestData);
         let returnData = res.data;
 
         if (showLog) {
@@ -264,10 +265,10 @@ export const AttendanceCtrl = {
         }
         return returnData;
       } catch (error) {
-        console.error('❌ 출석 정보 업데이트 중 오류 발생:', error);
+        console.error("❌ 출석 정보 업데이트 중 오류 발생:", error);
         console.error(
-          '오류 상세 정보:',
-          error.response ? error.response.data : '응답 데이터 없음'
+          "오류 상세 정보:",
+          error.response ? error.response.data : "응답 데이터 없음"
         );
         return { result: 0, error: error.message };
       }
@@ -287,8 +288,8 @@ export const AttendanceCtrl = {
       }
 
       try {
-        const url = `/organizations/${organizationId}/activities/${activityId}/instances/${activityInstanceId}`;
-        const res = await axiosClient.api.get(url);
+        const url = `${env.API_BASE_URL}/organizations/${organizationId}/activities/${activityId}/instances/${activityInstanceId}`;
+        const res = await axios.get(url);
         let returnData = res.data;
 
         if (showLog) {
@@ -300,7 +301,7 @@ export const AttendanceCtrl = {
         }
         return returnData;
       } catch (error) {
-        console.error('❌ 활동 인스턴스 상세 정보 조회 중 오류 발생:', error);
+        console.error("❌ 활동 인스턴스 상세 정보 조회 중 오류 발생:", error);
         return { result: 0, error: error.message };
       }
     },
@@ -314,8 +315,8 @@ export const AttendanceCtrl = {
       }
 
       try {
-        const url = `/organizations/${organizationId}/members`;
-        const res = await axiosClient.api.get(url);
+        const url = `${env.API_BASE_URL}/organizations/${organizationId}/members`;
+        const res = await axios.get(url);
         let returnData = res.data;
 
         if (showLog) {
@@ -327,7 +328,7 @@ export const AttendanceCtrl = {
         }
         return returnData;
       } catch (error) {
-        console.error('❌ 조직 멤버 목록 조회 중 오류 발생:', error);
+        console.error("❌ 조직 멤버 목록 조회 중 오류 발생:", error);
         return { result: 0, error: error.message };
       }
     },

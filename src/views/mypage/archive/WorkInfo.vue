@@ -12,29 +12,29 @@
 </template>
 
 <script>
-  import UpdateInfoWork from '@/components/basic/UpdateInfoWorkComp.vue';
+import UpdateInfoWork from "@/components/basic/UpdateInfoWorkComp.vue";
 
-  export default {
-    name: 'SignUp',
-    components: {
-      UpdateInfoWork,
+export default {
+  name: "SignUp",
+  components: {
+    UpdateInfoWork,
+  },
+  data() {
+    return {
+      signupStep: 1,
+    };
+  },
+  mounted() {
+    this.checkLogin();
+  },
+  methods: {
+    checkLogin() {
+      if (!JSON.parse(localStorage.getItem("user_info"))) {
+        this.$router.push("/");
+      }
     },
-    data() {
-      return {
-        signupStep: 1,
-      };
-    },
-    mounted() {
-      this.checkLogin();
-    },
-    methods: {
-      checkLogin() {
-        if (!JSON.parse(localStorage.getItem('user_info'))) {
-          this.$router.push('/');
-        }
-      },
-    },
-  };
+  },
+};
 </script>
 
 <style></style>
