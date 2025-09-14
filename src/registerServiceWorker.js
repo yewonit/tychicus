@@ -34,7 +34,7 @@ function checkForUpdates() {
       // 현재 버전 저장
       localStorage.setItem("appVersion", data.version);
     })
-    .catch((error) => {});
+    .catch((error) => { });
 }
 
 if (process.env.NODE_ENV === "production") {
@@ -52,8 +52,8 @@ if (process.env.NODE_ENV === "production") {
         checkForUpdates();
       }, 5 * 60 * 1000);
     },
-    cached() {},
-    updatefound() {},
+    cached() { },
+    updatefound() { },
     updated(registration) {
       // 업데이트 알림 이벤트 발생
       window.dispatchEvent(
@@ -63,14 +63,17 @@ if (process.env.NODE_ENV === "production") {
       // 서비스 워커 변경 시 자동 새로고침
       registration.waiting.postMessage({ type: "SKIP_WAITING" });
     },
-    offline() {},
-    error(error) {},
+    offline() { },
+    error(error) { },
   });
 
-  // 서비스 워커 컨트롤러 변경 시 페이지 새로고침
-  navigator.serviceWorker.addEventListener("controllerchange", () => {
-    if (refreshing) return;
-    refreshing = true;
-    window.location.reload();
-  });
+  if ("serviceWorker" in navigator) {
+    let refreshing = false;
+
+    navigator.serviceWorker.addEventListener("controllerchange", () => {
+      if (refreshing) return;
+      refreshing = true;
+      window.location.reload();
+    });
+  }
 }
