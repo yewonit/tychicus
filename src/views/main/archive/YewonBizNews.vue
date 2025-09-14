@@ -71,7 +71,7 @@ export default {
         '<div data-v-a051d3b0="" class="col-sm-6 col-md-4 col-12"> <a data-v-a051d3b0="" href="{{link}}" style="text-decoration: none;"><div data-v-a051d3b0="" class="ma-3 pa-3 wc-card v-card v-sheet theme--light"><div data-v-a051d3b0="" class="v-image v-responsive theme--light"><div class="v-responsive__sizer" style="padding-bottom: 100%;"></div><div class="v-image__image v-image__image--cover" style="background-image: url({{image}}); background-position: center center;"></div><div class="v-responsive__content" style="width: 880px;"></div></div><div data-v-a051d3b0="" class="v-card__text ma-2"> {{caption}} </div></div></a></div>',
       sortBy: "most-recent",
     });
-    console.log("this.feed", this.feed);
+
     this.feed.run();
   },
   methods: {

@@ -78,8 +78,8 @@
 <script>
 import "@/styles/overrides.scss";
 
-import { MasterCtrl } from "@/mixins/apis_v2/internal/MasterCtrl";
 import { FileBins } from "@/mixins/apis_v2/internal/FileBins";
+import { MasterCtrl } from "@/mixins/apis_v2/internal/MasterCtrl";
 import { Utility } from "@/mixins/apis_v2/utility/Utility";
 export default {
   props: {
@@ -106,12 +106,11 @@ export default {
   mixins: [MasterCtrl, FileBins, Utility],
   methods: {
     async resetPw() {
-      console.log("checkbox : ");
       if (this.userPw == "") {
         alert("비밀번호를 입력하세요");
         return;
       }
-      console.log("checkbox : ");
+
       this.lv1_Func("view: ResetPWInfo", "resetPw()");
       // 로컬 스토리지에서 유저 정보를 가져오기
       this.lv1_Act("로컬 스토리지에서 유저 정보를 가져오기");

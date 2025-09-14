@@ -236,11 +236,8 @@ export default {
           await this.fetchOrganizationMembers(); // 조직 멤버 정보 가져오기
           this.isDataLoaded = true;
         } else {
-          console.error("활동 인스턴스 데이터가 없습니다.");
         }
-      } catch (error) {
-        console.error("미팅 데이터 가져오기 실패:", error);
-      }
+      } catch (error) {}
     },
 
     async fetchAllMembers() {
@@ -252,9 +249,7 @@ export default {
         if (response && response.members) {
           this.allMembers = response.members;
         }
-      } catch (error) {
-        console.error("조직 멤버 목록 가져오기 실패:", error);
-      }
+      } catch (error) {}
     },
 
     formatDate(dateString) {
@@ -297,11 +292,8 @@ export default {
         const response = await this.getOrganizationMembers(this.organizationId);
         if (response && response.members) {
           this.organizationMembers = response.members;
-          console.log("조직 멤버 정보:", this.organizationMembers); // 디버깅용
         }
-      } catch (error) {
-        console.error("조직 멤버 정보를 가져오는 중 오류 발생:", error);
-      }
+      } catch (error) {}
     },
 
     addRoleInfo(member) {
@@ -309,7 +301,7 @@ export default {
         (m) => m.id === member.userId
       );
       const roleName = orgMember ? orgMember.roleName : "일반 회원";
-      console.log(`${member.userName}의 역할: ${roleName}`); // 디버깅용
+
       return {
         ...member,
         roleName: roleName,

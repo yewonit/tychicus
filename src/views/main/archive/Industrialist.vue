@@ -238,8 +238,6 @@ export default {
       // 데이터 재정렬
       await this.setListHavingPhotoFirst(); // 산업리스트에서 사진이 있는 산업을 맨 앞으로 정렬
       if (this.keywordFromHome !== undefined) {
-        console.log("this.keywordFromHome");
-        console.log(this.keywordFromHome);
         this.searchKeyword = this.keywordFromHome;
         this.searchWork();
       }
@@ -249,64 +247,35 @@ export default {
     // Reading Data
     // Work Read
     async readWork() {
-      console.log(`%c[ View: Industrialist ] readWork()`, `color:#BFFF00;`);
       this.workList = await this.openReadDataList(this.Work);
       this.workList.forEach((work) => {
-        console.log(work.business_domain_lv1_idx);
         work.business_domain_lv1_idx = work.business_domain_lv1_idx.toString();
       });
       this.workList.reverse();
-      console.log(`%c[ Data ] this.workList`, "color: #E3DAC9;", this.workList);
     },
     //User Read
     async readUser() {
-      console.log(`%c[ View: Industrialist ] readUser()`, `color:#BFFF00;`);
       this.userList = await this.openReadDataList(this.User);
-      console.log(`%c[ Data ] this.userList`, "color: #E3DAC9;", this.userList);
     },
     // WHFile Read
     async readWHFile() {
-      console.log(`%c[ View: Industrialist ] readWHFile()`, `color:#BFFF00;`);
       this.whfileList = await this.openReadDataList(this.WHFile);
-
-      console.log(
-        `%c[ Data ] this.whfileList`,
-        "color: #E3DAC9;",
-        this.whfileList
-      );
     },
     // UHFile Read
     async readUHFile() {
-      console.log(`%c[ View: Industrialist ] readUHFile()`, `color:#BFFF00;`);
       this.uhfileList = await this.openReadDataList(this.UHFile);
       // 최신순으로 검색하도록 순서 뒤집음
       this.uhfileList.reverse();
-      console.log(
-        `%c[ Data ] this.uhfileList`,
-        "color: #E3DAC9;",
-        this.uhfileList
-      );
     },
     // File Read
     async readFile() {
-      console.log(`%c[ View: Industrialist ] readFile()`, `color:#BFFF00;`);
       this.fileList = await this.openReadDataList(this.File);
       this.fileList.reverse();
-      console.log(`%c[ Data ] this.fileList`, "color: #E3DAC9;", this.fileList);
     },
     // Business Keywords Read
     async readBusinessKeyword() {
-      console.log(
-        `%c[ View: Industrialist ] readBusinessKeyword()`,
-        `color:#BFFF00;`
-      );
       this.businessKeywordList = await this.openReadDataList(
         this.BusinessKeyword
-      );
-      console.log(
-        `%c[ Data ] this.businessKeywordList`,
-        "color: #E3DAC9;",
-        this.businessKeywordList
       );
     },
 
@@ -329,13 +298,11 @@ export default {
       });
     },
     async setUserProfileInWorkList() {
-      console.log("[Function] setUserProfileInWorkList()");
       this.workList.forEach((work) => {
         this.uhfileList.forEach((uhfile) => {
           if (work.user_id === uhfile.user_id) {
             this.fileList.forEach((file) => {
               if (uhfile.file_id === file.id) {
-                // console.log(file.file_path);
                 this.$set(work, "user_profile_path", file.file_path);
               }
             });
@@ -344,7 +311,6 @@ export default {
       });
     },
     async setUserNameInWorkList() {
-      console.log("[Function] setUserNameInWorkList()");
       this.workList.forEach((work) => {
         work.user_name = "";
         this.userList.forEach((user) => {
@@ -389,8 +355,6 @@ export default {
       });
     },
     async setBusinessKeywordInWorkList() {
-      console.log("[Function] setBusinessKeywordInWorkList()");
-
       this.workList.forEach((work) => {
         this.$set(work, "business_keywords", "");
         this.businessKeywordList.forEach((businessKeyword) => {
@@ -404,7 +368,6 @@ export default {
     },
     // this.workList 를 복사해 새로운 배열을 만드는 함수
     async copyWorkList() {
-      console.log("[Function] copyWorkList()");
       this.workListCopy = [];
       this.workList.forEach((work) => {
         const tempWork = work;
@@ -432,13 +395,10 @@ export default {
     // 검색어 - 비즈니스 제목
     searchWork() {
       this.searchBusinessCode = "";
-      console.log("[Function] searchWork()");
-      console.log(this.searchKeyword);
 
       this.searchKeyword.toLowerCase();
 
       this.workList = this.workListCopy.filter((work) => {
-        console.log("business_keywords_search", this.business_keywords_search);
         return (
           work.user_name_search.indexOf(this.searchKeyword) !== -1 ||
           // work.tel.indexOf(this.searchKeyword) !== -1 ||
@@ -453,7 +413,6 @@ export default {
         );
       });
 
-      console.log(this.workList);
       if (this.workList.length === 0) {
         this.isSearchResult = false;
       } else {
@@ -464,14 +423,13 @@ export default {
     },
     searchWorkByBusinessCode() {
       this.searchKeyword = "";
-      console.log("[Function] searchWork()");
-      console.log(this.searchBusinessCode);
+
       this.workList = this.workListCopy.filter((work) => {
         return (
           work.business_domain_lv1_idx.indexOf(this.searchBusinessCode) !== -1
         );
       });
-      console.log(this.workList);
+
       if (this.workList.length === 0) {
         this.isSearchResult = false;
       } else {

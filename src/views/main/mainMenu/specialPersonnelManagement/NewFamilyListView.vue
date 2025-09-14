@@ -54,8 +54,8 @@
 </template>
 
 <script>
-import { mapState } from "vuex";
 import { CurrentMemberCtrl } from "@/mixins/apis_v2/internal/domainCtrl/CurrentMemberCtrl";
+import { mapState } from "vuex";
 
 export default {
   name: "LongTermAbsenteeListView",
@@ -78,7 +78,6 @@ export default {
     goToDetail(id) {
       // 다음 컴포넌트로 이동하는 로직을 여기에 구현하세요.
       this.$router.push({ name: "RescueVisitHistoryView", params: { id: id } });
-      console.log(id);
     },
     async fetchMemberList() {
       const organizationId = this.userInfo.roles[0].organizationId;
@@ -101,7 +100,6 @@ export default {
       });
 
       this.memberList = memberList;
-      console.log(this.memberList);
     },
   },
 };

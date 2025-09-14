@@ -311,15 +311,15 @@
 </template>
 
 <script>
-import { mapState } from "vuex";
-import { MasterCtrl } from "@/mixins/apis_v2/internal/MasterCtrl";
-import { FileBins } from "@/mixins/apis_v2/internal/FileBins";
-import { Utility } from "@/mixins/apis_v2/utility/Utility";
-import { CurrentMemberCtrl } from "@/mixins/apis_v2/internal/domainCtrl/CurrentMemberCtrl";
-import { AttendanceCtrl } from "@/mixins/apis_v2/internal/domainCtrl/AttendanceCtrl";
 import { AWSS3Ctrl } from "@/mixins/apis_v2/external/AWSS3Ctrl.js";
-import moment from "moment-timezone";
+import { AttendanceCtrl } from "@/mixins/apis_v2/internal/domainCtrl/AttendanceCtrl";
+import { CurrentMemberCtrl } from "@/mixins/apis_v2/internal/domainCtrl/CurrentMemberCtrl";
+import { FileBins } from "@/mixins/apis_v2/internal/FileBins";
+import { MasterCtrl } from "@/mixins/apis_v2/internal/MasterCtrl";
+import { Utility } from "@/mixins/apis_v2/utility/Utility";
 import { dateTimeUtils } from "@/utils/dateTimeUtils";
+import moment from "moment-timezone";
+import { mapState } from "vuex";
 
 export default {
   name: "AttendanceUpdateView",
@@ -390,9 +390,7 @@ export default {
     try {
       await this.fetchMemberList();
       await this.fetchMeetingData();
-    } catch (error) {
-      console.error("초기화 중 오류 발생:", error);
-    }
+    } catch (error) {}
   },
   methods: {
     /**
@@ -477,23 +475,16 @@ export default {
     },
 
     async fetchMeetingData() {
-      console.log("fetchMeetingData 시작");
       const { organizationId, activityId, activityInstanceId } =
         this.$route.params;
 
       try {
-        console.log("API 호출 시작:", {
-          organizationId,
-          activityId,
-          activityInstanceId,
-        });
+        // organizationId, activityId, activityInstanceId
         const response = await this.getActivityInstanceDetails(
           organizationId,
           activityId,
           activityInstanceId
         );
-
-        console.log("API 응답:", response);
 
         if (response && response.activityInstance) {
           const activityInstance = response.activityInstance;
@@ -550,19 +541,14 @@ export default {
             this.originalImageInfo = activityInstance.images[0];
           }
         } else {
-          console.error("API 응답이 없거나 유효하지 않습니다.");
         }
       } catch (error) {
-        console.error("모임 데이터 조회 중 오류 발생:", error);
         alert("모임 정보를 불러오는데 실패했습니다.");
       }
     },
 
     async updateMeeting() {
-      console.log("🚀 updateMeeting 함수 시작");
-
       if (!this.meetingDate || !this.activityId) {
-        console.warn("⚠️ 필수 정보 누락");
         alert("필수 정보를 모두 입력해주세요.");
         return;
       }
@@ -577,15 +563,6 @@ export default {
         location: this.meetingLocation || "",
         notes: this.meetingNotes || "",
       };
-
-      console.log(
-        "📅 시작 시간:",
-        this.meetingStartDateTime.format("YYYY-MM-DD HH:mm:ss")
-      );
-      console.log(
-        "📅 종료 시간:",
-        this.meetingEndDateTime.format("YYYY-MM-DD HH:mm:ss")
-      );
 
       const attendances = this.memberList.map((member) => ({
         userId: member.id || member.userId,
@@ -628,14 +605,12 @@ export default {
         );
 
         if (response && response.result !== 0) {
-          console.log("모임 정보 업데이트 성공");
           alert("모임 정보가 성공적으로 업데이트되었습니다.");
           this.$router.push({ name: "MeetingHistoryView" });
         } else {
           throw new Error("모임 정보 업데이트에 실패했습니다.");
         }
       } catch (error) {
-        console.error("❌ 모임 정보 수정 중 오류 발생:", error);
         alert("모임 정보 수정에 실패했습니다. 다시 시도해 주세요.");
       } finally {
         this.isUploading = false; // 업로드 완료 또는 실패 시
@@ -658,9 +633,7 @@ export default {
             isParticipating: false,
           }));
         }
-      } catch (error) {
-        console.error("멤버 목록 조회 중 오류 발생:", error);
-      }
+      } catch (error) {}
     },
 
     /**
@@ -699,7 +672,6 @@ export default {
         }
         // 그 외의 경우
         else {
-          console.error("Unexpected file format:", file);
           this.meetingImageUrl = null;
         }
       } else {
@@ -736,7 +708,6 @@ export default {
     },
     async uploadImageToS3() {
       if (!this.photos) {
-        console.log("업로드할 이미지가 없습니다.");
         return null;
       }
 
@@ -755,13 +726,11 @@ export default {
       try {
         const result = await this.s3CreateFile(filePath, file, true);
         if (result) {
-          console.log("이미지 업로드 성공:", result);
           return { url: result.filePath, fileName: newFileName };
         } else {
           throw new Error("이미지 업로드 결과가 없습니다.");
         }
       } catch (error) {
-        console.error("이미지 업로드 실패:", error);
         alert("이미지 업로드에 실패했습니다. 다시 시도해주세요.");
         return null;
       }
@@ -769,41 +738,27 @@ export default {
     async testFetchData() {
       try {
         // Activity 데이터 조회
-        console.log("🔍 Activity 데이터 조회 시작");
         const activityData = await this.openReadDataList(this.Activity, true);
-        console.log("📊 Activity 데이터:", activityData);
 
         // 에러 처리를 포함한 안전한 데이터 조회
         try {
-          console.log("\n🔍 ActivityChild 데이터 조회 시작");
           const activityChildData = await this.openReadDataList(
             this.ActivityChild,
             true
           );
-          console.log("📊 ActivityChild 데이터:", activityChildData);
-        } catch (error) {
-          console.log("ActivityChild 데이터 조회 실패:", error.message);
-        }
+        } catch (error) {}
 
         try {
-          console.log("\n🔍 Attendance 데이터 조회 시작");
           const attendanceData = await this.openReadDataList(
             this.Attendance,
             true
           );
-          console.log("📊 Attendance 데이터:", attendanceData);
-        } catch (error) {
-          console.log("Attendance 데이터 조회 실패:", error.message);
-        }
+        } catch (error) {}
 
         // 데이터 요약은 실제 데이터가 있는 경우에만 출력
-        console.log("\n📑 데이터 요약");
         if (activityData?.data) {
-          console.log(`총 Activity 수: ${activityData.data.length}`);
         }
-      } catch (error) {
-        console.error("❌ 데이터 조회 중 오류 발생:", error);
-      }
+      } catch (error) {}
     },
   },
 };

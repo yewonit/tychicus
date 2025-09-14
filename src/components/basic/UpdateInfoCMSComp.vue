@@ -222,8 +222,8 @@
 <script>
 import "@/styles/overrides.scss";
 
-import { MasterCtrl } from "@/mixins/apis_v2/internal/MasterCtrl";
 import { FileBins } from "@/mixins/apis_v2/internal/FileBins";
+import { MasterCtrl } from "@/mixins/apis_v2/internal/MasterCtrl";
 import { Utility } from "@/mixins/apis_v2/utility/Utility";
 
 export default {
@@ -289,11 +289,9 @@ export default {
   computed: {},
   watch: {
     donation_amount_object(val) {
-      console.log("val", val);
       if (typeof val === "string") {
         const tempValue = parseInt(val);
         if (!isNaN(tempValue)) {
-          console.log(tempValue);
           this.donationModel.donation_amount = tempValue;
         } else {
           alert("숫자만 입력해주세요.");
@@ -307,7 +305,6 @@ export default {
       } else {
         alert("잘못된 값을 입력하였습니다.");
       }
-      console.log("donation_amount", this.donationModel.donation_amount);
     },
   },
   created() {
@@ -346,7 +343,6 @@ export default {
 
     setUserName() {
       const userInfo = JSON.parse(localStorage.getItem("user_info"));
-      console.log(userInfo);
       if (userInfo.name) {
         this.donationModel.bank_account_name = userInfo.name;
       } else {

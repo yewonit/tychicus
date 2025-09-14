@@ -41,27 +41,22 @@ const mutations = {
 const actions = {
   // 사용자 이름을 설정하는 액션
   setUserName({ commit }, userName) {
-    console.log(`[ Store : auth ] setUserName() userName: ${userName}`);
     commit("SET_USER_NAME", userName);
   },
   // 사용자 정보를 설정하는 액션
   setUserInfo({ commit }, userInfo) {
-    console.log(`[ Store : auth ] setUserInfo() userInfo:`, userInfo);
     commit("SET_USER_INFO", userInfo);
   },
   // 동명이인 리스트를 설정하는 액션
   setUserList({ commit }, userList) {
-    console.log(`[ Store : auth ] setUserList() userList:`, userList);
     commit("SET_USER_LIST", userList);
   },
   // 단일 사용자 데이터를 설정하는 액션
   setUserData({ commit }, userData) {
-    console.log(`[ Store : auth ] setUserData() userData:`, userData);
     commit("SET_USER_DATA", userData);
   },
   // 로그아웃 액션
   logout({ commit }) {
-    console.log(`[ Store : auth ] logout()`);
     commit("CLEAR_AUTH_STATE");
   },
 };

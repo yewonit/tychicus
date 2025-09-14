@@ -231,41 +231,35 @@ export default {
 
         // 개별 조직의 멤버를 모두 가져와서 통합 검색
         for (const org of leafOrgs) {
-          try {
-            const members = await this.getMembers(org.id);
+          const members = await this.getMembers(org.id);
 
-            if (members && Array.isArray(members)) {
-              const filteredMembers = members.filter((member) => {
-                // 모든 검색은 이름을 기반으로 합니다
-                const nameMatches = member.name.toLowerCase().includes(query);
+          if (members && Array.isArray(members)) {
+            const filteredMembers = members.filter((member) => {
+              // 모든 검색은 이름을 기반으로 합니다
+              const nameMatches = member.name.toLowerCase().includes(query);
 
-                if (!nameMatches) return false; // 이름이 일치하지 않으면 항상 제외
+              if (!nameMatches) return false; // 이름이 일치하지 않으면 항상 제외
 
-                // 검색 타입에 따른 추가 필터링
-                if (this.type === "all") {
-                  return true; // 이름이 일치하면 모든 멤버 포함
-                } else if (this.type === "name") {
-                  return true; // 이름 검색은 이미 위에서 필터링됨
-                } else if (this.type === "order") {
-                  // 순 검색: 순장이나 순원인 멤버만 포함 (이름 일치 조건 포함)
-                  return (
-                    member.roleName === "순장" || member.roleName === "순원"
-                  );
-                }
+              // 검색 타입에 따른 추가 필터링
+              if (this.type === "all") {
+                return true; // 이름이 일치하면 모든 멤버 포함
+              } else if (this.type === "name") {
+                return true; // 이름 검색은 이미 위에서 필터링됨
+              } else if (this.type === "order") {
+                // 순 검색: 순장이나 순원인 멤버만 포함 (이름 일치 조건 포함)
+                return member.roleName === "순장" || member.roleName === "순원";
+              }
 
-                return false;
-              });
+              return false;
+            });
 
-              // 검색 결과에 조직 정보 추가
-              filteredMembers.forEach((member) => {
-                member.organizationId = org.id;
-                member.organizationName = org.organization_name;
-              });
+            // 검색 결과에 조직 정보 추가
+            filteredMembers.forEach((member) => {
+              member.organizationId = org.id;
+              member.organizationName = org.organization_name;
+            });
 
-              this.memberResults = [...this.memberResults, ...filteredMembers];
-            }
-          } catch (error) {
-            console.error(`${org.organization_name} 멤버 검색 중 오류`, error);
+            this.memberResults = [...this.memberResults, ...filteredMembers];
           }
         }
       } finally {

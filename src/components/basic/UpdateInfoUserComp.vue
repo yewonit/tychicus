@@ -582,10 +582,10 @@
 
 <script>
 import "@/styles/overrides.scss";
-import { mapState, mapActions } from "vuex";
+import { mapActions, mapState } from "vuex";
 
-import { MasterCtrl } from "@/mixins/apis_v2/internal/MasterCtrl";
 import { FileBins } from "@/mixins/apis_v2/internal/FileBins";
+import { MasterCtrl } from "@/mixins/apis_v2/internal/MasterCtrl";
 import { Utility } from "@/mixins/apis_v2/utility/Utility";
 
 export default {
@@ -915,10 +915,6 @@ export default {
     },
     // 파일 업로드 헨들러
     async fileHendlerUP() {
-      console.log(
-        `%c[ Comp: UpdateInfoUser ] fileHendlerUP()`,
-        `color:#BFFF00;`
-      );
       await this.setTempFileData(
         this.userModel.email,
         "UP",

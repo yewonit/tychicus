@@ -1289,10 +1289,10 @@
 
 <script>
 import "@/styles/overrides.scss";
-import { mapState, mapActions } from "vuex";
+import { mapActions, mapState } from "vuex";
 
-import { MasterCtrl } from "@/mixins/apis_v2/internal/MasterCtrl";
 import { FileBins } from "@/mixins/apis_v2/internal/FileBins";
+import { MasterCtrl } from "@/mixins/apis_v2/internal/MasterCtrl";
 import { Utility } from "@/mixins/apis_v2/utility/Utility";
 export default {
   data() {
@@ -1719,49 +1719,37 @@ export default {
     business_domain_lv1_idx: function (val) {
       switch (val) {
         case 100:
-          console.log("checkpoint");
           this.business_domain_lv2_table = this.business_domain_lv2_1_table;
-          console.log(this.business_domain_lv2_table);
           break;
         case 200:
           this.business_domain_lv2_table = this.business_domain_lv2_2_table;
-          console.log(this.business_domain_lv2_table);
           break;
         case 300:
           this.business_domain_lv2_table = this.business_domain_lv2_3_table;
-          console.log(this.business_domain_lv2_table);
           break;
         case 400:
           this.business_domain_lv2_table = this.business_domain_lv2_4_table;
-          console.log(this.business_domain_lv2_table);
           break;
         case 500:
           this.business_domain_lv2_table = this.business_domain_lv2_5_table;
-          console.log(this.business_domain_lv2_table);
           break;
         case 600:
           this.business_domain_lv2_table = this.business_domain_lv2_6_table;
-          console.log(this.business_domain_lv2_table);
           break;
         case 700:
           this.business_domain_lv2_table = this.business_domain_lv2_7_table;
-          console.log(this.business_domain_lv2_table);
           break;
         case 800:
           this.business_domain_lv2_table = this.business_domain_lv2_8_table;
-          console.log(this.business_domain_lv2_table);
           break;
         case 900:
           this.business_domain_lv2_table = this.business_domain_lv2_9_table;
-          console.log(this.business_domain_lv2_table);
           break;
         case 1000:
           this.business_domain_lv2_table = this.business_domain_lv2_10_table;
-          console.log(this.business_domain_lv2_table);
           break;
         case 1100:
           this.business_domain_lv2_table = this.business_domain_lv2_11_table;
-          console.log(this.business_domain_lv2_table);
           break;
         default:
       }
@@ -1992,16 +1980,11 @@ export default {
 
     // IMAGE HANDELER
     async fileHendlerWR() {
-      console.log(`%c[ Comp: SignUpWork ] fileHendlerWR()`, `color:#BFFF00;`);
       const userEmail = JSON.parse(localStorage.getItem("user_info")).email;
       await this.setTempFileData(userEmail, "WR", this.workRefImg, true);
     },
     async fileHendlerWP1() {
       if (this.portfolioList[0].file !== null) {
-        console.log(
-          `%c[ Comp: SignUpWork ] fileHendlerWP1()`,
-          `color:#BFFF00;`
-        );
         const userEmail = JSON.parse(localStorage.getItem("user_info")).email;
         await this.setTempFileData(
           userEmail,
@@ -2016,10 +1999,6 @@ export default {
     },
     async fileHendlerWP2() {
       if (this.portfolioList[1].file !== null) {
-        console.log(
-          `%c[ Comp: SignUpWork ] fileHendlerWP2()`,
-          `color:#BFFF00;`
-        );
         const userEmail = JSON.parse(localStorage.getItem("user_info")).email;
         await this.setTempFileData(
           userEmail,
@@ -2034,10 +2013,6 @@ export default {
     },
     async fileHendlerWP3() {
       if (this.portfolioList[2].file !== null) {
-        console.log(
-          `%c[ Comp: SignUpWork ] fileHendlerWP3()`,
-          `color:#BFFF00;`
-        );
         const userEmail = JSON.parse(localStorage.getItem("user_info")).email;
         await this.setTempFileData(
           userEmail,
@@ -2052,10 +2027,6 @@ export default {
     },
     async fileHendlerWP4() {
       if (this.portfolioList[3].file !== null) {
-        console.log(
-          `%c[ Comp: SignUpWork ] fileHendlerWP4()`,
-          `color:#BFFF00;`
-        );
         const userEmail = JSON.parse(localStorage.getItem("user_info")).email;
         await this.setTempFileData(
           userEmail,
@@ -2070,10 +2041,6 @@ export default {
     },
     async fileHendlerWP5() {
       if (this.portfolioList[4].file !== null) {
-        console.log(
-          `%c[ Comp: SignUpWork ] fileHendlerWP5()`,
-          `color:#BFFF00;`
-        );
         const userEmail = JSON.parse(localStorage.getItem("user_info")).email;
         await this.setTempFileData(
           userEmail,
@@ -2088,10 +2055,6 @@ export default {
     },
     async fileHendlerWP6() {
       if (this.portfolioList[5].file !== null) {
-        console.log(
-          `%c[ Comp: SignUpWork ] fileHendlerWP6()`,
-          `color:#BFFF00;`
-        );
         const userEmail = JSON.parse(localStorage.getItem("user_info")).email;
         await this.setTempFileData(
           userEmail,

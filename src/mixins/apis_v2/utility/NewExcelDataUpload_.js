@@ -1,9 +1,9 @@
-import { CustomLoger } from "@/mixins/apis_v2/utility/CustomLoger";
 import { ArrayCtrl } from "@/mixins/apis_v2/utility/ArrayCtrl";
+import { CustomLoger } from "@/mixins/apis_v2/utility/CustomLoger";
 import { StringCtrl } from "@/mixins/apis_v2/utility/StringCtrl";
 
-import { MasterCtrl } from "@/mixins/apis_v2/internal/MasterCtrl";
 import { AWSS3Ctrl } from "@/mixins/apis_v2/external/AWSS3Ctrl";
+import { MasterCtrl } from "@/mixins/apis_v2/internal/MasterCtrl";
 import { Utility } from "@/mixins/apis_v2/utility/Utility";
 
 // XLSX.js 파일을 추가한다.
@@ -1892,29 +1892,21 @@ export const NewExcelDataUpload = {
     //표준 주석생성
     async newUserDataUpdate() {
       try {
-        console.log("데이터 업데이트 프로세스 시작...");
-
         // 1. 관련된 테이블의 정보를 받아온다.
-        console.log("1. 관련 테이블 데이터 로드 중...");
 
         let organization_data = await this.openReadDataList(this.Organization);
         organization_data = organization_data.data;
-        console.log("Organization 데이터 로드 완료");
 
         let role_data = await this.openReadDataList(this.Role);
         role_data = role_data.data;
-        console.log("Role 데이터 로드 완료");
 
         let user_data = await this.openReadDataList(this.User);
         user_data = user_data.data;
-        console.log("User 데이터 로드 완료");
 
         let user_has_role_data = await this.openReadDataList(this.UserHasRole);
         user_has_role_data = user_has_role_data.data;
-        console.log("UserHasRole 데이터 로드 완료");
 
         // 2. newUserDataByExcel 데이터 처리 및 검증
-        console.log("2. newUserDataByExcel 데이터 처리 및 검증 시작...");
         let processedData = [];
         let newUsersToCreate = [];
         let userHasRoleDataToCreate = [];
@@ -2017,10 +2009,7 @@ export const NewExcelDataUpload = {
           processedData.push(userData);
         }
 
-        console.log("데이터 처리 및 검증 완료");
-
         // 3. 데이터베이스 업데이트
-        console.log("3. 데이터베이스 업데이트 시작...");
 
         // 3.1. 새 유저 생성
         for (let newUser of newUsersToCreate) {
@@ -2032,7 +2021,6 @@ export const NewExcelDataUpload = {
           if (createdUser.result === 0) {
             throw new Error(`유저 생성 실패: ${newUser.name}`);
           }
-          console.log(`유저 생성 완료: ID ${createdUser.id}`);
 
           // 생성된 유저의 ID를 UserHasRole 데이터에 추가
           const relatedUserHasRoleData = userHasRoleDataToCreate.find(
@@ -2065,20 +2053,10 @@ export const NewExcelDataUpload = {
                 `UserHasRole 데이터 생성 실패: ${JSON.stringify(data)}`
               );
             }
-            console.log(
-              `UserHasRole 데이터 생성 성공: ID ${createdUserHasRole.id}`
-            );
           } else {
-            console.log(
-              `UserHasRole 데이터 이미 존재: User ID ${data.user_id}, Organization ID ${data.organization_id}, Role ID ${data.role_id}`
-            );
           }
         }
-
-        console.log("데이터베이스 업데이트 완료");
-        console.log("데이터 업데이트 프로세스 성공적으로 완료");
       } catch (error) {
-        console.error("데이터 업데이트 중 오류 발생:", error.message);
         // 여기서 함수 실행을 중단합니다.
         return;
       }
@@ -2094,7 +2072,6 @@ export const NewExcelDataUpload = {
     //   // organization_data에서 실제 데이터 배열을 추출하여 organization_data 변수에 다시 저장한다.
     //   organization_data = organization_data.data;
     //   // 받아온 조직 데이터를 콘솔에 출력하여 확인한다.
-    //   console.log("organization_data", organization_data);
 
     //   // 1.2. Role 테이블에서 모든 직책 정보를 받아온다.
     //   // openReadDataList 함수는 비동기 함수로, Role 테이블의 데이터를 받아온다.
@@ -2103,17 +2080,14 @@ export const NewExcelDataUpload = {
     //   // role_data에서 실제 데이터 배열을 추출하여 role_data 변수에 다시 저장한다.
     //   role_data = role_data.data;
     //   // 받아온 직책 데이터를 콘솔에 출력하여 확인한다.
-    //   console.log("role_data", role_data);
 
     //   // 1.3. User 테이블에서 모든 유저 정보를 받아온다.
     //   let user_data = await this.openReadDataList(this.User);
     //   user_data = user_data.data;
-    //   console.log("user_data", user_data);
 
     //   // 1.4. UserHasRole 테이블에서 모든 유저-롤 정보를 받아온다.
     //   let user_has_role_data = await this.openReadDataList(this.UserHasRole);
     //   user_has_role_data = user_has_role_data.data;
-    //   console.log("user_has_role_data", user_has_role_data);
 
     //   // 2. newUserDataByExcel 데이터를 순회하면서 organization_id와 role_id를 추가한다.
     //   // newUserDataByExcel 배열을 순회하며 각 userData에 대해 처리한다.
@@ -2130,7 +2104,6 @@ export const NewExcelDataUpload = {
     //       userData.organization_code = org.organization_code;
     //     } else {
     //       // 일치하는 조직이 없으면 경고 메시지를 콘솔에 출력하고 organization_id를 null로 설정한다.
-    //       console.warn(
     //         `Organization not found for name: ${userData.organization_name}`
     //       );
     //       userData.organization_id = null; // 필요에 따라 누락된 경우를 처리
@@ -2146,14 +2119,12 @@ export const NewExcelDataUpload = {
     //       userData.role_id = role.id;
     //     } else {
     //       // 일치하는 직책이 없으면 경고 메시지를 콘솔에 출력하고 role_id를 null로 설정한다.
-    //       console.warn(`Role not found for name: ${userData.role}`);
     //       userData.role_id = null; // 필요에 따라 누락된 경우를 처리
     //     }
     //   }
 
     //   // 2.3. 데이터가 정확히 업데이트되었는지 확인하는 콘솔로그 출력
     //   // 업데이트된 newUserDataByExcel 배열을 콘솔에 출력하여 확인한다.
-    //   console.log("Updated newUserDataByExcel", this.newUserDataByExcel);
 
     //   // 3. 유저 데이터 생성 또는 기존 유저 확인
     //   for (let userData of this.newUserDataByExcel) {
@@ -2164,13 +2135,11 @@ export const NewExcelDataUpload = {
     //         user.phone_number === userData.phone_number
     //     );
     //     if (existingUser) {
-    //       console.log(
     //         `User already exists: ${userData.name} (${userData.phone_number})`
     //       );
     //       // user_id를 기존 유저의 id로 설정
     //       userData.user_id = existingUser.id;
     //     } else {
-    //       console.log("새로운 유저 생성");
     //       // 3.2. 유저 생성
     //       const newUser = {
     //         name: userData.name,
@@ -2212,12 +2181,10 @@ export const NewExcelDataUpload = {
     //         true
     //       );
     //       if (createdUser.result === 0) {
-    //         console.error(
     //           `Failed to create user: ${userData.name} (${userData.phone_number})`
     //         );
     //         userData.user_id = null; // 또는 오류를 처리하는 다른 방법을 사용
     //       } else {
-    //         console.log(`Created user: ${createdUser.id}`);
     //         userData.user_id = createdUser.id;
     //       }
     //     }
@@ -2259,23 +2226,19 @@ export const NewExcelDataUpload = {
     //           true
     //         );
     //         if (createdUserHasRole.result === 0) {
-    //           console.error(
     //             `Failed to create user_has_role for user: ${userData.user_id}`
     //           );
     //         } else {
-    //           console.log(
     //             `Created user_has_role entry: ${createdUserHasRole.id}`
     //           );
     //         }
     //       } else {
-    //         console.log(
     //           `User ${userData.user_id} already has role ${userData.role_id} in organization ${userData.organization_id}`
     //         );
     //       }
     //     }
     //   }
     //   // 5. 데이터가 정확히 업데이트되었는지 확인하는 콘솔로그 출력
-    //   console.log(
     //     "Updated newUserDataByExcel with user_id and user_has_role entries",
     //     this.newUserDataByExcel
     //   );
@@ -2283,25 +2246,20 @@ export const NewExcelDataUpload = {
     async createUserHasRoleData() {
       try {
         // 1. 필요한 데이터 로드
-        console.log("데이터 로드 시작...");
 
         // 1.1 Organization 데이터 로드
         let organization_data = await this.openReadDataList(this.Organization);
         organization_data = organization_data.data;
-        console.log("조직 데이터 로드 완료");
 
         // 1.2 Role 데이터 로드
         let role_data = await this.openReadDataList(this.Role);
         role_data = role_data.data;
-        console.log("역할 데이터 로드 완료");
 
         // 1.3 User 데이터 로드
         let user_data = await this.openReadDataList(this.User);
         user_data = user_data.data;
-        console.log("유저 데이터 로드 완료");
 
         // 2. UserHasRole 데이터 준비
-        console.log("UserHasRole 데이터 준비 시작...");
         let userHasRoleDataToCreate = [];
 
         for (let userData of this.newUserDataByExcel) {
@@ -2311,9 +2269,6 @@ export const NewExcelDataUpload = {
               org.organization_name.trim() === userData.organization_name.trim()
           );
           if (!org) {
-            console.error(
-              `오류: '${userData.organization_name}' 조직을 찾을 수 없습니다.`
-            );
             return; // 함수 종료
           }
 
@@ -2322,7 +2277,6 @@ export const NewExcelDataUpload = {
             (r) => r.role_name.trim() === userData.role.trim()
           );
           if (!role) {
-            console.error(`오류: '${userData.role}' 역할을 찾을 수 없습니다.`);
             return; // 함수 종료
           }
 
@@ -2333,9 +2287,6 @@ export const NewExcelDataUpload = {
               u.phone_number === userData.phone_number
           );
           if (!user) {
-            console.error(
-              `오류: '${userData.name}' (${userData.phone_number}) 유저를 찾을 수 없습니다.`
-            );
             return; // 함수 종료
           }
 
@@ -2358,10 +2309,7 @@ export const NewExcelDataUpload = {
           userHasRoleDataToCreate.push(userHasRoleData);
         }
 
-        console.log("UserHasRole 데이터 준비 완료");
-
         // 3. 데이터베이스에 UserHasRole 데이터 생성
-        console.log("데이터베이스에 UserHasRole 데이터 생성 시작...");
         for (let data of userHasRoleDataToCreate) {
           const result = await this.openCreateData(
             this.UserHasRole,
@@ -2369,18 +2317,10 @@ export const NewExcelDataUpload = {
             true
           );
           if (result.result === 0) {
-            console.error(
-              `UserHasRole 데이터 생성 실패: ${JSON.stringify(data)}`
-            );
           } else {
-            console.log(`UserHasRole 데이터 생성 성공: ID ${result.id}`);
           }
         }
-
-        console.log("모든 UserHasRole 데이터 생성 완료");
-      } catch (error) {
-        console.error("함수 실행 중 오류 발생:", error);
-      }
+      } catch (error) {}
     },
   },
 };

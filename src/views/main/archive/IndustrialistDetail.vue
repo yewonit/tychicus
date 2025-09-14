@@ -230,9 +230,9 @@
 
 <script>
 // COMPONENTS
+import Portfolio from "@/components/basic/PortfolioComp.vue";
 import PotoBox from "@/components/basic/PotoBoxComp.vue";
 import UserProfileBox from "@/components/basic/UserProfileBoxComp.vue";
-import Portfolio from "@/components/basic/PortfolioComp.vue";
 // VUEX
 import { mapState } from "vuex";
 // MIXINS
@@ -670,7 +670,7 @@ export default {
       }
 
       this.lv1_Act("최종 세팅값 보기");
-      console.log(`%c[ Data ] workDetail`, "color: #E3DAC9;", this.workDetail);
+
       this.lv1_Data("workDetail", this.workDetail);
 
       // 홈페이지 및 인스타그램 주소 클레스 세팅
@@ -884,7 +884,6 @@ export default {
         // tempString 에서 첫번째 쉼표 제거
         tempString = tempString.substring(1);
         this.$set(this.workDetail, "business_keywords", tempString);
-        console.log(tempString);
       });
 
       if (this.workDetail.business_keywords === "") {

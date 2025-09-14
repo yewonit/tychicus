@@ -69,8 +69,8 @@
 </template>
 
 <script>
-import { MasterCtrl } from "@/mixins/apis_v2/internal/MasterCtrl";
 import { FileBins } from "@/mixins/apis_v2/internal/FileBins";
+import { MasterCtrl } from "@/mixins/apis_v2/internal/MasterCtrl";
 import { Utility } from "@/mixins/apis_v2/utility/Utility";
 
 export default {
@@ -3414,19 +3414,16 @@ export default {
       // this.items = data;
       this.items = await this.processData(data);
       this.setHeaders(this.items[0]); // 데이터 로드 후 헤더 설정
-      console.log("this.items");
+
       this.countJsonArray(this.items); // 데이터 로드 후 JSON 배열의 개수 출력
-      console.log("this.userData");
+
       this.countJsonArray(this.userData); // 데이터 로드 후 JSON 배열의 개수 출력
       // this.countJsonArray(this.newCommers); // 데이터 로드 후 JSON 배열의 개수 출력
-    } catch (error) {
-      console.error("Error fetching data: ", error);
-    }
+    } catch (error) {}
   },
   methods: {
     countJsonArray(jsonArray) {
       const count = jsonArray.length;
-      console.log(`JSON 배열의 개수: ${count}`);
     },
     setHeaders(item) {
       this.headers = Object.keys(item).map((key) => ({
@@ -3439,7 +3436,6 @@ export default {
 
       // userData의 각 요소에 대해 items 배열을 검사
       this.userData.forEach((userDataItem) => {
-        console.log(`Checking phone number: ${userDataItem.phone_number}`);
         const isPhoneNumberMatched = data.some(
           (item) => item.phone_number == userDataItem.phone_number
         );
@@ -3447,16 +3443,12 @@ export default {
         if (isPhoneNumberMatched) {
           // 동일한 전화번호가 items 배열에 있는 경우, 카운트 증가
           matchingCount++;
-          console.log(`Matching data found: ${userDataItem.phone_number}`);
         } else {
-          console.log(
-            `No matching data found for: ${userDataItem.phone_number}`
-          );
+          // No matching data found for: ${userDataItem.phone_number}
         }
       });
 
       // 콘솔에 매칭되는 데이터의 수를 출력
-      console.log("Matching data count:", matchingCount);
 
       return data;
     },
@@ -3480,23 +3472,15 @@ export default {
         );
         roles.forEach((role) => roleMap.set(role.role_name, role.idx));
 
-        console.log("조직 맵:", organizationMap);
-        console.log("역할 맵:", roleMap);
-
         // userData의 각 사용자에 대한 정보를 처리한다.
         for (const userDataItem of this.userData) {
-          console.log("처리 중인 사용자 데이터:", userDataItem);
-
           const organizationIdx = organizationMap.get(
             userDataItem.organization_name
           );
           const roleIdx = roleMap.get(userDataItem.role_name);
 
           if (!organizationIdx || !roleIdx) {
-            console.log("조직 또는 역할 인덱스가 없음:", userDataItem);
-            console.log(
-              `조직: ${userDataItem.organization_name}, 역할: ${userDataItem.role_name}`
-            );
+            // 조직: ${userDataItem.organization_name}, 역할: ${userDataItem.role_name}
           }
 
           // User ID 조회 (전화번호로 조회)
@@ -3505,10 +3489,7 @@ export default {
           );
 
           if (!user) {
-            console.log(
-              "해당 전화번호를 가진 사용자 없음:",
-              userDataItem.phone_number
-            );
+            // 해당 전화번호를 가진 사용자 없음: userDataItem.phone_number
           }
 
           if (user && organizationIdx && roleIdx) {
@@ -3524,9 +3505,6 @@ export default {
           }
         }
 
-        console.log("업데이트된 데이터 개수:", updateDataArray.length);
-        console.log("업데이트를 위한 JSON 배열:", updateDataArray);
-
         // updateDataArray에 저장된 각 사용자의 역할 정보를 업데이트합니다.
         for (let updateData of updateDataArray) {
           await this.authUpdateData(
@@ -3539,7 +3517,6 @@ export default {
 
         alert("사용자 역할 정보가 성공적으로 업데이트되었습니다.");
       } catch (error) {
-        console.error("역할 정보 업데이트 중 오류 발생: ", error);
         alert("역할 정보 업데이트 중 오류가 발생했습니다.");
       }
     },
@@ -3549,11 +3526,7 @@ export default {
         for (let item of this.items) {
           await this.authUpdateData(this.User, item.id, item, true);
         }
-
-        console.log("All data has been updated successfully.");
-      } catch (error) {
-        console.error("Error updating processed data: ", error);
-      }
+      } catch (error) {}
     },
     async createData() {
       // JSON 데이터 배열
@@ -3565,12 +3538,8 @@ export default {
           // API 호출 방식은 사용하는 라이브러리나 프레임워크에 따라 다를 수 있습니다.
           // 아래는 예시이며, 실제 구현에 맞게 수정해야 합니다.
           await this.authCreateData(this.User, item, true);
-        } catch (error) {
-          console.error("Error creating item: ", error);
-        }
+        } catch (error) {}
       }
-
-      console.log("Session has been created successfully.");
     },
     // ✏️ 아이템 편집을 위한 데이터 설정
     editItem(item) {
@@ -3613,9 +3582,7 @@ export default {
         );
         Object.assign(this.items[this.editedIndex], updatedItem);
         this.close();
-      } catch (error) {
-        console.error("Error updating item: ", error);
-      }
+      } catch (error) {}
     },
 
     // ➕ 새 아이템 서버에 추가 및 로컬 데이터 업데이트
@@ -3628,9 +3595,7 @@ export default {
         );
         this.items.push(newItem);
         this.close();
-      } catch (error) {
-        console.error("Error adding new item: ", error);
-      }
+      } catch (error) {}
     },
 
     // 🚨 아이템 삭제 전 사용자에게 확인 요청
@@ -3652,9 +3617,7 @@ export default {
           const index = this.items.indexOf(item);
           this.items.splice(index, 1);
         }
-      } catch (error) {
-        console.error("Error deleting item: ", error);
-      }
+      } catch (error) {}
     },
   },
 };

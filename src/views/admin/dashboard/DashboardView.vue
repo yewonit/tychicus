@@ -470,18 +470,18 @@
 </template>
 
 <script>
-import { use } from "echarts/core";
-import { CanvasRenderer } from "echarts/renderers";
+import { MasterCtrl } from "@/mixins/apis_v2/internal/MasterCtrl";
+import { OrganizationCtrl } from "@/mixins/apis_v2/internal/domainCtrl/OrganizationCtrl";
 import { LineChart } from "echarts/charts";
 import {
   GridComponent,
-  TooltipComponent,
   LegendComponent,
   ToolboxComponent,
+  TooltipComponent,
 } from "echarts/components";
+import { use } from "echarts/core";
+import { CanvasRenderer } from "echarts/renderers";
 import VChart from "vue-echarts";
-import { MasterCtrl } from "@/mixins/apis_v2/internal/MasterCtrl";
-import { OrganizationCtrl } from "@/mixins/apis_v2/internal/domainCtrl/OrganizationCtrl";
 
 use([
   CanvasRenderer,
@@ -691,8 +691,6 @@ export default {
     // 조직 정보만 불러오는 메서드
     async fetchOrganizationsOnly() {
       try {
-        console.log("조직 정보를 가져오는 중...");
-
         // 캐시된 데이터가 있고 만료되지 않았다면 그것을 사용
         const now = new Date().getTime();
         if (
@@ -701,20 +699,17 @@ export default {
           now < this.organizationCacheExpiry
         ) {
           this.organizations = this.cachedOrganizations;
-          console.log("캐시된 조직 정보 사용:", this.organizations);
 
           // 조직 트리 구성
           this.organizationTree = this.buildOrganizationTree(
             this.organizations
           );
-          console.log("조직 트리:", this.organizationTree);
 
           return;
         }
 
         // API에서 조직 정보 가져오기
         const response = await this.getAllOrganizations(true);
-        console.log("API 응답:", response);
 
         // API 응답 구조 확인 및 데이터 추출
         let organizations = [];
@@ -741,7 +736,6 @@ export default {
 
         // 모든 조직 데이터 사용
         this.organizations = organizations;
-        console.log("조직 정보:", this.organizations);
 
         // 조직 데이터 캐싱
         this.cachedOrganizations = JSON.parse(JSON.stringify(organizations)); // 깊은 복사
@@ -750,14 +744,11 @@ export default {
 
         // 조직 트리 구성
         this.organizationTree = this.buildOrganizationTree(this.organizations);
-        console.log("조직 트리:", this.organizationTree);
       } catch (error) {
-        console.error("조직 정보 가져오기 오류:", error);
         // 오류 발생 시 더미 데이터 사용
         this.organizations = this.getDummyOrganizations();
         // 조직 트리 구성
         this.organizationTree = this.buildOrganizationTree(this.organizations);
-        console.log("더미 조직 정보 사용:", this.organizations);
       }
     },
 
@@ -790,9 +781,7 @@ export default {
             isLeafNode: true,
           };
           organizationMap.set(org.id, mappedOrg);
-        } catch (error) {
-          console.error("조직 데이터 매핑 중 오류 발생:", error);
-        }
+        } catch (error) {}
       }
 
       // 조직 객체를 트리 구조로 변환
@@ -815,9 +804,7 @@ export default {
               tree.push(organizationMap.get(org.id));
             }
           }
-        } catch (error) {
-          console.error("조직 트리 구성 중 오류 발생:", error);
-        }
+        } catch (error) {}
       }
 
       // 트리가 비어있으면 모든 조직을 최상위로 처리

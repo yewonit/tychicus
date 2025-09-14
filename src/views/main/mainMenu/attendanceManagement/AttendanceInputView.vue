@@ -470,15 +470,15 @@
 </template>
 
 <script>
-import { mapState } from "vuex";
-import { MasterCtrl } from "@/mixins/apis_v2/internal/MasterCtrl";
-import { FileBins } from "@/mixins/apis_v2/internal/FileBins";
-import { Utility } from "@/mixins/apis_v2/utility/Utility";
-import { CurrentMemberCtrl } from "@/mixins/apis_v2/internal/domainCtrl/CurrentMemberCtrl";
-import { AttendanceCtrl } from "@/mixins/apis_v2/internal/domainCtrl/AttendanceCtrl";
 import { AWSS3Ctrl } from "@/mixins/apis_v2/external/AWSS3Ctrl.js";
-import moment from "moment-timezone";
+import { AttendanceCtrl } from "@/mixins/apis_v2/internal/domainCtrl/AttendanceCtrl";
+import { CurrentMemberCtrl } from "@/mixins/apis_v2/internal/domainCtrl/CurrentMemberCtrl";
+import { FileBins } from "@/mixins/apis_v2/internal/FileBins";
+import { MasterCtrl } from "@/mixins/apis_v2/internal/MasterCtrl";
+import { Utility } from "@/mixins/apis_v2/utility/Utility";
 import { dateTimeUtils } from "@/utils/dateTimeUtils";
+import moment from "moment-timezone";
+import { mapState } from "vuex";
 
 export default {
   name: "MeetingRegistrationView",
@@ -707,47 +707,32 @@ export default {
      */
     async fetchActivities() {
       try {
-        console.log("📢 fetchActivities 함수 시작");
-
         if (!this.currentOrganizationId) {
-          console.error("❌ 조직 ID를 찾을 수 없습니다.");
           return;
         }
-
-        console.log("🏢 현재 조직 ID:", this.currentOrganizationId);
 
         const response = await this.getOrganizationActivities(
           this.currentOrganizationId,
           true
         );
 
-        console.log("📥 API 응답 데이터:", response);
-
         if (
           response &&
           response.activities &&
           Array.isArray(response.activities)
         ) {
-          console.log("✅ 활동 데이터 유효성 검사 통과");
-          console.log("📋 원본 활동 데이터:", response.activities);
-
           this.activities = response.activities.map((activity) => ({
             id: activity.id,
             name: activity.name,
             category: activity.category,
             description: activity.description,
           }));
-
-          console.log("🔄 변환된 활동 데이터:", this.activities);
         } else {
-          console.error("❌ 활동 데이터가 예상한 형식이 아닙니다:", response);
           this.activities = [];
         }
       } catch (error) {
-        console.error("❌ 활동 정보 조회 중 오류 발생:", error);
         this.activities = [];
       } finally {
-        console.log("📢 fetchActivities 함수 종료");
       }
     },
 
@@ -781,11 +766,8 @@ export default {
         this.initLoadingState();
         this.updateLoadingState(1, "입력 정보 검증 중...", 10);
 
-        console.log("🚀 submitMeeting 함수 시작");
-
         // 필수 입력값 검증
         if (!this.selectedActivity || !this.meetingDate) {
-          console.warn("⚠️ 필수 정보 누락");
           alert("모임 종류와 날짜를 입력해주세요.");
           this.isSubmitting = false;
           this.loadingState.isLoading = false;
@@ -817,13 +799,12 @@ export default {
                 fileSize: this.photos.size,
                 fileType: this.photos.type,
               };
-              console.log("📸 업로드된 이미지 정보:", imageInfo);
+
               this.updateLoadingState(2, "이미지 업로드 완료", 40);
             } else {
               throw new Error("이미지 업로드 실패");
             }
           } catch (error) {
-            console.error("❌ 이미지 업로드 중 오류 발생:", error);
             alert("이미지 업로드 중 오류가 발생했습니다. 다시 시도해 주세요.");
             this.isSubmitting = false;
             this.isUploading = false;
@@ -843,7 +824,6 @@ export default {
         const selectedParticipants = this.memberList.filter(
           (member) => member.isParticipating
         );
-        console.log("👥 선택된 참여자:", selectedParticipants);
 
         // UTC 시간으로 변환
         const instanceData = {
@@ -853,14 +833,8 @@ export default {
           notes: this.meetingNotes || "",
         };
 
-        console.log(
-          "📅 시작 시간:",
-          this.meetingStartDateTime.format("YYYY-MM-DD HH:mm:ss")
-        );
-        console.log(
-          "📅 종료 시간:",
-          this.meetingEndDateTime.format("YYYY-MM-DD HH:mm:ss")
-        );
+        // 📅 시작 시간: this.meetingStartDateTime.format("YYYY-MM-DD HH:mm:ss")
+        // 📅 종료 시간: this.meetingEndDateTime.format("YYYY-MM-DD HH:mm:ss")
 
         // 전체 멤버 목록에 대한 출석 정보 생성
         const allAttendances = this.memberList.map((member) => ({
@@ -904,8 +878,6 @@ export default {
         // 완료 단계로 진행
         this.updateLoadingState(5, "모임 정보 저장 완료", 100);
 
-        console.log("✅ 모임 정보 저장 성공");
-
         // 지연 후 로딩 다이얼로그 종료
         setTimeout(() => {
           this.loadingState.isLoading = false;
@@ -914,7 +886,6 @@ export default {
           this.$router.push({ name: "ServiceSelectionView" });
         }, 1000);
       } catch (error) {
-        console.error("❌ 모임 정보 저장 중 오류 발생:", error);
         this.loadingState.isLoading = false;
         alert("모임 정보 저장에 실패했습니다. 다시 시도해 주세요.");
       } finally {
@@ -929,7 +900,6 @@ export default {
      */
     async uploadImageToS3() {
       if (!this.photos) {
-        console.log("업로드할 이미지가 없습니다.");
         return null;
       }
 
@@ -953,13 +923,11 @@ export default {
       try {
         const result = await this.s3CreateFile(filePath, file, true);
         if (result) {
-          console.log("이미지 업로드 성공:", result);
           return { url: result.filePath, fileName: newFileName };
         } else {
           throw new Error("이미지 업로드 결과가 없습니다.");
         }
       } catch (error) {
-        console.error("이미지 업로드 실패:", error);
         alert("이미지 업로드에 실패했습니다. 다시 시도해주세요.");
         return null;
       }
@@ -1008,7 +976,6 @@ export default {
       this.numberOfParticipants = this.memberList.filter(
         (member) => member.isParticipating
       ).length;
-      console.log("참여자 선택 후 memberList:", this.memberList);
     },
 
     /**
@@ -1055,13 +1022,12 @@ export default {
 
             if (size > 3) {
               // 3MB 초과 시 압축
-              console.log(`원본 이미지 크기: ${size.toFixed(2)}MB`);
+
               this.isUploading = true;
 
               // 이미지 압축
               const compressedBlob = await this.compressImage(file);
               const compressedSize = compressedBlob.size / 1024 / 1024;
-              console.log(`압축된 이미지 크기: ${compressedSize.toFixed(2)}MB`);
 
               // Blob을 File 객체로 변환
               const compressedFile = new File([compressedBlob], file.name, {
@@ -1077,7 +1043,6 @@ export default {
                 ((size - compressedSize) / size) *
                 100
               ).toFixed(1);
-              console.log(`이미지 압축률: ${compressionRate}%`);
 
               if (compressedSize > 3) {
                 alert(
@@ -1091,7 +1056,6 @@ export default {
               this.meetingImageUrl = URL.createObjectURL(file);
             }
           } catch (error) {
-            console.error("이미지 압축 중 오류 발생:", error);
             alert("이미지 처리 중 오류가 발생했습니다.");
             this.photos = null;
             this.meetingImageUrl = null;
@@ -1373,12 +1337,10 @@ export default {
      */
     async createData(modelType, data) {
       try {
-        console.log(`📝 ${modelType} 생성 시작:`, data);
         const result = await this.openCreateData(this[modelType], data, true);
-        console.log(`✅ ${modelType} 생성 완료:`, result);
+
         return result;
       } catch (error) {
-        console.error(`❌ ${modelType} 생성 실패:`, error);
         return null;
       }
     },
@@ -1396,32 +1358,19 @@ export default {
         const startTime = performance.now();
 
         if (id) {
-          console.log(`🔍 ${modelType} 상세 데이터 조회 중...`);
           result = await this.openReadDataItemById(modelType, id, true);
-          console.log(`✅ ${modelType} 상세 데이터 조회 완료:`, result);
         } else {
-          console.log(`🔍 ${modelType} 전체 목록 조회 중...`);
           result = await this.openReadDataList(modelType, true);
-          console.log(
-            `✅ ${modelType} 목록 조회 완료 (총 ${result?.length || 0}건)`
-          );
-          console.log(`📊 조회된 데이터:`, result);
+          // ✅ ${modelType} 목록 조회 완료 (총 ${result?.length || 0}건)
         }
 
         const endTime = performance.now();
-        console.log(`⏱️ 수행 시간: ${(endTime - startTime).toFixed(2)}ms`);
 
         return result;
       } catch (error) {
-        console.error(`❌ ${modelType} 조회 중 오류 발생:`, error);
-        console.error(`오류 상세 정보:`, {
-          name: error.name,
-          message: error.message,
-          stack: error.stack,
-        });
+        // name: error.name, message: error.message, stack: error.stack
         return null;
       } finally {
-        console.log(`🔚 ${modelType} 데이터 조회 종료\n`);
       }
     },
 
@@ -1435,17 +1384,15 @@ export default {
      */
     async updateData(modelType, id, data) {
       try {
-        console.log(`📝 ${modelType} 수정 시작 (ID: ${id}):`, data);
         const result = await this.openUpdateData(
           this[modelType],
           id,
           data,
           true
         );
-        console.log(`✅ ${modelType} 수정 완료:`, result);
+
         return result;
       } catch (error) {
-        console.error(`❌ ${modelType} 수정 실패:`, error);
         return null;
       }
     },
@@ -1459,12 +1406,10 @@ export default {
      */
     async deleteData(modelType, id) {
       try {
-        console.log(`🗑️ ${modelType} 삭제 시작 (ID: ${id})`);
         const result = await this.openDeleteData(this[modelType], id, true);
-        console.log(`✅ ${modelType} 삭제 완료`);
+
         return result;
       } catch (error) {
-        console.error(`❌ ${modelType} 삭제 실패:`, error);
         return null;
       }
     },
@@ -1482,8 +1427,6 @@ export default {
      */
     async createActivityDataTest() {
       try {
-        console.log("📝 함수 시작");
-
         const activityData = {
           name: "주일2부 예배",
           description: "주일 2부 예배 참석 및 말씀 나눔",
@@ -1498,21 +1441,14 @@ export default {
         };
 
         // 요청 전 데이터 확인
-        console.log("📤 요청 데이터:", JSON.stringify(activityData, null, 2));
 
         const data = await this.openCreateData(
           this.Activity,
           activityData,
           true
         );
-
-        console.log("📥 응답 데이터:", data);
       } catch (error) {
-        console.error("❌ 활동 생성 중 오류 발생:", {
-          message: error.message,
-          response: error.response?.data,
-          status: error.response?.status,
-        });
+        // message: error.message, response: error.response?.data, status: error.response?.status
       }
     },
 
@@ -1523,10 +1459,9 @@ export default {
      */
     async createActivityData() {
       const newActiviyDataSet = await this.createActivityDataSet();
-      console.log("🔄 생성된 데이터:", newActiviyDataSet);
+
       for (const activity of newActiviyDataSet) {
         const data = await this.openCreateData(this.Activity, activity, true);
-        console.log("🔄 생성된 데이터:", data);
       }
     },
 

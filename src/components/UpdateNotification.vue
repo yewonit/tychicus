@@ -57,7 +57,6 @@ export default {
     showUpdateUI(e) {
       if (e && e.detail) {
         this.updateVersion = e.detail.newVersion;
-        console.log(`업데이트 가능: ${this.updateVersion}`);
       }
       this.snackbar = true;
     },

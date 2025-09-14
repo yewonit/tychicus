@@ -417,7 +417,6 @@ export default {
           );
         }
       } catch (error) {
-        console.error("멤버 생성 중 오류 발생:", error);
         alert(
           "멤버 생성 중 오류가 발생했습니다. 관리자에게 문의해주세요.\n관리자 연락처: admin@example.com"
         );

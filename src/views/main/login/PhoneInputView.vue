@@ -61,7 +61,7 @@
 
 <script>
 import "@/styles/overrides.scss";
-import { mapState, mapActions } from "vuex";
+import { mapActions, mapState } from "vuex";
 
 // Mixins
 import { AuthCtrl } from "@/mixins/apis_v2/internal/domainCtrl/AuthCtrl";
@@ -85,17 +85,6 @@ export default {
   created() {
     if (!this.userName) {
       this.$router.push({ name: "NameInputView" });
-    }
-    console.log("사용자 이름:", this.userName);
-
-    // 동명이인 리스트가 있는지 확인
-    if (this.userList && this.userList.length > 1) {
-      console.log("동명이인 리스트:", this.userList);
-    }
-
-    // 단일 사용자 데이터가 있는지 확인
-    if (this.userData) {
-      console.log("단일 사용자 데이터:", this.userData);
     }
   },
   methods: {
@@ -135,46 +124,37 @@ export default {
       try {
         // 동명이인 처리: userList가 있는 경우
         if (this.hasDuplicateUsers) {
-          console.log("동명이인 처리 로직 실행");
-
           // 전화번호와 일치하는 사용자 찾기
           const matchedUser = this.userList.find(
             (user) => user.phone_number === this.userPhoneNumber
           );
 
           if (matchedUser) {
-            console.log("일치하는 사용자 찾음:", matchedUser);
             this.phoneNumberCheckMessage = "전화번호가 일치합니다.";
             this.phoneNumberCheckClass = "success--text";
             this.setUserInfo(matchedUser);
-            console.log("스토어에 저장된 유저데이터:", this.userInfo);
+
             this.$router.push({ name: "ServiceSelectionView" });
           } else {
-            console.log("일치하는 사용자 없음");
             this.phoneNumberCheckMessage = "일치하는 사용자가 없습니다.";
             this.phoneNumberCheckClass = "error--text";
           }
         }
         // 단일 사용자 데이터가 이미 있는 경우
         else if (this.userData) {
-          console.log("단일 사용자 처리 로직 실행");
-
           if (this.userData.phone_number === this.userPhoneNumber) {
-            console.log("전화번호 일치");
             this.phoneNumberCheckMessage = "전화번호가 일치합니다.";
             this.phoneNumberCheckClass = "success--text";
             this.setUserInfo(this.userData);
-            console.log("스토어에 저장된 유저데이터:", this.userInfo);
+
             this.$router.push({ name: "ServiceSelectionView" });
           } else {
-            console.log("전화번호 불일치");
             this.phoneNumberCheckMessage = "전화번호가 일치하지 않습니다.";
             this.phoneNumberCheckClass = "error--text";
           }
         }
         // 기존 로직 (하위 호환성 유지)
         else {
-          console.log("기존 로직 실행");
           const response = await this.authCheckPhoneNumber(
             {
               name: this.userName,
@@ -186,9 +166,9 @@ export default {
           if (response.isMatched) {
             this.phoneNumberCheckMessage = "전화번호가 일치합니다.";
             this.phoneNumberCheckClass = "success--text";
-            console.log("유저데이터:", response.userData);
+
             this.setUserInfo(response.userData);
-            console.log("스토어에 저장된 유저데이터:", this.userInfo);
+
             this.$router.push({ name: "ServiceSelectionView" });
           } else {
             this.phoneNumberCheckMessage = "전화번호가 일치하지 않습니다.";
@@ -196,7 +176,6 @@ export default {
           }
         }
       } catch (error) {
-        console.error("전화번호 확인 오류:", error);
         this.phoneNumberCheckMessage =
           "오류가 발생했습니다. 다시 시도해주세요.";
         this.phoneNumberCheckClass = "error--text";

@@ -61,7 +61,6 @@ export default {
       if (this.workImgUrl == "") {
         return "https://images.unsplash.com/photo-1472851294608-062f824d29cc?crop=entropy&cs=tinysrgb&fm=jpg&ixlib=rb-1.2.1&q=60&raw_url=true&ixid=MnwxMjA3fDB8MHxzZWFyY2h8Mnx8c3RvcmV8ZW58MHx8MHx8&auto=format&fit=crop&w=500";
       } else {
-        console.log("this.workImgUrl", this.workImgUrl);
         return this.workImgUrl;
       }
     },

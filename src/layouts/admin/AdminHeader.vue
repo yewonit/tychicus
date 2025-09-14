@@ -90,7 +90,6 @@ export default {
   methods: {
     showNotifications() {
       // 알림 목록 표시 로직
-      console.log("Show notifications");
     },
 
     goToProfile() {
@@ -102,24 +101,16 @@ export default {
     },
 
     async logout() {
-      try {
-        // 로그아웃 로직 구현
-        await this.$store.dispatch("auth/logout");
-        this.$router.push({ name: "Login" });
-      } catch (error) {
-        console.error("로그아웃 중 오류 발생:", error);
-      }
+      // 로그아웃 로직 구현
+      await this.$store.dispatch("auth/logout");
+      this.$router.push({ name: "Login" });
     },
   },
 
   async created() {
     // 알림 개수 가져오기
-    try {
-      // API 호출 등을 통해 알림 개수를 가져오는 로직
-      this.notificationCount = 0; // 임시
-    } catch (error) {
-      console.error("알림 개수를 가져오는 중 오류 발생:", error);
-    }
+    // API 호출 등을 통해 알림 개수를 가져오는 로직
+    this.notificationCount = 0; // 임시
   },
 };
 </script>

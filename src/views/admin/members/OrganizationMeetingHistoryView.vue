@@ -388,10 +388,10 @@ import "moment/locale/ko";
 import { mapGetters } from "vuex";
 
 // OrganizationManagementView.vue에서 사용하는 믹스인 참조
+import { AttendanceCtrl } from "@/mixins/apis_v2/internal/domainCtrl/AttendanceCtrl";
+import { CurrentMemberCtrl } from "@/mixins/apis_v2/internal/domainCtrl/CurrentMemberCtrl";
 import { OrganizationCtrl } from "@/mixins/apis_v2/internal/domainCtrl/OrganizationCtrl";
 import { MasterCtrl } from "@/mixins/apis_v2/internal/MasterCtrl";
-import { CurrentMemberCtrl } from "@/mixins/apis_v2/internal/domainCtrl/CurrentMemberCtrl";
-import { AttendanceCtrl } from "@/mixins/apis_v2/internal/domainCtrl/AttendanceCtrl";
 
 // 추가: ExcelJS 라이브러리 import
 import { saveAs } from "file-saver";
@@ -533,7 +533,6 @@ export default {
     async fetchOrganizationsOnly() {
       try {
         this.loadingOrganizations = true;
-        // console.log("조직 데이터 가져오기 시작...");
 
         // 캐시된 데이터가 있고 만료되지 않았다면 그것을 사용
         const now = new Date().getTime();
@@ -542,7 +541,6 @@ export default {
           this.organizationCacheExpiry &&
           now < this.organizationCacheExpiry
         ) {
-          // console.log("캐시된 조직 데이터 사용 중...");
           this.organizations = this.cachedOrganizations;
 
           // 조직 트리 구성
@@ -555,7 +553,7 @@ export default {
         }
 
         // API에서 데이터 가져오기
-        // console.log("API에서 조직 데이터 가져오기...");
+
         const response = await this.getAllOrganizations(true);
 
         // API 응답 구조 확인 및 데이터 추출
@@ -563,21 +561,16 @@ export default {
         if (response && response.data && Array.isArray(response.data)) {
           // API 응답에서 data 배열을 추출
           organizations = response.data;
-          // console.log("API 응답에서 data 배열 추출:", organizations.length);
         } else if (Array.isArray(response)) {
           // 응답이 직접 배열인 경우
           organizations = response;
-          // console.log("API 응답이 직접 배열인 경우:", organizations.length);
         } else {
-          console.error("API 응답 형식이 예상과 다릅니다:", response);
           // 더미 데이터 사용
           organizations = this.getDummyOrganizations();
-          // console.log("더미 데이터 사용:", organizations.length);
         }
 
         // 유효한 조직 데이터가 있는지 확인
         if (!organizations || organizations.length === 0) {
-          // console.log("조직 데이터가 없습니다. 더미 데이터를 사용합니다.");
           organizations = this.getDummyOrganizations();
         }
 
@@ -599,7 +592,6 @@ export default {
         // 모든 조직의 모임 가져오기
         await this.fetchAllOrganizationsMeetings();
       } catch (error) {
-        console.error("조직 데이터 로딩 중 오류 발생:", error);
         this.showDialog(
           "오류 발생",
           "조직 정보를 불러오는 중 오류가 발생했습니다."
@@ -687,9 +679,7 @@ export default {
         });
 
         this.organizationTree = rootOrgs;
-        // console.log("조직 트리 구성 완료:", this.organizationTree);
       } catch (error) {
-        console.error("조직 트리 구성 중 오류 발생:", error);
         this.showDialog(
           "오류 발생",
           "조직 구조를 구성하는 중 오류가 발생했습니다."
@@ -701,8 +691,6 @@ export default {
     // 각 조직의 멤버 수 계산 (OrganizationManagementView.vue 참고)
     async calculateMemberCounts() {
       try {
-        // console.log("멤버 수 계산 시작");
-
         // 1. 리프 노드(하위 조직이 없는 노드) 찾기
         const leafOrgs = this.organizations.filter((org) => {
           const hasChildren = this.organizations.some(
@@ -710,8 +698,6 @@ export default {
           );
           return !hasChildren;
         });
-
-        // console.log(`리프 노드 찾음: ${leafOrgs.length}개`);
 
         // 2. 리프 노드의 멤버 수 가져오기
         for (const leafOrg of leafOrgs) {
@@ -730,11 +716,9 @@ export default {
               leafOrg.memberCount = 0;
             }
 
-            // console.log(
             //   `조직 ID ${leafOrg.id} (${leafOrg.organization_name}): 멤버 ${leafOrg.memberCount}명`
             // );
           } catch (err) {
-            console.error(`조직 ID ${leafOrg.id}의 멤버 수 조회 중 오류:`, err);
             leafOrg.memberCount = 0;
           }
         }
@@ -761,7 +745,6 @@ export default {
         }
 
         // 4. 상향식으로 멤버 수 합산 (리프 노드부터 루트 노드까지)
-        // console.log(`조직 레벨 수: ${orgLevels.length}`);
 
         // 첫 번째 레벨(리프 노드)은 이미 계산됨
         // 상위 레벨부터 시작하여 하위 조직의 멤버 수 합산
@@ -781,7 +764,7 @@ export default {
             });
 
             org.memberCount = totalMembers;
-            // console.log(
+
             //   `상위 조직 ID ${org.id} (${org.organization_name}): 멤버 ${org.memberCount}명 (하위 조직 ${childOrgs.length}개)`
             // );
           }
@@ -789,14 +772,10 @@ export default {
 
         // 5. 트리 다시 구성 (멤버 수 정보 반영)
         this.buildOrganizationTree();
-        // console.log("멤버 수 계산 완료");
-      } catch (error) {
-        console.error("멤버 수 계산 중 오류 발생:", error);
-      }
+      } catch (error) {}
     },
 
     async fetchAllOrganizationsMeetings() {
-      // console.log("모든 조직의 모임 데이터 가져오기 시작");
       // 모든 조직에 대해 병렬로 모임 데이터 가져오기
       const promises = this.organizations.map((org) =>
         this.fetchOrganizationMeetings(org.id)
@@ -825,13 +804,10 @@ export default {
 
       // 루트 조직부터 재귀적으로 업데이트
       this.organizationTree.forEach(updateChildCounts);
-      // console.log("모임 카운트 업데이트 완료");
     },
 
     async fetchOrganizationMeetings(orgId) {
       try {
-        // console.log(`조직 ID ${orgId}의 모임 데이터 로딩 시작`);
-
         // MeetingHistoryView.vue 참고: 활동 및 인스턴스 가져오기
         const response = await this.getOrganizationActivities(orgId, true);
         let meetings = [];
@@ -841,13 +817,9 @@ export default {
           response.activities &&
           Array.isArray(response.activities)
         ) {
-          // console.log(`${response.activities.length}개의 활동을 처리합니다.`);
-
           // 각 활동에서 인스턴스(모임) 가져오기
           meetings = response.activities.flatMap((activity) => {
-            // console.log(`활동 "${activity.name}" 처리 중...`);
             if (activity.instances && activity.instances.length > 0) {
-              // console.log(
               //   `${activity.instances.length}개의 인스턴스를 발견했습니다.`
               // );
 
@@ -909,7 +881,6 @@ export default {
         const org = this.organizations.find((o) => o.id === orgId);
         if (org) {
           org.meetingCount = meetings.length;
-          // console.log(`조직 ID ${orgId}의 모임 수: ${meetings.length}`);
 
           // 현재 선택된 조직이라면 미팅 목록 업데이트
           if (
@@ -922,10 +893,7 @@ export default {
 
         return meetings;
       } catch (error) {
-        console.error(
-          `조직 ID ${orgId}의 모임 데이터 로딩 중 오류 발생:`,
-          error
-        );
+        // 조직 ID ${orgId}의 모임 데이터 로딩 중 오류 발생: error
         return [];
       }
     },
@@ -942,7 +910,6 @@ export default {
     // MeetingDetailView.vue 참고: 출결 정보 포맷팅
     formatAttendances(attendances) {
       if (!attendances || !Array.isArray(attendances)) {
-        console.warn("유효하지 않은 출석 데이터:", attendances);
         return [];
       }
 
@@ -971,7 +938,6 @@ export default {
         };
       });
 
-      // console.log("포맷팅된 출석 데이터:", result);
       return result;
     },
 
@@ -979,7 +945,6 @@ export default {
     async viewMeetingDetails(meeting) {
       try {
         this.loadingMeetings = true;
-        // console.log("모임 상세 정보 가져오기:", meeting);
 
         // 먼저 기본 정보로 selectedMeeting 설정
         this.selectedMeeting = {
@@ -999,20 +964,15 @@ export default {
             meeting.id,
             true
           );
-          // console.log("모임 상세 정보 응답:", response);
         } catch (error) {
-          console.warn(
-            "상세 정보를 가져오는 중 오류 발생, 기존 데이터 사용:",
-            error
-          );
+          // 상세 정보를 가져오는 중 오류 발생, 기존 데이터 사용: error
         }
 
         if (response && response.activityInstance) {
           // 출석 데이터 가져오기 및 처리
           const attendances = response.activityInstance.attendances || [];
-          // console.log("원본 출석 데이터:", attendances);
+
           const formattedAttendances = this.formatAttendances(attendances);
-          // console.log("포맷된 출석 데이터:", formattedAttendances);
 
           // MeetingDetailView.vue 참고: 상세 데이터 포맷
           this.selectedMeeting = {
@@ -1028,7 +988,6 @@ export default {
             attendances: formattedAttendances,
           };
         } else {
-          // console.log("상세 정보를 가져오지 못해 기존 데이터 사용");
           // 출석 데이터가 없는 경우 샘플 데이터 생성
           if (
             !this.selectedMeeting.attendances ||
@@ -1039,12 +998,10 @@ export default {
             if (totalCount > 0) {
               this.selectedMeeting.attendances =
                 this.generateSampleAttendances(totalCount);
-              // console.log("샘플 출석 데이터 생성:", this.selectedMeeting.attendances);
             }
           }
         }
       } catch (error) {
-        console.error("모임 상세 정보 로딩 중 오류 발생:", error);
         this.showDialog(
           "오류 발생",
           "모임 상세 정보를 불러오는 중 오류가 발생했습니다."
@@ -1326,7 +1283,6 @@ export default {
 
         this.showDialog("완료", "모임 출결 정보가 엑셀 파일로 저장되었습니다.");
       } catch (error) {
-        console.error("엑셀 내보내기 중 오류 발생:", error);
         this.showDialog("오류 발생", "엑셀 파일 생성 중 오류가 발생했습니다.");
       } finally {
         this.loadingMeetings = false;
@@ -1386,7 +1342,7 @@ export default {
         this.selectedOrganization = this.selectedOrganizationIds[0];
 
         // 선택된 조직과 그 하위 조직의 모든 모임 데이터를 로드
-        // console.log("선택된 조직:", this.selectedOrganization);
+
         this.loadAllMeetingsForSelectedOrganization();
       } else {
         this.selectedOrganization = null;
@@ -1405,13 +1361,12 @@ export default {
           return;
         }
 
-        // console.log(
         //   `조직 ID ${selectedOrg.id}(${selectedOrg.organization_name})의 모임 데이터 로드 시작`
         // );
 
         // 선택된 조직과 그 하위의 모든 조직 ID 찾기
         const allOrgIds = this.findAllChildOrganizationIds(selectedOrg);
-        // console.log(
+
         //   `총 ${allOrgIds.length}개 조직의 모임 데이터를 로드합니다:`,
         //   allOrgIds
         // );
@@ -1454,9 +1409,7 @@ export default {
         });
 
         this.meetings = allMeetings;
-        // console.log(`총 ${this.meetings.length}개의 모임 데이터 로드 완료`);
       } catch (error) {
-        console.error(`모임 데이터 로딩 중 오류 발생:`, error);
         this.showDialog(
           "오류 발생",
           "모임 정보를 불러오는 중 오류가 발생했습니다."
@@ -1488,7 +1441,6 @@ export default {
     async loadOrganizationMeetings(orgId) {
       try {
         this.loadingMeetings = true;
-        console.log(`조직 ID ${orgId}의 모임 데이터 로드 시작`);
 
         // MeetingHistoryView.vue 참고: API 호출 패턴 적용
         const response = await this.getOrganizationActivities(orgId, true);
@@ -1499,15 +1451,10 @@ export default {
           response.activities &&
           Array.isArray(response.activities)
         ) {
-          console.log(`${response.activities.length}개의 활동을 처리합니다.`);
-
           // 각 활동에서 인스턴스(모임) 가져오기
           meetings = response.activities.flatMap((activity) => {
-            console.log(`활동 "${activity.name}" 처리 중...`);
             if (activity.instances && activity.instances.length > 0) {
-              console.log(
-                `${activity.instances.length}개의 인스턴스를 발견했습니다.`
-              );
+              // ${activity.instances.length}개의 인스턴스를 발견했습니다.
 
               return activity.instances.map((instance) => {
                 // 출석 및 결석 인원 계산
@@ -1587,15 +1534,8 @@ export default {
         }
 
         this.meetings = meetings;
-        console.log(
-          `조직 ID ${orgId}의 모임 데이터 로드 완료:`,
-          meetings.length
-        );
+        // 조직 ID ${orgId}의 모임 데이터 로드 완료: meetings.length
       } catch (error) {
-        console.error(
-          `조직 ID ${orgId}의 모임 데이터 로딩 중 오류 발생:`,
-          error
-        );
         this.showDialog(
           "오류 발생",
           "모임 정보를 불러오는 중 오류가 발생했습니다."

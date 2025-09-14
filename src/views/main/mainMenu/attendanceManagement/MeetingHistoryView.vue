@@ -152,39 +152,28 @@ export default {
     if (this.currentOrganizationId) {
       this.fetchMeetings();
     } else {
-      console.error("조직 ID를 찾을 수 없습니다.");
     }
   },
   methods: {
     async fetchMeetings() {
-      console.log("🚀 미팅 정보 조회를 시작합니다.");
       this.loading = true;
       try {
-        console.log(
-          `📊 조직 ID ${this.currentOrganizationId}에 대한 활동 정보를 요청합니다.`
-        );
+        // 📊 조직 ID ${this.currentOrganizationId}에 대한 활동 정보를 요청합니다.
         const response = await this.getOrganizationActivities(
           this.currentOrganizationId,
           true
         );
-        console.log("✅ 활동 정보 요청 완료:", response);
 
         if (
           response &&
           response.activities &&
           Array.isArray(response.activities)
         ) {
-          console.log(
-            `🔍 ${response.activities.length}개의 활동을 처리합니다.`
-          );
+          // 🔍 ${response.activities.length}개의 활동을 처리합니다.
           this.meetings = response.activities.flatMap((activity) => {
-            console.log(`📌 활동 "${activity.name}" 처리 중...`);
             if (activity.instances && activity.instances.length > 0) {
-              console.log(
-                `🗓️ ${activity.instances.length}개의 인스턴스를 발견했습니다.`
-              );
+              // 🗓️ ${activity.instances.length}개의 인스턴스를 발견했습니다.
               return activity.instances.map((instance) => {
-                console.log(`📅 인스턴스 ID ${instance.id} 처리 중...`);
                 return {
                   id: instance.id,
                   activityId: activity.id,
@@ -202,7 +191,7 @@ export default {
                 };
               });
             }
-            console.log(`⚠️ 활동 "${activity.name}"에 인스턴스가 없습니다.`);
+
             return [];
           });
 
@@ -213,19 +202,14 @@ export default {
             return new Date(b.date) - new Date(a.date);
           });
 
-          console.log(
-            `✅ 총 ${this.meetings.length}개의 미팅 정보를 처리했습니다.`
-          );
+          // ✅ 총 ${this.meetings.length}개의 미팅 정보를 처리했습니다.
         } else {
-          console.error("❌ 활동 데이터가 예상한 형식이 아닙니다:", response);
           this.meetings = [];
         }
       } catch (error) {
-        console.error("🚨 미팅 정보 조회 중 오류 발생:", error);
         this.meetings = [];
       } finally {
         this.loading = false;
-        console.log("🏁 미팅 정보 조회를 완료했습니다.");
       }
     },
     getMonthWeekTag(dateString) {
@@ -345,23 +329,16 @@ export default {
       });
     },
     async deleteMeeting(meeting) {
-      console.log(`🗑️ 모임 삭제 시도:`, meeting);
-
       if (
         !confirm(`정말로 "${meeting.activityName}" 모임을 삭제하시겠습니까?`)
       ) {
-        console.log("❌ 사용자가 삭제를 취소했습니다.");
         return;
       }
 
       try {
-        console.log(`🔄 모임 삭제 중...`);
-        console.log("현재 조직 ID:", this.currentOrganizationId);
-
         const { id: instanceId, activityId } = meeting;
 
         if (!activityId) {
-          console.error("❌ 활동 ID를 찾을 수 없습니다.");
           this.showDialog(
             "모임 삭제에 실패했습니다. 활동 ID를 찾을 수 없습니다."
           );
@@ -375,27 +352,21 @@ export default {
           true
         );
 
-        console.log("삭제 응답:", response);
-
         if (response && response.deletedActivityInstanceId) {
-          console.log(`✅ 모임 ID ${instanceId} 삭제 성공`);
           this.showDialog(
             `모임 "${meeting.activityName}"이(가) 성공적으로 삭제되었습니다.`
           );
           await this.fetchMeetings();
         } else {
-          console.error(`❌ 모임 ID ${instanceId} 삭제 실패:`, response);
           this.showDialog(
             `모임 "${meeting.activityName}" 삭제에 실패했습니다. 다시 시도해 주세요.`
           );
         }
       } catch (error) {
-        console.error(`🚨 모임 삭제 중 오류 발생:`, error);
         this.showDialog(`모임 삭제 중 오류가 발생했습니다: ${error.message}`);
       }
     },
     async createNewMeeting() {
-      console.log("새 모임 생성");
       const newActivity = {
         name: "새 모임",
         description: "새로운 모임 설명",
@@ -407,14 +378,9 @@ export default {
       try {
         await this.createActivity(newActivity, true);
         this.fetchMeetings();
-      } catch (error) {
-        console.error("새 모임 생성 중 오류 발생:", error);
-      }
+      } catch (error) {}
     },
     viewMeetingDetails(meeting) {
-      console.log("🔍 미팅 상세 정보 보기 시작");
-      console.log("📦 전달할 미팅 데이터:", meeting);
-
       this.$router.push({
         name: "MeetingDetailView",
         params: {
@@ -423,8 +389,6 @@ export default {
           activityInstanceId: meeting.id,
         },
       });
-
-      console.log("✅ 미팅 상세 정보 페이지로 이동 완료");
     },
     goToAttendanceInput() {
       this.$router.push({ name: "AttendanceInputView" });

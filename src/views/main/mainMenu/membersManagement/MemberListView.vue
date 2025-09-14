@@ -164,11 +164,11 @@
 </template>
 
 <script>
-import { mapState } from "vuex";
-import { MasterCtrl } from "@/mixins/apis_v2/internal/MasterCtrl";
-import { FileBins } from "@/mixins/apis_v2/internal/FileBins";
-import { Utility } from "@/mixins/apis_v2/utility/Utility";
 import { CurrentMemberCtrl } from "@/mixins/apis_v2/internal/domainCtrl/CurrentMemberCtrl";
+import { FileBins } from "@/mixins/apis_v2/internal/FileBins";
+import { MasterCtrl } from "@/mixins/apis_v2/internal/MasterCtrl";
+import { Utility } from "@/mixins/apis_v2/utility/Utility";
+import { mapState } from "vuex";
 
 export default {
   name: "AttendanceInputView",
@@ -222,20 +222,14 @@ export default {
      */
     async fetchMemberList() {
       // 멤버 리스트 조회 프로세스 시작을 로깅
-      console.log("🚀 Process #1: 멤버 리스트 조회 시작");
       let processCount = 1;
 
       // 현재 로그인한 사용자의 조직 ID를 가져옴
       const organizationId = this.userInfo.roles[0].organizationId;
-      console.log(`📦 Process #${++processCount}: 조직 ID - ${organizationId}`);
 
       // 해당 조직의 모든 멤버와 그들의 역할 정보를 조회
       // getMembersWithRoles는 CurrentMemberCtrl mixin에서 제공되는 메서드
       let memberList = await this.getMembersWithRoles(organizationId, true);
-      console.log(
-        `👥 Process #${++processCount}: 초기 멤버 리스트 조회 완료`,
-        memberList
-      );
 
       /**
        * @description 멤버 리스트 정렬 로직
@@ -251,7 +245,6 @@ export default {
        *      5: 3순위
        *      기타: 6순위
        */
-      console.log(`🔄 Process #${++processCount}: 멤버 정렬 시작`);
       memberList.sort((a, b) => {
         // 역할별 우선순위 정의
         const roleOrder = { 8: 1, 9: 2, 10: 3, 11: 6, 5: 3 };
@@ -259,9 +252,6 @@ export default {
         const roleB = roleOrder[b.roleId] || 6;
 
         // 정렬 과정 로깅
-        console.log(
-          `📊 Process #${processCount}.1: 역할 비교 - ${a.name}(${roleA}) vs ${b.name}(${roleB})`
-        );
 
         // 새가족 우선 정렬
         if (a.isNewMember === "Y" && b.isNewMember !== "Y") return -1;
@@ -276,11 +266,9 @@ export default {
         // 역할 우선순위에 따른 정렬
         return roleA - roleB;
       });
-      console.log(`✅ Process #${++processCount}: 멤버 정렬 완료`, memberList);
 
       // 정렬된 멤버 리스트를 컴포넌트의 상태값으로 저장
       this.memberList = memberList;
-      console.log(`💾 Process #${++processCount}: 멤버 리스트 저장 완료`);
 
       // 멤버 통계 업데이트 (새가족 수, 장기결석자 수 등)
       this.updateCounts();
@@ -298,7 +286,6 @@ export default {
      */
     updateCounts() {
       // 통계 계산 시작 로그
-      console.log("📊 Process #7: 통계 계산 시작");
 
       // 1. 장기결석자 수 계산
       // - memberList 배열을 순회하며 isLongTermAbsentee가 'Y'인 멤버만 필터링
@@ -306,9 +293,6 @@ export default {
       this.longTermAbsenteeCount = this.memberList.filter(
         (member) => member.isLongTermAbsentee === "Y"
       ).length;
-      console.log(
-        `⏸️ Process #7.2: 장기 결석자 수 - ${this.longTermAbsenteeCount}명`
-      );
 
       // 2. 새가족 수 계산
       // - memberList 배열을 순회하며 isNewMember가 'Y'인 멤버만 필터링
@@ -316,12 +300,8 @@ export default {
       this.newFamilyMembersCount = this.memberList.filter(
         (member) => member.isNewMember === "Y"
       ).length;
-      console.log(
-        `🆕 Process #7.3: 새가족 수 - ${this.newFamilyMembersCount}명`
-      );
 
       // 통계 계산 완료 로그
-      console.log("✅ Process #8: 통계 계산 완료");
     },
     /**
      * @description 멤버의 프로필 이미지 URL을 생성하는 메서드
@@ -345,15 +325,10 @@ export default {
      * @returns {Promise<void>} 삭제 작업이 완료되면 해결되는 Promise
      */
     async deleteUser(id) {
-      console.log(`❌ Process #9: 사용자 삭제 시작 - ID: ${id}`);
       if (confirm("정말 삭제하시겠습니까?")) {
-        console.log(`🗑️ Process #10: 삭제 확인됨`);
         await this.openDeleteData(this.User, id, true);
-        console.log(`✅ Process #11: 삭제 완료`);
         this.fetchMemberList();
-        console.log(`🔄 Process #12: 멤버 리스트 새로고침`);
       } else {
-        console.log(`⚠️ Process #10: 삭제 취소됨`);
       }
     },
 

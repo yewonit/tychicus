@@ -227,12 +227,12 @@ import "@/styles/overrides.scss";
 /**
  * @description NEO CORE 라이브러리
  */
-import { mapState, mapActions } from "vuex";
 import { AccountUtil } from "@/mixins/apis_v2/internal/AccountUtil";
-import { MasterCtrl } from "@/mixins/apis_v2/internal/MasterCtrl";
 import { FileBins } from "@/mixins/apis_v2/internal/FileBins";
-import { Utility } from "@/mixins/apis_v2/utility/Utility";
+import { MasterCtrl } from "@/mixins/apis_v2/internal/MasterCtrl";
 import { TokenCtrl } from "@/mixins/apis_v2/utility/TokenCtrl";
+import { Utility } from "@/mixins/apis_v2/utility/Utility";
+import { mapActions, mapState } from "vuex";
 /**
  * @description 컴포넌트
  */
@@ -306,10 +306,7 @@ export default {
       this.$router.push({ name: "Login" });
     },
   },
-  mounted() {
-    console.log(this.$route.params.userId);
-    console.log(this.$route.params.userEmail);
-  },
+  mounted() {},
 };
 </script>
 

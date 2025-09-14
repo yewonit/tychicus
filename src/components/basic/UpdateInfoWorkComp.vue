@@ -1185,10 +1185,10 @@
 
 <script>
 import "@/styles/overrides.scss";
-import { mapState, mapActions } from "vuex";
+import { mapActions, mapState } from "vuex";
 
-import { MasterCtrl } from "@/mixins/apis_v2/internal/MasterCtrl";
 import { FileBins } from "@/mixins/apis_v2/internal/FileBins";
+import { MasterCtrl } from "@/mixins/apis_v2/internal/MasterCtrl";
 import { Utility } from "@/mixins/apis_v2/utility/Utility";
 
 export default {
@@ -1854,7 +1854,6 @@ export default {
         // 4.2. 포트폴리오
         this.lv1_SubAct("포트폴리오");
         this.portfolioList.forEach(async (portfolio) => {
-          console.log("portfolio check", portfolio);
           if (portfolio.fileObject !== null) {
             // case : 새로운 포트폴리오 파일이 업로드 됨
             this.lv1_Case("새로운 포트폴리오 파일이 업로드 됨");
@@ -1863,7 +1862,6 @@ export default {
               this.lv1_Case("기존 포트폴리오가 있는 경우");
               // 4.2.1. 기존 포트폴리오파일을 교체(by FileId)
               this.lv1_SubAct("기존 포트폴리오파일을 교체(by FileId)");
-              console.log("portfolio 타겟", portfolio);
               this.updateFile(
                 portfolio.id,
                 portfolio.fileObject,
@@ -2201,16 +2199,11 @@ export default {
     },
     // IMAGE HANDELER
     async fileHendlerWR() {
-      console.log(`%c[ Comp: SignUpWork ] fileHendlerWR()`, `color:#BFFF00;`);
       const userEmail = JSON.parse(localStorage.getItem("user_info")).email;
       await this.setTempFileData(userEmail, "WR", this.workRefImg, true);
     },
     async fileHendlerWP1() {
       if (this.portfolioList[0].file !== null) {
-        console.log(
-          `%c[ Comp: SignUpWork ] fileHendlerWP1()`,
-          `color:#BFFF00;`
-        );
         const userEmail = JSON.parse(localStorage.getItem("user_info")).email;
         await this.setTempFileData(
           userEmail,
@@ -2225,10 +2218,6 @@ export default {
     },
     async fileHendlerWP2() {
       if (this.portfolioList[1].file !== null) {
-        console.log(
-          `%c[ Comp: SignUpWork ] fileHendlerWP2()`,
-          `color:#BFFF00;`
-        );
         const userEmail = JSON.parse(localStorage.getItem("user_info")).email;
         await this.setTempFileData(
           userEmail,
@@ -2243,10 +2232,6 @@ export default {
     },
     async fileHendlerWP3() {
       if (this.portfolioList[2].file !== null) {
-        console.log(
-          `%c[ Comp: SignUpWork ] fileHendlerWP3()`,
-          `color:#BFFF00;`
-        );
         const userEmail = JSON.parse(localStorage.getItem("user_info")).email;
         await this.setTempFileData(
           userEmail,
@@ -2261,10 +2246,6 @@ export default {
     },
     async fileHendlerWP4() {
       if (this.portfolioList[3].file !== null) {
-        console.log(
-          `%c[ Comp: SignUpWork ] fileHendlerWP4()`,
-          `color:#BFFF00;`
-        );
         const userEmail = JSON.parse(localStorage.getItem("user_info")).email;
         await this.setTempFileData(
           userEmail,
@@ -2279,10 +2260,6 @@ export default {
     },
     async fileHendlerWP5() {
       if (this.portfolioList[4].file !== null) {
-        console.log(
-          `%c[ Comp: SignUpWork ] fileHendlerWP5()`,
-          `color:#BFFF00;`
-        );
         const userEmail = JSON.parse(localStorage.getItem("user_info")).email;
         await this.setTempFileData(
           userEmail,
@@ -2297,10 +2274,6 @@ export default {
     },
     async fileHendlerWP6() {
       if (this.portfolioList[5].file !== null) {
-        console.log(
-          `%c[ Comp: SignUpWork ] fileHendlerWP6()`,
-          `color:#BFFF00;`
-        );
         const userEmail = JSON.parse(localStorage.getItem("user_info")).email;
         await this.setTempFileData(
           userEmail,

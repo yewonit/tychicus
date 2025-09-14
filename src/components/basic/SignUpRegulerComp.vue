@@ -222,8 +222,8 @@
 <script>
 import "@/styles/overrides.scss";
 
-import { MasterCtrl } from "@/mixins/apis_v2/internal/MasterCtrl";
 import { FileBins } from "@/mixins/apis_v2/internal/FileBins";
+import { MasterCtrl } from "@/mixins/apis_v2/internal/MasterCtrl";
 import { Utility } from "@/mixins/apis_v2/utility/Utility";
 
 export default {
@@ -291,7 +291,6 @@ export default {
   computed: {},
   watch: {
     donation_amount_object(val) {
-      console.log(typeof val);
       if (typeof val === "string") {
         const tempValue = parseInt(val);
         if (!isNaN(tempValue)) {
@@ -316,23 +315,16 @@ export default {
   mixins: [MasterCtrl, FileBins, Utility],
   methods: {
     async saveDonation() {
-      console.log(`%c[ Comp: SignUpRequler ] saveDonation()`, `color:#BFFF00;`);
       // 1. 빈 데이터 체크
-      console.log(
-        `%c[ Comp: SignUpRequler ] saveDonation() > 빈데이터 체크`,
-        `color:#BFFF00;`
-      );
+
       const blankCheck = await this.checkEmptyData();
-      console.log("blankCheck", blankCheck);
+
       if (!blankCheck) {
         return;
       }
 
       // 2. 도네이션 모델 생성
-      console.log(
-        `%c[ Comp: SignUpRequler ] saveDonation() > 도네이션 모델 생성`,
-        `color:#BFFF00;`
-      );
+
       // 2.1. 로그인된 유저정보 가져오기
       const userInfo = JSON.parse(localStorage.getItem("user_info"));
       // 2.2. 모델 생성
@@ -346,27 +338,15 @@ export default {
         donation_amount: this.donation_amount,
       };
       // 3. 도네이션 생성
-      const newDonation = await this.authCreateData(
-        this.Donation,
-        donationModel,
-        true
-      );
-      console.log(`%c[ Data ] newDonation`, "color: #E3DAC9;", newDonation);
+      await this.authCreateData(this.Donation, donationModel, true);
 
       // 4. 다음 페이지로 이동
-      console.log(
-        `%c[ Comp: SignUpRequler ] saveDonation() > 다음페이지로 이동`,
-        `color:#BFFF00;`
-      );
+
       this.$emit("goToNextStep");
     },
 
     // 빈 데이터 체크
     async checkEmptyData() {
-      console.log(
-        `%c[ Comp: SignUpRequler ] checkEmptyData()`,
-        `color:#BFFF00;`
-      );
       if (this.bank_idx == 0) {
         alert("은행을 선택하세요.");
         return false;
@@ -396,7 +376,7 @@ export default {
 
     setUserName() {
       const userInfo = JSON.parse(localStorage.getItem("user_info"));
-      console.log(userInfo);
+
       if (userInfo.name) {
         this.bank_account_name = userInfo.name;
       } else {

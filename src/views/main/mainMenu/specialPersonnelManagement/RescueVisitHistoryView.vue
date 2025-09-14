@@ -159,9 +159,9 @@
   </v-container>
 </template>
 <script>
-import { mapState } from "vuex";
 import { MasterCtrl } from "@/mixins/apis_v2/internal/MasterCtrl";
 import { VisitManagementCtrl } from "@/mixins/apis_v2/internal/domainCtrl/VisitManagementCtrl";
+import { mapState } from "vuex";
 
 export default {
   name: "RescueVisitHistoryView",
@@ -203,32 +203,24 @@ export default {
   },
   created() {
     const absenteeId = this.$route.params.id;
-    console.log("🔥absenteeId:", absenteeId);
     this.fetchAbsentee(absenteeId);
     this.fetchVisits(absenteeId);
   },
   methods: {
     async fetchAbsentee(absenteeId) {
-      console.log("🔥URL:", this.User);
-
       try {
         const res = await this.openReadDataItemById(this.User, absenteeId);
         this.absentee = res.data;
         //absentee.church_registration_date 날짜 형식 변경
         this.absentee.church_registration_date =
           this.absentee.church_registration_date.substr(0, 10);
-        console.log("🔥absentee:", this.absentee);
-      } catch (error) {
-        console.error("Error fetching absentee:", error);
-      }
+      } catch (error) {}
     },
     async fetchVisits(absenteeId) {
-      console.log("🔥absenteeId:", absenteeId);
       //
 
       try {
         const res = await this.getVisitPost(absenteeId, true);
-        console.log("🔥res:", res);
         if (res.data) {
           this.visits = res.data;
         } else {
@@ -237,11 +229,8 @@ export default {
 
         //this.visits 순서 앞뒤로 바꾸기
         this.visits.reverse();
-
-        console.log("🔥visits여기인가?:", this.visits);
       } catch (error) {
         this.visits = [];
-        console.error("Error fetching visits:", error);
       }
     },
     openAddVisitDialog() {
@@ -267,9 +256,7 @@ export default {
           this.visits.unshift(res);
           this.closeAddVisitDialog();
         }
-      } catch (error) {
-        console.error("Error adding visit:", error);
-      }
+      } catch (error) {}
       // 다이얼로그 닫기
       this.closeAddVisitDialog();
       // 화면 새로고침
@@ -305,9 +292,7 @@ export default {
           this.fetchVisits(this.absentee.id);
           this.editVisitDialog = false;
         }
-      } catch (error) {
-        console.error("Error updating visit:", error);
-      }
+      } catch (error) {}
     },
 
     async deleteVisit(visitId) {
@@ -317,9 +302,7 @@ export default {
           if (res === 1) {
             this.visits = this.visits.filter((v) => v.id !== visitId);
           }
-        } catch (error) {
-          console.error("Error deleting visit:", error);
-        }
+        } catch (error) {}
         // 윈도우 자체를 새로고침
         window.location.reload();
       }

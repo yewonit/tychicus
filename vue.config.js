@@ -1,5 +1,6 @@
 module.exports = {
   transpileDependencies: ["vuetify"],
+  lintOnSave: false, // ESLint 에러를 빌드 시 무시
   chainWebpack: (config) => {
     config.plugin("html").tap((args) => {
       args[0].title = "<Your new title>"; // Replace your title here
@@ -14,10 +15,10 @@ module.exports = {
 
   // 개발 서버 설정 추가
   devServer: {
-    allowedHosts: 'all',
-    host: '0.0.0.0',
+    allowedHosts: "all",
+    host: "0.0.0.0",
     port: 8080,
-    https: false
+    https: false,
   },
 
   // PWA 설정 추가

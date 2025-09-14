@@ -217,7 +217,7 @@ export default {
     if (!this.userInfo) {
       this.$router.push({ name: "NameInputView" });
     }
-    console.log("사용자 정보:", this.userInfo);
+
     // 데이터 업데이트 함수 절대 키지 말것
     // this.newUserDataUpdate();
     // this.createUserHasRoleData();

@@ -130,21 +130,12 @@ export const MasterCtrl = {
      */
     async openCreateData(url, model, showLog) {
       if (showLog) {
-        console.log(
-          `%c[ ${url} ]` +
-            `%c[ Mixin : MasterCtrl ] openCreateBizNews() model:`,
-          `color: #6495ED;`,
-          `color: #6495ED;`,
-          model
-        );
+        // [ ${url} ] [ Mixin : MasterCtrl ] openCreateBizNews() model: model
       }
       const res = await this.openCreateModel(url, model, showLog);
       let returnData = res.data;
       if (returnData === null) {
         returnData = { result: 0 };
-      }
-      if (showLog) {
-        console.log(`%c[ return ] :`, `color: #6495ED;`, returnData);
       }
       return returnData;
     },
@@ -157,18 +148,8 @@ export const MasterCtrl = {
      * @returns {Array} 조회 결과
      */
     async openReadDataList(url, showLog) {
-      if (showLog) {
-        console.log(
-          `%c[ ${url} ]` + `%c[ Mixin : MasterCtrl ] openReadDataList()`,
-          `color: #6495ED;`,
-          `color: #6495ED;`
-        );
-      }
       const res = await this.openReadModel(url, "undefined", showLog);
       const returnData = res.data;
-      if (showLog) {
-        console.log(`%c[ return ] :`, `color: #6495ED;`, returnData);
-      }
       return returnData;
     },
     /**
@@ -179,16 +160,6 @@ export const MasterCtrl = {
      * @returns {Object} 조회 결과 (object: 성공, {result:0}: 실패)
      */
     async openReadDataItemById(url, id, showLog) {
-      if (showLog) {
-        console.log(
-          `%c[ ${url}/${id} ]` +
-            `%c[ Mixin : MasterCtrl ] openReadDataItemById() id:`,
-          `color: #6495ED;`,
-          `color: #6495ED;`,
-          id
-        );
-      }
-
       // URL에 ID를 포함시켜 요청합니다.
       const completeUrl = `${url}/${id}`;
       const res = await this.openReadModel(completeUrl, showLog);
@@ -196,10 +167,6 @@ export const MasterCtrl = {
 
       if (returnData === null) {
         returnData = { result: 0 };
-      }
-
-      if (showLog) {
-        console.log(`%c[ return ] :`, `color: #6495ED;`, returnData);
       }
 
       return returnData;
@@ -215,15 +182,6 @@ export const MasterCtrl = {
      * @returns {Object} 조회 결과 (object: 성공, {result:0}: 실패)
      */
     async openUpdateData(url, idOfTarget, modelForUpdate, showLog) {
-      if (showLog) {
-        console.log(
-          `%c[ ${url} ]` +
-            `%c[ Mixin : MasterCtrl ] openUpdateBizNews() idOfTarget:`,
-          `color: #6495ED;`,
-          `color: #6495ED;`,
-          idOfTarget
-        );
-      }
       modelForUpdate.id = idOfTarget;
       const res = await this.openUpdateModel(url, modelForUpdate, showLog);
 
@@ -238,9 +196,6 @@ export const MasterCtrl = {
       if (returnData === null) {
         returnData = { result: 0 };
       }
-      if (showLog) {
-        console.log(`%c[ return ] :`, `color: #6495ED;`, returnData);
-      }
       return returnData;
     },
 
@@ -253,16 +208,6 @@ export const MasterCtrl = {
      * @returns {Boolean} 수행 결과 (1: 성공, 0: 실패)
      */
     async openDeleteData(url, idOfTarget, showLog) {
-      if (showLog) {
-        console.log(
-          `%c[ ${url} ]` +
-            `%c[ Mixin : MasterCtrl ] openDeleteBizNews() idOfTarget:`,
-          `color: #6495ED;`,
-          `color: #6495ED;`,
-          idOfTarget
-        );
-      }
-      console.log("여기를 지나가야해🙏🏻");
       let dataObject = {
         data: {
           id: idOfTarget,
@@ -271,9 +216,6 @@ export const MasterCtrl = {
 
       const res = await this.openDeleteModel(url, dataObject, showLog);
       let returnData = res.data;
-      if (showLog) {
-        console.log(`%c[ return ] :`, `color: #6495ED;`, returnData);
-      }
       return returnData;
     },
   },

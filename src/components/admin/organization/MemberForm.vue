@@ -510,9 +510,6 @@ export default {
   watch: {
     member: {
       handler(newVal) {
-        console.group("MemberForm - member prop 변경");
-        console.log("받은 데이터:", newVal);
-
         if (newVal) {
           // 기존 멤버 수정 - 깊은 복사로 데이터 복제
           this.editedMember = JSON.parse(JSON.stringify(newVal));
@@ -544,8 +541,6 @@ export default {
               this.selectedCountry = country;
             }
           }
-
-          console.log("기존 멤버 수정 모드:", this.editedMember);
         } else {
           // 오늘 날짜를 YYYYMMDD 형식으로 가져오기
           const today = new Date();
@@ -587,22 +582,7 @@ export default {
           this.selectedCountry = this.countryItems.find(
             (item) => item.value === "KOR"
           );
-
-          console.log("새 멤버 추가 모드:", this.editedMember);
         }
-
-        // 편집 멤버 데이터 확인
-        console.log("최종 편집 멤버 데이터:", {
-          name: this.editedMember.name,
-          phoneNumber: this.editedMember.phoneNumber,
-          genderType: this.editedMember.genderType,
-          roleId: this.editedMember.roleId,
-          registrationDate: this.editedMember.registrationDate, // 교회 등록일 로깅 추가
-          countryCode: this.editedMember.countryCode,
-          countryName: this.editedMember.countryName,
-          selectedCountry: this.selectedCountry,
-        });
-        console.groupEnd();
 
         // 유효성 검사 오류 초기화
         this.validationErrors = {
@@ -664,7 +644,6 @@ export default {
         if (typeof newVal === "object") {
           this.editedMember.countryCode = newVal.value;
           this.editedMember.countryName = newVal.text;
-          console.log("[디버그] 국가 선택 감지됨:", newVal.text);
         }
       },
       deep: true,
@@ -709,47 +688,6 @@ export default {
   methods: {
     // 필드 유효성 검사 메서드
     validateFields() {
-      // 디버깅을 위한 로그 추가
-      console.group("MemberForm - 필드 유효성 검사");
-      console.log(
-        "이름:",
-        this.editedMember.name,
-        "비어있음:",
-        !this.editedMember.name || this.editedMember.name.trim() === ""
-      );
-      console.log(
-        "전화번호:",
-        this.editedMember.phoneNumber,
-        "비어있음:",
-        !this.editedMember.phoneNumber ||
-          this.editedMember.phoneNumber.trim() === ""
-      );
-      console.log(
-        "성별:",
-        this.editedMember.genderType,
-        "비어있음:",
-        !this.editedMember.genderType
-      );
-      console.log(
-        "역할ID:",
-        this.editedMember.roleId,
-        "비어있음:",
-        !this.editedMember.roleId
-      );
-
-      // 00000000000도 유효한 전화번호로 인정
-      this.validationErrors = {
-        name: !this.editedMember.name || this.editedMember.name.trim() === "",
-        phoneNumber:
-          !this.editedMember.phoneNumber ||
-          this.editedMember.phoneNumber.trim() === "",
-        genderType: !this.editedMember.genderType,
-        roleId: !this.editedMember.roleId,
-      };
-
-      console.log("유효성 검사 결과:", this.validationErrors);
-      console.groupEnd();
-
       return !Object.values(this.validationErrors).some((v) => v === true);
     },
 
@@ -913,8 +851,6 @@ export default {
     },
 
     handleCountryChange(value) {
-      console.log("[디버그] 국가 선택 이벤트:", value);
-
       // 값이 없으면 초기화
       if (!value) {
         this.editedMember.countryCode = "";
@@ -927,11 +863,6 @@ export default {
       if (typeof value === "object") {
         this.editedMember.countryCode = value.value;
         this.editedMember.countryName = value.text;
-
-        console.log("[디버그] 국가 선택 완료:", {
-          countryCode: this.editedMember.countryCode,
-          countryName: this.editedMember.countryName,
-        });
       }
     },
 

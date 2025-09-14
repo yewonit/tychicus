@@ -1,5 +1,5 @@
-import axios from "axios";
 import env from "@/config/environments.js";
+import axios from "axios";
 
 export const OrganizationCtrl = {
   data() {
@@ -16,13 +16,6 @@ export const OrganizationCtrl = {
      * @returns {Array} 조회 결과 (조직 정보 배열)
      */
     async getAllOrganizations(showLog) {
-      if (showLog) {
-        console.log(
-          `%c[ Mixin : OrganizationCtrl ] getAllOrganizations()`,
-          `color: #6495ED;`
-        );
-      }
-
       try {
         const res = await axios.get(
           `${env.API_BASE_URL}/${this.Organization_EP}`
@@ -30,23 +23,8 @@ export const OrganizationCtrl = {
 
         let returnData = res.data;
 
-        if (showLog) {
-          console.log(`%c[ return ] :`, `color: #6495ED;`, returnData);
-          console.log(`%c[ 전체 응답 구조 ] :`, `color: #FF5733;`, {
-            data: returnData,
-            isArray: Array.isArray(returnData),
-            dataLength: Array.isArray(returnData) ? returnData.length : 0,
-            dataType: typeof returnData,
-            firstItemSample:
-              Array.isArray(returnData) && returnData.length > 0
-                ? returnData[0]
-                : null,
-          });
-        }
-
         return returnData;
       } catch (error) {
-        console.error("조직 조회 중 오류 발생:", error);
         return { error: error.message };
       }
     },
@@ -58,13 +36,6 @@ export const OrganizationCtrl = {
      * @returns {Object} 조회 결과 (조직 정보)
      */
     async getOrganizationById(organizationId, showLog) {
-      if (showLog) {
-        console.log(
-          `%c[ Mixin : OrganizationCtrl ] getOrganizationById() organizationId: ${organizationId}`,
-          `color: #6495ED;`
-        );
-      }
-
       try {
         const res = await axios.get(
           `${env.API_BASE_URL}/${this.Organization_EP}/${organizationId}`
@@ -72,13 +43,8 @@ export const OrganizationCtrl = {
 
         let returnData = res.data;
 
-        if (showLog) {
-          console.log(`%c[ return ] :`, `color: #6495ED;`, returnData);
-        }
-
         return returnData;
       } catch (error) {
-        console.error("조직 조회 중 오류 발생:", error);
         return { error: error.message };
       }
     },
@@ -90,15 +56,6 @@ export const OrganizationCtrl = {
      * @returns {Object} 생성된 조직 정보
      */
     async createOrganization(organizationData, showLog) {
-      if (showLog) {
-        console.log(
-          `%c[ Mixin : OrganizationCtrl ] createOrganization() organizationData: ${JSON.stringify(
-            organizationData
-          )}`,
-          `color: #6495ED;`
-        );
-      }
-
       try {
         const res = await axios.post(
           `${env.API_BASE_URL}/${this.Organization_EP}`,
@@ -107,13 +64,8 @@ export const OrganizationCtrl = {
 
         let returnData = res.data;
 
-        if (showLog) {
-          console.log(`%c[ return ] :`, `color: #6495ED;`, returnData);
-        }
-
         return returnData;
       } catch (error) {
-        console.error("조직 생성 중 오류 발생:", error);
         return { error: error.message };
       }
     },
@@ -126,15 +78,6 @@ export const OrganizationCtrl = {
      * @returns {Object} 수정된 조직 정보
      */
     async updateOrganization(organizationId, organizationData, showLog) {
-      if (showLog) {
-        console.log(
-          `%c[ Mixin : OrganizationCtrl ] updateOrganization() organizationId: ${organizationId}, organizationData: ${JSON.stringify(
-            organizationData
-          )}`,
-          `color: #6495ED;`
-        );
-      }
-
       try {
         const res = await axios.put(
           `${env.API_BASE_URL}/${this.Organization_EP}/${organizationId}`,
@@ -144,12 +87,10 @@ export const OrganizationCtrl = {
         let returnData = res.data;
 
         if (showLog) {
-          console.log(`%c[ return ] :`, `color: #6495ED;`, returnData);
         }
 
         return returnData;
       } catch (error) {
-        console.error("조직 수정 중 오류 발생:", error);
         return { error: error.message };
       }
     },
@@ -161,13 +102,6 @@ export const OrganizationCtrl = {
      * @returns {Object} 삭제 결과
      */
     async deleteOrganization(organizationId, showLog) {
-      if (showLog) {
-        console.log(
-          `%c[ Mixin : OrganizationCtrl ] deleteOrganization() organizationId: ${organizationId}`,
-          `color: #6495ED;`
-        );
-      }
-
       try {
         const res = await axios.delete(
           `${env.API_BASE_URL}/${this.Organization_EP}/${organizationId}`
@@ -175,13 +109,8 @@ export const OrganizationCtrl = {
 
         let returnData = res.data;
 
-        if (showLog) {
-          console.log(`%c[ return ] :`, `color: #6495ED;`, returnData);
-        }
-
         return returnData;
       } catch (error) {
-        console.error("조직 삭제 중 오류 발생:", error);
         return { error: error.message };
       }
     },

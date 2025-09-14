@@ -1,6 +1,6 @@
+import env from "@/config/environments.js";
 import { ModelCtrl } from "@/mixins/apis_v2/internal/core/ModelCtrl";
 import axios from "axios";
-import env from "@/config/environments.js";
 
 export const VisitManagementCtrl = {
   data() {
@@ -17,19 +17,10 @@ export const VisitManagementCtrl = {
      * @returns {Array} 조회된 심방 정보 배열
      */
     async getVisitPost(visiteeId, showLog) {
-      if (showLog) {
-        console.log(
-          `%c[ Mixin : VisitManagementCtrl ] getVisitPost() visiteeId: ${visiteeId}`,
-          "color: #6495ED;"
-        );
-      }
       const res = await axios.get(
         `${env.API_BASE_URL}/get-visit-post/${visiteeId}`
       );
       let returnData = res.data;
-      if (showLog) {
-        console.log(`%c[ return ] :`, "color: #6495ED;", returnData);
-      }
       return returnData;
     },
   },

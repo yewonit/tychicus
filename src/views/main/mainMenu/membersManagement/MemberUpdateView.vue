@@ -331,12 +331,12 @@
 </template>
 
 <script>
-import { mapState } from "vuex";
-import { MasterCtrl } from "@/mixins/apis_v2/internal/MasterCtrl";
-import { FileBins } from "@/mixins/apis_v2/internal/FileBins";
-import { Utility } from "@/mixins/apis_v2/utility/Utility";
-import { CurrentMemberCtrl } from "@/mixins/apis_v2/internal/domainCtrl/CurrentMemberCtrl";
 import countries from "@/assets/data/countries.json";
+import { CurrentMemberCtrl } from "@/mixins/apis_v2/internal/domainCtrl/CurrentMemberCtrl";
+import { FileBins } from "@/mixins/apis_v2/internal/FileBins";
+import { MasterCtrl } from "@/mixins/apis_v2/internal/MasterCtrl";
+import { Utility } from "@/mixins/apis_v2/utility/Utility";
+import { mapState } from "vuex";
 
 export default {
   name: "MemberUpdateView",
@@ -382,10 +382,8 @@ export default {
   },
   mixins: [MasterCtrl, CurrentMemberCtrl, FileBins, Utility],
   created() {
-    console.log("UpdateView created");
     const memberId = this.$route.params.id;
     this.member.id = memberId;
-    console.log("memberId", memberId);
   },
   mounted() {
     this.getMemberData();
@@ -405,12 +403,10 @@ export default {
         memberId,
         true
       );
-      console.log("response", response);
 
       if (response && response.data) {
         this.member = response.data;
         this.originalMember = { ...response.data };
-        console.log("member", this.member);
       } else {
         alert(
           "멤버 정보 조회에 실패했습니다. 관리자에게 문의해주세요.\n관리자 연락처: 010-1234-5678"
@@ -426,8 +422,6 @@ export default {
      * @throws {Error} 멤버 정보 업데이트 실패 시 발생하는 오류
      */
     async updateMemberData() {
-      console.log("🛠️ [Update Member Data] 멤버 정보 업데이트를 시작합니다.");
-
       // 필수 입력값 검증
       const requiredFields = {
         name: "이름",
@@ -442,41 +436,28 @@ export default {
         .map(([, label]) => label);
 
       if (missingFields.length > 0) {
-        console.warn("⚠️ [Validation] 필수 정보가 누락되었습니다.");
         alert(`다음 필수 항목을 입력해주세요:\n\n${missingFields.join("\n")}`);
         return;
       }
 
       try {
         // 멤버 정보 업데이트 API 호출
-        console.log("🔄 [Update Member Data] 멤버 정보를 업데이트합니다.");
         const response = await this.openUpdateData(
           this.User,
           this.member.id,
           this.member,
           true
         );
-        console.log("✅ [Update Member Data] 업데이트 응답:", response);
 
         // 업데이트 결과 처리
         if (response.message === "업데이트 완료") {
-          console.log(
-            "🚀 [Update Member Data] 멤버 정보 업데이트가 완료되었습니다. 회원 목록 페이지로 이동합니다."
-          );
           this.$router.push("/member-list");
         } else {
-          console.error(
-            "❌ [Update Member Data] 멤버 정보 수정에 실패했습니다."
-          );
           alert(
             "멤버 정보 수정에 실패했습니다. 관리자에게 문의해주세요.\n관리자 연락처: admin@example.com"
           );
         }
       } catch (error) {
-        console.error(
-          "🚨 [Update Member Data] 멤버 정보 수정 중 오류 발생:",
-          error
-        );
         alert(
           "멤버 정보 수정 중 오류가 발생했습니다. 관리자에게 문의해주세요.\n관리자 연락처: admin@example.com"
         );

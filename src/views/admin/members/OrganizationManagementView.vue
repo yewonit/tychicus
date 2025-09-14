@@ -211,7 +211,6 @@
                   @organization-selected="handleOrganizationSelect"
                   @edit-organization="openOrganizationDialog"
                   @delete-organization="confirmDeleteOrganization"
-                  @tree-input="(val) => console.log('트리뷰 입력 이벤트:', val)"
                   :expanded-org-ids="expandedOrganizationIds"
                 />
               </v-col>
@@ -454,17 +453,17 @@
 </template>
 
 <script>
-import { mapState } from "vuex";
 import { MasterCtrl } from "@/mixins/apis_v2/internal/MasterCtrl";
 import { CurrentMemberCtrl } from "@/mixins/apis_v2/internal/domainCtrl/CurrentMemberCtrl";
 import { OrganizationCtrl } from "@/mixins/apis_v2/internal/domainCtrl/OrganizationCtrl";
+import { mapState } from "vuex";
 
 // 분리된 컴포넌트 import
-import OrganizationTree from "@/components/admin/organization/OrganizationTree.vue";
-import MemberList from "@/components/admin/organization/MemberList.vue";
-import MemberForm from "@/components/admin/organization/MemberForm.vue";
-import OrganizationDialog from "@/components/admin/organization/OrganizationDialog.vue";
 import DeleteConfirmDialog from "@/components/admin/organization/DeleteConfirmDialog.vue";
+import MemberForm from "@/components/admin/organization/MemberForm.vue";
+import MemberList from "@/components/admin/organization/MemberList.vue";
+import OrganizationDialog from "@/components/admin/organization/OrganizationDialog.vue";
+import OrganizationTree from "@/components/admin/organization/OrganizationTree.vue";
 
 export default {
   name: "OrganizationManagementView",
@@ -1087,9 +1086,7 @@ export default {
     },
 
     // 날짜 그룹화 옵션 변경 감지
-    dateGrouping(newVal) {
-      console.log("날짜 그룹화 옵션 변경:", newVal);
-    },
+    dateGrouping(newVal) {},
   },
 
   created() {
@@ -1674,7 +1671,6 @@ export default {
             );
 
             if (response && response.error) {
-              console.error("조직 수정 API 오류:", response.error);
               throw new Error(response.error);
             }
 
@@ -1686,8 +1682,6 @@ export default {
               });
             });
           } catch (error) {
-            console.error("조직 수정 중 API 오류 발생:", error);
-
             // 오류 메시지 표시
             this.$nextTick(() => {
               this.$store.dispatch("snackbar/showMessage", {
@@ -1697,7 +1691,6 @@ export default {
             });
 
             // 오류가 발생해도 UI 업데이트를 위해 계속 진행
-            console.log("조직 수정 UI 업데이트 진행 (API 오류)");
           }
         } else {
           // 조직 추가 API 호출
@@ -1705,7 +1698,6 @@ export default {
             response = await this.createOrganization(organizationData, true);
 
             if (response && response.error) {
-              console.error("조직 추가 API 오류:", response.error);
               throw new Error(response.error);
             }
 
@@ -1717,8 +1709,6 @@ export default {
               });
             });
           } catch (error) {
-            console.error("조직 추가 중 API 오류 발생:", error);
-
             // 오류 메시지 표시
             this.$nextTick(() => {
               this.$store.dispatch("snackbar/showMessage", {
@@ -1728,7 +1718,6 @@ export default {
             });
 
             // 오류가 발생해도 UI 업데이트를 위해 계속 진행
-            console.log("조직 추가 UI 업데이트 진행 (API 오류)");
           }
         }
 
@@ -1874,7 +1863,6 @@ export default {
         this.editedMember = { ...member };
         // 원본 데이터 저장
         this.originalMember = { ...member };
-        console.log("멤버 수정 모드:", this.editedMember);
       } else {
         // 오늘 날짜를 YYYYMMDD 형식으로 가져오기
         const today = new Date();
@@ -1884,7 +1872,7 @@ export default {
         const todayFormatted = `${year}${month}${day}`;
 
         // 새 멤버 추가
-        console.group("🆕 [Debug] 새 멤버 기본값 설정");
+
         this.editedMember = {
           userId: null,
           name: "", // 이름은 빈 값으로 시작 (사용자 입력 필요)
@@ -1911,22 +1899,9 @@ export default {
           isPhoneNumberPublic: "N",
           snsUrl: null,
         };
-        console.log("신규 멤버 기본값:", this.editedMember);
-        console.table({
-          name: "빈 값(사용자 입력 필요)",
-          nameSuffix: this.editedMember.nameSuffix,
-          phoneNumber: this.editedMember.phoneNumber,
-          genderType: this.editedMember.genderType,
-          isNewMember: this.editedMember.isNewMember,
-          roleId: this.editedMember.roleId,
-          roleName: this.editedMember.roleName,
-          registrationDate: this.editedMember.registrationDate, // 교회 등록일 표시 추가
-        });
-        console.groupEnd();
 
         // 새 멤버 추가는 원본 데이터 없음
         this.originalMember = null;
-        console.log("새 멤버 추가 모드");
       }
       this.memberDialog = true;
     },
@@ -1983,11 +1958,6 @@ export default {
     // 필드 유효성 검사 메서드 추가
     validateFields() {
       // 디버깅을 위한 로그 추가
-      console.group("필드 유효성 검사 결과");
-      console.log("이름:", this.editedMember.name);
-      console.log("전화번호:", this.editedMember.phoneNumber);
-      console.log("성별:", this.editedMember.genderType);
-      console.log("역할ID:", this.editedMember.roleId);
 
       // 00000000000은 유효한 전화번호로 인정
       this.validationErrors = {
@@ -1998,9 +1968,6 @@ export default {
         genderType: !this.editedMember.genderType,
         roleId: !this.editedMember.roleId,
       };
-
-      console.log("유효성 검사 오류:", this.validationErrors);
-      console.groupEnd();
 
       return !Object.values(this.validationErrors).some((v) => v === true);
     },
@@ -2017,9 +1984,6 @@ export default {
         }
 
         // 디버깅 로그 추가
-        console.group("멤버 저장 시도");
-        console.log("멤버 데이터:", JSON.stringify(this.editedMember, null, 2));
-        console.groupEnd();
 
         // 기본 검증
         if (!this.selectedOrganization) {
@@ -2309,14 +2273,10 @@ export default {
         } else if (this.deleteType === "member") {
           // 실제 API 호출로 멤버 삭제
           try {
-            console.log(
-              `❌ 멤버 삭제 시작 - ID: ${this.deleteItem.userId}, 이름: ${this.deleteItem.name}`
-            );
-            console.log(`✅ 멤버 삭제 완료`);
+            // ❌ 멤버 삭제 시작 - ID: ${this.deleteItem.userId}, 이름: ${this.deleteItem.name}
 
             // MemberListView.vue 방식으로 변경: openDeleteData 메서드 사용
             await this.openDeleteData(this.User, this.deleteItem.userId, true);
-            console.log(`✅ 멤버 삭제 완료`);
 
             // 성공적으로 삭제된 경우 UI에서 멤버 제거
             const index = this.members.findIndex(
@@ -2339,17 +2299,13 @@ export default {
               this.calculateMemberCounts();
             });
           } catch (error) {
-            console.error("멤버 삭제 중 오류 발생:", error);
-
             // 오류 발생 시에도 UI에서 멤버 제거 (백엔드 오류 대응)
             const index = this.members.findIndex(
               (m) => m.userId === this.deleteItem.userId
             );
             if (index !== -1) {
               this.members.splice(index, 1);
-              console.log(
-                `멤버 ${this.deleteItem.name} UI에서만 삭제됨 (API 오류)`
-              );
+              // 멤버 ${this.deleteItem.name} UI에서만 삭제됨 (API 오류)
 
               // 멤버 삭제 후 멤버 수 다시 계산
               this.$nextTick(() => {
@@ -2367,7 +2323,6 @@ export default {
           }
         }
       } catch (error) {
-        console.error("삭제 확인 중 오류 발생:", error);
         this.$store.dispatch("snackbar/showMessage", {
           message: `삭제 중 오류가 발생했습니다: ${error.message}`,
           color: "error",
@@ -2461,10 +2416,8 @@ export default {
               // 최하위 조직이 아닌 경우 멤버 목록을 비우고 안내 메시지 표시
               this.members = [];
               this.loadingMembers = false;
-              console.log("최하위 조직만 멤버를 조회할 수 있습니다.");
             }
           } else {
-            console.warn("선택된 조직에 유효한 ID가 없습니다.");
             this.members = [];
             this.loadingMembers = false;
           }
@@ -2474,7 +2427,6 @@ export default {
           this.loadingMembers = false;
         }
       } catch (error) {
-        console.error("조직 선택 처리 중 오류 발생:", error);
         // 오류가 발생해도 UI 상태는 유지
         if (!this.selectedOrganization) {
           this.members = [];
@@ -2635,7 +2587,6 @@ export default {
           },
         }).open();
       } else {
-        console.error("Daum Postcode 서비스를 로드할 수 없습니다.");
         this.$store.dispatch("snackbar/showMessage", {
           message: "주소 검색 서비스를 로드할 수 없습니다. 직접 입력해주세요.",
           color: "warning",
@@ -2693,9 +2644,7 @@ export default {
         }
 
         this.allMembersLoaded = true;
-      } catch (error) {
-        console.error("모든 멤버 로드 중 오류:", error);
-      }
+      } catch (error) {}
     },
 
     // 조직의 멤버 정보를 캐시하는 메서드 추가
@@ -2759,9 +2708,6 @@ export default {
 
     // 검증 실패 처리 메서드 추가
     handleValidationFailure(errors) {
-      console.group("검증 실패 처리");
-      console.log("필드별 오류:", errors);
-
       // 어떤 필드가 오류인지 구체적인 메시지 표시
       let errorMessage = "";
 
@@ -2784,9 +2730,6 @@ export default {
           ? `${errorMessage}. 또한, ${errors.dateErrorMessage}`
           : errors.dateErrorMessage;
       }
-
-      console.log("표시할 오류 메시지:", errorMessage);
-      console.groupEnd();
 
       this.showErrorMessage(errorMessage || "입력 정보를 확인해주세요.");
     },
@@ -2828,7 +2771,6 @@ export default {
         // 각 조직의 새가족 로드
         await this.loadAllLeafOrganizationsNewMembers();
       } catch (error) {
-        console.error("새가족 로드 중 오류 발생:", error);
         this.$store.dispatch("snackbar/showMessage", {
           message: "새가족 정보를 불러오는 중 오류가 발생했습니다.",
           color: "error",
@@ -2875,9 +2817,7 @@ export default {
             // 새가족 목록에 추가
             this.allNewMembers = [...this.allNewMembers, ...newMembers];
           }
-        } catch (error) {
-          console.error(`조직 ${org.id}의 새가족 로드 중 오류:`, error);
-        }
+        } catch (error) {}
       }
 
       // 등록일 기준으로 정렬

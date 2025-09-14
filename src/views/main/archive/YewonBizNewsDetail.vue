@@ -94,12 +94,11 @@ export default {
     // Reading Data
     // Work Read
     async readData() {
-      console.log(this.bizNewsId);
       const bizNewsList = await this.openReadDataItemById(
         this.BizNews,
         this.bizNewsId
       );
-      console.log(`%c[ Data ] bizNewsList`, "color: #E3DAC9;", bizNewsList);
+
       this.bizNewsItem = bizNewsList;
     },
     async getBizFilePath() {
