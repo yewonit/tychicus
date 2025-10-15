@@ -52,8 +52,8 @@
 
 <script>
   import { NewExcelDataUpload } from '@/mixins/apis_v2/utility/NewExcelDataUpload';
-  import { UserOrganizationsAndRolesCtrl } from '@/mixins/apis_v2/utility/UserOrganizationsAndRolesCtrl';
-  import { mapState } from 'vuex';
+import { UserOrganizationsAndRolesCtrl } from '@/mixins/apis_v2/utility/UserOrganizationsAndRolesCtrl';
+import { mapState } from 'vuex';
 
   export default {
     name: 'ServiceSelectionView',
@@ -122,7 +122,7 @@
             isActive: true,
             path: '/meeting-history',
             permissions: {
-              roles: ['admin', 'EBS', '순장', '부그룹장', '그룹장'],
+              roles: ['admin', '부순장', '순장', '부그룹장', '그룹장'],
             },
           },
           {
@@ -134,7 +134,7 @@
             isActive: true,
             path: '/visit-report',
             permissions: {
-              // roles: ['admin', 'EBS', '순장', '부그룹장', '그룹장'],
+              // roles: ['admin', '부순장', '순장', '부그룹장', '그룹장'],
               roles: ['admin'],
             },
           },
