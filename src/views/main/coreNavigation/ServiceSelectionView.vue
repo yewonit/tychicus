@@ -71,7 +71,7 @@ import { mapState } from 'vuex';
           return [];
         }
 
-        const userPermissionName = this.userInfo.roles[0].permissionName;
+        const userPermissionName = this.userInfo.roles[0].roleName;
 
         return this.services.filter((service) =>
           this.hasPermissionForService(service, userPermissionName)
