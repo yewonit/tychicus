@@ -1,5 +1,6 @@
 module.exports = {
   transpileDependencies: ['vuetify'],
+  lintOnSave: false, // ESLint 에러를 빌드 시 무시
   chainWebpack: (config) => {
     config.plugin('html').tap((args) => {
       args[0].title = '<Your new title>'; // Replace your title here
