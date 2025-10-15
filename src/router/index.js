@@ -431,7 +431,7 @@ const routes = [
           showHomeButton: false,
           showCancelButton: true,
           permissions: {
-            roles: ['admin', 'EBS', '순장', '부그룹장', '그룹장'],
+            roles: ['admin', '부순장', '순장', '부그룹장', '그룹장'],
           },
         },
       },
@@ -692,7 +692,7 @@ router.beforeEach((to, from, next) => {
   // 사용자 권한 정보 추출
   const userPermissionName =
     userInfo && userInfo.roles && userInfo.roles.length > 0
-      ? userInfo.roles[0].permissionName
+      ? userInfo.roles[0].roleName
       : null;
   const userName = userInfo ? userInfo.name : null;
 
