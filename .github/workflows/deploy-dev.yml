@@ -20,9 +20,9 @@ jobs:
           username: ${{ secrets.DOCKER_HUB_USERNAME }}
           password: ${{ secrets.DOCKER_HUB_ACCESS_TOKEN }}
 
-      - name: Build Docker Image
+      - name: Build Docker Image (development mode)
         run: |
-          docker buildx build -t ${{ secrets.DOCKER_HUB_USERNAME }}/tychicus:dev --platform linux/amd64 .
+          docker buildx build -t ${{ secrets.DOCKER_HUB_USERNAME }}/tychicus:dev --platform linux/amd64 --build-arg VUE_MODE=development .
 
       - name: Push Docker Image to Docker Hub
         run: |
@@ -37,5 +37,5 @@ jobs:
             docker rm -f tychicus-dev
             docker rmi coramdeoyouth/tychicus:dev
             docker pull coramdeoyouth/tychicus:dev
-            docker run -d -p 8080:8080 --name tychicus-dev --network hephai-bridge --restart unless-stopped coramdeoyouth/tychicus:dev
+            docker run -d -p 8080:80 --name tychicus-dev --network hephai-bridge --restart unless-stopped coramdeoyouth/tychicus:dev
           EOF

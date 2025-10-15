@@ -20,9 +20,9 @@ jobs:
           username: ${{ secrets.DOCKER_HUB_USERNAME }}
           password: ${{ secrets.DOCKER_HUB_ACCESS_TOKEN }}
 
-      - name: Build Docker Image
+      - name: Build Docker Image (production mode)
         run: |
-          docker buildx build -t ${{ secrets.DOCKER_HUB_USERNAME }}/tychicus:prod --platform linux/amd64 .
+          docker buildx build -t ${{ secrets.DOCKER_HUB_USERNAME }}/tychicus:prod --platform linux/amd64 --build-arg VUE_MODE=production .
 
       - name: Push Docker Image to Docker Hub
         run: |
@@ -37,5 +37,5 @@ jobs:
             docker rm -f tychicus-prod
             docker rmi coramdeoyouth/tychicus:prod
             docker pull coramdeoyouth/tychicus:prod
-            docker run -d -p 8081:8080 -e NODE_ENV=production --name tychicus-prod --network hephai-bridge --restart unless-stopped coramdeoyouth/tychicus:prod
+            docker run -d -p 8081:80 --name tychicus-prod --network hephai-bridge --restart unless-stopped coramdeoyouth/tychicus:prod
           EOF
