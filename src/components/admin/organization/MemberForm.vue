@@ -410,7 +410,7 @@
         },
         roleItems: [
           { text: '그룹장', value: 72 },
-          { text: 'EBS', value: 73 },
+          { text: '부순장', value: 73 },
           { text: '순원', value: 74 },
         ],
         countryItems: [

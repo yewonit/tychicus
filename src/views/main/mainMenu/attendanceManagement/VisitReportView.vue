@@ -172,7 +172,7 @@
           },
           {
             name: '김하영',
-            role: 'EBS',
+            role: '부순장',
             phone: '010-3456-7890',
             status: '정상 출석',
             lastVisitDate: '2024-06-08',
@@ -318,7 +318,7 @@
             return 'primary';
           case '순원':
             return 'blue lighten-2';
-          case 'EBS':
+          case '부순장':
             return 'green';
           case 'NEW':
             return 'deep-purple accent-2';

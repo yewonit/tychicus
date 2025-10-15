@@ -455,17 +455,17 @@
 
 <script>
   import { MasterCtrl } from '@/mixins/apis_v2/internal/MasterCtrl';
-  import { CurrentMemberCtrl } from '@/mixins/apis_v2/internal/domainCtrl/CurrentMemberCtrl';
-  import { OrganizationCtrl } from '@/mixins/apis_v2/internal/domainCtrl/OrganizationCtrl';
-  import moment from 'moment-timezone';
-  import { mapState } from 'vuex';
+import { CurrentMemberCtrl } from '@/mixins/apis_v2/internal/domainCtrl/CurrentMemberCtrl';
+import { OrganizationCtrl } from '@/mixins/apis_v2/internal/domainCtrl/OrganizationCtrl';
+import moment from 'moment-timezone';
+import { mapState } from 'vuex';
 
   // 분리된 컴포넌트 import
   import DeleteConfirmDialog from '@/components/admin/organization/DeleteConfirmDialog.vue';
-  import MemberForm from '@/components/admin/organization/MemberForm.vue';
-  import MemberList from '@/components/admin/organization/MemberList.vue';
-  import OrganizationDialog from '@/components/admin/organization/OrganizationDialog.vue';
-  import OrganizationTree from '@/components/admin/organization/OrganizationTree.vue';
+import MemberForm from '@/components/admin/organization/MemberForm.vue';
+import MemberList from '@/components/admin/organization/MemberList.vue';
+import OrganizationDialog from '@/components/admin/organization/OrganizationDialog.vue';
+import OrganizationTree from '@/components/admin/organization/OrganizationTree.vue';
 
   export default {
     name: 'OrganizationManagementView',
@@ -558,7 +558,7 @@
         // 역할 정보
         roleItems: [
           { text: '그룹장', value: 72 },
-          { text: 'EBS', value: 73 },
+          { text: '부순장', value: 73 },
           { text: '순원', value: 74 },
         ],
 
@@ -1847,7 +1847,7 @@
             그룹장: 1,
             부그룹장: 2,
             순장: 3,
-            EBS: 4,
+            부순장: 4,
           };
 
           // 역할 우선순위 확인 (지정된 역할이 없으면 높은 값 할당)
@@ -2562,7 +2562,7 @@
           그룹장: '#B3C6FF', // 파스텔 블루
           부그룹장: '#B3C6FF', // 그룹장과 같은 파스텔 블루
           순장: '#B3C6FF', // 그룹장과 같은 파스텔 블루
-          EBS: '#FFF4B3', // 파스텔 옐로우
+          부순장: '#FFF4B3', // 파스텔 옐로우
           순원: '#C2E0C2', // 파스텔 그린
           회원: '#D6EAD6', // 연한 파스텔 그린
         };
@@ -2573,7 +2573,7 @@
       getRoleName(roleId) {
         const roleMap = {
           72: '그룹장',
-          73: 'EBS',
+          73: '부순장',
           74: '순원',
         };
         return roleMap[roleId] || '회원';

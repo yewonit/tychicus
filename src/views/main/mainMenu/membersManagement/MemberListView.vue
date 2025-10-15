@@ -164,11 +164,11 @@
 </template>
 
 <script>
-  import { mapState } from 'vuex';
-  import { MasterCtrl } from '@/mixins/apis_v2/internal/MasterCtrl';
-  import { FileBins } from '@/mixins/apis_v2/internal/FileBins';
-  import { Utility } from '@/mixins/apis_v2/utility/Utility';
   import { CurrentMemberCtrl } from '@/mixins/apis_v2/internal/domainCtrl/CurrentMemberCtrl';
+import { FileBins } from '@/mixins/apis_v2/internal/FileBins';
+import { MasterCtrl } from '@/mixins/apis_v2/internal/MasterCtrl';
+import { Utility } from '@/mixins/apis_v2/utility/Utility';
+import { mapState } from 'vuex';
 
   export default {
     name: 'AttendanceInputView',
@@ -372,7 +372,7 @@
         const colorMap = {
           그룹장: '#B3C6FF', // 파스텔 블루
           순장: '#D6E0FF', // 연한 파스텔 블루
-          EBS: '#FFF4B3', // 파스텔 옐로우
+          부순장: '#FFF4B3', // 파스텔 옐로우
           순원: '#C2E0C2', // 파스텔 그린
           회원: '#D6EAD6', // 연한 파스텔 그린
         };

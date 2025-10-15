@@ -63,7 +63,7 @@
               <!-- 역할 칩 렌더링 단순화 -->
               <v-chip
                 v-if="
-                  ['그룹장', '부그룹장', '순장', 'EBS'].includes(item.roleName)
+                  ['그룹장', '부그룹장', '순장', '부순장'].includes(item.roleName)
                 "
                 small
                 :color="getRoleColor(item.roleName)"
@@ -153,7 +153,7 @@
           그룹장: '#B3C6FF', // 파스텔 블루
           부그룹장: '#B3C6FF', // 그룹장과 같은 파스텔 블루
           순장: '#B3C6FF', // 그룹장과 같은 파스텔 블루
-          EBS: '#FFF4B3', // 파스텔 옐로우
+          부순장: '#FFF4B3', // 파스텔 옐로우
           순원: '#C2E0C2', // 파스텔 그린
           회원: '#D6EAD6', // 연한 파스텔 그린
         };

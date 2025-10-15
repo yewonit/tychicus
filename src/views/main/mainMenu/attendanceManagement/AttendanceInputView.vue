@@ -475,15 +475,15 @@
 </template>
 
 <script>
-  import { mapState } from 'vuex';
-  import { MasterCtrl } from '@/mixins/apis_v2/internal/MasterCtrl';
-  import { FileBins } from '@/mixins/apis_v2/internal/FileBins';
-  import { Utility } from '@/mixins/apis_v2/utility/Utility';
-  import { CurrentMemberCtrl } from '@/mixins/apis_v2/internal/domainCtrl/CurrentMemberCtrl';
-  import { AttendanceCtrl } from '@/mixins/apis_v2/internal/domainCtrl/AttendanceCtrl';
   import { AWSS3Ctrl } from '@/mixins/apis_v2/external/AWSS3Ctrl.js';
-  import moment from 'moment-timezone';
-  import { dateTimeUtils } from '@/utils/dateTimeUtils';
+import { AttendanceCtrl } from '@/mixins/apis_v2/internal/domainCtrl/AttendanceCtrl';
+import { CurrentMemberCtrl } from '@/mixins/apis_v2/internal/domainCtrl/CurrentMemberCtrl';
+import { FileBins } from '@/mixins/apis_v2/internal/FileBins';
+import { MasterCtrl } from '@/mixins/apis_v2/internal/MasterCtrl';
+import { Utility } from '@/mixins/apis_v2/utility/Utility';
+import { dateTimeUtils } from '@/utils/dateTimeUtils';
+import moment from 'moment-timezone';
+import { mapState } from 'vuex';
 
   export default {
     name: 'MeetingRegistrationView',
@@ -557,7 +557,7 @@
         roleInfo: {
           그룹장: { color: '#B3C6FF', priority: 1 }, // 파스텔 블루
           순장: { color: '#D6E0FF', priority: 1 }, // 연한 파스텔 블루
-          EBS: { color: '#FFF4B3', priority: 2 }, // 파스텔 옐로우
+          부순장: { color: '#FFF4B3', priority: 2 }, // 파스텔 옐로우
           순원: { color: '#C2E0C2', priority: 3 }, // 파스텔 그린
           회원: { color: '#D6EAD6', priority: 3 }, // 연한 파스텔 그린
         },
@@ -1051,7 +1051,7 @@
         const roleColors = {
           그룹장: '#B3C6FF', // 파스텔 블루
           순장: '#D6E0FF', // 연한 파스텔 블루
-          EBS: '#FFF4B3', // 파스텔 옐로우
+          부순장: '#FFF4B3', // 파스텔 옐로우
           순원: '#C2E0C2', // 파스텔 그린
           회원: '#D6EAD6', // 연한 파스텔 그린
         };
