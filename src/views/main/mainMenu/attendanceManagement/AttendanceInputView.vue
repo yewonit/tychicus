@@ -609,14 +609,14 @@ import { mapState } from "vuex";
             notes: '예원교회 금요예배',
             dayOfWeek: 5, // 금요일
           },
-          수요제자기도회: {
+          수요청년예배: {
             startTime: '21:20',
             endTime: '22:10',
             location: '스카이아트홀',
             notes: '그리스도의 제자로 복음을 더욱 깊이 각인하는 시간',
             dayOfWeek: 3, // 수요일
           },
-          현장치유팀사역: {
+          금요청년예배: {
             startTime: '22:20',
             endTime: '23:20',
             location: '스카이아트홀',
