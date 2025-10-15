@@ -9,7 +9,7 @@ const AUTH_BASE_URL = environments.AUTH_BASE_URL;
 // axios 인스턴스 생성
 const api = axios.create({
   baseURL: API_BASE_URL,
-  timeout: 10000,
+  timeout: 300000,
   headers: {
     'Content-Type': 'application/json',
   },
@@ -17,7 +17,7 @@ const api = axios.create({
 
 const auth = axios.create({
   baseURL: AUTH_BASE_URL,
-  timeout: 10000,
+  timeout: 300000,
   headers: {
     'Content-Type': 'application/json',
   },

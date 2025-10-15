@@ -575,6 +575,7 @@
 import AttendanceChartSection from "@/components/admin/dashboard/AttendanceChartSection.vue";
 import { MasterCtrl } from "@/mixins/apis_v2/internal/MasterCtrl";
 import { AttendanceCtrl } from "@/mixins/apis_v2/internal/domainCtrl/AttendanceCtrl";
+import { CurrentMemberCtrl } from "@/mixins/apis_v2/internal/domainCtrl/CurrentMemberCtrl";
 import { OrganizationCtrl } from "@/mixins/apis_v2/internal/domainCtrl/OrganizationCtrl";
 import ExcelJS from "exceljs";
 import { saveAs } from "file-saver";
