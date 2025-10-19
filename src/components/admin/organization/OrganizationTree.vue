@@ -31,9 +31,9 @@
             style="width: 100%"
           >
             <div>
-              <span class="font-weight-bold">{{ item.organization_name }}</span>
+              <span class="font-weight-bold">{{ item.name }}</span>
               <div class="text-caption grey--text text--darken-1">
-                ID: {{ item.id }} | 코드: {{ item.organization_code }} | 멤버:
+                ID: {{ item.id }} | 코드: {{ item.name }} | 멤버:
                 {{ item.memberCount || 0 }}명
               </div>
             </div>

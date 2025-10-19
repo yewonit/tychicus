@@ -108,7 +108,7 @@
                   </v-list-item-icon>
                   <v-list-item-content>
                     <v-list-item-title>
-                      {{ org.organization_name }}
+                      {{ org.name }}
                     </v-list-item-title>
                     <v-list-item-subtitle class="text-caption">
                       멤버: {{ org.memberCount || 0 }}명
@@ -511,9 +511,9 @@ import OrganizationTree from '@/components/admin/organization/OrganizationTree.v
         organizationDialog: false,
         editedOrganization: {
           id: null,
-          organization_name: '',
+          name: '',
           organization_code: '',
-          organization_description: '',
+          description: '',
         },
         // 조직 구조 캐싱
         cachedOrganizations: null,
@@ -837,7 +837,7 @@ import OrganizationTree from '@/components/admin/organization/OrganizationTree.v
       // 조직 선택 드롭다운 아이템
       organizationSelectItems() {
         return this.organizations.map((org) => ({
-          text: `${org.organization_name} (ID: ${org.id})`,
+          text: `${org.name} (ID: ${org.id})`,
           value: org.id,
         }));
       },
@@ -1216,13 +1216,13 @@ import OrganizationTree from '@/components/admin/organization/OrganizationTree.v
       searchOrganizations(query, results) {
         const searchInOrganizations = (orgs) => {
           orgs.forEach((org) => {
-            if (org.organization_name.toLowerCase().includes(query)) {
+            if (org.name.toLowerCase().includes(query)) {
               // 최하위 조직(isLeafNode가 true)인 경우에만 결과에 추가
               if (org.isLeafNode) {
                 results.push({
                   type: 'organization',
                   id: org.id,
-                  organization_name: org.organization_name,
+                  name: org.name,
                   organization_code: org.organization_code,
                   memberCount: org.memberCount,
                   isLeafNode: org.isLeafNode,
@@ -1278,7 +1278,7 @@ import OrganizationTree from '@/components/admin/organization/OrganizationTree.v
           allMembers = this.members.map((member) => ({
             ...member,
             organizationId: this.selectedOrganization.id,
-            organizationName: this.selectedOrganization.organization_name,
+            organizationName: this.selectedOrganization.name,
           }));
         }
 
@@ -1296,7 +1296,7 @@ import OrganizationTree from '@/components/admin/organization/OrganizationTree.v
             const membersWithOrg = data.members.map((member) => ({
               ...member,
               organizationId: Number(orgId),
-              organizationName: data.organization_name,
+              organizationName: data.name,
             }));
             allMembers = allMembers.concat(membersWithOrg);
           }
@@ -1368,7 +1368,7 @@ import OrganizationTree from '@/components/admin/organization/OrganizationTree.v
               return {
                 type: 'organization',
                 id: org.id,
-                organization_name: org.organization_name,
+                name: org.name,
                 organization_code: org.organization_code,
                 memberCount: org.memberCount,
                 isLeafNode: org.isLeafNode,
@@ -1635,17 +1635,16 @@ import OrganizationTree from '@/components/admin/organization/OrganizationTree.v
           this.editedOrganization = {
             ...organization,
             // API 응답 필드 매핑
-            organization_description:
-              organization.organization_description ||
-              organization.description ||
-              '',
+            name: organization.name,
+            organization_code: organization.organization_code || '',
+            description: organization.description || '',
           };
         } else {
           this.editedOrganization = {
             id: null,
-            organization_name: '',
+            name: '',
             organization_code: '',
-            organization_description: '',
+            description: '',
             upper_organization_id: null,
           };
         }
@@ -1668,8 +1667,10 @@ import OrganizationTree from '@/components/admin/organization/OrganizationTree.v
           // API 요청 데이터 준비
           const organizationData = {
             ...this.editedOrganization,
-            // 필드 매핑 (organization_description -> description)
-            description: this.editedOrganization.organization_description,
+            // 필드 매핑
+            name: this.editedOrganization.name,
+            organization_code: this.editedOrganization.organization_code,
+            description: this.editedOrganization.description,
           };
 
           let response;
@@ -1690,7 +1691,7 @@ import OrganizationTree from '@/components/admin/organization/OrganizationTree.v
               // 성공 메시지 표시
               this.$nextTick(() => {
                 this.$store.dispatch('snackbar/showMessage', {
-                  message: `조직 "${organizationData.organization_name}"이(가) 수정되었습니다.`,
+                  message: `조직 "${organizationData.name}"이(가) 수정되었습니다.`,
                   color: 'success',
                 });
               });
@@ -1721,7 +1722,7 @@ import OrganizationTree from '@/components/admin/organization/OrganizationTree.v
               // 성공 메시지 표시
               this.$nextTick(() => {
                 this.$store.dispatch('snackbar/showMessage', {
-                  message: `조직 "${organizationData.organization_name}"이(가) 추가되었습니다.`,
+                  message: `조직 "${organizationData.name}"이(가) 추가되었습니다.`,
                   color: 'success',
                 });
               });
@@ -1758,7 +1759,7 @@ import OrganizationTree from '@/components/admin/organization/OrganizationTree.v
       confirmDeleteOrganization(organization) {
         this.deleteType = 'organization';
         this.deleteItem = organization;
-        this.deleteDialogText = `조직 "${organization.organization_name}"을(를) 삭제하시겠습니까? 이 조직에 속한 모든 멤버 정보도 함께 삭제됩니다.`;
+        this.deleteDialogText = `조직 "${organization.name}"을(를) 삭제하시겠습니까? 이 조직에 속한 모든 멤버 정보도 함께 삭제됩니다.`;
         this.deleteDialog = true;
       },
 
@@ -1789,7 +1790,7 @@ import OrganizationTree from '@/components/admin/organization/OrganizationTree.v
               this.memberCache[organizationId] = {
                 members,
                 organization_name: organization
-                  ? organization.organization_name
+                  ? organization.name
                   : `조직 ID: ${organizationId}`,
               };
             }
@@ -2065,7 +2066,7 @@ import OrganizationTree from '@/components/admin/organization/OrganizationTree.v
           // API 데이터 준비
           const apiUserData = this.prepareApiUserData();
           const organizationId = this.selectedOrganization.id;
-          const organizationCode = this.selectedOrganization.organization_code;
+          const organizationCode = this.selectedOrganization.name;
           const creatingUserId = this.userInfo?.id || null;
 
           // 멤버 수정 또는 추가
@@ -2384,11 +2385,12 @@ import OrganizationTree from '@/components/admin/organization/OrganizationTree.v
               continue;
             }
 
-            // API 응답 필드 매핑 (organization_description -> description)
+            // API 응답 필드 매핑
             const mappedOrg = {
               ...org,
-              description:
-                org.organization_description || org.description || '',
+              name: org.name,
+              organization_code: org.organization_code || '',
+              description: org.description || '',
               children: [],
               // 최하위 조직 여부를 저장할 속성 추가
               isLeafNode: true,
@@ -2514,7 +2516,7 @@ import OrganizationTree from '@/components/admin/organization/OrganizationTree.v
         return [
           {
             id: 1,
-            organization_name: '코람데오 청년선교회',
+            name: '코람데오 청년선교회',
             organization_code: 'CORAMDEO',
             description:
               '코람데오 청년선교회는 청년들의 신앙과 교제를 위한 조직입니다.',
@@ -2523,7 +2525,7 @@ import OrganizationTree from '@/components/admin/organization/OrganizationTree.v
           },
           {
             id: 2,
-            organization_name: '코람데오_1국',
+            name: '코람데오_1국',
             organization_code: 'CORAMDEO_DEPT1',
             description: '코람데오 청년선교회 1국입니다.',
             upper_organization_id: 1,
@@ -2531,7 +2533,7 @@ import OrganizationTree from '@/components/admin/organization/OrganizationTree.v
           },
           {
             id: 3,
-            organization_name: '코람데오_2국',
+            name: '코람데오_2국',
             organization_code: 'CORAMDEO_DEPT2',
             description: '코람데오 청년선교회 2국입니다.',
             upper_organization_id: 1,
@@ -2539,7 +2541,7 @@ import OrganizationTree from '@/components/admin/organization/OrganizationTree.v
           },
           {
             id: 4,
-            organization_name: '코람데오_3국',
+            name: '코람데오_3국',
             organization_code: 'CORAMDEO_DEPT3',
             description: '코람데오 청년선교회 3국입니다.',
             upper_organization_id: 1,
@@ -2547,7 +2549,7 @@ import OrganizationTree from '@/components/admin/organization/OrganizationTree.v
           },
           {
             id: 5,
-            organization_name: '코람데오_1국_1팀',
+            name: '코람데오_1국_1팀',
             organization_code: 'CORAMDEO_DEPT1_TEAM1',
             description: '코람데오 청년선교회 1국 1팀입니다.',
             upper_organization_id: 2,
@@ -2710,8 +2712,8 @@ import OrganizationTree from '@/components/admin/organization/OrganizationTree.v
             const organization = this.findOrganizationById(organizationId);
             this.memberCache[organizationId] = {
               members,
-              organization_name: organization
-                ? organization.organization_name
+              name: organization
+                ? organization.name
                 : `조직 ID: ${organizationId}`,
             };
             return members;
@@ -2864,7 +2866,7 @@ import OrganizationTree from '@/components/admin/organization/OrganizationTree.v
               // 조직 정보 추가
               newMembers.forEach((member) => {
                 member.organizationId = org.id;
-                member.organizationName = org.organization_name;
+                member.organizationName = org.name;
               });
 
               // 새가족 목록에 추가
