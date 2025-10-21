@@ -31,8 +31,4 @@ echo "version.json 파일 업데이트 완료"
 echo "빌드 시작..."
 npm run build
 
-# Firebase 배포
-echo "Firebase에 배포 시작..."
-firebase deploy
-
-echo "완료: 버전 $NEW_VERSION이 배포되었습니다." 
+echo "완료: 버전 $NEW_VERSION 빌드가 완료되었습니다." 
