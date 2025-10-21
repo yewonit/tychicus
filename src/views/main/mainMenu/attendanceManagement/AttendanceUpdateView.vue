@@ -321,6 +321,9 @@
   import moment from 'moment-timezone';
   import { mapState } from 'vuex';
 
+  // 유틸리티 함수 import
+  import { getMemberStatus, getMemberStatusColor } from '@/utils/memberUtils';
+
   export default {
     name: 'AttendanceUpdateView',
     computed: {
@@ -365,13 +368,6 @@
         // 내부 DateTime 객체
         meetingStartDateTime: null,
         meetingEndDateTime: null,
-        roleInfo: {
-          그룹장: { color: '#B3C6FF', priority: 1 }, // 파스텔 블루
-          순장: { color: '#D6E0FF', priority: 1 }, // 연한 파스텔 블루
-          부순장: { color: '#FFF4B3', priority: 2 }, // 파스텔 옐로우
-          순원: { color: '#C2E0C2', priority: 3 }, // 파스텔 그린
-          회원: { color: '#D6EAD6', priority: 3 }, // 연한 파스텔 그린
-        },
         startDateMenu: false,
         meetingStartDate: '',
         endDateMenu: false,
@@ -690,24 +686,22 @@
           (member) => member.isParticipating
         ).length;
       },
+      /**
+       * 멤버 상태 조회
+       * @param {Object} member - 멤버 객체
+       * @returns {string} 상태명
+       */
       getMemberStatus(member) {
-        if (member.isNewMember === 'Y') return '새가족';
-        if (member.isLongTermAbsentee === 'Y') return '장기결석';
-        return member.roleName === '회원' ? '순원' : member.roleName || '순원';
+        return getMemberStatus(member);
       },
+
+      /**
+       * 멤버 상태 색상 조회
+       * @param {Object} member - 멤버 객체
+       * @returns {string} 색상 코드
+       */
       getMemberStatusColor(member) {
-        if (member.isNewMember === 'Y') return '#FFE0B3'; // 파스텔 주황색 (새가족)
-        if (member.isLongTermAbsentee === 'Y') return '#FFCCCC'; // 파스텔 빨간색 (장기결석자)
-
-        const roleColors = {
-          그룹장: '#B3C6FF', // 파스텔 블루
-          순장: '#D6E0FF', // 연한 파스텔 블루
-          부순장: '#FFF4B3', // 파스텔 옐로우
-          순원: '#C2E0C2', // 파스텔 그린
-          회원: '#D6EAD6', // 연한 파스텔 그린
-        };
-
-        return roleColors[member.roleName] || '#E0E0E0'; // 기본 연한 회색
+        return getMemberStatusColor(member);
       },
       async uploadImageToS3() {
         if (!this.photos) {

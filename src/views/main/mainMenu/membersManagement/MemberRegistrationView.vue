@@ -368,28 +368,21 @@
           return;
         }
 
-        // 임의의 데이터 생성
-        const randomData = this.generateRandomData();
+        // 오늘 날짜를 YYYY-MM-DD 형식으로 생성
+        const today = new Date();
+        const formattedDate = today.toISOString().split('T')[0];
 
         // 유저 데이터 객체 생성
         const userData = {
           name: this.nameOfNewMember,
           name_suffix: this.distinguisher,
-          email: randomData.email,
+          email: this.email,
           phone_number: this.phone,
-          password: this.phone,
+          password: null,
           gender_type: this.gender === '남성' ? 'M' : 'F',
-          birth_date: randomData.birthDate,
-          church_member_number: randomData.memberNumber,
-          church_registration_date: randomData.registrationDate,
-          country: this.countryCode,
-          address: randomData.address,
-          address_detail: randomData.addressDetail,
-          zip_postal_code: randomData.postcode,
-          hobby: randomData.hobby,
-          // is_kakaotalk_chat_member: this.kakaoChatJoined ? "Y" : "N",
-          is_long_term_absentee: this.isAbsent ? 'Y' : 'N',
-          is_new_member: this.isNewMember ? 'Y' : 'N',
+          birth_date: formattedDate, // 오늘 날짜로 설정 (나중에 수정 가능)
+          church_registration_date: formattedDate, // 오늘 날짜로 설정
+          is_new_member: this.isNewMember ? true : false,
         };
 
         try {
@@ -419,22 +412,6 @@
             '멤버 생성 중 오류가 발생했습니다. 관리자에게 문의해주세요.\n관리자 연락처: admin@example.com'
           );
         }
-      },
-
-      generateRandomData() {
-        return {
-          email: `${this.nameOfNewMember
-            .toLowerCase()
-            .replace(' ', '')}@example.com`,
-          birthDate: '1990-01-01',
-          memberNumber: '12345',
-          registrationDate: '2020-01-01',
-          country: '대한민국',
-          address: '서울특별시 강남구',
-          addressDetail: '123번지',
-          postcode: '12345',
-          hobby: '독서',
-        };
       },
 
       // execDaumPostcode 메서드는 유지

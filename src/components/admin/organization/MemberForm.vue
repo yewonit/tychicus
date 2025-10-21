@@ -343,6 +343,14 @@
 </template>
 
 <script>
+  // 유틸리티 함수 import
+  import { COUNTRY_LIST } from '@/assets/data/countryList';
+  import { createDefaultMember } from '@/utils/memberUtils';
+  import {
+    validateDateFormat,
+    validateBirthDate,
+  } from '@/utils/dateFormatUtils';
+
   export default {
     name: 'MemberForm',
 
@@ -413,53 +421,7 @@
           { text: '부순장', value: 73 },
           { text: '순원', value: 74 },
         ],
-        countryItems: [
-          { text: '가나', value: 'GHA' },
-          { text: '나이지리아', value: 'NGA' },
-          { text: '남아프리카공화국', value: 'ZAF' },
-          { text: '네덜란드', value: 'NLD' },
-          { text: '노르웨이', value: 'NOR' },
-          { text: '뉴질랜드', value: 'NZL' },
-          { text: '대만', value: 'TWN' },
-          { text: '대한민국', value: 'KOR' },
-          { text: '덴마크', value: 'DNK' },
-          { text: '독일', value: 'DEU' },
-          { text: '러시아', value: 'RUS' },
-          { text: '말레이시아', value: 'MYS' },
-          { text: '멕시코', value: 'MEX' },
-          { text: '몽골', value: 'MNG' },
-          { text: '미국', value: 'USA' },
-          { text: '베트남', value: 'VNM' },
-          { text: '벨기에', value: 'BEL' },
-          { text: '브라질', value: 'BRA' },
-          { text: '사우디아라비아', value: 'SAU' },
-          { text: '스웨덴', value: 'SWE' },
-          { text: '스위스', value: 'CHE' },
-          { text: '스페인', value: 'ESP' },
-          { text: '싱가포르', value: 'SGP' },
-          { text: '아르헨티나', value: 'ARG' },
-          { text: '영국', value: 'GBR' },
-          { text: '오스트레일리아', value: 'AUS' },
-          { text: '오스트리아', value: 'AUT' },
-          { text: '이스라엘', value: 'ISR' },
-          { text: '이집트', value: 'EGY' },
-          { text: '이탈리아', value: 'ITA' },
-          { text: '인도', value: 'IND' },
-          { text: '인도네시아', value: 'IDN' },
-          { text: '일본', value: 'JPN' },
-          { text: '중국', value: 'CHN' },
-          { text: '캐나다', value: 'CAN' },
-          { text: '태국', value: 'THA' },
-          { text: '터키', value: 'TUR' },
-          { text: '포르투갈', value: 'PRT' },
-          { text: '폴란드', value: 'POL' },
-          { text: '프랑스', value: 'FRA' },
-          { text: '핀란드', value: 'FIN' },
-          { text: '필리핀', value: 'PHL' },
-          { text: '헝가리', value: 'HUN' },
-          { text: '홍콩', value: 'HKG' },
-          { text: '기타', value: 'ETC' },
-        ],
+        countryItems: COUNTRY_LIST,
         countrySearchInput: '',
         selectedCountry: null,
         pendingCustomItem: null,
@@ -549,41 +511,8 @@
               }
             }
           } else {
-            // 오늘 날짜를 YYYYMMDD 형식으로 가져오기
-            const today = new Date();
-            const year = today.getFullYear();
-            const month = String(today.getMonth() + 1).padStart(2, '0');
-            const day = String(today.getDate()).padStart(2, '0');
-            const todayFormatted = `${year}${month}${day}`;
-
-            // 새 멤버 추가 기본값
-            this.editedMember = {
-              userId: null,
-              name: '',
-              nameSuffix: 'FFF',
-              phoneNumber: '00000000000',
-              genderType: 'M',
-              email: 'email@email.com',
-              birthDate: null,
-              isNewMember: 'Y',
-              isLongTermAbsentee: 'N',
-              isKakaotalkChatMember: 'N',
-              roleId: 74,
-              roleName: '순원',
-              memberNumber: '',
-              registrationDate: todayFormatted, // 오늘 날짜로 설정
-              countryCode: 'KOR',
-              countryName: '대한민국',
-              address: '',
-              addressDetail: '',
-              postcode: '',
-              hobby: '',
-              city: null,
-              stateProvince: null,
-              isAddressPublic: 'N',
-              isPhoneNumberPublic: 'N',
-              snsUrl: null,
-            };
+            // 새 멤버 추가 - 유틸리티 함수 사용
+            this.editedMember = createDefaultMember();
 
             // 기본 국가 설정
             this.selectedCountry = this.countryItems.find(
@@ -789,55 +718,25 @@
         }
       },
 
+      /**
+       * 날짜 형식 검증
+       * @param {string} field - 검증할 필드명
+       */
       validateDateFormat(field) {
-        // 필드가 비어있으면 오류 없음
         if (!this.editedMember[field]) {
           this.dateErrors[field] = false;
           this.dateErrorMessages[field] = '';
           return;
         }
 
-        // 정규식으로 YYYYMMDD 형식 확인 (8자리 숫자)
-        const datePattern = /^\d{8}$/;
-        if (!datePattern.test(this.editedMember[field])) {
-          this.dateErrors[field] = true;
-          this.dateErrorMessages[field] =
-            '날짜 형식이 올바르지 않습니다. (YYYYMMDD)';
-          return;
-        }
+        // 유틸리티 함수 사용
+        const result =
+          field === 'birthDate'
+            ? validateBirthDate(this.editedMember[field])
+            : validateDateFormat(this.editedMember[field]);
 
-        // 입력된 날짜 형식을 년, 월, 일로 분리
-        const year = this.editedMember[field].substring(0, 4);
-        const month = this.editedMember[field].substring(4, 6);
-        const day = this.editedMember[field].substring(6, 8);
-
-        // 날짜 객체로 변환하여 유효성 검사
-        const date = new Date(year, parseInt(month) - 1, day);
-        const isValidDate =
-          !isNaN(date.getTime()) &&
-          date.getFullYear() === parseInt(year) &&
-          date.getMonth() === parseInt(month) - 1 &&
-          date.getDate() === parseInt(day);
-
-        if (!isValidDate) {
-          this.dateErrors[field] = true;
-          this.dateErrorMessages[field] = '유효하지 않은 날짜입니다.';
-          return;
-        }
-
-        // 유효한 날짜이므로 오류 표시 제거
-        this.dateErrors[field] = false;
-        this.dateErrorMessages[field] = '';
-
-        // 생년월일이 미래 날짜인지 검사
-        if (field === 'birthDate') {
-          const today = new Date();
-          if (date > today) {
-            this.dateErrors[field] = true;
-            this.dateErrorMessages[field] =
-              '생년월일은 오늘보다 미래일 수 없습니다.';
-          }
-        }
+        this.dateErrors[field] = !result.isValid;
+        this.dateErrorMessages[field] = result.error;
       },
 
       handleDatePickerInput(field) {

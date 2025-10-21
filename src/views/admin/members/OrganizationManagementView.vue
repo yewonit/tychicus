@@ -465,6 +465,16 @@
   import OrganizationDialog from '@/components/admin/organization/OrganizationDialog.vue';
   import OrganizationTree from '@/components/admin/organization/OrganizationTree.vue';
 
+  // 유틸리티 함수 import
+  import { getCountryNameByCode } from '@/assets/data/countryList';
+  import {
+    getRoleName,
+    getRoleColor,
+    sortMembers,
+    createDefaultMember,
+  } from '@/utils/memberUtils';
+  import { formatDateToHyphen } from '@/utils/dateFormatUtils';
+
   export default {
     name: 'OrganizationManagementView',
     mixins: [CurrentMemberCtrl, OrganizationCtrl],
@@ -576,229 +586,8 @@
         deleteType: '', // "organization" 또는 "member"
         deleteItem: null,
 
-        // 조직 트리 관련
-        activeOrganization: [],
-
-        // 국가 정보
-        countryItems: [
-          { text: '가나', value: 'GHA' },
-          { text: '가봉', value: 'GAB' },
-          { text: '가이아나', value: 'GUY' },
-          { text: '감비아', value: 'GMB' },
-          { text: '과테말라', value: 'GTM' },
-          { text: '그레나다', value: 'GRD' },
-          { text: '그리스', value: 'GRC' },
-          { text: '기니', value: 'GIN' },
-          { text: '기니비사우', value: 'GNB' },
-          { text: '나미비아', value: 'NAM' },
-          { text: '나우루', value: 'NRU' },
-          { text: '나이지리아', value: 'NGA' },
-          { text: '남수단', value: 'SSD' },
-          { text: '남아프리카공화국', value: 'ZAF' },
-          { text: '네덜란드', value: 'NLD' },
-          { text: '네팔', value: 'NPL' },
-          { text: '노르웨이', value: 'NOR' },
-          { text: '뉴질랜드', value: 'NZL' },
-          { text: '니우에', value: 'NIU' },
-          { text: '니제르', value: 'NER' },
-          { text: '니카라과', value: 'NIC' },
-          { text: '대만', value: 'TWN' },
-          { text: '대한민국', value: 'KOR' },
-          { text: '덴마크', value: 'DNK' },
-          { text: '도미니카공화국', value: 'DOM' },
-          { text: '도미니카연방', value: 'DMA' },
-          { text: '독일', value: 'DEU' },
-          { text: '동티모르', value: 'TLS' },
-          { text: '라오스', value: 'LAO' },
-          { text: '라이베리아', value: 'LBR' },
-          { text: '라트비아', value: 'LVA' },
-          { text: '레바논', value: 'LBN' },
-          { text: '레소토', value: 'LSO' },
-          { text: '루마니아', value: 'ROU' },
-          { text: '룩셈부르크', value: 'LUX' },
-          { text: '르완다', value: 'RWA' },
-          { text: '리비아', value: 'LBY' },
-          { text: '리투아니아', value: 'LTU' },
-          { text: '리히텐슈타인', value: 'LIE' },
-          { text: '마다가스카르', value: 'MDG' },
-          { text: '마셜제도', value: 'MHL' },
-          { text: '마카오', value: 'MAC' },
-          { text: '말라위', value: 'MWI' },
-          { text: '말레이시아', value: 'MYS' },
-          { text: '말리', value: 'MLI' },
-          { text: '멕시코', value: 'MEX' },
-          { text: '모나코', value: 'MCO' },
-          { text: '모로코', value: 'MAR' },
-          { text: '모리셔스', value: 'MUS' },
-          { text: '모리타니아', value: 'MRT' },
-          { text: '모잠비크', value: 'MOZ' },
-          { text: '몬테네그로', value: 'MNE' },
-          { text: '몰도바', value: 'MDA' },
-          { text: '몰디브', value: 'MDV' },
-          { text: '몰타', value: 'MLT' },
-          { text: '몽골', value: 'MNG' },
-          { text: '미국', value: 'USA' },
-          { text: '미얀마', value: 'MMR' },
-          { text: '미크로네시아', value: 'FSM' },
-          { text: '바누아투', value: 'VUT' },
-          { text: '바레인', value: 'BHR' },
-          { text: '바베이도스', value: 'BRB' },
-          { text: '바티칸시국', value: 'VAT' },
-          { text: '바하마', value: 'BHS' },
-          { text: '방글라데시', value: 'BGD' },
-          { text: '베냉', value: 'BEN' },
-          { text: '베네수엘라', value: 'VEN' },
-          { text: '베트남', value: 'VNM' },
-          { text: '벨기에', value: 'BEL' },
-          { text: '벨라루스', value: 'BLR' },
-          { text: '벨리즈', value: 'BLZ' },
-          { text: '보스니아헤르체고비나', value: 'BIH' },
-          { text: '보츠와나', value: 'BWA' },
-          { text: '볼리비아', value: 'BOL' },
-          { text: '부룬디', value: 'BDI' },
-          { text: '부르키나파소', value: 'BFA' },
-          { text: '부탄', value: 'BTN' },
-          { text: '북마케도니아', value: 'MKD' },
-          { text: '북한', value: 'PRK' },
-          { text: '불가리아', value: 'BGR' },
-          { text: '브라질', value: 'BRA' },
-          { text: '브루나이', value: 'BRN' },
-          { text: '사모아', value: 'WSM' },
-          { text: '사우디아라비아', value: 'SAU' },
-          { text: '산마리노', value: 'SMR' },
-          { text: '상투메프린시페', value: 'STP' },
-          { text: '세네갈', value: 'SEN' },
-          { text: '세르비아', value: 'SRB' },
-          { text: '세이셸', value: 'SYC' },
-          { text: '세인트루시아', value: 'LCA' },
-          { text: '세인트빈센트그레나딘', value: 'VCT' },
-          { text: '세인트키츠네비스', value: 'KNA' },
-          { text: '소말리아', value: 'SOM' },
-          { text: '솔로몬제도', value: 'SLB' },
-          { text: '수단', value: 'SDN' },
-          { text: '수리남', value: 'SUR' },
-          { text: '스리랑카', value: 'LKA' },
-          { text: '스웨덴', value: 'SWE' },
-          { text: '스위스', value: 'CHE' },
-          { text: '스페인', value: 'ESP' },
-          { text: '슬로바키아', value: 'SVK' },
-          { text: '슬로베니아', value: 'SVN' },
-          { text: '시에라리온', value: 'SLE' },
-          { text: '싱가포르', value: 'SGP' },
-          { text: '아랍에미리트', value: 'ARE' },
-          { text: '아르메니아', value: 'ARM' },
-          { text: '아르헨티나', value: 'ARG' },
-          { text: '아이슬란드', value: 'ISL' },
-          { text: '아이티', value: 'HTI' },
-          { text: '아일랜드', value: 'IRL' },
-          { text: '아제르바이잔', value: 'AZE' },
-          { text: '아프가니스탄', value: 'AFG' },
-          { text: '안도라', value: 'AND' },
-          { text: '알바니아', value: 'ALB' },
-          { text: '알제리', value: 'DZA' },
-          { text: '앙골라', value: 'AGO' },
-          { text: '앤티가바부다', value: 'ATG' },
-          { text: '에리트레아', value: 'ERI' },
-          { text: '에스토니아', value: 'EST' },
-          { text: '에스와티니', value: 'SWZ' },
-          { text: '에콰도르', value: 'ECU' },
-          { text: '에티오피아', value: 'ETH' },
-          { text: '엘살바도르', value: 'SLV' },
-          { text: '영국', value: 'GBR' },
-          { text: '예멘', value: 'YEM' },
-          { text: '오만', value: 'OMN' },
-          { text: '오스트레일리아', value: 'AUS' },
-          { text: '오스트리아', value: 'AUT' },
-          { text: '온두라스', value: 'HND' },
-          { text: '요르단', value: 'JOR' },
-          { text: '우간다', value: 'UGA' },
-          { text: '우루과이', value: 'URY' },
-          { text: '우즈베키스탄', value: 'UZB' },
-          { text: '우크라이나', value: 'UKR' },
-          { text: '이라크', value: 'IRQ' },
-          { text: '이란', value: 'IRN' },
-          { text: '이스라엘', value: 'ISR' },
-          { text: '이집트', value: 'EGY' },
-          { text: '이탈리아', value: 'ITA' },
-          { text: '인도', value: 'IND' },
-          { text: '인도네시아', value: 'IDN' },
-          { text: '일본', value: 'JPN' },
-          { text: '자메이카', value: 'JAM' },
-          { text: '잠비아', value: 'ZMB' },
-          { text: '적도기니', value: 'GNQ' },
-          { text: '조지아', value: 'GEO' },
-          { text: '중국', value: 'CHN' },
-          { text: '중앙아프리카공화국', value: 'CAF' },
-          { text: '지부티', value: 'DJI' },
-          { text: '짐바브웨', value: 'ZWE' },
-          { text: '차드', value: 'TCD' },
-          { text: '체코', value: 'CZE' },
-          { text: '칠레', value: 'CHL' },
-          { text: '카메룬', value: 'CMR' },
-          { text: '카보베르데', value: 'CPV' },
-          { text: '카자흐스탄', value: 'KAZ' },
-          { text: '카타르', value: 'QAT' },
-          { text: '캄보디아', value: 'KHM' },
-          { text: '캐나다', value: 'CAN' },
-          { text: '케냐', value: 'KEN' },
-          { text: '코모로', value: 'COM' },
-          { text: '코소보', value: 'XKX' },
-          { text: '코스타리카', value: 'CRI' },
-          { text: '코트디부아르', value: 'CIV' },
-          { text: '콜롬비아', value: 'COL' },
-          { text: '콩고공화국', value: 'COG' },
-          { text: '콩고민주공화국', value: 'COD' },
-          { text: '쿠바', value: 'CUB' },
-          { text: '쿠웨이트', value: 'KWT' },
-          { text: '쿡제도', value: 'COK' },
-          { text: '크로아티아', value: 'HRV' },
-          { text: '키르기스스탄', value: 'KGZ' },
-          { text: '키리바시', value: 'KIR' },
-          { text: '키프로스', value: 'CYP' },
-          { text: '타지키스탄', value: 'TJK' },
-          { text: '탄자니아', value: 'TZA' },
-          { text: '태국', value: 'THA' },
-          { text: '토고', value: 'TGO' },
-          { text: '통가', value: 'TON' },
-          { text: '투르크메니스탄', value: 'TKM' },
-          { text: '투발루', value: 'TUV' },
-          { text: '튀니지', value: 'TUN' },
-          { text: '터키', value: 'TUR' },
-          { text: '트리니다드토바고', value: 'TTO' },
-          { text: '파나마', value: 'PAN' },
-          { text: '파라과이', value: 'PRY' },
-          { text: '파키스탄', value: 'PAK' },
-          { text: '파푸아뉴기니', value: 'PNG' },
-          { text: '팔라우', value: 'PLW' },
-          { text: '팔레스타인', value: 'PSE' },
-          { text: '페루', value: 'PER' },
-          { text: '포르투갈', value: 'PRT' },
-          { text: '폴란드', value: 'POL' },
-          { text: '프랑스', value: 'FRA' },
-          { text: '피지', value: 'FJI' },
-          { text: '핀란드', value: 'FIN' },
-          { text: '필리핀', value: 'PHL' },
-          { text: '헝가리', value: 'HUN' },
-          { text: '홍콩', value: 'HKG' },
-          { text: '러시아', value: 'RUS' },
-          { text: '기타', value: 'ETC' },
-        ],
-
-        emailRules: [
-          (v) => !!v || '이메일을 입력해주세요',
-          (v) => /.+@.+\..+/.test(v) || '이메일이 유효하지 않습니다.',
-        ],
-
-        validationErrors: {
-          name: false,
-          phoneNumber: false,
-          genderType: false,
-          roleId: false,
-        },
-
+        // 탭 관련
         activeTab: 0,
-        datePickerMenu: false,
-        selectedDate: null,
         newMembersHeaders: [
           { text: '이름', value: 'name' },
           { text: '성별', value: 'genderType' },
@@ -1467,14 +1256,12 @@
           } else if (Array.isArray(response)) {
             // 응답이 직접 배열인 경우
             organizations = response;
-          } else {
-            // 더미 데이터 사용
-            organizations = this.getDummyOrganizations();
           }
 
           // 유효한 조직 데이터가 있는지 확인
           if (!organizations || organizations.length === 0) {
-            organizations = this.getDummyOrganizations();
+            console.error('유효한 조직 데이터가 없습니다.');
+            organizations = [];
           }
 
           // 각 조직의 멤버 수 초기화
@@ -1501,14 +1288,11 @@
           // 모든 조직 정보를 가져온 후, 멤버 캐시 초기화
           this.memberCache = {};
           this.allMembersLoaded = false;
-        } catch {
-          // 오류 발생 시 더미 데이터 사용
-          this.organizations = this.getDummyOrganizations();
-
-          // 조직 트리 구성
-          this.organizationTree = this.buildOrganizationTree(
-            this.organizations
-          );
+        } catch (error) {
+          // 오류 발생 시 처리
+          console.error('조직 데이터 로드 중 오류 발생:', error);
+          this.organizations = [];
+          this.organizationTree = [];
         }
       },
 
@@ -1804,7 +1588,7 @@
             return;
           }
 
-          // API 호출 결과가 유효하지 않은 경우 빈 배열 사용 (더미 데이터 대신)
+          // API 호출 결과가 유효하지 않은 경우 빈 배열 사용
           if (!members || members.error || !Array.isArray(members)) {
             this.members = [];
             return;
@@ -1824,7 +1608,7 @@
           if (error.response && error.response.status === 404) {
             this.members = [];
           } else {
-            // 다른 오류 발생 시 빈 배열 사용 (더미 데이터 대신)
+            // 다른 오류 발생 시 빈 배열 사용
             this.members = [];
           }
         } finally {
@@ -1832,156 +1616,58 @@
         }
       },
 
-      // 멤버 데이터 정렬 메서드
+      /**
+       * 멤버 목록 정렬
+       * @param {Array} members - 멤버 배열
+       * @returns {Array} 정렬된 멤버 배열
+       */
       sortMembers(members) {
-        if (!members || !Array.isArray(members)) return [];
-
-        return [...members].sort((a, b) => {
-          // 역할 우선순위에 따른 정렬
-          const roleOrder = {
-            그룹장: 1,
-            부그룹장: 2,
-            순장: 3,
-            부순장: 4,
-          };
-
-          // 역할 우선순위 확인 (지정된 역할이 없으면 높은 값 할당)
-          const roleA =
-            roleOrder[a.roleName] !== undefined ? roleOrder[a.roleName] : 10;
-          const roleB =
-            roleOrder[b.roleName] !== undefined ? roleOrder[b.roleName] : 10;
-
-          // 역할 우선순위가 다르면 그에 따라 정렬
-          if (roleA !== roleB) {
-            return roleA - roleB;
-          }
-
-          // 역할 우선순위가 같거나 지정되지 않은 역할인 경우
-          // 새가족 여부로 정렬 (새가족이 위에)
-          if (a.isNewMember === 'Y' && b.isNewMember !== 'Y') return -1;
-          if (a.isNewMember !== 'Y' && b.isNewMember === 'Y') return 1;
-
-          // 장기결석자 정렬
-          if (a.isLongTermAbsentee === 'Y' && b.isLongTermAbsentee !== 'Y')
-            return -1;
-          if (a.isLongTermAbsentee !== 'Y' && b.isLongTermAbsentee === 'Y')
-            return 1;
-
-          // 이름 알파벳 순 정렬
-          return a.name.localeCompare(b.name);
-        });
+        return sortMembers(members);
       },
 
+      /**
+       * 멤버 다이얼로그 열기
+       * @param {Object|null} member - 수정할 멤버 객체 (null이면 새 멤버 추가)
+       */
       openMemberDialog(member = null) {
         if (member) {
           // 기존 멤버 수정
           this.editedMember = { ...member };
-          // 원본 데이터 저장
           this.originalMember = { ...member };
         } else {
-          // 오늘 날짜를 YYYYMMDD 형식으로 가져오기
-          const today = new Date();
-          const year = today.getFullYear();
-          const month = String(today.getMonth() + 1).padStart(2, '0');
-          const day = String(today.getDate()).padStart(2, '0');
-          const todayFormatted = `${year}${month}${day}`;
-
-          // 새 멤버 추가
-          this.editedMember = {
-            userId: null,
-            name: '', // 이름은 빈 값으로 시작 (사용자 입력 필요)
-            nameSuffix: 'FFF', // 기본값 FFF로 설정
-            phoneNumber: '00000000000', // 기본값 00000000000으로 설정
-            genderType: 'M', // 기본값 M으로 설정
-            email: 'email@email.com', // 기본값 email@email.com으로 설정
-            birthDate: null,
-            isNewMember: 'Y', // 신규 멤버는 자동으로 새가족으로 설정
-            isLongTermAbsentee: 'N',
-            isKakaotalkChatMember: 'N',
-            roleId: 74, // 기본값 74 (순원)로 설정
-            roleName: '순원',
-            memberNumber: '',
-            registrationDate: todayFormatted, // 오늘 날짜로 설정
-            countryCode: 'KOR',
-            address: '',
-            addressDetail: '',
-            postcode: '',
-            hobby: '',
-            city: null,
-            stateProvince: null,
-            isAddressPublic: 'N',
-            isPhoneNumberPublic: 'N',
-            snsUrl: null,
-          };
-
-          // 새 멤버 추가는 원본 데이터 없음
+          // 새 멤버 추가 - 유틸리티 함수 사용
+          this.editedMember = createDefaultMember();
           this.originalMember = null;
         }
         this.memberDialog = true;
       },
 
+      /**
+       * 멤버 다이얼로그 닫기
+       */
       closeMemberDialog() {
         this.memberDialog = false;
         this.$nextTick(() => {
-          this.editedMember = {
-            userId: null,
-            name: '',
-            nameSuffix: '',
-            phoneNumber: '',
-            genderType: 'M',
-            email: '',
-            birthDate: null,
-            isNewMember: 'N',
-            isLongTermAbsentee: 'N',
-            isKakaotalkChatMember: 'N',
-            roleId: 74,
-            roleName: '순원',
-            memberNumber: '',
-            registrationDate: null,
-            countryCode: 'KOR',
-            address: '',
-            addressDetail: '',
-            postcode: '',
-            hobby: '',
-            city: null,
-            stateProvince: null,
-            isAddressPublic: 'N',
-            isPhoneNumberPublic: 'N',
-            snsUrl: null,
-          };
-          // 원본 데이터도 초기화
+          this.editedMember = createDefaultMember();
           this.originalMember = null;
         });
       },
 
-      // 임의의 데이터 생성 메서드 추가
-      generateRandomData(name) {
-        const randomSuffix = Math.floor(Math.random() * 9000 + 1000);
-        const firstChar = name ? name.charAt(0).toUpperCase() : 'M';
-
-        return {
-          birthDate: '1990-01-01',
-          memberNumber: `${firstChar}${randomSuffix}`,
-          address: '서울특별시 강남구',
-          addressDetail: '123번지',
-          postcode: `0${randomSuffix}`,
-          hobby: '독서',
-        };
-      },
-
-      // 필드 유효성 검사 메서드 추가
+      /**
+       * 필드 유효성 검사
+       * @returns {boolean} 유효성 검사 통과 여부
+       */
       validateFields() {
-        // 00000000000은 유효한 전화번호로 인정
-        this.validationErrors = {
-          name: !this.editedMember.name || this.editedMember.name.trim() === '',
-          phoneNumber:
-            !this.editedMember.phoneNumber ||
-            this.editedMember.phoneNumber.trim() === '',
-          genderType: !this.editedMember.genderType,
-          roleId: !this.editedMember.roleId,
-        };
+        // 필수 필드 검증
+        const name =
+          !this.editedMember.name || this.editedMember.name.trim() === '';
+        const phoneNumber =
+          !this.editedMember.phoneNumber ||
+          this.editedMember.phoneNumber.trim() === '';
+        const genderType = !this.editedMember.genderType;
+        const roleId = !this.editedMember.roleId;
 
-        return !Object.values(this.validationErrors).some((v) => v === true);
+        return !name && !phoneNumber && !genderType && !roleId;
       },
 
       async saveMember(memberData) {
@@ -2053,7 +1739,10 @@
         }
       },
 
-      // API 데이터 준비
+      /**
+       * API 데이터 준비
+       * @returns {Object} API 요청에 필요한 데이터
+       */
       prepareApiUserData() {
         // 생년월일 형식 변환
         const birthDate = this.editedMember.birthDate
@@ -2065,9 +1754,6 @@
           ? moment(this.editedMember.registrationDate).format('YYYY-MM-DD')
           : moment().format('YYYY-MM-DD');
 
-        // 랜덤 데이터 생성
-        const randomData = this.generateRandomData();
-
         // API에 전송할 데이터 구성
         return {
           name: this.editedMember.name,
@@ -2076,8 +1762,6 @@
           birth_date: birthDate,
           country: this.editedMember.countryCode || 'KOR',
           phone_number: this.editedMember.phoneNumber,
-          church_member_number:
-            this.editedMember.memberNumber || randomData.memberNumber,
           church_registration_date: registrationDate,
           is_new_member: this.editedMember.isNewMember,
         };
@@ -2217,11 +1901,13 @@
         };
       },
 
-      // 국가 코드로 국가명 가져오기
+      /**
+       * 국가 코드로 국가명 조회
+       * @param {string} code - 국가 코드
+       * @returns {string} 국가명
+       */
       getCountryNameByCode(code) {
-        if (!code) return '';
-        const country = this.countryItems.find((item) => item.value === code);
-        return country ? country.text : '기타';
+        return getCountryNameByCode(code);
       },
 
       confirmDeleteMember(member) {
@@ -2460,150 +2146,22 @@
         }
       },
 
-      // 더미 데이터 반환 메서드 (API 호출 실패 시 사용)
-      getDummyOrganizations() {
-        return [
-          {
-            id: 1,
-            name: '코람데오 청년선교회',
-            organization_code: 'CORAMDEO',
-            description:
-              '코람데오 청년선교회는 청년들의 신앙과 교제를 위한 조직입니다.',
-            upper_organization_id: null,
-            memberCount: 0,
-          },
-          {
-            id: 2,
-            name: '코람데오_1국',
-            organization_code: 'CORAMDEO_DEPT1',
-            description: '코람데오 청년선교회 1국입니다.',
-            upper_organization_id: 1,
-            memberCount: 0,
-          },
-          {
-            id: 3,
-            name: '코람데오_2국',
-            organization_code: 'CORAMDEO_DEPT2',
-            description: '코람데오 청년선교회 2국입니다.',
-            upper_organization_id: 1,
-            memberCount: 0,
-          },
-          {
-            id: 4,
-            name: '코람데오_3국',
-            organization_code: 'CORAMDEO_DEPT3',
-            description: '코람데오 청년선교회 3국입니다.',
-            upper_organization_id: 1,
-            memberCount: 0,
-          },
-          {
-            id: 5,
-            name: '코람데오_1국_1팀',
-            organization_code: 'CORAMDEO_DEPT1_TEAM1',
-            description: '코람데오 청년선교회 1국 1팀입니다.',
-            upper_organization_id: 2,
-            memberCount: 0,
-          },
-        ];
-      },
-
-      // 역할에 따른 색상 지정
+      /**
+       * 역할 색상 조회
+       * @param {string} roleName - 역할명
+       * @returns {string} 색상 코드
+       */
       getRoleColor(roleName) {
-        const colorMap = {
-          그룹장: '#B3C6FF', // 파스텔 블루
-          부그룹장: '#B3C6FF', // 그룹장과 같은 파스텔 블루
-          순장: '#B3C6FF', // 그룹장과 같은 파스텔 블루
-          부순장: '#FFF4B3', // 파스텔 옐로우
-          순원: '#C2E0C2', // 파스텔 그린
-          회원: '#D6EAD6', // 연한 파스텔 그린
-        };
-        return colorMap[roleName] || '#E0E0E0'; // 기본 연한 회색
+        return getRoleColor(roleName);
       },
 
-      // 역할 ID로부터 역할 이름 반환
+      /**
+       * 역할 ID로 역할명 조회
+       * @param {number} roleId - 역할 ID
+       * @returns {string} 역할명
+       */
       getRoleName(roleId) {
-        const roleMap = {
-          72: '그룹장',
-          73: '부순장',
-          74: '순원',
-        };
-        return roleMap[roleId] || '회원';
-      },
-
-      // 주소 검색 기능 추가
-      execDaumPostcode() {
-        if (window.daum && window.daum.Postcode) {
-          new window.daum.Postcode({
-            oncomplete: (data) => {
-              // 팝업에서 검색결과 항목을 클릭했을때 실행할 코드를 작성하는 부분.
-              // 도로명 주소의 노출 규칙에 따라 주소를 표시한다.
-              // 내려오는 변수가 값이 없는 경우엔 공백('')값을 가지므로, 이를 참고하여 분기 한다.
-              let roadAddr = data.roadAddress; // 도로명 주소 변수
-              let extraRoadAddr = ''; // 참고 항목 변수
-
-              // 법정동명이 있을 경우 추가한다. (법정리는 제외)
-              // 법정동의 경우 마지막 문자가 "동/로/가"로 끝난다.
-              if (data.bname !== '' && /[동|로|가]$/g.test(data.bname)) {
-                extraRoadAddr += data.bname;
-              }
-              // 건물명이 있고, 공동주택일 경우 추가한다.
-              if (data.buildingName !== '' && data.apartment === 'Y') {
-                extraRoadAddr +=
-                  extraRoadAddr !== ''
-                    ? ', ' + data.buildingName
-                    : data.buildingName;
-              }
-              // 표시할 참고항목이 있을 경우, 괄호까지 추가한 최종 문자열을 만든다.
-              if (extraRoadAddr !== '') {
-                extraRoadAddr = ' (' + extraRoadAddr + ')';
-              }
-
-              // 우편번호와 주소 정보를 해당 필드에 넣는다.
-              this.editedMember.postcode = data.zonecode;
-              this.editedMember.address = roadAddr;
-
-              // 커서를 상세주소 필드로 이동한다.
-              this.$nextTick(() => {
-                const addressDetailField = document.querySelector(
-                  'input[v-model="editedMember.addressDetail"]'
-                );
-                if (addressDetailField) {
-                  addressDetailField.focus();
-                }
-              });
-            },
-          }).open();
-        } else {
-          this.$store.dispatch('snackbar/showMessage', {
-            message:
-              '주소 검색 서비스를 로드할 수 없습니다. 직접 입력해주세요.',
-            color: 'warning',
-          });
-        }
-      },
-
-      // 1156번 라인 근처의 level 변수 오류 수정
-      getFilteredOrganizations() {
-        if (!this.organizationSearchTerm) {
-          return this.organizationTree;
-        }
-
-        const searchTerm = this.organizationSearchTerm.toLowerCase();
-        const filtered = [];
-
-        const searchInTree = (items) => {
-          items.forEach((org) => {
-            if (org.name.toLowerCase().includes(searchTerm)) {
-              filtered.push(org);
-            }
-            if (org.children && org.children.length > 0) {
-              searchInTree(org.children);
-            }
-          });
-        };
-
-        searchInTree(this.organizationTree);
-        return filtered;
+        return getRoleName(roleId);
       },
 
       // 모든 최하위 조직의 멤버 로드 메서드 추가
@@ -2730,19 +2288,13 @@
         this.showErrorMessage(errorMessage || '입력 정보를 확인해주세요.');
       },
 
+      /**
+       * 날짜 형식 변환 (YYYYMMDD -> YYYY-MM-DD)
+       * @param {string} dateString - 날짜 문자열
+       * @returns {string} 변환된 날짜 문자열
+       */
       formatDate(dateString) {
-        if (!dateString) return '-';
-
-        // YYYYMMDD 형식일 경우 변환
-        if (dateString.length === 8) {
-          const year = dateString.substring(0, 4);
-          const month = dateString.substring(4, 6);
-          const day = dateString.substring(6, 8);
-          return `${year}-${month}-${day}`;
-        }
-
-        // 이미 YYYY-MM-DD 형식이면 그대로 반환
-        return dateString;
+        return formatDateToHyphen(dateString);
       },
 
       clearDateFilter() {
