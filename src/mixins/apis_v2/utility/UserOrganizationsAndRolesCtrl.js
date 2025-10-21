@@ -1,8 +1,4 @@
-import { MasterCtrl } from '@/mixins/apis_v2/internal/MasterCtrl';
-
 export const UserOrganizationsAndRolesCtrl = {
-  mixins: [MasterCtrl],
-
   methods: {
     /**
      * 🔀 사용자별로 조직과 역할 정보를 그룹화합니다.

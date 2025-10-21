@@ -75,10 +75,6 @@
   import { mapState, mapActions } from 'vuex';
 
   // MIXINS
-  // for Data CRUD
-  import { MasterCtrl } from '@/mixins/apis_v2/internal/MasterCtrl';
-  // for File Control
-  import { FileBins } from '@/mixins/apis_v2/internal/FileBins';
   // for Utility
   import { Utility } from '@/mixins/apis_v2/utility/Utility';
 
@@ -94,7 +90,7 @@
           : 'height: 84px';
       },
     },
-    mixins: [MasterCtrl, FileBins, Utility],
+    mixins: [Utility],
     created() {
       this.getUserProfileImage();
     },

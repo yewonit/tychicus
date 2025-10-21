@@ -453,7 +453,6 @@
 </template>
 
 <script>
-  import { MasterCtrl } from '@/mixins/apis_v2/internal/MasterCtrl';
   import { CurrentMemberCtrl } from '@/mixins/apis_v2/internal/domainCtrl/CurrentMemberCtrl';
   import { OrganizationCtrl } from '@/mixins/apis_v2/internal/domainCtrl/OrganizationCtrl';
   import moment from 'moment-timezone';
@@ -468,7 +467,7 @@
 
   export default {
     name: 'OrganizationManagementView',
-    mixins: [MasterCtrl, CurrentMemberCtrl, OrganizationCtrl],
+    mixins: [CurrentMemberCtrl, OrganizationCtrl],
 
     components: {
       OrganizationTree,
