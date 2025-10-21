@@ -103,23 +103,8 @@
   // mapState는 Vuex 저장소의 상태를 컴포넌트의 computed 속성에 매핑하는 데 사용됩니다.
   // mapActions는 Vuex 저장소의 액션을 컴포넌트의 methods에 매핑하는 데 사용됩니다.
   import { mapActions, mapState } from 'vuex';
-
-  // DataSetting 믹신을 "@/mixins/dataset/DataSetting"에서 import합니다.
-  // 이 믹신은 데이터 CRUD(Create, Read, Update, Delete) 작업을 위한 메서드를 제공합니다.
-  import { DataSetting } from '@/mixins/dataset/DataSetting';
-
-  // AuthCtrl 믹신을 "@/mixins/apis_v2/internal/AuthCtrl"에서 import합니다.
-  // 이 믹신은 계정 관련 API 호출을 위한 메서드를 제공합니다.
   import { AuthCtrl } from '@/mixins/apis_v2/internal/domainCtrl/AuthCtrl';
-
-  // FileBins 믹신을 "@/mixins/apis_v2/internal/FileBins"에서 import합니다.
-  // 이 믹신은 파일 제어를 위한 메서드를 제공합니다.
-  import { FileBins } from '@/mixins/apis_v2/internal/FileBins';
-
-  // Utility 믹신을 "@/mixins/apis_v2/utility/Utility"에서 import합니다.
-  // 이 믹신은 유틸리티 메서드를 제공합니다.
   import { Utility } from '@/mixins/apis_v2/utility/Utility';
-  // import Login from "@/views/clean/archive/Login.vue";
 
   // Vue 컴포넌트를 정의합니다.
   export default {
@@ -157,7 +142,7 @@
     },
 
     // 컴포넌트에서 사용할 믹신을 정의합니다.
-    mixins: [DataSetting, AuthCtrl, FileBins, Utility],
+    mixins: [AuthCtrl, Utility],
 
     // 컴포넌트가 마운트될 때 호출되는 라이프사이클 훅입니다.
     mounted() {

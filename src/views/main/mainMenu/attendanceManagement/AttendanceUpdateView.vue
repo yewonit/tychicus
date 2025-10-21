@@ -313,15 +313,13 @@
 </template>
 
 <script>
-import { AWSS3Ctrl } from "@/mixins/apis_v2/external/AWSS3Ctrl.js";
-import { AttendanceCtrl } from "@/mixins/apis_v2/internal/domainCtrl/AttendanceCtrl";
-import { CurrentMemberCtrl } from "@/mixins/apis_v2/internal/domainCtrl/CurrentMemberCtrl";
-import { FileBins } from "@/mixins/apis_v2/internal/FileBins";
-import { MasterCtrl } from "@/mixins/apis_v2/internal/MasterCtrl";
-import { Utility } from "@/mixins/apis_v2/utility/Utility";
-import { dateTimeUtils } from "@/utils/dateTimeUtils";
-import moment from "moment-timezone";
-import { mapState } from "vuex";
+  import { AWSS3Ctrl } from '@/mixins/apis_v2/external/AWSS3Ctrl.js';
+  import { AttendanceCtrl } from '@/mixins/apis_v2/internal/domainCtrl/AttendanceCtrl';
+  import { CurrentMemberCtrl } from '@/mixins/apis_v2/internal/domainCtrl/CurrentMemberCtrl';
+  import { Utility } from '@/mixins/apis_v2/utility/Utility';
+  import { dateTimeUtils } from '@/utils/dateTimeUtils';
+  import moment from 'moment-timezone';
+  import { mapState } from 'vuex';
 
   export default {
     name: 'AttendanceUpdateView',
@@ -497,11 +495,11 @@ import { mapState } from "vuex";
 
           console.log('API 응답:', response);
 
-        if (response && response.data) {
-          const activityInstance = response.data;
-          this.activityId = activityId;
-          this.activityInstanceId = activityInstanceId;
-          this.meetingName = activityInstance.name || "";
+          if (response && response.data) {
+            const activityInstance = response.data;
+            this.activityId = activityId;
+            this.activityInstanceId = activityInstanceId;
+            this.meetingName = activityInstance.name || '';
 
             // UTC 문자열을 한국 시간대의 DateTime 객체로 변환
             const startDateTime = dateTimeUtils.fromUTCString(
@@ -563,30 +561,34 @@ import { mapState } from "vuex";
       async updateMeeting() {
         console.log('🚀 updateMeeting 함수 시작');
 
-      if (!this.meetingDate) {
-        console.warn("⚠️ 필수 정보 누락");
-        alert("필수 정보를 모두 입력해주세요.");
-        return;
-      }
+        if (!this.meetingDate) {
+          console.warn('⚠️ 필수 정보 누락');
+          alert('필수 정보를 모두 입력해주세요.');
+          return;
+        }
 
         // 내부 DateTime 객체 업데이트
         this.updateDateTime();
 
-      // 인스턴스 데이터 준비 (UTC ISO 형식으로 변환)
-      const activityData = {
-        startDateTime: dateTimeUtils.toUTCString(this.meetingStartDateTime),
-        endDateTime: dateTimeUtils.toUTCString(this.meetingEndDateTime),
-        location: this.meetingLocation || "",
-        notes: this.meetingNotes || "",
-      };
+        // 인스턴스 데이터 준비 (UTC ISO 형식으로 변환)
+        const activityData = {
+          startDateTime: dateTimeUtils.toUTCString(this.meetingStartDateTime),
+          endDateTime: dateTimeUtils.toUTCString(this.meetingEndDateTime),
+          location: this.meetingLocation || '',
+          notes: this.meetingNotes || '',
+        };
 
-      const attendances = this.memberList.map((member) => ({
-        userId: member.id || member.userId,
-        status: member.isParticipating ? "출석" : "결석",
-        checkInTime: member.isParticipating ? activityData.startDateTime : null,
-        checkOutTime: member.isParticipating ? activityData.endDateTime : null,
-        note: "",
-      }));
+        const attendances = this.memberList.map((member) => ({
+          userId: member.id || member.userId,
+          status: member.isParticipating ? '출석' : '결석',
+          checkInTime: member.isParticipating
+            ? activityData.startDateTime
+            : null,
+          checkOutTime: member.isParticipating
+            ? activityData.endDateTime
+            : null,
+          note: '',
+        }));
 
         try {
           // 이미지 처리
@@ -610,29 +612,29 @@ import { mapState } from "vuex";
             }
           }
 
-        const response = await this.updateAttendance(
-          this.currentOrganizationId,
-          this.activityId,
-          this.activityInstanceId,
-          activityData,
-          attendances,
-          imageInfo
-        );
+          const response = await this.updateAttendance(
+            this.currentOrganizationId,
+            this.activityId,
+            this.activityInstanceId,
+            activityData,
+            attendances,
+            imageInfo
+          );
 
-        if (response) {
-          console.log("모임 정보 업데이트 성공");
-          alert("모임 정보가 성공적으로 업데이트되었습니다.");
-          this.$router.push({ name: "MeetingHistoryView" });
-        } else {
-          throw new Error("모임 정보 업데이트에 실패했습니다.");
+          if (response) {
+            console.log('모임 정보 업데이트 성공');
+            alert('모임 정보가 성공적으로 업데이트되었습니다.');
+            this.$router.push({ name: 'MeetingHistoryView' });
+          } else {
+            throw new Error('모임 정보 업데이트에 실패했습니다.');
+          }
+        } catch (error) {
+          console.error('❌ 모임 정보 수정 중 오류 발생:', error);
+          alert('모임 정보 수정에 실패했습니다. 다시 시도해 주세요.');
+        } finally {
+          this.isUploading = false; // 업로드 완료 또는 실패 시
         }
-      } catch (error) {
-        console.error("❌ 모임 정보 수정 중 오류 발생:", error);
-        alert("모임 정보 수정에 실패했습니다. 다시 시도해 주세요.");
-      } finally {
-        this.isUploading = false; // 업로드 완료 또는 실패 시
-      }
-    },
+      },
 
       /**
        * 회원 목록 조회

@@ -317,8 +317,6 @@
 
 <script>
   import { mapState } from 'vuex';
-  import { MasterCtrl } from '@/mixins/apis_v2/internal/MasterCtrl';
-  import { FileBins } from '@/mixins/apis_v2/internal/FileBins';
   import { Utility } from '@/mixins/apis_v2/utility/Utility';
   import { CurrentMemberCtrl } from '@/mixins/apis_v2/internal/domainCtrl/CurrentMemberCtrl';
   import countries from '@/assets/data/countries.json';
@@ -356,7 +354,7 @@
         hobby: '',
       };
     },
-    mixins: [MasterCtrl, CurrentMemberCtrl, FileBins, Utility],
+    mixins: [CurrentMemberCtrl, Utility],
     methods: {
       async submitMemberData() {
         // 필수 입력값 검증

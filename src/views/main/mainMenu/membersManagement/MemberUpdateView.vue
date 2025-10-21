@@ -332,8 +332,6 @@
 
 <script>
   import { mapState } from 'vuex';
-  import { MasterCtrl } from '@/mixins/apis_v2/internal/MasterCtrl';
-  import { FileBins } from '@/mixins/apis_v2/internal/FileBins';
   import { Utility } from '@/mixins/apis_v2/utility/Utility';
   import { CurrentMemberCtrl } from '@/mixins/apis_v2/internal/domainCtrl/CurrentMemberCtrl';
   import countries from '@/assets/data/countries.json';
@@ -380,7 +378,7 @@
           .sort((a, b) => a.text.localeCompare(b.text)),
       };
     },
-    mixins: [MasterCtrl, CurrentMemberCtrl, FileBins, Utility],
+    mixins: [CurrentMemberCtrl, Utility],
     created() {
       console.log('UpdateView created');
       const memberId = this.$route.params.id;

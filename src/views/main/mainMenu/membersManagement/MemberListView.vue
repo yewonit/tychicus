@@ -165,13 +165,15 @@
 
 <script>
   import { CurrentMemberCtrl } from '@/mixins/apis_v2/internal/domainCtrl/CurrentMemberCtrl';
-import { FileBins } from '@/mixins/apis_v2/internal/FileBins';
-import { MasterCtrl } from '@/mixins/apis_v2/internal/MasterCtrl';
-import { Utility } from '@/mixins/apis_v2/utility/Utility';
-import { mapState } from 'vuex';
+  import { Utility } from '@/mixins/apis_v2/utility/Utility';
+  import { mapState } from 'vuex';
+  import MemberDetailModal from '@/components/MemberDetailModal.vue';
 
   export default {
-    name: 'AttendanceInputView',
+    name: 'MemberListView',
+    components: {
+      MemberDetailModal,
+    },
     data() {
       return {
         menu: false,
@@ -183,7 +185,7 @@ import { mapState } from 'vuex';
         newFamilyMembersCount: 0,
       };
     },
-    mixins: [MasterCtrl, FileBins, Utility, CurrentMemberCtrl],
+    mixins: [Utility, CurrentMemberCtrl],
     computed: {
       ...mapState('auth', ['userInfo']),
     },
