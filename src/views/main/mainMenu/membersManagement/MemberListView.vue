@@ -328,12 +328,11 @@
   };
 </script>
 
-<style scoped>
-  .full-size {
-    width: 100%;
-    height: 100%;
-  }
+<style lang="scss" scoped>
+  // 모듈 스타일 import
+  @import '@/styles/modules/attendance.scss';
 
+  // MemberList 전용 스타일
   .custom-image {
     cursor: pointer;
     border-radius: 50%;

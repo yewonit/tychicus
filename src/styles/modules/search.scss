@@ -1,0 +1,56 @@
+/**
+ * 검색 관련 스타일
+ */
+
+// 검색 컨테이너
+.search-container {
+  position: relative;
+  min-width: 500px;
+  flex-grow: 1;
+  margin-right: 20px;
+}
+
+.search-input {
+  max-width: 400px;
+  width: 100%;
+}
+
+.search-toggle {
+  height: 40px;
+  margin-left: 16px;
+}
+
+// 검색 결과
+.search-results {
+  position: absolute;
+  top: 50px;
+  left: 0;
+  width: 400px;
+  max-height: 400px;
+  overflow-y: auto;
+  z-index: 100;
+}
+
+// 하이라이트된 멤버
+.highlighted-member {
+  background-color: rgba(126, 163, 148, 0.2);
+  transition: background-color 0.3s;
+}
+
+// 반응형 스타일
+@media (max-width: 960px) {
+  .search-container {
+    margin-bottom: 10px;
+    flex-direction: column;
+    width: 100%;
+  }
+
+  .search-input {
+    max-width: 100%;
+    width: 100%;
+  }
+
+  .search-results {
+    width: 100%;
+  }
+}

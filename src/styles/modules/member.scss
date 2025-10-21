@@ -1,0 +1,21 @@
+/**
+ * 멤버 관련 스타일
+ */
+
+// 이름 아바타
+.name-avatar {
+  background: linear-gradient(135deg, #7ea394, #c2e0c2) !important;
+  font-weight: bold;
+}
+
+// 멤버 정보 표시
+.member {
+  &-name {
+    font-weight: 600;
+  }
+
+  &-suffix {
+    opacity: 0.7;
+    font-size: 0.85em;
+  }
+}

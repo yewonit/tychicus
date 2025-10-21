@@ -1,0 +1,40 @@
+/**
+ * 출석 관련 스타일
+ */
+
+// 출석 커스텀 다이얼로그
+.attendance-custom-dialog {
+  max-width: 500px;
+  background-color: #edeef3;
+}
+
+// 칩 스타일
+.new-member-chip {
+  background-color: #ffc107;
+  color: white;
+}
+
+.role-chip {
+  background-color: #2196f3;
+  color: white;
+}
+
+.absentee-chip {
+  background-color: #ff9800;
+  color: white;
+}
+
+// 오버레이
+.v-overlay {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  color: white;
+}
+
+// 풀 사이즈
+.full-size {
+  width: 100%;
+  height: 100%;
+}
