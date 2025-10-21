@@ -18,10 +18,10 @@ module.exports = {
     allowedHosts: 'all',
     host: '0.0.0.0',
     port: 8080,
-    server: "http",
-    hot: process.env.NODE_ENV === "local",
-    liveReload: process.env.NODE_ENV === "local",
-    webSocketServer: process.env.NODE_ENV === "local" ? "ws" : false,
+    server: 'http',
+    hot: process.env.NODE_ENV === 'local',
+    liveReload: process.env.NODE_ENV === 'local',
+    webSocketServer: process.env.NODE_ENV === 'local' ? 'ws' : false,
   },
 
   // PWA 설정 추가

@@ -63,7 +63,9 @@
               <!-- 역할 칩 렌더링 단순화 -->
               <v-chip
                 v-if="
-                  ['그룹장', '부그룹장', '순장', '부순장'].includes(item.roleName)
+                  ['그룹장', '부그룹장', '순장', '부순장'].includes(
+                    item.roleName
+                  )
                 "
                 small
                 :color="getRoleColor(item.roleName)"

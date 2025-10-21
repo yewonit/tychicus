@@ -360,7 +360,6 @@ router.beforeEach((to, from, next) => {
   }
 
   const isAuthenticated = store.getters['auth/userAccessToken'];
-  console.log('isAuthenticated', isAuthenticated);
   // 로그인하지 않은 경우 로그인 페이지로 리다이렉트
   if (!isAuthenticated) {
     next('/login');
@@ -376,12 +375,8 @@ router.beforeEach((to, from, next) => {
       : null;
   const userName = userInfo ? userInfo.name : null;
 
-  console.log('userPermissionName', userPermissionName);
-  console.log('userName', userName);
-
   // 인증된 사용자의 권한 체크
   if (!hasPermissionForRoute(to, userPermissionName, userName)) {
-    console.log('권한 없음 - 서비스 선택 페이지로 리다이렉트');
     next('/service-selection');
     return;
   }

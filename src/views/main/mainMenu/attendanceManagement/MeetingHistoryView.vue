@@ -118,114 +118,104 @@
 
 <script>
   import { AttendanceCtrl } from '@/mixins/apis_v2/internal/domainCtrl/AttendanceCtrl';
-import { mapGetters } from 'vuex';
+  import { mapGetters } from 'vuex';
 
-export default {
-  name: "MeetingHistoryView",
-  mixins: [AttendanceCtrl],
-  data() {
-    return {
-      meetings: [],
-      basicImage: require("@/assets/images/basic_image.png"),
-      dialog: false,
-      dialogMessage: "",
-      loading: false,
-    };
-  },
-  computed: {
-    ...mapGetters({
-      userInfo: "auth/userInfo",
-    }),
-    currentOrganizationId() {
-      if (
-        this.userInfo &&
-        this.userInfo.roles &&
-        this.userInfo.roles.length > 0
-      ) {
-        return this.userInfo.roles[0].organizationId;
-      }
-      return null;
+  export default {
+    name: 'MeetingHistoryView',
+    mixins: [AttendanceCtrl],
+    data() {
+      return {
+        meetings: [],
+        basicImage: require('@/assets/images/basic_image.png'),
+        dialog: false,
+        dialogMessage: '',
+        loading: false,
+      };
     },
-  },
-  created() {
-    if (this.currentOrganizationId) {
-      this.fetchMeetings();
-    } else {
-      console.error("조직 ID를 찾을 수 없습니다.");
-    }
-  },
-  methods: {
-    async fetchMeetings() {
-      console.log("🚀 미팅 정보 조회를 시작합니다.");
-      this.loading = true;
-      try {
-        console.log(
-          `📊 조직 ID ${this.currentOrganizationId}에 대한 활동 정보를 요청합니다.`
-        );
-
-        // 활동 목록 조회 (정규화 포함)
-        const activities = await this.getActivities(
-          this.currentOrganizationId,
-          true
-        );
-
-        // 모임 히스토리용으로 가공 (인스턴스 단위)
-        const processed = this.processActivitiesForMeetingHistory(
-          activities,
-          this.currentOrganizationId,
-          this.getOrganizationName,
-          this.formatMeetingTime,
-          this.formatAttendances
-        );
-
-        // 최신순 정렬 (날짜 기준)
-        this.meetings = processed.sort((a, b) => {
-          if (a.date === "날짜 미정") return 1;
-          if (b.date === "날짜 미정") return -1;
-          return new Date(b.date) - new Date(a.date);
-        });
-
-        console.log(
-          `✅ 총 ${this.meetings.length}개의 미팅 정보를 처리했습니다.`
-        );
-      } catch (error) {
-        console.error("🚨 미팅 정보 조회 중 오류 발생:", error);
-        this.meetings = [];
-      } finally {
-        this.loading = false;
-        console.log("🏁 미팅 정보 조회를 완료했습니다.");
+    computed: {
+      ...mapGetters({
+        userInfo: 'auth/userInfo',
+      }),
+      currentOrganizationId() {
+        if (
+          this.userInfo &&
+          this.userInfo.roles &&
+          this.userInfo.roles.length > 0
+        ) {
+          return this.userInfo.roles[0].organizationId;
+        }
+        return null;
+      },
+    },
+    created() {
+      if (this.currentOrganizationId) {
+        this.fetchMeetings();
+      } else {
+        console.error('조직 ID를 찾을 수 없습니다.');
       }
     },
+    methods: {
+      async fetchMeetings() {
+        this.loading = true;
+        try {
+          // 활동 목록 조회 (정규화 포함)
+          const activities = await this.getActivities(
+            this.currentOrganizationId,
+            true
+          );
 
-    // 보조 함수들 (간단 버전)
-    getOrganizationName() {
-      // 이 뷰에서는 조직명 노출을 사용하지 않으므로 기본값 반환
-      return "-";
-    },
-    formatMeetingTime(dateTimeString) {
-      // HH:mm 또는 날짜 포맷으로 단순 변환
-      if (!dateTimeString) return "-";
-      const date = new Date(dateTimeString);
-      if (Number.isNaN(date.getTime())) return "-";
-      const hours = String(date.getHours()).padStart(2, "0");
-      const minutes = String(date.getMinutes()).padStart(2, "0");
-      return `${hours}:${minutes}`;
-    },
-    formatAttendances(attendances) {
-      if (!Array.isArray(attendances)) return [];
-      return attendances.map((a) => ({
-        id: a.id,
-        userId: a.userId || a.user_id,
-        userName: a.userName || a.user_name || a.name || "이름 없음",
-        status: a.status,
-        note: a.note || "",
-        phone: a.phone || "",
-        roleName: a.roleName || a.role_name || "일반 회원",
-      }));
-    },
+          // 모임 히스토리용으로 가공 (인스턴스 단위)
+          const processed = this.processActivitiesForMeetingHistory(
+            activities,
+            this.currentOrganizationId,
+            this.getOrganizationName,
+            this.formatMeetingTime,
+            this.formatAttendances
+          );
 
-    getMonthWeekTag(dateString) {
-      if (dateString === "날짜 미정") return "";
+          // 최신순 정렬 (날짜 기준)
+          this.meetings = processed.sort((a, b) => {
+            if (a.date === '날짜 미정') return 1;
+            if (b.date === '날짜 미정') return -1;
+            return new Date(b.date) - new Date(a.date);
+          });
+        } catch (error) {
+          console.error('🚨 미팅 정보 조회 중 오류 발생:', error);
+          this.meetings = [];
+        } finally {
+          this.loading = false;
+        }
+      },
+
+      // 보조 함수들 (간단 버전)
+      getOrganizationName() {
+        // 이 뷰에서는 조직명 노출을 사용하지 않으므로 기본값 반환
+        return '-';
+      },
+      formatMeetingTime(dateTimeString) {
+        // HH:mm 또는 날짜 포맷으로 단순 변환
+        if (!dateTimeString) return '-';
+        const date = new Date(dateTimeString);
+        if (Number.isNaN(date.getTime())) return '-';
+        const hours = String(date.getHours()).padStart(2, '0');
+        const minutes = String(date.getMinutes()).padStart(2, '0');
+        return `${hours}:${minutes}`;
+      },
+      formatAttendances(attendances) {
+        if (!Array.isArray(attendances)) return [];
+        return attendances.map((a) => ({
+          id: a.id,
+          userId: a.userId || a.user_id,
+          userName: a.userName || a.user_name || a.name || '이름 없음',
+          status: a.status,
+          note: a.note || '',
+          phone: a.phone || '',
+          roleName: a.roleName || a.role_name || '일반 회원',
+        }));
+      },
+
+      getMonthWeekTag(dateString) {
+        if (dateString === '날짜 미정') return '';
 
         const date = new Date(dateString);
         if (isNaN(date.getTime())) return '';
@@ -341,65 +331,55 @@ export default {
         });
       },
       async deleteMeeting(meeting) {
-        console.log(`🗑️ 모임 삭제 시도:`, meeting);
-
         if (
           !confirm(`정말로 "${meeting.activityName}" 모임을 삭제하시겠습니까?`)
         ) {
-          console.log('❌ 사용자가 삭제를 취소했습니다.');
           return;
         }
 
         try {
-          console.log(`🔄 모임 삭제 중...`);
-          console.log('현재 조직 ID:', this.currentOrganizationId);
+          const { id: instanceId, activityId } = meeting;
 
-        const { id: instanceId, activityId } = meeting;
-
-        const response = await this.deleteActivityInstance(
-          this.currentOrganizationId,
-          activityId,
-          instanceId,
-          true
-        );
-
-        if (response) {
-          this.showDialog(
-            `모임 "${meeting.activityName}"이(가) 성공적으로 삭제되었습니다.`
+          const response = await this.deleteActivityInstance(
+            this.currentOrganizationId,
+            activityId,
+            instanceId,
+            true
           );
-          await this.fetchMeetings();
-        } else {
-          console.error(`❌ 모임 ID ${instanceId} 삭제 실패:`, response);
-          this.showDialog(
-            `모임 "${meeting.activityName}" 삭제에 실패했습니다. 다시 시도해 주세요.`
-          );
+
+          if (response) {
+            this.showDialog(
+              `모임 "${meeting.activityName}"이(가) 성공적으로 삭제되었습니다.`
+            );
+            await this.fetchMeetings();
+          } else {
+            console.error(`❌ 모임 ID ${instanceId} 삭제 실패:`, response);
+            this.showDialog(
+              `모임 "${meeting.activityName}" 삭제에 실패했습니다. 다시 시도해 주세요.`
+            );
+          }
+        } catch (error) {
+          console.error(`🚨 모임 삭제 중 오류 발생:`, error);
+          this.showDialog(`모임 삭제 중 오류가 발생했습니다: ${error.message}`);
         }
-      } catch (error) {
-        console.error(`🚨 모임 삭제 중 오류 발생:`, error);
-        this.showDialog(`모임 삭제 중 오류가 발생했습니다: ${error.message}`);
-      }
-    },
-    async createNewMeeting() {
-      console.log("새 모임 생성");
-      const newActivity = {
-        name: "새 모임",
-        description: "새로운 모임 설명",
-        start_date: new Date().toISOString(),
-        end_date: new Date().toISOString(),
-        organization_id: this.currentOrganizationId,
-        category: "목장모임",
-      };
-      try {
-        await this.createActivity(newActivity, true);
-        this.fetchMeetings();
-      } catch (error) {
-        console.error("새 모임 생성 중 오류 발생:", error);
-      }
-    },
-    viewMeetingDetails(meeting) {
-      console.log("🔍 미팅 상세 정보 보기 시작");
-      console.log("📦 전달할 미팅 데이터:", meeting);
-
+      },
+      async createNewMeeting() {
+        const newActivity = {
+          name: '새 모임',
+          description: '새로운 모임 설명',
+          start_date: new Date().toISOString(),
+          end_date: new Date().toISOString(),
+          organization_id: this.currentOrganizationId,
+          category: '목장모임',
+        };
+        try {
+          await this.createActivity(newActivity, true);
+          this.fetchMeetings();
+        } catch (error) {
+          console.error('새 모임 생성 중 오류 발생:', error);
+        }
+      },
+      viewMeetingDetails(meeting) {
         this.$router.push({
           name: 'MeetingDetailView',
           params: {
@@ -408,8 +388,6 @@ export default {
             activityInstanceId: meeting.id,
           },
         });
-
-        console.log('✅ 미팅 상세 정보 페이지로 이동 완료');
       },
       goToAttendanceInput() {
         this.$router.push({ name: 'AttendanceInputView' });

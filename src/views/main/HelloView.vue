@@ -60,27 +60,20 @@
         this.welcomeShown = true;
       }, 2000); // 2초 후에 '환영합니다.' 텍스트를 표시
 
-      console.log('1. AccessToken, RefreshToken이 있나요?');
       if (this.userAccessToken && this.userRefreshToken) {
-        console.log('1-1. 네 토큰들 있어요. 사용가능한 토큰인지 확인해볼게요.');
         const result = await this.isAvailableToken();
 
         if (result) {
-          console.log('2-1. 사용 가능한 토큰이래요. 메인 페이지로 이동합니다.');
           setTimeout(() => {
             // 메인 페이지로 이동
             this.$router.push({ name: 'ServiceSelectionView' });
           }, 4000);
         } else {
-          console.log(
-            '2-2, 3-2. 토큰 조회, 생성 오류 로그인 창으로 이동할게요.'
-          );
           setTimeout(() => {
             this.$router.push('/login');
           }, 4000);
         }
       } else {
-        console.log('1-2. 토큰 없어요. 로그인 창으로 이동할게요.');
         setTimeout(() => {
           this.$router.push('/login');
         }, 4000);
@@ -90,7 +83,6 @@
       ...mapActions('auth', ['logout']),
       async isAvailableToken() {
         try {
-          console.log('authTokenCheck 함수 호출');
           const response = await this.authTokenCheck(
             this.userAccessToken,
             this.userRefreshToken

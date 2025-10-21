@@ -378,14 +378,7 @@
         meetingEndDate: '',
       };
     },
-    mixins: [
-      MasterCtrl,
-      FileBins,
-      Utility,
-      CurrentMemberCtrl,
-      AttendanceCtrl,
-      AWSS3Ctrl,
-    ],
+    mixins: [Utility, CurrentMemberCtrl, AttendanceCtrl, AWSS3Ctrl],
     async created() {
       try {
         await this.fetchMemberList();
@@ -477,23 +470,15 @@
       },
 
       async fetchMeetingData() {
-        console.log('fetchMeetingData 시작');
         const { organizationId, activityId, activityInstanceId } =
           this.$route.params;
 
         try {
-          console.log('API 호출 시작:', {
-            organizationId,
-            activityId,
-            activityInstanceId,
-          });
           const response = await this.getActivityInstanceDetails(
             organizationId,
             activityId,
             activityInstanceId
           );
-
-          console.log('API 응답:', response);
 
           if (response && response.data) {
             const activityInstance = response.data;
@@ -559,10 +544,7 @@
       },
 
       async updateMeeting() {
-        console.log('🚀 updateMeeting 함수 시작');
-
         if (!this.meetingDate) {
-          console.warn('⚠️ 필수 정보 누락');
           alert('필수 정보를 모두 입력해주세요.');
           return;
         }
@@ -622,7 +604,6 @@
           );
 
           if (response) {
-            console.log('모임 정보 업데이트 성공');
             alert('모임 정보가 성공적으로 업데이트되었습니다.');
             this.$router.push({ name: 'MeetingHistoryView' });
           } else {
@@ -730,7 +711,6 @@
       },
       async uploadImageToS3() {
         if (!this.photos) {
-          console.log('업로드할 이미지가 없습니다.');
           return null;
         }
 
@@ -749,7 +729,6 @@
         try {
           const result = await this.s3CreateFile(filePath, file, true);
           if (result) {
-            console.log('이미지 업로드 성공:', result);
             return { url: result.filePath, fileName: newFileName };
           } else {
             throw new Error('이미지 업로드 결과가 없습니다.');
@@ -758,45 +737,6 @@
           console.error('이미지 업로드 실패:', error);
           alert('이미지 업로드에 실패했습니다. 다시 시도해주세요.');
           return null;
-        }
-      },
-      async testFetchData() {
-        try {
-          // Activity 데이터 조회
-          console.log('🔍 Activity 데이터 조회 시작');
-          const activityData = await this.openReadDataList(this.Activity, true);
-          console.log('📊 Activity 데이터:', activityData);
-
-          // 에러 처리를 포함한 안전한 데이터 조회
-          try {
-            console.log('\n🔍 ActivityChild 데이터 조회 시작');
-            const activityChildData = await this.openReadDataList(
-              this.ActivityChild,
-              true
-            );
-            console.log('📊 ActivityChild 데이터:', activityChildData);
-          } catch (error) {
-            console.log('ActivityChild 데이터 조회 실패:', error.message);
-          }
-
-          try {
-            console.log('\n🔍 Attendance 데이터 조회 시작');
-            const attendanceData = await this.openReadDataList(
-              this.Attendance,
-              true
-            );
-            console.log('📊 Attendance 데이터:', attendanceData);
-          } catch (error) {
-            console.log('Attendance 데이터 조회 실패:', error.message);
-          }
-
-          // 데이터 요약은 실제 데이터가 있는 경우에만 출력
-          console.log('\n📑 데이터 요약');
-          if (activityData?.data) {
-            console.log(`총 Activity 수: ${activityData.data.length}`);
-          }
-        } catch (error) {
-          console.error('❌ 데이터 조회 중 오류 발생:', error);
         }
       },
     },

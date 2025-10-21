@@ -49,7 +49,7 @@ export const AuthCtrl = {
      */
     async authCheckUserName(name) {
       if (!name) {
-        return { result: 0, message: "이름이 필요합니다." };
+        return { result: 0, message: '이름이 필요합니다.' };
       }
 
       try {
@@ -93,18 +93,18 @@ export const AuthCtrl = {
             return res.data;
           }
         } else {
-          return { result: 0, message: "응답 데이터가 없습니다." };
+          return { result: 0, message: '응답 데이터가 없습니다.' };
         }
       } catch (error) {
         // 5. 상세 에러 처리 및 로깅
 
-        if (error.code === "ECONNABORTED") {
-          return { result: 0, message: "서버 응답 시간 초과" };
+        if (error.code === 'ECONNABORTED') {
+          return { result: 0, message: '서버 응답 시간 초과' };
         }
 
         if (error.response) {
           if (error.response.status === 404) {
-            return { result: 0, message: "사용자를 찾을 수 없습니다." };
+            return { result: 0, message: '사용자를 찾을 수 없습니다.' };
           }
 
           return {
@@ -112,9 +112,9 @@ export const AuthCtrl = {
             message: `서버 에러 (${error.response.status}): ${error.response.statusText}`,
           };
         } else if (error.request) {
-          return { result: 0, message: "서버에 연결할 수 없습니다." };
+          return { result: 0, message: '서버에 연결할 수 없습니다.' };
         } else {
-          return { result: 0, message: "요청 준비 중 오류가 발생했습니다." };
+          return { result: 0, message: '요청 준비 중 오류가 발생했습니다.' };
         }
       }
     },
@@ -218,7 +218,7 @@ export const AuthCtrl = {
             message: '로그인에 성공했습니다.',
           };
         } else {
-          return { success: false, message: "Token Refresh Error" };
+          return { success: false, message: 'Token Refresh Error' };
         }
       } catch (error) {
         return {
@@ -238,7 +238,7 @@ export const AuthCtrl = {
           return { result: 0, message: '인증번호 전송 오류' };
         }
       } catch (error) {
-        return { result: 0, message: "인증번호 전송 중 오류가 발생했습니다." };
+        return { result: 0, message: '인증번호 전송 중 오류가 발생했습니다.' };
       }
     },
 
@@ -252,7 +252,7 @@ export const AuthCtrl = {
           return { result: 0, message: '인증 코드가 유효하지 않습니다.' };
         }
       } catch (error) {
-        return { result: 0, message: "인증 코드 확인 중 오류가 발생했습니다." };
+        return { result: 0, message: '인증 코드 확인 중 오류가 발생했습니다.' };
       }
     },
 

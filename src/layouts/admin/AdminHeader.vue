@@ -100,7 +100,6 @@
     methods: {
       showNotifications() {
         // 알림 목록 표시 로직
-        console.log('Show notifications');
       },
 
       goToProfile() {

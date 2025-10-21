@@ -131,14 +131,11 @@
       if (!this.userName) {
         this.$router.push({ name: 'NameInputView' });
       }
-      console.log('사용자 이름:', this.userName);
-      console.log('사용자 이메일:', this.userEmail);
 
       // 테스트 주석
       if (this.userEmail) {
         this.isPasswordRecovery = true;
         this.isEmailDisabled = true;
-        console.log('저장된 이메일:', this.userEmail);
         this.userInputEmail = this.userEmail;
       }
     },
@@ -178,7 +175,6 @@
       },
 
       async sendVerifyCode() {
-        console.log('sendVerifyCode called');
         // 이메일 유효성 검사
         if (!this.isValidEmail()) {
           this.emailCheckMessage = '유효한 이메일을 입력해주세요.';

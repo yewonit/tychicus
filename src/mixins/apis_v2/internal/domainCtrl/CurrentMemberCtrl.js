@@ -7,17 +7,9 @@ export const CurrentMemberCtrl = {
     /**
      * @description 특정 조직의 모든 멤버와 그들의 역할 정보를 조회하는 API
      * @param {Number} organizationId 조직 ID
-     * @param {Boolean} showLog 생성 결과를 로그에 표시할지 여부
      * @returns {Array} 조회 결과 (멤버 정보 배열)
      */
-    async getMembersWithRoles(organizationId, showLog) {
-      if (showLog) {
-        console.log(
-          `%c[ Mixin : CurrentMemberCtrl ] getMembersWithRoles() organizationId: ${organizationId}`,
-          `color: #6495ED;`
-        );
-      }
-
+    async getMembersWithRoles(organizationId) {
       try {
         const res = await axiosClient.api.get(
           `/organizations/${organizationId}/members/roles`
@@ -62,16 +54,6 @@ export const CurrentMemberCtrl = {
         return res.data;
       } catch (error) {
         if (error.response) {
-          try {
-            console.table({
-              status: error.response.status,
-              statusText: error.response.statusText || '상태 텍스트 없음',
-              message: error.response.data?.message || error.message,
-              error: error.response.data?.error || '알 수 없는 오류',
-            });
-          } catch (e) {
-            console.log('오류 데이터를 표로 표시할 수 없음:', e);
-          }
           return {
             error: error.message,
             status: error.response.status,

@@ -1,4 +1,3 @@
-import { CustomLoger } from '@/mixins/apis_v2/utility/CustomLoger';
 import { ArrayCtrl } from '@/mixins/apis_v2/utility/ArrayCtrl';
 import { StringCtrl } from '@/mixins/apis_v2/utility/StringCtrl';
 
@@ -6,7 +5,7 @@ export const Utility = {
   data() {
     return {};
   },
-  mixins: [CustomLoger, ArrayCtrl, StringCtrl],
+  mixins: [ArrayCtrl, StringCtrl],
   methods: {
     // 클립보드에 현재 위차한 페이지의 Url을 복사한다.
     copyUrl() {
@@ -22,24 +21,9 @@ export const Utility = {
     },
 
     // 파일 업로드 시 임시데이터들을 생성하는 함수
-    setTempFileData(userEmail, fileFor, file, showLog) {
-      if (showLog) {
-        console.log(
-          `%c[ mixins: Utility ] setTempFileData() file [체크] :`,
-          `color:#BFFF00;`,
-          file
-        );
-      }
+    setTempFileData(userEmail, fileFor, file) {
       // 업로드된 파일이 없다면 조기에 함수를 종료다.
       if (file.fileObject == null) {
-        if (showLog) {
-          console.log(`%c[ Data ] file`, 'color: #E3DAC9;', file);
-          console.log(
-            `%c[ Action ] 업로드된 파일이 없음으로 임시 데이터를 생성하지 않습니다.`,
-            `color:#BFFF00;`,
-            file
-          );
-        }
         return;
       }
       file.tempUrl = '';
@@ -55,9 +39,6 @@ export const Utility = {
         Math.random().toString(36).substring(2, 15) +
         '_' +
         new Date().getTime();
-      if (showLog) {
-        console.log(`%c[ Data ] file`, 'color: #E3DAC9;', file);
-      }
     },
 
     // 주소 입력 처리 공통 함수

@@ -20,7 +20,8 @@
           <v-card-title class="wc-h2 wc-card-title">기본 정보</v-card-title>
           <v-card-text>
             <p class="wc-body-1 wc-text-primary">
-              <strong>모임 이름:</strong> {{ meetingData.name }}
+              <strong>모임 이름:</strong>
+              {{ meetingData.name }}
             </p>
             <p class="wc-body-1 wc-text-secondary">
               <strong>날짜:</strong>
@@ -155,33 +156,33 @@
 
 <script>
   import { AttendanceCtrl } from '@/mixins/apis_v2/internal/domainCtrl/AttendanceCtrl';
-import moment from 'moment-timezone';
+  import moment from 'moment-timezone';
 
-export default {
-  name: "MeetingDetailView",
-  mixins: [AttendanceCtrl],
-  props: {
-    organizationId: {
-      type: [String, Number],
-      required: true,
+  export default {
+    name: 'MeetingDetailView',
+    mixins: [AttendanceCtrl],
+    props: {
+      organizationId: {
+        type: [String, Number],
+        required: true,
+      },
+      activityInstanceId: {
+        type: [String, Number],
+        required: true,
+      },
     },
-    activityInstanceId: {
-      type: [String, Number],
-      required: true,
+    data() {
+      return {
+        meetingData: null,
+        allMembers: [],
+        presentMembers: [],
+        absentMembers: [],
+        isDataLoaded: false,
+        meetingImageUrl: '',
+        internalTotalMembers: 0,
+        organizationMembers: [], // 조직 멤버 목록을 저장할 배열
+      };
     },
-  },
-  data() {
-    return {
-      meetingData: null,
-      allMembers: [],
-      presentMembers: [],
-      absentMembers: [],
-      isDataLoaded: false,
-      meetingImageUrl: "",
-      internalTotalMembers: 0,
-      organizationMembers: [], // 조직 멤버 목록을 저장할 배열
-    };
-  },
 
     computed: {
       totalMembers: {
@@ -209,25 +210,25 @@ export default {
       this.fetchAllMembers();
     },
 
-  methods: {
-    async fetchMeetingData() {
-      try {
-        const response = await this.getActivityInstanceDetails(
-          this.organizationId,
-          null,
-          this.activityInstanceId,
-          true
-        );
+    methods: {
+      async fetchMeetingData() {
+        try {
+          const response = await this.getActivityInstanceDetails(
+            this.organizationId,
+            null,
+            this.activityInstanceId,
+            true
+          );
 
-        if (response && response.data) {
-          this.meetingData = response.data;
-          this.presentMembers = this.meetingData.attendances.filter(
-            (a) => a.status === "출석"
-          );
-          this.absentMembers = this.meetingData.attendances.filter(
-            (a) => a.status === "결석"
-          );
-          this.totalMembers = this.meetingData.attendances.length;
+          if (response && response.data) {
+            this.meetingData = response.data;
+            this.presentMembers = this.meetingData.attendances.filter(
+              (a) => a.status === '출석'
+            );
+            this.absentMembers = this.meetingData.attendances.filter(
+              (a) => a.status === '결석'
+            );
+            this.totalMembers = this.meetingData.attendances.length;
 
             if (this.meetingData.images && this.meetingData.images.length > 0) {
               this.meetingImageUrl = this.meetingData.images[0].filePath;
@@ -294,29 +295,31 @@ export default {
         return (roleOrder[roleA] || 4) - (roleOrder[roleB] || 4);
       },
 
-    async fetchOrganizationMembers() {
-      try {
-        const response = await this.getOrganizationMembers(this.organizationId);
-        if (response && response.members) {
-          this.organizationMembers = response.members;
+      async fetchOrganizationMembers() {
+        try {
+          const response = await this.getOrganizationMembers(
+            this.organizationId
+          );
+          if (response && response.members) {
+            this.organizationMembers = response.members;
+          }
+        } catch (error) {
+          console.error('조직 멤버 정보를 가져오는 중 오류 발생:', error);
         }
-      } catch (error) {
-        console.error("조직 멤버 정보를 가져오는 중 오류 발생:", error);
-      }
-    },
+      },
 
-    addRoleInfo(member) {
-      const orgMember = this.organizationMembers.find(
-        (m) => m.id === member.userId
-      );
-      const roleName = orgMember ? orgMember.roleName : "일반 회원";
-      return {
-        ...member,
-        roleName: roleName,
-      };
+      addRoleInfo(member) {
+        const orgMember = this.organizationMembers.find(
+          (m) => m.id === member.userId
+        );
+        const roleName = orgMember ? orgMember.roleName : '일반 회원';
+        return {
+          ...member,
+          roleName: roleName,
+        };
+      },
     },
-  },
-};
+  };
 </script>
 
 <style scoped>

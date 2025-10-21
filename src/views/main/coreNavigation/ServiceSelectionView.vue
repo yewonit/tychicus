@@ -51,13 +51,12 @@
 </template>
 
 <script>
-  import { NewExcelDataUpload } from '@/mixins/apis_v2/utility/NewExcelDataUpload';
   import { UserOrganizationsAndRolesCtrl } from '@/mixins/apis_v2/utility/UserOrganizationsAndRolesCtrl';
   import { mapState } from 'vuex';
 
   export default {
     name: 'ServiceSelectionView',
-    mixins: [NewExcelDataUpload, UserOrganizationsAndRolesCtrl],
+    mixins: [UserOrganizationsAndRolesCtrl],
     computed: {
       ...mapState('auth', ['userInfo']),
 

@@ -115,8 +115,6 @@
 
       // 사용자 이름 중복 체크를 수행하는 비동기 메서드입니다.
       async checkUserName() {
-        console.log('checkUserName');
-
         // 사용자 이름이 비어있는 경우 알림을 표시하고 함수를 종료합니다.
         if (this.name.trim() === '') {
           this.userNameCheckMessage = '';
@@ -125,7 +123,6 @@
           return;
         }
 
-        console.log('사용자 이름:', this.name);
         // 사용자 이름 중복 체크를 위해 API를 호출합니다.
         const response = await this.authCheckUserName(this.name, true);
 
@@ -133,23 +130,19 @@
         if (response.message === '이름이 있습니다.') {
           // 동명이인 처리
           if (response.hasDuplicates && response.userList) {
-            console.log('동명이인 발견:', response.userList);
             // 동명이인 리스트를 Vuex 스토어에 저장
             this.setUserName(this.name);
             this.setUserList(response.userList);
           }
           // 단일 사용자 처리
           else if (!response.hasDuplicates && response.userData) {
-            console.log('단일 사용자:', response.userData);
             // 사용자 정보를 Vuex 스토어에 저장
             this.setUserName(this.name);
             this.setUserData(response.userData);
           }
           // 기존 로직 (하위 호환성 유지)
           else {
-            console.log('사용자 이름:', this.name);
             this.setUserName(this.name);
-            console.log('스토어에 저장된 이름:', this.userName);
             // 전화번호 입력을 위한 페이지로 이동합니다.
           }
           // 전화번호 입력 화면으로 이동

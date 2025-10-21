@@ -11,15 +11,7 @@ export const AuthCtrl = {
   },
   methods: {
     // Axios 인스턴스를 생성
-    async setAxios(authorization, showLog) {
-      if (showLog) {
-        console.log(
-          '%c[ mixins: AuthCtrl ]setAxios authorization : ',
-          `color: #505050;`,
-          authorization
-        );
-      }
-
+    async setAxios(authorization) {
       switch (authorization) {
         case 'auth':
           if (!localStorage.getItem('access_token')) {
@@ -39,24 +31,9 @@ export const AuthCtrl = {
           // return { success: "OPEN_AXIOS" };
           break;
       }
-      if (showLog) {
-        console.log(
-          '%c[ mixins: AuthCtrl ]setAxios this.AUTH_AXIOS : ',
-          `color: #505050;`,
-          this.AUTH_AXIOS
-        );
-        console.log(
-          '%c[ mixins: AuthCtrl ]setAxios this.OPEN_AXIOS : ',
-          `color: #505050;`,
-          this.OPEN_AXIOS
-        );
-      }
     },
     // Axios 인스턴스를 삭제
-    clearAxios(showLog) {
-      if (showLog) {
-        // console.log("%c[ mixins: AuthCtrl ]clearAxios", `color: #505050;`);
-      }
+    clearAxios() {
       this.AUTH_AXIOS = null;
       this.OPEN_AXIOS = null;
     },
@@ -70,22 +47,17 @@ export const AuthCtrl = {
     },
     // Access Token 재발급
     refreshAccessToken: () => {
-      // console.log("[mixins: TokenCtrl ]refreshAccessToken");
       const refreshToken = localStorage.getItem('refresh_token');
-      console.log('refreshToken', refreshToken);
       if (refreshToken) {
         axiosClient.auth
           .post('/refresh', {
             refreshToken: localStorage.getItem('refresh_token'),
           })
           .then((res) => {
-            console.log('refresh res', res);
             localStorage.removeItem('access_token');
             localStorage.setItem('access_token', res.data.accessToken);
           })
-          .catch((err) => {
-            console.log('refresh err', err);
-          });
+          .catch(() => {});
       }
     },
   },

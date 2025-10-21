@@ -93,7 +93,6 @@
       if (!this.userName) {
         this.$router.push({ name: 'NameInputView' });
       }
-      console.log('사용자 이름:', this.userName);
 
       if (this.$route.query.isPasswordRecovery) {
         this.isPasswordRecovery = this.$route.query.isPasswordRecovery;
