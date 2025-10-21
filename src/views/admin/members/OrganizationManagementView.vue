@@ -455,17 +455,17 @@
 
 <script>
   import { MasterCtrl } from '@/mixins/apis_v2/internal/MasterCtrl';
-import { CurrentMemberCtrl } from '@/mixins/apis_v2/internal/domainCtrl/CurrentMemberCtrl';
-import { OrganizationCtrl } from '@/mixins/apis_v2/internal/domainCtrl/OrganizationCtrl';
-import moment from 'moment-timezone';
-import { mapState } from 'vuex';
+  import { CurrentMemberCtrl } from '@/mixins/apis_v2/internal/domainCtrl/CurrentMemberCtrl';
+  import { OrganizationCtrl } from '@/mixins/apis_v2/internal/domainCtrl/OrganizationCtrl';
+  import moment from 'moment-timezone';
+  import { mapState } from 'vuex';
 
   // 분리된 컴포넌트 import
   import DeleteConfirmDialog from '@/components/admin/organization/DeleteConfirmDialog.vue';
-import MemberForm from '@/components/admin/organization/MemberForm.vue';
-import MemberList from '@/components/admin/organization/MemberList.vue';
-import OrganizationDialog from '@/components/admin/organization/OrganizationDialog.vue';
-import OrganizationTree from '@/components/admin/organization/OrganizationTree.vue';
+  import MemberForm from '@/components/admin/organization/MemberForm.vue';
+  import MemberList from '@/components/admin/organization/MemberList.vue';
+  import OrganizationDialog from '@/components/admin/organization/OrganizationDialog.vue';
+  import OrganizationTree from '@/components/admin/organization/OrganizationTree.vue';
 
   export default {
     name: 'OrganizationManagementView',
@@ -2184,8 +2184,7 @@ import OrganizationTree from '@/components/admin/organization/OrganizationTree.v
             apiUserData,
             organizationId,
             organizationCode,
-            creatingUserId,
-            true
+            creatingUserId
           );
 
           if (!response) {
