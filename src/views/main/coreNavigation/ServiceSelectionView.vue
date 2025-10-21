@@ -52,8 +52,8 @@
 
 <script>
   import { NewExcelDataUpload } from '@/mixins/apis_v2/utility/NewExcelDataUpload';
-import { UserOrganizationsAndRolesCtrl } from '@/mixins/apis_v2/utility/UserOrganizationsAndRolesCtrl';
-import { mapState } from 'vuex';
+  import { UserOrganizationsAndRolesCtrl } from '@/mixins/apis_v2/utility/UserOrganizationsAndRolesCtrl';
+  import { mapState } from 'vuex';
 
   export default {
     name: 'ServiceSelectionView',
@@ -83,28 +83,6 @@ import { mapState } from 'vuex';
         services: [
           {
             id: 1,
-            name: '출석현황 대시보드',
-            nameEn: 'Attendance Dashboard',
-            description: '출석현항을 확인해보세요',
-            icon: 'mdi-view-dashboard-variant-outline',
-            isActive: true,
-            path: '/attendance-dashboard',
-            permissions: {
-              // roles: ['admin', '그룹장'],
-              roles: ['admin'],
-            },
-          },
-          // {
-          //   id: 1,
-          //   name: "기도제목",
-          //   nameEn: "Prayer Topics",
-          //   description: "전도회의 기도제목을 입력하고 항상 기도해보세요",
-          //   icon: "mdi-hands-pray",
-          //   isActive: true,
-          //   path: "/prayer-topic", // path 속성 추가
-          // },
-          {
-            id: 2,
             name: '재적인원관리',
             nameEn: 'Management of members',
             description:
@@ -114,7 +92,7 @@ import { mapState } from 'vuex';
             path: '/member-list',
           },
           {
-            id: 3,
+            id: 2,
             name: '모임기록관리',
             nameEn: 'Meeting History Management',
             description: '모임 히스토리를 확인하고 관리할 수 있습니다.',
@@ -126,7 +104,7 @@ import { mapState } from 'vuex';
             },
           },
           {
-            id: 4,
+            id: 3,
             name: '심방 보고서',
             nameEn: 'Visit Report',
             description: '심방 보고서를 확인하고 작성할 수 있습니다.',

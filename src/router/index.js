@@ -13,11 +13,7 @@ import VueRouter from 'vue-router';
  * @description 애플리케이션의 기본 레이아웃 구조를 정의하는 컴포넌트들
  */
 import AdminLayout from '@/layouts/admin/AdminLayout.vue';
-import BizLayout from '@/layouts/biz/Index.vue';
-import CleanLayout from '@/layouts/clean/Index.vue';
 import MainLayout from '@/layouts/main/Index.vue';
-import MyPageLayout from '@/layouts/mypage/Index.vue';
-import SubLayout from '@/layouts/sub/Index.vue';
 
 /**
  * @section 메인 레이아웃 뷰 컴포넌트
@@ -46,53 +42,22 @@ import PhoneInputView from '@/views/main/login/PhoneInputView.vue';
  * @description 교회 운영을 위한 각종 관리 기능 컴포넌트
  */
 
-//** 출석현황 대시보드 */
-import AttendanceDashboardView from '@/views/main/mainMenu/attendanceDashboard/AttendanceDashboardView.vue';
-
-/** 기도제목 관리 */
-import PrayerTopicView from '@/views/main/mainMenu/prayerTopic/prayerTopicView.vue';
-
 /** 교인 관리 */
 import MemberListView from '@/views/main/mainMenu/membersManagement/MemberListView.vue';
 import MemberRegistrationView from '@/views/main/mainMenu/membersManagement/MemberRegistrationView.vue';
 import MemberUpdateView from '@/views/main/mainMenu/membersManagement/MemberUpdateView.vue';
 
 /** 출석 관리 */
-import AttendanceAggregationView from '@/views/main/mainMenu/attendanceManagement/AttendanceAggregationView.vue';
-import AttendanceInputView from '@/views/main/mainMenu/attendanceManagement/AttendanceInputView.vue';
 import AttendanceUpdateView from '@/views/main/mainMenu/attendanceManagement/AttendanceUpdateView.vue';
 import MeetingDetailView from '@/views/main/mainMenu/attendanceManagement/MeetingDetailView.vue';
 import MeetingHistoryView from '@/views/main/mainMenu/attendanceManagement/MeetingHistoryView.vue';
 import VisitReportView from '@/views/main/mainMenu/attendanceManagement/VisitReportView.vue';
-import WorshipSelectionView from '@/views/main/mainMenu/attendanceManagement/WorshipSelectionView.vue';
-
-/** 특별 관리 대상자 */
-import LongTermAbsenteeListView from '@/views/main/mainMenu/specialPersonnelManagement/LongTermAbsenteeListView.vue';
-import LostAndNewManagementSelectionView from '@/views/main/mainMenu/specialPersonnelManagement/LostAndNewManagementSelectionView.vue';
-import NewFamilyListView from '@/views/main/mainMenu/specialPersonnelManagement/NewFamilyListView.vue';
-import RescueVisitHistoryView from '@/views/main/mainMenu/specialPersonnelManagement/RescueVisitHistoryView.vue';
-
-/** 시스템 관리 */
-import DataManagementView from '@/views/main/DataManagementView.vue';
-import AWSImageCRUDTest from '@/views/main/mainMenu/attendanceManagement/AWSImageCRUDTest.vue';
 
 /**
  * @section 관리자 뷰 컴포넌트
  */
 
-import AdminAttendanceStats from '@/views/admin/attendance/AttendanceStatsView.vue';
-import DashboardView from '@/views/admin/dashboard/DashboardView.vue';
 import OrganizationManagementView from '@/views/admin/members/OrganizationManagementView.vue';
-import OrganizationMeetingHistoryView from '@/views/admin/members/OrganizationMeetingHistoryView.vue';
-// import AdminMemberList from "@/views/admin/members/MemberListView.vue";
-// import AdminMemberDetail from "@/views/admin/members/MemberDetailView.vue";
-// import AdminAttendanceList from "@/views/admin/attendance/AttendanceListView.vue";
-// import AdminAttendanceStats from "@/views/admin/attendance/AttendanceStatsView.vue";
-// import AdminNewMembers from "@/views/admin/members/MemberHistoryView.vue";
-// import AdminAbsentMembers from "@/views/admin/members/MemberHistoryView.vue";
-// import AdminVisitation from "@/views/admin/members/MemberHistoryView.vue";
-// import AdminStatistics from "@/views/admin/statistics/ReportGeneratorView.vue";
-// import AdminSettings from "@/views/admin/settings/SystemSettingsView.vue";
 
 Vue.use(VueRouter);
 
@@ -242,74 +207,6 @@ const routes = [
        * @section 교회 관리 시스템 라우트
        */
       {
-        path: '/attendance-dashboard',
-        name: 'AttendanceDashboardView',
-        component: AttendanceDashboardView,
-        meta: {
-          title: '출석현황 대시보드',
-          showIcon: true,
-          iconName: 'mdi-view-dashboard-variant-outline',
-          showBackButton: true,
-          showHomeButton: false,
-          showCancelButton: false,
-          permissions: {
-            roles: ['admin'], // 관리자만 접근 가능
-          },
-        },
-      },
-      {
-        path: '/prayer-topic',
-        name: 'PrayerTopicView',
-        component: PrayerTopicView,
-        meta: {
-          title: '기도제목',
-          showIcon: true,
-          iconName: 'mdi-praying-hands',
-          showBackButton: true,
-          showHomeButton: false,
-          showCancelButton: true,
-        },
-      },
-      {
-        path: '/attendance-aggregation',
-        name: 'AttendanceAggregationView',
-        component: AttendanceAggregationView,
-        meta: {
-          title: '출결 집계',
-          showIcon: true,
-          iconName: 'mdi-account-circle',
-          showBackButton: true,
-          showHomeButton: false,
-          showCancelButton: true,
-        },
-      },
-      {
-        path: '/worship-selection',
-        name: 'WorshipSelectionView',
-        component: WorshipSelectionView,
-        meta: {
-          title: '예배 선택',
-          showIcon: true,
-          iconName: 'mdi-church',
-          showBackButton: true,
-          showHomeButton: false,
-          showCancelButton: true,
-        },
-      },
-      {
-        path: '/attendance-input',
-        name: 'AttendanceInputView',
-        component: AttendanceInputView,
-        meta: {
-          title: '출결 입력',
-          showIcon: true,
-          iconName: 'mdi-account-group',
-          showBackButton: true,
-          showHomeButton: false,
-          showCancelButton: true,
-        },
-      },
-      {
         path: '/member-registration',
         name: 'MemberRegistrationView',
         component: MemberRegistrationView,
@@ -347,72 +244,6 @@ const routes = [
           showBackButton: true,
           showHomeButton: false,
           showCancelButton: true,
-        },
-      },
-      {
-        path: '/lost-and-new-management-selection',
-        name: 'LostAndNewManagementSelectionView',
-        component: LostAndNewManagementSelectionView,
-        meta: {
-          title: '신규/이탈 관리',
-          showIcon: true,
-          iconName: 'mdi-account-group',
-          showBackButton: true,
-          showHomeButton: false,
-          showCancelButton: true,
-        },
-      },
-      {
-        path: '/long-term-absentee-list',
-        name: 'LongTermAbsenteeListView',
-        component: LongTermAbsenteeListView,
-        meta: {
-          title: '장기 결석자 명단',
-          showIcon: true,
-          iconName: 'mdi-account-check',
-          showBackButton: true,
-          showHomeButton: false,
-          showCancelButton: true,
-        },
-      },
-      {
-        path: '/rescue-visit-history/:id',
-        name: 'RescueVisitHistoryView',
-        component: RescueVisitHistoryView,
-        props: true,
-        meta: {
-          title: '심방이력',
-          showIcon: true,
-          iconName: 'mdi-file-document',
-          showBackButton: true,
-          showHomeButton: false,
-          showCancelButton: true,
-        },
-      },
-      {
-        path: '/new-family-list',
-        name: 'NewFamilyListView',
-        component: NewFamilyListView,
-        meta: {
-          title: '신규 가족 명단',
-          showIcon: true,
-          iconName: 'mdi-account-multiple-plus',
-          showBackButton: true,
-          showHomeButton: false,
-          showCancelButton: true,
-        },
-      },
-      {
-        path: '/datamanagement',
-        name: 'DataManagementView',
-        component: DataManagementView,
-        meta: {
-          title: 'Data Management',
-          showIcon: false,
-          iconName: '',
-          showBackButton: false,
-          showHomeButton: false,
-          showCancelButton: false,
         },
       },
       /**
@@ -480,49 +311,7 @@ const routes = [
           showCancelButton: false,
         },
       },
-      // AWSImageCRUDTest 라우트를 추가합니다.
-      {
-        path: '/aws-image-crud-test',
-        name: 'AWSImageCRUDTest',
-        component: AWSImageCRUDTest,
-        meta: {
-          title: 'AWS S3 이미지 CRUD 테스트',
-          showIcon: true,
-          iconName: 'mdi-image',
-          showBackButton: true,
-          showHomeButton: false,
-          showCancelButton: true,
-        },
-      },
     ],
-  },
-  /**
-   * @section 기타 레이아웃 라우트
-   * @description 비즈니스, 서브, 마이페이지, 클린 레이아웃 정의
-   */
-  {
-    path: '/biz',
-    name: 'BizLayout',
-    component: BizLayout,
-    children: [],
-  },
-  {
-    path: '/sub',
-    name: 'SubLayout',
-    component: SubLayout,
-    children: [],
-  },
-  {
-    path: '/mypage',
-    name: 'MyPageLayout',
-    component: MyPageLayout,
-    children: [],
-  },
-  {
-    path: '/clean',
-    name: 'CleanLayout',
-    component: CleanLayout,
-    children: [],
   },
   /**
    * @section 관리자 라우트
@@ -535,91 +324,11 @@ const routes = [
     },
     children: [
       {
-        path: '',
-        name: 'AdminDashboard',
-        component: DashboardView,
-        meta: {
-          title: '대시보드',
-          isAdmin: true,
-        },
-      },
-      {
-        path: 'AdminDashboard',
-        name: 'AdminDashboardAlias',
-        component: DashboardView,
-        meta: {
-          title: '대시보드',
-          isAdmin: true,
-        },
-      },
-      {
         path: 'organizations',
         name: 'AdminOrganizationManagement',
         component: OrganizationManagementView,
         meta: { title: '조직 및 멤버 관리' },
       },
-      {
-        path: 'organization-meetings',
-        name: 'AdminOrganizationMeetingHistory',
-        component: OrganizationMeetingHistoryView,
-        meta: { title: '조직별 모임 관리' },
-      },
-      {
-        path: 'attendance/stats',
-        name: 'AdminAttendanceStats',
-        component: AdminAttendanceStats,
-        meta: { title: '출결 통계' },
-      },
-      /*
-      {
-        path: "members",
-        name: "AdminMemberList",
-        component: AdminMemberList,
-        meta: { title: "회원 관리" },
-      },
-      {
-        path: "members/:id",
-        name: "AdminMemberDetail",
-        component: AdminMemberDetail,
-        meta: { title: "회원 상세" },
-      },
-      {
-        path: "members/new",
-        name: "AdminNewMembers",
-        component: AdminNewMembers,
-        meta: { title: "새가족 관리" },
-      },
-      {
-        path: "members/absent",
-        name: "AdminAbsentMembers",
-        component: AdminAbsentMembers,
-        meta: { title: "장기결석자 관리" },
-      },
-      {
-        path: "attendance",
-        name: "AdminAttendanceList",
-        component: AdminAttendanceList,
-        meta: { title: "출석 현황" },
-      },
-      {
-        path: "visitation",
-        name: "AdminVisitation",
-        component: AdminVisitation,
-        meta: { title: "심방 관리" },
-      },
-      {
-        path: "statistics",
-        name: "AdminStatistics",
-        component: AdminStatistics,
-        meta: { title: "통계" },
-      },
-      {
-        path: "settings",
-        name: "AdminSettings",
-        component: AdminSettings,
-        meta: { title: "설정" },
-      },
-      */
     ],
   },
 ];
@@ -632,35 +341,6 @@ const router = new VueRouter({
   mode: 'history',
   base: process.env.BASE_URL,
   routes,
-});
-
-// 대시보드 화면 관련 네비게이션 가드 추가
-router.beforeEach((to, from, next) => {
-  // 대시보드로 진입하는 경우 처리
-  if (to.name === 'AdminDashboard' || to.name === 'AdminDashboardAlias') {
-    // 대시보드 활성화 클래스 추가 (body 태그에)
-    setTimeout(() => {
-      document.body.classList.add('dashboard-active');
-
-      // 사이드바 강제 닫기
-      const sidebarElement = document.querySelector('.v-navigation-drawer');
-      if (sidebarElement) {
-        sidebarElement.style.transform = 'translateX(-100%)';
-        sidebarElement.style.visibility = 'hidden';
-      }
-    }, 50);
-  }
-  // 대시보드에서 나가는 경우 처리
-  else if (
-    from.name === 'AdminDashboard' ||
-    from.name === 'AdminDashboardAlias'
-  ) {
-    // 대시보드 활성화 클래스 제거
-    document.body.classList.remove('dashboard-active');
-  }
-
-  // 라우트 이동 허용
-  next();
 });
 
 // 인증 및 권한 관련 네비게이션 가드
