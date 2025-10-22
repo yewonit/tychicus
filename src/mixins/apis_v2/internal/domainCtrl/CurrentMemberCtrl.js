@@ -21,6 +21,21 @@ export const CurrentMemberCtrl = {
         return { error: error.message };
       }
     },
+
+    /**
+     * @description 모든 조직의 새가족을 한 번에 조회하는 API (성능 최적화)
+     * @returns {Array} 새가족 정보 배열 (조직 정보 포함)
+     */
+    async getAllNewMembers() {
+      try {
+        const res = await axiosClient.api.get('/members/new-members');
+
+        return res.data;
+      } catch (error) {
+        console.error('새가족 조회 중 오류 발생:', error);
+        return { error: error.message };
+      }
+    },
     /**
      * @description 새로운 맴버를 조직에 추가하는 API
      * @param {Object} userData 유저 데이터
