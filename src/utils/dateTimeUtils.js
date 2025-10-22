@@ -1,4 +1,11 @@
-import moment from 'moment-timezone';
+// Moment.js → Day.js 교체 (8 MB → 71 KB, 99% 감소)
+import dayjs from 'dayjs';
+import utc from 'dayjs/plugin/utc';
+import timezone from 'dayjs/plugin/timezone';
+
+// Day.js 플러그인 활성화
+dayjs.extend(utc);
+dayjs.extend(timezone);
 
 /**
  * 날짜와 시간 처리를 위한 유틸리티 클래스
@@ -13,32 +20,28 @@ export const dateTimeUtils = {
    * 날짜와 시간 문자열로부터 한국 시간대의 DateTime 객체 생성
    * @param {string} date - YYYY-MM-DD 형식의 날짜 문자열
    * @param {string} time - HH:mm 형식의 시간 문자열 (기본값 "00:00")
-   * @returns {moment.Moment} 한국 시간대의 moment 객체
+   * @returns {dayjs.Dayjs} 한국 시간대의 dayjs 객체
    */
   createDateTime(date, time = '00:00') {
-    return moment.tz(
-      `${date} ${time}`,
-      'YYYY-MM-DD HH:mm',
-      this.KOREA_TIMEZONE
-    );
+    return dayjs.tz(`${date} ${time}`, 'YYYY-MM-DD HH:mm', this.KOREA_TIMEZONE);
   },
 
   /**
    * DateTime 객체를 UTC ISO 문자열로 변환
-   * @param {moment.Moment} dateTime - moment 객체
+   * @param {dayjs.Dayjs} dateTime - dayjs 객체
    * @returns {string} UTC ISO 형식의 문자열 (예: "2023-10-01T14:00:00Z")
    */
   toUTCString(dateTime) {
-    return dateTime.clone().utc().format();
+    return dateTime.utc().format();
   },
 
   /**
    * UTC 문자열을 한국 시간대의 DateTime 객체로 변환
    * @param {string} utcString - UTC ISO 형식 문자열
-   * @returns {moment.Moment} 한국 시간대의 moment 객체
+   * @returns {dayjs.Dayjs} 한국 시간대의 dayjs 객체
    */
   fromUTCString(utcString) {
-    return moment.utc(utcString).tz(this.KOREA_TIMEZONE);
+    return dayjs.utc(utcString).tz(this.KOREA_TIMEZONE);
   },
 
   /**
@@ -46,7 +49,7 @@ export const dateTimeUtils = {
    * @returns {string} YYYY-MM-DD 형식의 오늘 날짜
    */
   getTodayString() {
-    return moment().tz(this.KOREA_TIMEZONE).format('YYYY-MM-DD');
+    return dayjs().tz(this.KOREA_TIMEZONE).format('YYYY-MM-DD');
   },
 
   /**
@@ -72,8 +75,8 @@ export const dateTimeUtils = {
 
   /**
    * 두 DateTime 객체 간의 유효성 검증
-   * @param {moment.Moment} startDateTime - 시작 일시
-   * @param {moment.Moment} endDateTime - 종료 일시
+   * @param {dayjs.Dayjs} startDateTime - 시작 일시
+   * @param {dayjs.Dayjs} endDateTime - 종료 일시
    * @returns {boolean} 유효한 일시 범위면 true, 그렇지 않으면 false
    */
   validateDateTimeRange(startDateTime, endDateTime) {

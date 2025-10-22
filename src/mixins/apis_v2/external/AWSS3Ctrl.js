@@ -1,4 +1,6 @@
-import AWS from 'aws-sdk';
+// AWS SDK 최적화: 필요한 모듈만 import (95 MB → ~5 MB)
+import S3 from 'aws-sdk/clients/s3';
+import { CognitoIdentityCredentials, Config } from 'aws-sdk';
 
 export const AWSS3Ctrl = {
   data() {
@@ -16,15 +18,16 @@ export const AWSS3Ctrl = {
   methods: {
     // AWS S3 인스턴스 설정
     async setS3() {
-      // AWS 설정 업데이트
-      await AWS.config.update({
+      // AWS Config 설정 업데이트
+      const config = new Config({
         region: this.bucketRegion,
-        credentials: new AWS.CognitoIdentityCredentials({
+        credentials: new CognitoIdentityCredentials({
           IdentityPoolId: this.IdentityPoolId,
         }),
       });
       // S3 인스턴스 생성
-      this.s3 = await new AWS.S3({
+      this.s3 = await new S3({
+        ...config,
         apiVersion: '2006-03-01',
         params: { Bucket: this.albumBucketName },
       });

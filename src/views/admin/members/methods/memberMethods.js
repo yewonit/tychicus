@@ -2,7 +2,7 @@
  * 멤버 관련 메서드
  */
 
-import moment from 'moment-timezone';
+import dayjs from 'dayjs';
 import { sortMembers, createDefaultMember } from '@/utils/memberUtils';
 
 export default {
@@ -195,13 +195,13 @@ export default {
   prepareApiUserData() {
     // 생년월일 형식 변환
     const birthDate = this.editedMember.birthDate
-      ? moment(this.editedMember.birthDate).format('YYYY-MM-DD')
-      : moment().format('YYYY-MM-DD');
+      ? dayjs(this.editedMember.birthDate).format('YYYY-MM-DD')
+      : dayjs().format('YYYY-MM-DD');
 
     // 등록일 형식 변환
     const registrationDate = this.editedMember.registrationDate
-      ? moment(this.editedMember.registrationDate).format('YYYY-MM-DD')
-      : moment().format('YYYY-MM-DD');
+      ? dayjs(this.editedMember.registrationDate).format('YYYY-MM-DD')
+      : dayjs().format('YYYY-MM-DD');
 
     // API에 전송할 데이터 구성
     return {

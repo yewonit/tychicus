@@ -156,7 +156,7 @@
 
 <script>
   import { AttendanceCtrl } from '@/mixins/apis_v2/internal/domainCtrl/AttendanceCtrl';
-  import moment from 'moment-timezone';
+  import dayjs from 'dayjs';
 
   export default {
     name: 'MeetingDetailView',
@@ -261,10 +261,10 @@
       },
 
       formatDate(dateString) {
-        return moment(dateString).format('YYYY년 MM월 DD일');
+        return dayjs(dateString).format('YYYY년 MM월 DD일');
       },
       formatTime(dateString) {
-        return moment(dateString).format('HH:mm');
+        return dayjs(dateString).format('HH:mm');
       },
       getRoleColor(roleName) {
         switch (roleName) {

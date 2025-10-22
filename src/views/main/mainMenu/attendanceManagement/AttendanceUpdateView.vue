@@ -318,7 +318,7 @@
   import { CurrentMemberCtrl } from '@/mixins/apis_v2/internal/domainCtrl/CurrentMemberCtrl';
   import { Utility } from '@/mixins/apis_v2/utility/Utility';
   import { dateTimeUtils } from '@/utils/dateTimeUtils';
-  import moment from 'moment-timezone';
+  import dayjs from 'dayjs';
   import { mapState } from 'vuex';
 
   // 유틸리티 함수 import
@@ -449,7 +449,7 @@
             )
           ) {
             // 자정을 넘기는 모임인 경우 종료일은 다음날로 설정
-            this.meetingEndDate = moment(this.meetingDate)
+            this.meetingEndDate = dayjs(this.meetingDate)
               .add(1, 'day')
               .format('YYYY-MM-DD');
           } else {
