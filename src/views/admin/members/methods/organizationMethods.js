@@ -83,12 +83,7 @@ export default {
 
       // API 응답 검증
       if (memberCountsResponse && memberCountsResponse.error) {
-        console.warn(
-          '새 API를 사용할 수 없습니다. 기존 방식으로 폴백합니다.',
-          memberCountsResponse.error
-        );
-        // 기존 방식으로 폴백
-        await this.calculateMemberCountsLegacy();
+        console.error('조직별 멤버 수 조회 실패:', memberCountsResponse.error);
         return;
       }
 
@@ -184,41 +179,6 @@ export default {
       this.organizationTree = this.buildOrganizationTree(this.organizations);
     } catch (error) {
       console.error('멤버 수 계산 중 오류 발생:', error);
-      // 오류 발생 시 기존 방식으로 폴백
-      await this.calculateMemberCountsLegacy();
-    }
-  },
-
-  // 기존 방식의 멤버 수 계산 (폴백용)
-  async calculateMemberCountsLegacy() {
-    try {
-      // 최하위 조직(리프 노드) 찾기
-      const leafOrgs = this.organizations.filter(
-        (org) =>
-          !this.organizations.some(
-            (other) => other.upper_organization_id === org.id
-          )
-      );
-
-      // 각 최하위 조직의 멤버 수를 API로 가져옴 (기존 방식)
-      for (const org of leafOrgs) {
-        try {
-          const members = await this.getMembersWithRoles(org.id, false);
-
-          if (members && Array.isArray(members)) {
-            org.memberCount = members.length;
-          } else {
-            org.memberCount = 0;
-          }
-        } catch {
-          org.memberCount = 0;
-        }
-      }
-
-      // 상위 조직의 멤버 수 계산은 calculateMemberCounts()의 6-7단계와 동일하므로 생략
-      // (이미 메인 메서드에서 처리됨)
-    } catch (error) {
-      console.error('레거시 멤버 수 계산 중 오류 발생:', error);
     }
   },
 

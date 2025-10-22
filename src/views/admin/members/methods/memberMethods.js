@@ -520,12 +520,11 @@ export default {
 
       // API 응답 검증
       if (newMembersResponse && newMembersResponse.error) {
-        console.warn(
-          '새 API를 사용할 수 없습니다. 기존 방식으로 폴백합니다.',
-          newMembersResponse.error
-        );
-        // 기존 방식으로 폴백
-        await this.loadAllLeafOrganizationsNewMembersLegacy();
+        console.error('새가족 조회 실패:', newMembersResponse.error);
+        this.$store.dispatch('snackbar/showMessage', {
+          message: '새가족 정보를 불러오는 중 오류가 발생했습니다.',
+          color: 'error',
+        });
         return;
       }
 
@@ -551,68 +550,12 @@ export default {
       });
     } catch (error) {
       console.error('새가족 로드 중 오류 발생:', error);
-      // 오류 발생 시 기존 방식으로 폴백
-      await this.loadAllLeafOrganizationsNewMembersLegacy();
-    } finally {
-      this.loadingAllMembers = false;
-    }
-  },
-
-  // 모든 최하위 조직의 새가족 로드 (기존 방식 - 폴백용)
-  async loadAllLeafOrganizationsNewMembersLegacy() {
-    try {
-      // 최하위 조직 찾기
-      const findLeafOrganizations = (orgs) => {
-        let leaves = [];
-        orgs.forEach((org) => {
-          if (!org.children || org.children.length === 0 || org.isLeafNode) {
-            leaves.push(org);
-          } else if (org.children && org.children.length > 0) {
-            leaves = leaves.concat(findLeafOrganizations(org.children));
-          }
-        });
-        return leaves;
-      };
-
-      const leafOrgs = findLeafOrganizations(this.organizationTree);
-
-      // 각 최하위 조직의 새가족 멤버 로드 (기존 방식)
-      for (const org of leafOrgs) {
-        try {
-          const members = await this.getMembersWithRoles(org.id, false);
-
-          if (members && Array.isArray(members)) {
-            // 새가족 필터링 (isNewMember === 'Y')
-            const newMembers = members.filter(
-              (member) => member.isNewMember === 'Y'
-            );
-
-            // 조직 정보 추가
-            newMembers.forEach((member) => {
-              member.organizationId = org.id;
-              member.organizationName = org.name;
-            });
-
-            // 새가족 목록에 추가
-            this.allNewMembers = [...this.allNewMembers, ...newMembers];
-          }
-        } catch (error) {
-          console.error(`조직 ${org.id}의 새가족 로드 중 오류:`, error);
-        }
-      }
-
-      // 등록일 기준으로 정렬
-      this.allNewMembers.sort((a, b) => {
-        if (!a.registrationDate) return 1;
-        if (!b.registrationDate) return -1;
-        return b.registrationDate.localeCompare(a.registrationDate);
-      });
-    } catch (error) {
-      console.error('레거시 새가족 로드 중 오류 발생:', error);
       this.$store.dispatch('snackbar/showMessage', {
         message: '새가족 정보를 불러오는 중 오류가 발생했습니다.',
         color: 'error',
       });
+    } finally {
+      this.loadingAllMembers = false;
     }
   },
 };
