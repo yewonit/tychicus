@@ -108,5 +108,22 @@ export const OrganizationCtrl = {
         return { error: error.message };
       }
     },
+
+    /**
+     * @description 모든 조직의 멤버 수를 한 번에 조회하는 API (성능 최적화)
+     * @returns {Array} 조직 ID와 멤버 수 배열 [{ organizationId, memberCount }, ...]
+     */
+    async getAllOrganizationsWithMemberCounts() {
+      try {
+        const res = await axiosClient.api.get(
+          `/${this.Organization_EP}/member-counts`
+        );
+
+        return res.data;
+      } catch (error) {
+        console.error('조직별 멤버 수 조회 중 오류 발생:', error);
+        return { error: error.message };
+      }
+    },
   },
 };

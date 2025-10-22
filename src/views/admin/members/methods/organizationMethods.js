@@ -65,7 +65,7 @@ export default {
     }
   },
 
-  // 멤버 수 계산
+  // 멤버 수 계산 (최적화: 단일 API 호출)
   async calculateMemberCounts() {
     if (!Array.isArray(this.organizations) || this.organizations.length === 0) {
       return;
@@ -77,32 +77,56 @@ export default {
         org.memberCount = 0;
       });
 
-      // 2. 최하위 조직(리프 노드) 찾기
+      // 2. 새 API를 사용하여 모든 조직의 멤버 수를 한 번에 가져옴 (N+1 문제 해결)
+      const memberCountsResponse =
+        await this.getAllOrganizationsWithMemberCounts();
+
+      // API 응답 검증
+      if (memberCountsResponse && memberCountsResponse.error) {
+        console.warn(
+          '새 API를 사용할 수 없습니다. 기존 방식으로 폴백합니다.',
+          memberCountsResponse.error
+        );
+        // 기존 방식으로 폴백
+        await this.calculateMemberCountsLegacy();
+        return;
+      }
+
+      // 3. 응답 데이터 구조 확인 및 정규화
+      let memberCounts = [];
+      if (Array.isArray(memberCountsResponse)) {
+        memberCounts = memberCountsResponse;
+      } else if (
+        memberCountsResponse.data &&
+        Array.isArray(memberCountsResponse.data)
+      ) {
+        memberCounts = memberCountsResponse.data;
+      }
+
+      // 4. 멤버 수 데이터를 Map으로 변환 (빠른 조회를 위해)
+      const memberCountMap = new Map();
+      memberCounts.forEach((item) => {
+        memberCountMap.set(item.organizationId, item.memberCount || 0);
+      });
+
+      // 5. 최하위 조직(리프 노드)에 멤버 수 설정
+      this.organizations.forEach((org) => {
+        if (memberCountMap.has(org.id)) {
+          org.memberCount = memberCountMap.get(org.id);
+        }
+      });
+
+      // 6. 상위 조직의 멤버 수를 계산 (상향식 접근법)
+      const orgLevels = [];
+      const processedOrgs = new Set();
+
+      // 리프 노드(최하위 조직) 찾기
       const leafOrgs = this.organizations.filter(
         (org) =>
           !this.organizations.some(
             (other) => other.upper_organization_id === org.id
           )
       );
-
-      // 3. 각 최하위 조직의 멤버 수를 API로 가져옴
-      for (const org of leafOrgs) {
-        try {
-          const members = await this.getMembersWithRoles(org.id, false);
-
-          if (members && Array.isArray(members)) {
-            org.memberCount = members.length;
-          } else {
-            org.memberCount = 0;
-          }
-        } catch {
-          org.memberCount = 0;
-        }
-      }
-
-      // 4. 상위 조직의 멤버 수를 계산 (상향식 접근법)
-      const orgLevels = [];
-      const processedOrgs = new Set();
 
       // 리프 노드는 이미 처리했으므로 레벨 0으로 설정
       leafOrgs.forEach((org) => {
@@ -156,10 +180,45 @@ export default {
         });
       });
 
-      // 5. 트리 다시 구성 (멤버 수 정보 반영)
+      // 7. 트리 다시 구성 (멤버 수 정보 반영)
       this.organizationTree = this.buildOrganizationTree(this.organizations);
-    } catch {
-      // 멤버 수 계산 중 오류 발생
+    } catch (error) {
+      console.error('멤버 수 계산 중 오류 발생:', error);
+      // 오류 발생 시 기존 방식으로 폴백
+      await this.calculateMemberCountsLegacy();
+    }
+  },
+
+  // 기존 방식의 멤버 수 계산 (폴백용)
+  async calculateMemberCountsLegacy() {
+    try {
+      // 최하위 조직(리프 노드) 찾기
+      const leafOrgs = this.organizations.filter(
+        (org) =>
+          !this.organizations.some(
+            (other) => other.upper_organization_id === org.id
+          )
+      );
+
+      // 각 최하위 조직의 멤버 수를 API로 가져옴 (기존 방식)
+      for (const org of leafOrgs) {
+        try {
+          const members = await this.getMembersWithRoles(org.id, false);
+
+          if (members && Array.isArray(members)) {
+            org.memberCount = members.length;
+          } else {
+            org.memberCount = 0;
+          }
+        } catch {
+          org.memberCount = 0;
+        }
+      }
+
+      // 상위 조직의 멤버 수 계산은 calculateMemberCounts()의 6-7단계와 동일하므로 생략
+      // (이미 메인 메서드에서 처리됨)
+    } catch (error) {
+      console.error('레거시 멤버 수 계산 중 오류 발생:', error);
     }
   },
 
