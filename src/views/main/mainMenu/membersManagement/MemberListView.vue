@@ -3,7 +3,7 @@
     <v-row class="mt-3 mb-4">
       <v-col cols="12" class="text-center">
         <div class="wc-direction-text wc-bold-700">
-          {{ this.userInfo.roles[0].organizationName }}
+          {{ organizationName }}
         </div>
         <div class="wc-direction-text mt-1">인원을 관리하세요</div>
       </v-col>
@@ -185,6 +185,13 @@
     mixins: [Utility, CurrentMemberCtrl],
     computed: {
       ...mapState('auth', ['userInfo']),
+      /**
+       * @description 조직 이름을 안전하게 반환하는 computed 속성
+       * @returns {string} 조직 이름 또는 빈 문자열
+       */
+      organizationName() {
+        return this.userInfo?.roles?.[0]?.organizationName || '';
+      },
     },
     created() {
       // 컴포넌트가 생성될 때 멤버 목록을 가져옵니다
@@ -220,6 +227,14 @@
        * @returns {Promise<void>} 멤버 리스트 조회 및 정렬이 완료되면 해결되는 Promise
        */
       async fetchMemberList() {
+        // userInfo가 로드되지 않았거나 roles가 없으면 조기 종료
+        if (!this.userInfo?.roles?.[0]?.organizationId) {
+          console.warn(
+            '⚠️ userInfo 또는 organizationId가 아직 로드되지 않았습니다.'
+          );
+          return;
+        }
+
         // 현재 로그인한 사용자의 조직 ID를 가져옴
         const organizationId = this.userInfo.roles[0].organizationId;
 
