@@ -323,6 +323,17 @@
 
   // 유틸리티 함수 import
   import { getMemberStatus, getMemberStatusColor } from '@/utils/memberUtils';
+  import {
+    generateS3FileName,
+    getFileExtension,
+  } from '@/utils/imageUtils';
+  import {
+    updateDateTime,
+    validateTimes,
+    updateMeetingDates,
+    openParticipantsDialog,
+    closeParticipantsDialog,
+  } from '@/utils/vueComponentHelpers';
 
   export default {
     name: 'AttendanceUpdateView',
@@ -386,83 +397,18 @@
     methods: {
       /**
        * 내부 DateTime 객체 업데이트
-       * @returns {void}
+       * @description vueComponentHelpers의 updateDateTime 함수 사용
        */
       updateDateTime() {
-        // 시작 시간 확인 및 기본값 설정
-        const startTime = this.meetingStartTime || '00:00';
-        const endTime = this.meetingEndTime || '00:00';
-
-        // 내부 DateTime 객체 업데이트
-        this.meetingStartDateTime = dateTimeUtils.createDateTime(
-          this.meetingStartDate,
-          startTime
-        );
-
-        this.meetingEndDateTime = dateTimeUtils.createDateTime(
-          this.meetingEndDate,
-          endTime
-        );
-
-        // 종료 시간이 시작 시간보다 이전인 경우 (날짜가 다름에도 불구하고)
-        if (this.meetingEndDateTime.isBefore(this.meetingStartDateTime)) {
-          // 자정을 넘기는 모임인 경우 (같은 날짜에 시작 시간 > 종료 시간)
-          if (
-            this.meetingStartDate === this.meetingEndDate &&
-            startTime > endTime
-          ) {
-            // 종료 날짜를 다음날로 자동 설정
-            this.meetingEndDateTime = dateTimeUtils
-              .createDateTime(this.meetingStartDate, endTime)
-              .add(1, 'day');
-
-            // UI 필드 업데이트
-            this.meetingEndDate = this.meetingEndDateTime.format('YYYY-MM-DD');
-          } else {
-            // 그 외의 경우 - 종료 시간을 시작 시간 이후로 자동 설정 (1시간 후)
-            this.meetingEndDateTime = this.meetingStartDateTime
-              .clone()
-              .add(1, 'hour');
-
-            // UI 필드 업데이트
-            this.meetingEndDate = this.meetingEndDateTime.format('YYYY-MM-DD');
-            this.meetingEndTime = this.meetingEndDateTime.format('HH:mm');
-          }
-        }
+        updateDateTime(this);
       },
 
       /**
        * 모임 날짜 변경 시 시작/종료 날짜 업데이트
-       * @returns {void}
+       * @description vueComponentHelpers의 updateMeetingDates 함수 사용
        */
       updateDates() {
-        this.meetingDateMenu = false;
-        // 모임 날짜가 변경되면 시작 날짜도 변경
-        this.meetingStartDate = this.meetingDate;
-
-        // 시작 시간과 종료 시간이 설정되어 있는 경우에만 자정 넘김 확인
-        if (this.meetingStartTime && this.meetingEndTime) {
-          if (
-            dateTimeUtils.isOvernightMeeting(
-              this.meetingStartTime,
-              this.meetingEndTime
-            )
-          ) {
-            // 자정을 넘기는 모임인 경우 종료일은 다음날로 설정
-            this.meetingEndDate = dayjs(this.meetingDate)
-              .add(1, 'day')
-              .format('YYYY-MM-DD');
-          } else {
-            // 자정을 넘기지 않는 모임인 경우 종료일 = 시작일
-            this.meetingEndDate = this.meetingDate;
-          }
-        } else {
-          // 시간이 설정되지 않은 경우 기본적으로 종료일 = 시작일
-          this.meetingEndDate = this.meetingDate;
-        }
-
-        // 내부 DateTime 객체 업데이트
-        this.updateDateTime();
+        updateMeetingDates(this);
       },
 
       async fetchMeetingData() {
@@ -636,19 +582,10 @@
 
       /**
        * 시간 입력값 변경 시 유효성 검증
+       * @description vueComponentHelpers의 validateTimes 함수 사용
        */
       validateTimes() {
-        // 필요한 입력값이 모두 있는지 확인
-        if (!this.meetingStartDate || !this.meetingEndDate) {
-          return;
-        }
-
-        // 시간이 입력되지 않은 경우 기본값 설정
-        if (!this.meetingStartTime) this.meetingStartTime = '00:00';
-        if (!this.meetingEndTime) this.meetingEndTime = '00:00';
-
-        // 내부 DateTime 객체 업데이트
-        this.updateDateTime();
+        validateTimes(this);
       },
       onFileChange(file) {
         if (file) {
@@ -677,14 +614,20 @@
           this.meetingImageUrl = null;
         }
       },
+      /**
+       * 참가자 다이얼로그 열기
+       * @description vueComponentHelpers의 openParticipantsDialog 함수 사용
+       */
       openParticipantsDialog() {
-        this.participantsDialog = true;
+        openParticipantsDialog(this);
       },
+
+      /**
+       * 참가자 다이얼로그 닫기
+       * @description vueComponentHelpers의 closeParticipantsDialog 함수 사용
+       */
       closeParticipantsDialog() {
-        this.participantsDialog = false;
-        this.numberOfParticipants = this.memberList.filter(
-          (member) => member.isParticipating
-        ).length;
+        closeParticipantsDialog(this);
       },
       /**
        * 멤버 상태 조회
@@ -703,27 +646,30 @@
       getMemberStatusColor(member) {
         return getMemberStatusColor(member);
       },
+      /**
+       * 이미지를 S3에 업로드하는 함수
+       * @description imageUtils의 generateS3FileName을 사용하여 파일명 생성
+       */
       async uploadImageToS3() {
         if (!this.photos) {
           return null;
         }
 
         const file = this.photos;
-        const fileExtension = file.name.split('.').pop();
-        const organizationId = this.currentOrganizationId;
-        const activityId = this.activityId;
-        const timestamp = new Date()
-          .toISOString()
-          .replace(/[-:]/g, '')
-          .split('.')[0];
 
-        const newFileName = `org_${organizationId}_activity_${activityId}_${this.meetingName}_instance_${timestamp}.${fileExtension}`;
-        const filePath = `meetings/${newFileName}`;
+        // imageUtils의 generateS3FileName 사용
+        const { fileName, filePath } = generateS3FileName({
+          organizationId: this.currentOrganizationId,
+          activityId: this.activityId,
+          activityName: this.meetingName,
+          fileExtension: getFileExtension(file.name),
+          prefix: 'meetings/',
+        });
 
         try {
           const result = await this.s3CreateFile(filePath, file, true);
           if (result) {
-            return { url: result.filePath, fileName: newFileName };
+            return { url: result.filePath, fileName };
           } else {
             throw new Error('이미지 업로드 결과가 없습니다.');
           }

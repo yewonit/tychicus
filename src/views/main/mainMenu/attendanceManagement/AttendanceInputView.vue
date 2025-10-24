@@ -478,11 +478,36 @@
   import { AWSS3Ctrl } from '@/mixins/apis_v2/external/AWSS3Ctrl.js';
   import { AttendanceCtrl } from '@/mixins/apis_v2/internal/domainCtrl/AttendanceCtrl';
   import { CurrentMemberCtrl } from '@/mixins/apis_v2/internal/domainCtrl/CurrentMemberCtrl';
-
   import { Utility } from '@/mixins/apis_v2/utility/Utility';
   import { dateTimeUtils } from '@/utils/dateTimeUtils';
   import dayjs from 'dayjs';
   import { mapState } from 'vuex';
+
+  // 리팩토링된 유틸리티 함수들 import
+  import {
+    processImageFile,
+    generateS3FileName,
+    getFileExtension,
+    validateImageSize,
+    validateSingleFile,
+  } from '@/utils/imageUtils';
+  import {
+    ACTIVITY_DEFAULTS,
+    formatActivitiesForDisplay,
+  } from '@/utils/activityDefaults';
+  import {
+    updateDateTime,
+    validateTimes,
+    updateMeetingDates,
+    openParticipantsDialog,
+    closeParticipantsDialog,
+    initLoadingState,
+    updateLoadingState,
+    startEditingField,
+    finishEditingField,
+    resetMeetingForm,
+    getFileUploadStatus,
+  } from '@/utils/vueComponentHelpers';
 
   export default {
     name: 'MeetingRegistrationView',
@@ -498,23 +523,12 @@
         }
         return null;
       },
+      /**
+       * 표시용으로 포맷팅된 활동 목록
+       * @returns {Array} 필터링되고 포맷된 활동 목록
+       */
       formattedActivities() {
-        // 임시로 금요예배, 수요예배, 주일2부예배 제외
-        const excludedActivities = ['금요예배', '수요예배', '주일2부예배'];
-
-        // 화면 표시용 이름 매핑
-        const displayNameMapping = {
-          현장치유팀사역: '두란노사역자모임',
-        };
-
-        return this.activities
-          .filter((activity) => !excludedActivities.includes(activity.name))
-          .map((activity) => ({
-            ...activity,
-            name:
-              displayNameMapping[activity.name.split(' (')[0]] ||
-              activity.name.split(' (')[0],
-          }));
+        return formatActivitiesForDisplay(this.activities);
       },
       // 자정을 넘어가는 모임인지 확인
       isOvernightMeeting() {
@@ -571,72 +585,12 @@
           estimatedTimeLeft: null,
           hasLongDelay: false,
         },
-        // 활동별 기본값 정의
-        activityDefaults: {
-          주일2부예배: {
-            startTime: '10:00',
-            endTime: '11:30',
-            location: '커버넌트홀',
-            notes: '예원교회 주일 2부예배',
-            dayOfWeek: 0, // 일요일
-          },
-          주일3부예배: {
-            startTime: '12:00',
-            endTime: '13:20',
-            location: '커버넌트홀',
-            notes: '예원교회 주일 3부예배',
-            dayOfWeek: 0, // 일요일
-          },
-          청년예배: {
-            startTime: '14:30',
-            endTime: '16:30',
-            location: '커버넌트홀',
-            notes: '예원교회 코람데오 청년선교회 예배',
-            dayOfWeek: 0, // 일요일
-          },
-          수요예배: {
-            startTime: '20:00',
-            endTime: '20:50',
-            location: '드림홀',
-            notes: '예원교회 수요예배',
-            dayOfWeek: 3, // 수요일
-          },
-          금요예배: {
-            startTime: '20:20',
-            endTime: '22:10',
-            location: '커버넌트홀',
-            notes: '예원교회 금요예배',
-            dayOfWeek: 5, // 금요일
-          },
-          수요청년예배: {
-            startTime: '21:20',
-            endTime: '22:10',
-            location: '스카이아트홀',
-            notes: '그리스도의 제자로 복음을 더욱 깊이 각인하는 시간',
-            dayOfWeek: 3, // 수요일
-          },
-          금요청년예배: {
-            startTime: '22:20',
-            endTime: '23:20',
-            location: '스카이아트홀',
-            notes: '두란노의 응답 받아 성경적 전도운동의 증인으로 서는 시간',
-            dayOfWeek: 5, // 금요일
-          },
-        },
+        // 활동별 기본값 정의 (activityDefaults.js에서 import)
+        activityDefaults: ACTIVITY_DEFAULTS,
         editingField: null,
         rules: {
-          fileCount: (value) => {
-            if (Array.isArray(value) && value.length > 1) {
-              return '하나의 이미지만 업로드 가능합니다.';
-            }
-            return true;
-          },
-          fileSize: (value) => {
-            if (!value) return true;
-            const file = Array.isArray(value) ? value[0] : value;
-            const size = file.size / 1024 / 1024; // MB 단위로 변환
-            return size <= 3 || '파일 크기는 3MB를 초과할 수 없습니다.';
-          },
+          fileCount: validateSingleFile,
+          fileSize: (value) => validateImageSize(value, 3),
         },
         isUploading: false,
         isSubmitting: false,
@@ -905,6 +859,7 @@
        * 이미지를 AWS S3에 업로드하는 함수
        * @async
        * @returns {Promise<{url: string, fileName: string}|null>} 업로드된 이미지의 URL과 파일명 또는 null
+       * @description imageUtils의 generateS3FileName을 사용하여 파일명 생성
        */
       async uploadImageToS3() {
         if (!this.photos) {
@@ -913,28 +868,25 @@
         }
 
         const file = Array.isArray(this.photos) ? this.photos[0] : this.photos;
-        const fileExtension = file.name.split('.').pop();
-        const organizationId = this.currentOrganizationId;
         const activityTemplateId = this.selectedActivity;
         const activityName =
           this.activities.find((a) => a.id === activityTemplateId)?.name ||
           'unknown';
-        const timestamp = new Date()
-          .toISOString()
-          .replace(/[-:]/g, '')
-          .split('.')[0];
 
-        // 새로운 파일 이름 생성
-        const newFileName = `org_${organizationId}_activity_${activityTemplateId}_${activityName}_instance_${timestamp}.${fileExtension}`;
-
-        // 'meetings/' 폴더를 추가하여 파일 경로를 생성합니다.
-        const filePath = `meetings/${newFileName}`;
+        // imageUtils의 generateS3FileName 사용
+        const { fileName, filePath } = generateS3FileName({
+          organizationId: this.currentOrganizationId,
+          activityId: activityTemplateId,
+          activityName: activityName,
+          fileExtension: getFileExtension(file.name),
+          prefix: 'meetings/',
+        });
 
         try {
           const result = await this.s3CreateFile(filePath, file, true);
           if (result) {
             console.log('이미지 업로드 성공:', result);
-            return { url: result.filePath, fileName: newFileName };
+            return { url: result.filePath, fileName };
           } else {
             throw new Error('이미지 업로드 결과가 없습니다.');
           }
@@ -947,48 +899,27 @@
 
       /**
        * 폼을 초기화하는 함수
-       * @returns {void}
-       * @description 모든 입력 필드와 상태를 기본값으로 재설정합니다
+       * @description vueComponentHelpers의 resetMeetingForm 함수 사용
        */
       resetForm() {
-        const today = dateTimeUtils.getTodayString();
-        this.meetingImageUrl = null;
-        this.selectedActivity = null;
-        this.meetingName = '';
-        this.meetingStartDate = today;
-        this.meetingEndDate = today;
-        this.meetingStartTime = '';
-        this.meetingEndTime = '';
-        this.numberOfParticipants = null;
-        this.photos = null;
-        this.meetingLocation = '';
-        this.meetingNotes = '';
-        this.memberList.forEach((member) => (member.isParticipating = false));
+        resetMeetingForm(this);
       },
 
       // 3. 참가자 관리 (참석자 선택 다이얼로그 관련 기능들)
       /**
        * 참가자 선택 다이얼로그 표시
-       * @description
-       * - 모임 참여자 수 입력 필드 클릭 시 호출
-       * - memberList의 모든 회원을 선택 가능한 형태로 표시
-       * - 각 회원의 역할과 상태(새가족/장기결석)를 구분하여 표시
-       * @related closeParticipantsDialog, getMemberStatus, getMemberStatusColor
+       * @description vueComponentHelpers의 openParticipantsDialog 함수 사용
        */
       openParticipantsDialog() {
-        this.participantsDialog = true;
+        openParticipantsDialog(this);
       },
 
       /**
        * 참가자 선택 다이얼로그를 닫고 참가자 수를 업데이트하는 함수
-       * @returns {void}
+       * @description vueComponentHelpers의 closeParticipantsDialog 함수 사용
        */
       closeParticipantsDialog() {
-        this.participantsDialog = false;
-        this.numberOfParticipants = this.memberList.filter(
-          (member) => member.isParticipating
-        ).length;
-        console.log('참여자 선택 후 memberList:', this.memberList);
+        closeParticipantsDialog(this);
       },
 
       /**
@@ -1021,10 +952,7 @@
       // 4. UI 이벤트 핸들러 (사용자 인터랙션 처리)
       /**
        * 이미지 파일 선택 처리
-       * @description
-       * - 사용자가 이미지 파일을 선택하면 미리보기 URL 생성
-       * - 선택된 이미지는 나중에 submitMeeting에서 S3에 업로드
-       * @related submitMeeting에서 uploadImageToS3 호출 시 사용
+       * @description imageUtils의 processImageFile 함수를 사용하여 자동 압축 처리
        */
       async onFileChange() {
         if (this.photos) {
@@ -1033,50 +961,21 @@
             : this.photos;
           if (file) {
             try {
-              const size = file.size / 1024 / 1024; // MB로 변환
+              this.isUploading = true;
 
-              if (size > 3) {
-                // 3MB 초과 시 압축
-                console.log(`원본 이미지 크기: ${size.toFixed(2)}MB`);
-                this.isUploading = true;
+              // imageUtils의 processImageFile 사용 (자동 압축 포함)
+              const result = await processImageFile(file, 3);
 
-                // 이미지 압축
-                const compressedBlob = await this.compressImage(file);
-                const compressedSize = compressedBlob.size / 1024 / 1024;
-                console.log(
-                  `압축된 이미지 크기: ${compressedSize.toFixed(2)}MB`
-                );
+              this.photos = result.file;
+              this.meetingImageUrl = result.url;
 
-                // Blob을 File 객체로 변환
-                const compressedFile = new File([compressedBlob], file.name, {
-                  type: 'image/jpeg',
-                  lastModified: new Date().getTime(),
-                });
-
-                this.photos = compressedFile;
-                this.meetingImageUrl = URL.createObjectURL(compressedFile);
-
-                // 압축 결과 알림
-                const compressionRate = (
-                  ((size - compressedSize) / size) *
-                  100
-                ).toFixed(1);
-                console.log(`이미지 압축률: ${compressionRate}%`);
-
-                if (compressedSize > 3) {
-                  alert(
-                    '이미지 압축 후에도 3MB를 초과합니다. 더 작은 이미지를 선택해주세요.'
-                  );
-                  this.photos = null;
-                  this.meetingImageUrl = null;
-                  return;
-                }
-              } else {
-                this.meetingImageUrl = URL.createObjectURL(file);
+              // 압축 결과 로그
+              if (result.compressed) {
+                console.log(`이미지 압축률: ${result.compressionRate}%`);
               }
             } catch (error) {
-              console.error('이미지 압축 중 오류 발생:', error);
-              alert('이미지 처리 중 오류가 발생했습니다.');
+              console.error('이미지 처리 중 오류 발생:', error);
+              alert(error.message || '이미지 처리 중 오류가 발생했습니다.');
               this.photos = null;
               this.meetingImageUrl = null;
             } finally {
@@ -1089,168 +988,24 @@
       },
 
       /**
-       * 이미지 압축 함수
-       * @param {File} file - 원본 이미지 파일
-       * @param {number} maxSizeMB - 목표 파일 크기 (MB)
-       * @returns {Promise<Blob>} 압축된 이미지 Blob
-       */
-      async compressImage(file, maxSizeMB = 3) {
-        return new Promise((resolve, reject) => {
-          const reader = new FileReader();
-          reader.readAsDataURL(file);
-
-          reader.onload = (event) => {
-            const img = new Image();
-            img.src = event.target.result;
-
-            img.onload = () => {
-              const canvas = document.createElement('canvas');
-              let width = img.width;
-              let height = img.height;
-
-              // 초기 품질 설정
-              let quality = 0.7; // 초기 품질을 더 낮게 설정
-              const maxSize = maxSizeMB * 1024 * 1024; // MB를 bytes로 변환
-
-              // 이미지 크기 조정 (더 작은 최대 크기로 조정)
-              const MAX_WIDTH = 1280; // 1920에서 1280으로 감소
-              const MAX_HEIGHT = 720; // 1080에서 720으로 감소
-
-              if (width > MAX_WIDTH) {
-                height = Math.round((height * MAX_WIDTH) / width);
-                width = MAX_WIDTH;
-              }
-              if (height > MAX_HEIGHT) {
-                width = Math.round((width * MAX_HEIGHT) / height);
-                height = MAX_HEIGHT;
-              }
-
-              canvas.width = width;
-              canvas.height = height;
-
-              const ctx = canvas.getContext('2d');
-              ctx.fillStyle = '#FFFFFF'; // 배경을 흰색으로 설정
-              ctx.fillRect(0, 0, width, height);
-              ctx.drawImage(img, 0, 0, width, height);
-
-              const compressAndCheck = (currentQuality) => {
-                const dataUrl = canvas.toDataURL('image/jpeg', currentQuality);
-                const binaryData = atob(dataUrl.split(',')[1]);
-                const currentSize = binaryData.length;
-
-                if (currentSize > maxSize && currentQuality > 0.1) {
-                  // 품질을 더 큰 폭으로 낮춤
-                  const newQuality =
-                    currentQuality > 0.5
-                      ? currentQuality - 0.2
-                      : currentQuality - 0.1;
-                  compressAndCheck(Math.max(0.1, newQuality));
-                } else {
-                  // Blob 생성
-                  const byteArray = new Uint8Array(binaryData.length);
-                  for (let i = 0; i < binaryData.length; i++) {
-                    byteArray[i] = binaryData.charCodeAt(i);
-                  }
-                  const blob = new Blob([byteArray], { type: 'image/jpeg' });
-                  resolve(blob);
-                }
-              };
-
-              compressAndCheck(quality);
-            };
-
-            img.onerror = (error) => {
-              reject(error);
-            };
-          };
-
-          reader.onerror = (error) => {
-            reject(error);
-          };
-        });
-      },
-
-      /**
        * 내부 DateTime 객체 업데이트
        * @returns {void}
+       * @description vueComponentHelpers의 updateDateTime 함수 사용
        */
       updateDateTime() {
-        // 시작 시간 확인 및 기본값 설정
-        const startTime = this.meetingStartTime || '00:00';
-        const endTime = this.meetingEndTime || '00:00';
-
-        // 내부 DateTime 객체 업데이트
-        this.meetingStartDateTime = dateTimeUtils.createDateTime(
-          this.meetingStartDate,
-          startTime
-        );
-
-        this.meetingEndDateTime = dateTimeUtils.createDateTime(
-          this.meetingEndDate,
-          endTime
-        );
-
-        // 종료 시간이 시작 시간보다 이전인 경우 (날짜가 다름에도 불구하고)
-        if (this.meetingEndDateTime.isBefore(this.meetingStartDateTime)) {
-          // 자정을 넘기는 모임인 경우 (같은 날짜에 시작 시간 > 종료 시간)
-          if (
-            this.meetingStartDate === this.meetingEndDate &&
-            startTime > endTime
-          ) {
-            // 종료 날짜를 다음날로 자동 설정
-            this.meetingEndDateTime = dateTimeUtils
-              .createDateTime(this.meetingStartDate, endTime)
-              .add(1, 'day');
-
-            // UI 필드 업데이트
-            this.meetingEndDate = this.meetingEndDateTime.format('YYYY-MM-DD');
-          } else {
-            // 그 외의 경우 - 종료 시간을 시작 시간 이후로 자동 설정 (1시간 후)
-            this.meetingEndDateTime = this.meetingStartDateTime
-              .clone()
-              .add(1, 'hour');
-
-            // UI 필드 업데이트
-            this.meetingEndDate = this.meetingEndDateTime.format('YYYY-MM-DD');
-            this.meetingEndTime = this.meetingEndDateTime.format('HH:mm');
-          }
-        }
+        updateDateTime(this);
       },
 
       /**
        * 모임 날짜 변경 시 시작/종료 날짜 업데이트
        * @returns {void}
+       * @description 날짜 변경 시 요일 검증 추가
        */
       updateDates() {
-        this.meetingDateMenu = false;
-
-        // 모임 날짜가 변경되면 시작 날짜도 변경
-        this.meetingStartDate = this.meetingDate;
-
         // 날짜 선택 시 요일 검증
         this.validateSelectedDate();
-
-        // 시작 시간과 종료 시간이 설정되어 있는 경우에만 자정 넘김 확인
-        if (this.meetingStartTime && this.meetingEndTime) {
-          if (
-            dateTimeUtils.isOvernightMeeting(
-              this.meetingStartTime,
-              this.meetingEndTime
-            )
-          ) {
-            // 자정을 넘기는 모임인 경우 종료일은 다음날로 설정
-            this.meetingEndDate = dateTimeUtils.getNextDay(this.meetingDate);
-          } else {
-            // 자정을 넘기지 않는 모임인 경우 종료일 = 시작일
-            this.meetingEndDate = this.meetingDate;
-          }
-        } else {
-          // 시간이 설정되지 않은 경우 기본적으로 종료일 = 시작일
-          this.meetingEndDate = this.meetingDate;
-        }
-
-        // 내부 DateTime 객체 업데이트
-        this.updateDateTime();
+        // 공통 날짜 업데이트 로직
+        updateMeetingDates(this);
       },
 
       /**
@@ -1298,19 +1053,10 @@
 
       /**
        * 시간 입력값 변경 시 유효성 검증
+       * @description vueComponentHelpers의 validateTimes 함수 사용
        */
       validateTimes() {
-        // 필요한 입력값이 모두 있는지 확인
-        if (!this.meetingStartDate || !this.meetingEndDate) {
-          return;
-        }
-
-        // 시간이 입력되지 않은 경우 기본값 설정
-        if (!this.meetingStartTime) this.meetingStartTime = '00:00';
-        if (!this.meetingEndTime) this.meetingEndTime = '00:00';
-
-        // 내부 DateTime 객체 업데이트
-        this.updateDateTime();
+        validateTimes(this);
       },
 
       // 5. 데이터 CRUD 작업 (API 통신 관련 기본 함수들)
@@ -1487,23 +1233,18 @@
       /**
        * 필드 수정 시작
        * @param {string} field - 수정할 필드명
+       * @description vueComponentHelpers의 startEditingField 함수 사용
        */
       startEditing(field) {
-        this.editingField = field;
-        this.$nextTick(() => {
-          const input = this.$refs[field]?.[0];
-          if (input) {
-            input.focus();
-            input.select();
-          }
-        });
+        startEditingField(this, field);
       },
 
       /**
        * 필드 수정 완료
+       * @description vueComponentHelpers의 finishEditingField 함수 사용
        */
       finishEditing() {
-        this.editingField = null;
+        finishEditingField(this);
       },
 
       /**
@@ -1644,18 +1385,10 @@
 
       /**
        * 로딩 상태 초기화 함수
+       * @description vueComponentHelpers의 initLoadingState 함수 사용
        */
       initLoadingState() {
-        this.loadingState = {
-          isLoading: true,
-          currentStep: 0,
-          totalSteps: 5,
-          currentStepText: '준비 중...',
-          progressPercent: 0,
-          startTime: Date.now(),
-          estimatedTimeLeft: null,
-          hasLongDelay: false,
-        };
+        initLoadingState(this);
       },
 
       /**
@@ -1663,40 +1396,19 @@
        * @param {number} step - 현재 단계 (1~5)
        * @param {string} text - 현재 단계 설명 텍스트
        * @param {number} progress - 진행률 (0~100)
+       * @description vueComponentHelpers의 updateLoadingState 함수 사용
        */
       updateLoadingState(step, text, progress) {
-        this.loadingState.currentStep = step;
-        this.loadingState.currentStepText = text;
-        this.loadingState.progressPercent = progress;
-
-        // 단계 전환 시 진동 피드백 (모바일에서만 동작)
-        if (window.navigator && window.navigator.vibrate) {
-          window.navigator.vibrate(100);
-        }
-
-        // 장시간 소요 감지
-        const currentTime = Date.now();
-        const elapsedTime = (currentTime - this.loadingState.startTime) / 1000;
-
-        if (elapsedTime > 15 && !this.loadingState.hasLongDelay) {
-          this.loadingState.hasLongDelay = true;
-
-          // 지연 감지 시 더 강한 진동 (모바일에서만 동작)
-          if (window.navigator && window.navigator.vibrate) {
-            window.navigator.vibrate([100, 50, 200]);
-          }
-        }
+        updateLoadingState(this, step, text, progress);
       },
 
       /**
        * 파일 업로드 상태 텍스트 반환 함수
        * @returns {string} 업로드 상태 설명 텍스트
+       * @description vueComponentHelpers의 getFileUploadStatus 함수 사용
        */
       getFileUploadStatus() {
-        if (!this.photos) return '이미지 없음';
-
-        const fileSizeMB = (this.photos.size / (1024 * 1024)).toFixed(1);
-        return `${fileSizeMB}MB 이미지 업로드 중`;
+        return getFileUploadStatus(this);
       },
 
       /**
