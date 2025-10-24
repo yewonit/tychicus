@@ -664,8 +664,6 @@
         try {
           const response = await this.getActivityTemplate(true);
 
-          console.log('📥 API 응답 데이터:', response);
-
           if (response && response.data && Array.isArray(response.data)) {
             this.activities = response.data.map((activity) => ({
               id: activity.id,
@@ -673,17 +671,12 @@
               description: activity.description,
               category: activity.activityCategory,
             }));
-
-            console.log('🔄 변환된 활동 데이터:', this.activities);
           } else {
-            console.error('❌ 활동 데이터가 예상한 형식이 아닙니다:', response);
             this.activities = [];
           }
         } catch (error) {
           console.error('❌ 활동 정보 조회 중 오류 발생:', error);
           this.activities = [];
-        } finally {
-          console.log('📢 fetchActivities 함수 종료');
         }
       },
 
@@ -716,8 +709,6 @@
           // 로딩 인디케이터 초기화 및 시작
           this.initLoadingState();
           this.updateLoadingState(1, '입력 정보 검증 중...', 10);
-
-          console.log('🚀 submitMeeting 함수 시작');
 
           // 필수 입력값 검증
           if (!this.selectedActivity || !this.meetingDate) {
@@ -753,7 +744,6 @@
                   fileSize: this.photos.size,
                   fileType: this.photos.type,
                 };
-                console.log('📸 업로드된 이미지 정보:', imageInfo);
                 this.updateLoadingState(2, '이미지 업로드 완료', 40);
               } else {
                 throw new Error('이미지 업로드 실패');
@@ -777,12 +767,6 @@
           // 참여자 정보 준비 단계로 진행
           this.updateLoadingState(3, '참여자 정보 준비 중...', 60);
 
-          // 선택된 참여자 목록 가져오기
-          const selectedParticipants = this.memberList.filter(
-            (member) => member.isParticipating
-          );
-          console.log('👥 선택된 참여자:', selectedParticipants);
-
           // UTC 시간으로 변환
           const activityData = {
             startDateTime: dateTimeUtils.toUTCString(this.meetingStartDateTime),
@@ -790,15 +774,6 @@
             location: this.meetingLocation || '',
             notes: this.meetingNotes || '',
           };
-
-          console.log(
-            '📅 시작 시간:',
-            this.meetingStartDateTime.format('YYYY-MM-DD HH:mm:ss')
-          );
-          console.log(
-            '📅 종료 시간:',
-            this.meetingEndDateTime.format('YYYY-MM-DD HH:mm:ss')
-          );
 
           // 전체 멤버 목록에 대한 출석 정보 생성
           const allAttendances = this.memberList.map((member) => ({
@@ -837,8 +812,6 @@
           // 완료 단계로 진행
           this.updateLoadingState(5, '모임 정보 저장 완료', 100);
 
-          console.log('✅ 모임 정보 저장 성공');
-
           // 지연 후 로딩 다이얼로그 종료
           setTimeout(() => {
             this.loadingState.isLoading = false;
@@ -863,7 +836,6 @@
        */
       async uploadImageToS3() {
         if (!this.photos) {
-          console.log('업로드할 이미지가 없습니다.');
           return null;
         }
 
@@ -885,7 +857,6 @@
         try {
           const result = await this.s3CreateFile(filePath, file, true);
           if (result) {
-            console.log('이미지 업로드 성공:', result);
             return { url: result.filePath, fileName };
           } else {
             throw new Error('이미지 업로드 결과가 없습니다.');
@@ -968,11 +939,6 @@
 
               this.photos = result.file;
               this.meetingImageUrl = result.url;
-
-              // 압축 결과 로그
-              if (result.compressed) {
-                console.log(`이미지 압축률: ${result.compressionRate}%`);
-              }
             } catch (error) {
               console.error('이미지 처리 중 오류 발생:', error);
               alert(error.message || '이미지 처리 중 오류가 발생했습니다.');
@@ -1073,9 +1039,7 @@
        */
       async createData(modelType, data) {
         try {
-          console.log(`📝 ${modelType} 생성 시작:`, data);
           const result = await this.openCreateData(this[modelType], data, true);
-          console.log(`✅ ${modelType} 생성 완료:`, result);
           return result;
         } catch (error) {
           console.error(`❌ ${modelType} 생성 실패:`, error);
@@ -1093,23 +1057,12 @@
       async readData(modelType, id = null) {
         try {
           let result;
-          const startTime = performance.now();
 
           if (id) {
-            console.log(`🔍 ${modelType} 상세 데이터 조회 중...`);
             result = await this.openReadDataItemById(modelType, id, true);
-            console.log(`✅ ${modelType} 상세 데이터 조회 완료:`, result);
           } else {
-            console.log(`🔍 ${modelType} 전체 목록 조회 중...`);
             result = await this.openReadDataList(modelType, true);
-            console.log(
-              `✅ ${modelType} 목록 조회 완료 (총 ${result?.length || 0}건)`
-            );
-            console.log(`📊 조회된 데이터:`, result);
           }
-
-          const endTime = performance.now();
-          console.log(`⏱️ 수행 시간: ${(endTime - startTime).toFixed(2)}ms`);
 
           return result;
         } catch (error) {
@@ -1120,8 +1073,6 @@
             stack: error.stack,
           });
           return null;
-        } finally {
-          console.log(`🔚 ${modelType} 데이터 조회 종료\n`);
         }
       },
 
@@ -1135,14 +1086,12 @@
        */
       async updateData(modelType, id, data) {
         try {
-          console.log(`📝 ${modelType} 수정 시작 (ID: ${id}):`, data);
           const result = await this.openUpdateData(
             this[modelType],
             id,
             data,
             true
           );
-          console.log(`✅ ${modelType} 수정 완료:`, result);
           return result;
         } catch (error) {
           console.error(`❌ ${modelType} 수정 실패:`, error);
@@ -1159,9 +1108,7 @@
        */
       async deleteData(modelType, id) {
         try {
-          console.log(`🗑️ ${modelType} 삭제 시작 (ID: ${id})`);
           const result = await this.openDeleteData(this[modelType], id, true);
-          console.log(`✅ ${modelType} 삭제 완료`);
           return result;
         } catch (error) {
           console.error(`❌ ${modelType} 삭제 실패:`, error);
@@ -1182,8 +1129,6 @@
        */
       async createActivityDataTest() {
         try {
-          console.log('📝 함수 시작');
-
           const activityData = {
             name: '주일2부 예배',
             description: '주일 2부 예배 참석 및 말씀 나눔',
@@ -1197,16 +1142,7 @@
             default_end_time: '11:30:00',
           };
 
-          // 요청 전 데이터 확인
-          console.log('📤 요청 데이터:', JSON.stringify(activityData, null, 2));
-
-          const data = await this.openCreateData(
-            this.Activity,
-            activityData,
-            true
-          );
-
-          console.log('📥 응답 데이터:', data);
+          await this.openCreateData(this.Activity, activityData, true);
         } catch (error) {
           console.error('❌ 활동 생성 중 오류 발생:', {
             message: error.message,
@@ -1223,10 +1159,8 @@
        */
       async createActivityData() {
         const newActiviyDataSet = await this.createActivityDataSet();
-        console.log('🔄 생성된 데이터:', newActiviyDataSet);
         for (const activity of newActiviyDataSet) {
-          const data = await this.openCreateData(this.Activity, activity, true);
-          console.log('🔄 생성된 데이터:', data);
+          await this.openCreateData(this.Activity, activity, true);
         }
       },
 

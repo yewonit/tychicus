@@ -161,7 +161,8 @@ export async function processImageFile(file, maxSizeMB = 3) {
     lastModified: new Date().getTime(),
   });
 
-  const compressionRate = ((originalSize - compressedSize) / originalSize) * 100;
+  const compressionRate =
+    ((originalSize - compressedSize) / originalSize) * 100;
 
   console.log(`이미지 압축률: ${compressionRate.toFixed(1)}%`);
 
@@ -200,10 +201,7 @@ export function generateS3FileName({
   fileExtension,
   prefix = 'meetings/',
 }) {
-  const timestamp = new Date()
-    .toISOString()
-    .replace(/[-:]/g, '')
-    .split('.')[0];
+  const timestamp = new Date().toISOString().replace(/[-:]/g, '').split('.')[0];
 
   const fileName = `org_${organizationId}_activity_${activityId}_${activityName}_instance_${timestamp}.${fileExtension}`;
   const filePath = `${prefix}${fileName}`;
@@ -229,4 +227,3 @@ export function isImageFile(file) {
   if (!file || !file.type) return false;
   return file.type.startsWith('image/');
 }
-

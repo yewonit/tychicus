@@ -318,15 +318,11 @@
   import { CurrentMemberCtrl } from '@/mixins/apis_v2/internal/domainCtrl/CurrentMemberCtrl';
   import { Utility } from '@/mixins/apis_v2/utility/Utility';
   import { dateTimeUtils } from '@/utils/dateTimeUtils';
-  import dayjs from 'dayjs';
   import { mapState } from 'vuex';
 
   // 유틸리티 함수 import
   import { getMemberStatus, getMemberStatusColor } from '@/utils/memberUtils';
-  import {
-    generateS3FileName,
-    getFileExtension,
-  } from '@/utils/imageUtils';
+  import { generateS3FileName, getFileExtension } from '@/utils/imageUtils';
   import {
     updateDateTime,
     validateTimes,

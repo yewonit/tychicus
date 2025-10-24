@@ -12,7 +12,7 @@ import { dateTimeUtils } from './dateTimeUtils';
  * @description
  * Vue 컴포넌트의 시작/종료 날짜와 시간을 dayjs 객체로 변환하고,
  * 종료 시간이 시작 시간보다 이전인 경우 자동으로 조정합니다.
- * 
+ *
  * 필요한 data 속성:
  * - meetingStartDate: 시작 날짜 (YYYY-MM-DD)
  * - meetingEndDate: 종료 날짜 (YYYY-MM-DD)
@@ -95,7 +95,7 @@ export function validateTimes(context) {
  * 1. 시작 날짜를 모임 날짜와 동기화
  * 2. 자정 넘김 여부에 따라 종료 날짜 자동 계산
  * 3. DateTime 객체 업데이트
- * 
+ *
  * 필요한 data 속성:
  * - meetingDate: 모임 날짜 (YYYY-MM-DD)
  * - meetingStartDate: 시작 날짜 (자동 업데이트)
@@ -262,7 +262,7 @@ export function finishEditingField(context) {
  * @returns {void}
  * @description
  * 모든 입력 필드와 상태를 기본값으로 재설정합니다.
- * 
+ *
  * 초기화되는 필드:
  * - 이미지 관련: meetingImageUrl, photos
  * - 활동 정보: selectedActivity, meetingName
@@ -313,4 +313,3 @@ export function getFileUploadStatus(context) {
  * - 공통 에러 핸들링
  * - 공통 알림 표시 함수
  */
-

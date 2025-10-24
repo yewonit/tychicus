@@ -137,4 +137,3 @@ export function formatActivitiesForDisplay(activities) {
       displayName: getActivityDisplayName(activity.name),
     }));
 }
-
