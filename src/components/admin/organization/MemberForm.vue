@@ -31,11 +31,9 @@
               <label class="custom-switch mt-0 pt-0">
                 <input
                   type="checkbox"
-                  :checked="editedMember.isKakaotalkChatMember === 'Y'"
+                  :checked="editedMember.isKakaotalkChatMember === true"
                   @change="
                     editedMember.isKakaotalkChatMember = $event.target.checked
-                      ? 'Y'
-                      : 'N'
                   "
                 />
                 <span class="custom-slider"></span>
@@ -52,11 +50,9 @@
               <label class="custom-switch mt-0 pt-0">
                 <input
                   type="checkbox"
-                  :checked="editedMember.isLongTermAbsentee === 'Y'"
+                  :checked="editedMember.isLongTermAbsentee === true"
                   @change="
                     editedMember.isLongTermAbsentee = $event.target.checked
-                      ? 'Y'
-                      : 'N'
                   "
                 />
                 <span class="custom-slider"></span>
@@ -73,10 +69,8 @@
               <label class="custom-switch mt-0 pt-0">
                 <input
                   type="checkbox"
-                  :checked="editedMember.isNewMember === 'Y'"
-                  @change="
-                    editedMember.isNewMember = $event.target.checked ? 'Y' : 'N'
-                  "
+                  :checked="editedMember.isNewMember === true"
+                  @change="editedMember.isNewMember = $event.target.checked"
                 />
                 <span class="custom-slider"></span>
               </label>

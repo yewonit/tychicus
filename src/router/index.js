@@ -48,6 +48,7 @@ import MemberRegistrationView from '@/views/main/mainMenu/membersManagement/Memb
 import MemberUpdateView from '@/views/main/mainMenu/membersManagement/MemberUpdateView.vue';
 
 /** 출석 관리 */
+import AttendanceInputView from '@/views/main/mainMenu/attendanceManagement/AttendanceInputView.vue';
 import AttendanceUpdateView from '@/views/main/mainMenu/attendanceManagement/AttendanceUpdateView.vue';
 import MeetingDetailView from '@/views/main/mainMenu/attendanceManagement/MeetingDetailView.vue';
 import MeetingHistoryView from '@/views/main/mainMenu/attendanceManagement/MeetingHistoryView.vue';
@@ -250,6 +251,22 @@ const routes = [
        * @section 출석 관리 라우트
        * @description 예배 및 모임 출석 관련 기능
        */
+      {
+        path: '/attendance-input',
+        name: 'AttendanceInputView',
+        component: AttendanceInputView,
+        meta: {
+          title: '출석 입력',
+          showIcon: true,
+          iconName: 'mdi-account-check',
+          showBackButton: true,
+          showHomeButton: false,
+          showCancelButton: true,
+          permissions: {
+            roles: ['admin', '부순장', '순장', '부그룹장', '그룹장'],
+          },
+        },
+      },
       {
         path: '/meeting-history',
         name: 'MeetingHistoryView',

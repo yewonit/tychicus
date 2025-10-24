@@ -75,7 +75,7 @@
                 {{ item.roleName }}
               </v-chip>
               <v-chip
-                v-if="item.isNewMember === 'Y'"
+                v-if="item.isNewMember === true"
                 small
                 color="orange"
                 text-color="black"
@@ -84,7 +84,7 @@
                 새가족
               </v-chip>
               <v-chip
-                v-if="item.isLongTermAbsentee === 'Y'"
+                v-if="item.isLongTermAbsentee === true"
                 small
                 color="red"
                 text-color="black"

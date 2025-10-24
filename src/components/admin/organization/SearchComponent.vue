@@ -95,7 +95,7 @@
                       | {{ member.organizationName }}
                     </span>
                     <v-chip
-                      v-if="member.isNewMember === 'Y'"
+                      v-if="member.isNewMember === true"
                       x-small
                       color="orange"
                       text-color="black"

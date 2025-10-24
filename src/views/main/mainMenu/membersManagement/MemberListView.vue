@@ -116,7 +116,7 @@
                 <div class="wc-fs-20 wc-bold-600 pt-1">
                   {{ member.name }}
                   <v-chip
-                    v-if="member.isNewMember === 'Y'"
+                    v-if="member.isNewMember === true"
                     small
                     density="compact"
                     class="ml-1 mt-n2"
@@ -125,7 +125,7 @@
                     새가족
                   </v-chip>
                   <v-chip
-                    v-if="member.isLongTermAbsentee === 'Y'"
+                    v-if="member.isLongTermAbsentee === true"
                     small
                     density="compact"
                     class="ml-1 mt-n2"
@@ -263,13 +263,13 @@
           const roleB = roleOrder[b.roleId] || 6;
 
           // 새가족 우선 정렬
-          if (a.isNewMember === 'Y' && b.isNewMember !== 'Y') return -1;
-          if (a.isNewMember !== 'Y' && b.isNewMember === 'Y') return 1;
+          if (a.isNewMember === true && b.isNewMember !== true) return -1;
+          if (a.isNewMember !== true && b.isNewMember === true) return 1;
 
           // 장기결석자 정렬
-          if (a.isLongTermAbsentee === 'Y' && b.isLongTermAbsentee !== 'Y')
+          if (a.isLongTermAbsentee === true && b.isLongTermAbsentee !== true)
             return -1;
-          if (a.isLongTermAbsentee !== 'Y' && b.isLongTermAbsentee === 'Y')
+          if (a.isLongTermAbsentee !== true && b.isLongTermAbsentee === true)
             return 1;
 
           // 역할 우선순위에 따른 정렬
@@ -297,17 +297,17 @@
         // 통계 계산 시작 로그
 
         // 1. 장기결석자 수 계산
-        // - memberList 배열을 순회하며 isLongTermAbsentee가 'Y'인 멤버만 필터링
+        // - memberList 배열을 순회하며 isLongTermAbsentee가 true인 멤버만 필터링
         // - 필터링된 배열의 길이가 장기결석자 수
         this.longTermAbsenteeCount = this.memberList.filter(
-          (member) => member.isLongTermAbsentee === 'Y'
+          (member) => member.isLongTermAbsentee === true
         ).length;
 
         // 2. 새가족 수 계산
-        // - memberList 배열을 순회하며 isNewMember가 'Y'인 멤버만 필터링
+        // - memberList 배열을 순회하며 isNewMember가 true인 멤버만 필터링
         // - 필터링된 배열의 길이가 새가족 수
         this.newFamilyMembersCount = this.memberList.filter(
-          (member) => member.isNewMember === 'Y'
+          (member) => member.isNewMember === true
         ).length;
       },
       /**

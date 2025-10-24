@@ -43,8 +43,8 @@ export function getRoleColor(roleName) {
  * @returns {string} 상태명
  */
 export function getMemberStatus(member) {
-  if (member.isNewMember === 'Y') return '새가족';
-  if (member.isLongTermAbsentee === 'Y') return '장기결석';
+  if (member.isNewMember === true) return '새가족';
+  if (member.isLongTermAbsentee === true) return '장기결석';
   return member.roleName === '회원' ? '순원' : member.roleName || '순원';
 }
 
@@ -54,8 +54,8 @@ export function getMemberStatus(member) {
  * @returns {string} 색상 코드
  */
 export function getMemberStatusColor(member) {
-  if (member.isNewMember === 'Y') return '#FFE0B3'; // 새가족
-  if (member.isLongTermAbsentee === 'Y') return '#FFCCCC'; // 장기결석자
+  if (member.isNewMember === true) return '#FFE0B3'; // 새가족
+  if (member.isLongTermAbsentee === true) return '#FFCCCC'; // 장기결석자
 
   const roleColors = {
     그룹장: '#B3C6FF',
@@ -96,12 +96,14 @@ export function sortMembers(members) {
     }
 
     // 새가족 우선
-    if (a.isNewMember === 'Y' && b.isNewMember !== 'Y') return -1;
-    if (a.isNewMember !== 'Y' && b.isNewMember === 'Y') return 1;
+    if (a.isNewMember === true && b.isNewMember !== true) return -1;
+    if (a.isNewMember !== true && b.isNewMember === true) return 1;
 
     // 장기결석자 정렬
-    if (a.isLongTermAbsentee === 'Y' && b.isLongTermAbsentee !== 'Y') return -1;
-    if (a.isLongTermAbsentee !== 'Y' && b.isLongTermAbsentee === 'Y') return 1;
+    if (a.isLongTermAbsentee === true && b.isLongTermAbsentee !== true)
+      return -1;
+    if (a.isLongTermAbsentee !== true && b.isLongTermAbsentee === true)
+      return 1;
 
     // 이름 알파벳 순 정렬
     return a.name.localeCompare(b.name);
@@ -127,9 +129,9 @@ export function createDefaultMember() {
     genderType: 'M',
     email: 'email@email.com',
     birthDate: null,
-    isNewMember: 'Y',
-    isLongTermAbsentee: 'N',
-    isKakaotalkChatMember: 'N',
+    isNewMember: true,
+    isLongTermAbsentee: false,
+    isKakaotalkChatMember: false,
     roleId: 74,
     roleName: '순원',
     memberNumber: '',
@@ -141,8 +143,8 @@ export function createDefaultMember() {
     hobby: '',
     city: null,
     stateProvince: null,
-    isAddressPublic: 'N',
-    isPhoneNumberPublic: 'N',
+    isAddressPublic: false,
+    isPhoneNumberPublic: false,
     snsUrl: null,
   };
 }

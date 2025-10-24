@@ -88,6 +88,64 @@ export const dateTimeUtils = {
       !endDateTime.isBefore(startDateTime)
     );
   },
+
+  /**
+   * 주어진 요일에 해당하는 가장 최근 과거 날짜를 반환하는 함수
+   * @param {number} dayOfWeek - 요일 (0: 일요일, 1: 월요일, ... 6: 토요일)
+   * @returns {string} YYYY-MM-DD 형식의 날짜 문자열
+   * @example
+   * // 오늘이 수요일(3)이고 일요일(0)을 찾는 경우 -> 지난 일요일 날짜 반환
+   * getNearestPastDate(0) // "2024-01-21"
+   */
+  getNearestPastDate(dayOfWeek) {
+    const today = dayjs();
+    const todayDayOfWeek = today.day(); // 현재 요일 (0-6)
+
+    let daysToSubtract;
+
+    if (todayDayOfWeek === dayOfWeek) {
+      // 오늘이 해당 요일이면 오늘 날짜 반환
+      daysToSubtract = 0;
+    } else if (todayDayOfWeek > dayOfWeek) {
+      // 찾는 요일이 현재 요일보다 앞에 있으면 (예: 오늘이 수요일이고 일요일을 찾는 경우)
+      daysToSubtract = todayDayOfWeek - dayOfWeek;
+    } else {
+      // 찾는 요일이 현재 요일보다 뒤에 있으면 (예: 오늘이 화요일이고 금요일을 찾는 경우)
+      // 이 경우 지난 주의 해당 요일을 계산
+      daysToSubtract = 7 - (dayOfWeek - todayDayOfWeek);
+    }
+
+    // 지정된 일수만큼 오늘 날짜에서 빼기
+    const targetDate = dayjs().subtract(daysToSubtract, 'days');
+    return targetDate.format('YYYY-MM-DD');
+  },
+
+  /**
+   * 날짜에서 다음 날 날짜를 YYYY-MM-DD 형식으로 반환
+   * @param {string} date - YYYY-MM-DD 형식의 날짜 문자열
+   * @returns {string} YYYY-MM-DD 형식의 다음 날 날짜
+   */
+  getNextDay(date) {
+    return dayjs(date).add(1, 'day').format('YYYY-MM-DD');
+  },
+
+  /**
+   * 요일 숫자를 한글 텍스트로 변환
+   * @param {number} dayOfWeek - 요일 (0: 일요일, 1: 월요일, ... 6: 토요일)
+   * @returns {string} 한글 요일명
+   */
+  getDayOfWeekText(dayOfWeek) {
+    const days = [
+      '일요일',
+      '월요일',
+      '화요일',
+      '수요일',
+      '목요일',
+      '금요일',
+      '토요일',
+    ];
+    return days[dayOfWeek] || '';
+  },
 };
 
 export default dateTimeUtils;
