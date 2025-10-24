@@ -480,7 +480,6 @@
   import { CurrentMemberCtrl } from '@/mixins/apis_v2/internal/domainCtrl/CurrentMemberCtrl';
   import { Utility } from '@/mixins/apis_v2/utility/Utility';
   import { dateTimeUtils } from '@/utils/dateTimeUtils';
-  import dayjs from 'dayjs';
   import { mapState } from 'vuex';
 
   // 리팩토링된 유틸리티 함수들 import
@@ -508,6 +507,15 @@
     resetMeetingForm,
     getFileUploadStatus,
   } from '@/utils/vueComponentHelpers';
+  import {
+    validateActivityDate,
+    getActivityDefaults,
+    getRecommendedDayOfWeek,
+    getRecommendedDayOfWeekText,
+    getActivityName,
+  } from '@/utils/activityValidation';
+  import { fetchMembersWithRoles } from '@/services/memberService';
+  import { getMemberStatus, getMemberStatusColor } from '@/utils/memberUtils';
 
   export default {
     name: 'MeetingRegistrationView',
@@ -567,13 +575,6 @@
         meetingLocation: '',
         meetingNotes: '',
         finalData: null,
-        roleInfo: {
-          그룹장: { color: '#B3C6FF', priority: 1 }, // 파스텔 블루
-          순장: { color: '#D6E0FF', priority: 1 }, // 연한 파스텔 블루
-          부순장: { color: '#FFF4B3', priority: 2 }, // 파스텔 옐로우
-          순원: { color: '#C2E0C2', priority: 3 }, // 파스텔 그린
-          회원: { color: '#D6EAD6', priority: 3 }, // 연한 파스텔 그린
-        },
         // 로딩 상태 관리
         loadingState: {
           isLoading: false,
@@ -620,35 +621,11 @@
       // 1. 초기화 및 데이터 로딩 (페이지 진입 시 실행되는 기능들)
       /**
        * 회원 목록 조회
-       * @async
-       * @returns {Promise<void>}
-       * @description
-       * - 현재 조직의 모든 회원 정보를 가져옴
-       * - 회원들을 역할(회장/부회장/총무/회원)과 상태(새가족/장기결석)에 따라 정렬
-       * - memberList 상태를 업데이트하여 화면에 표시
-       * @related closeParticipantsDialog에서 선택된 회원 수 계산에 사용
+       * @description memberService를 사용하여 정렬된 회원 목록 조회
        */
       async fetchMemberList() {
         const organizationId = this.userInfo.roles[0].organizationId;
-        let memberList = await this.getMembersWithRoles(organizationId, true);
-
-        // 우선 순위에 따라 정렬
-        memberList.sort((a, b) => {
-          const getRolePriority = (member) => {
-            return this.roleInfo[member.roleName]?.priority || 4;
-          };
-
-          if (a.isNewMember === true && b.isNewMember !== true) return -1;
-          if (a.isNewMember !== true && b.isNewMember === true) return 1;
-          if (a.isLongTermAbsentee === true && b.isLongTermAbsentee !== true)
-            return -1;
-          if (a.isLongTermAbsentee !== true && b.isLongTermAbsentee === true)
-            return 1;
-
-          return getRolePriority(a) - getRolePriority(b);
-        });
-
-        this.memberList = memberList;
+        this.memberList = await fetchMembersWithRoles(organizationId);
       },
 
       /**
@@ -895,29 +872,18 @@
 
       /**
        * 회원의 상태를 반환하는 함수
+       * @description memberUtils의 getMemberStatus 사용
        */
       getMemberStatus(member) {
-        if (member.isNewMember === true) return '새가족';
-        if (member.isLongTermAbsentee === true) return '장기결석';
-        return member.roleName === '회원' ? '순원' : member.roleName || '순원';
+        return getMemberStatus(member);
       },
 
       /**
        * 회원의 상태에 따른 색상을 반환하는 함수
+       * @description memberUtils의 getMemberStatusColor 사용
        */
       getMemberStatusColor(member) {
-        if (member.isNewMember === true) return '#FFE0B3'; // 파스텔 주황색 (새가족)
-        if (member.isLongTermAbsentee === true) return '#FFCCCC'; // 파스텔 빨간색 (장기결석자)
-
-        const roleColors = {
-          그룹장: '#B3C6FF', // 파스텔 블루
-          순장: '#D6E0FF', // 연한 파스텔 블루
-          부순장: '#FFF4B3', // 파스텔 옐로우
-          순원: '#C2E0C2', // 파스텔 그린
-          회원: '#D6EAD6', // 연한 파스텔 그린
-        };
-
-        return roleColors[member.roleName] || '#E0E0E0'; // 기본 연한 회색
+        return getMemberStatusColor(member);
       },
 
       // 4. UI 이벤트 핸들러 (사용자 인터랙션 처리)
@@ -976,43 +942,17 @@
 
       /**
        * 선택된 모임 유형에 따라 모임 이름과 날짜를 설정하는 함수
-       * @returns {void}
+       * @description activityValidation의 getActivityDefaults 사용
        */
       setMeetingName() {
-        const selectedActivity = this.activities.find(
-          (a) => a.id === this.selectedActivity
+        const defaults = getActivityDefaults(
+          this.selectedActivity,
+          this.activities,
+          this.activityDefaults
         );
 
-        if (selectedActivity && this.activityDefaults[selectedActivity.name]) {
-          const defaults = this.activityDefaults[selectedActivity.name];
-          this.meetingStartTime = defaults.startTime;
-          this.meetingEndTime = defaults.endTime;
-          this.meetingLocation = defaults.location;
-          this.meetingNotes = defaults.notes;
-
-          // 요일 정보가 있으면 해당 요일의 가장 최근 과거 날짜로 설정
-          if (defaults.dayOfWeek !== undefined) {
-            this.meetingDate = dateTimeUtils.getNearestPastDate(
-              defaults.dayOfWeek
-            );
-            this.meetingStartDate = this.meetingDate;
-
-            // 자정을 넘기는 모임인지 확인
-            if (
-              dateTimeUtils.isOvernightMeeting(
-                defaults.startTime,
-                defaults.endTime
-              )
-            ) {
-              // 자정을 넘기는 모임인 경우 종료일은 다음날로 설정
-              this.meetingEndDate = dateTimeUtils.getNextDay(this.meetingDate);
-            } else {
-              // 자정을 넘기지 않는 모임인 경우 종료일 = 시작일
-              this.meetingEndDate = this.meetingDate;
-            }
-          }
-
-          // 내부 DateTime 객체 업데이트
+        if (defaults) {
+          Object.assign(this, defaults);
           this.updateDateTime();
         }
       },
@@ -1023,145 +963,6 @@
        */
       validateTimes() {
         validateTimes(this);
-      },
-
-      // 5. 데이터 CRUD 작업 (API 통신 관련 기본 함수들)
-      /**
-       * 데이터 생성 기본 함수
-       * @async
-       * @param {string} modelType - 생성할 데이터 모델 (Activity, Member 등)
-       * @param {Object} data - 생성할 데이터 객체
-       * @returns {Promise<Object|null>} 생성된 데이터 또는 실패 시 null
-       * @description
-       * - 모든 데이터 생성 작업의 기본 함수
-       * - 에러 처리와 로깅을 포함
-       * @related submitMeeting, createActivityData에서 사용
-       */
-      async createData(modelType, data) {
-        try {
-          const result = await this.openCreateData(this[modelType], data, true);
-          return result;
-        } catch (error) {
-          console.error(`❌ ${modelType} 생성 실패:`, error);
-          return null;
-        }
-      },
-
-      /**
-       * 데이터를 조회하는 함수
-       * @async
-       * @param {string} modelType - 모델 타입
-       * @param {number|null} id - 조회할 데이터 ID
-       * @returns {Promise<Object|null>} 조회된 데이터 또는 null
-       */
-      async readData(modelType, id = null) {
-        try {
-          let result;
-
-          if (id) {
-            result = await this.openReadDataItemById(modelType, id, true);
-          } else {
-            result = await this.openReadDataList(modelType, true);
-          }
-
-          return result;
-        } catch (error) {
-          console.error(`❌ ${modelType} 조회 중 오류 발생:`, error);
-          console.error(`오류 상세 정보:`, {
-            name: error.name,
-            message: error.message,
-            stack: error.stack,
-          });
-          return null;
-        }
-      },
-
-      /**
-       * 데이터를 수정하는 함수
-       * @async
-       * @param {string} modelType - 모델 타입
-       * @param {number} id - 수정할 데이터 ID
-       * @param {Object} data - 수정할 데이터
-       * @returns {Promise<Object|null>} 수정된 데이터 또는 null
-       */
-      async updateData(modelType, id, data) {
-        try {
-          const result = await this.openUpdateData(
-            this[modelType],
-            id,
-            data,
-            true
-          );
-          return result;
-        } catch (error) {
-          console.error(`❌ ${modelType} 수정 실패:`, error);
-          return null;
-        }
-      },
-
-      /**
-       * 데이터를 삭제하는 함수
-       * @async
-       * @param {string} modelType - 모델 타입
-       * @param {number} id - 삭제할 데이터 ID
-       * @returns {Promise<boolean>} 삭제 성공 여부
-       */
-      async deleteData(modelType, id) {
-        try {
-          const result = await this.openDeleteData(this[modelType], id, true);
-          return result;
-        } catch (error) {
-          console.error(`❌ ${modelType} 삭제 실패:`, error);
-          return null;
-        }
-      },
-
-      // 6. 활동 데이터 관리 (활동 유형 관련 기능들)
-      /**
-       * 활동 데이터 생성 테스트
-       * @async
-       * @returns {Promise<void>}
-       * @description
-       * - 개발 환경에서 활동 데이터 생성을 테스트
-       * - 실제 API 호출을 통해 활동 생성 프로세스 검증
-       * - 상세한 로깅으로 문제 발생 시 디버깅 용이
-       * @related createData, fetchActivities
-       */
-      async createActivityDataTest() {
-        try {
-          const activityData = {
-            name: '주일2부 예배',
-            description: '주일 2부 예배 참석 및 말씀 나눔',
-            activity_category_id: 1,
-            organization_id: 117,
-            is_recurring: true,
-            location_type: 'OFFLINE',
-            location: '본당',
-            online_link: null,
-            default_start_time: '10:00:00',
-            default_end_time: '11:30:00',
-          };
-
-          await this.openCreateData(this.Activity, activityData, true);
-        } catch (error) {
-          console.error('❌ 활동 생성 중 오류 발생:', {
-            message: error.message,
-            response: error.response?.data,
-            status: error.response?.status,
-          });
-        }
-      },
-
-      /**
-       * 활동 데이터를 생성하는 함수
-       * @async
-       * @returns {Promise<void>}
-       */
-      async createActivityData() {
-        const newActiviyDataSet = await this.createActivityDataSet();
-        for (const activity of newActiviyDataSet) {
-          await this.openCreateData(this.Activity, activity, true);
-        }
       },
 
       /**
@@ -1183,52 +984,31 @@
 
       /**
        * 날짜의 요일이 활동의 권장 요일과 일치하는지 검증하는 함수
-       * @returns {boolean} 요일이 일치하면 true, 일치하지 않으면 false
+       * @description activityValidation의 validateActivityDate 사용
        */
       validateSelectedDate() {
-        if (!this.selectedActivity) return true;
-
-        const activity = this.activities.find(
-          (a) => a.id === this.selectedActivity
+        const result = validateActivityDate(
+          this.meetingDate,
+          this.selectedActivity,
+          this.activities,
+          this.activityDefaults
         );
-        if (!activity || !this.activityDefaults[activity.name]) return true;
 
-        const defaults = this.activityDefaults[activity.name];
-        if (defaults.dayOfWeek === undefined) return true;
+        if (!result.isValid) {
+          // 검증 실패 - 경고 대화상자 정보 설정
+          this.selectedActivityName = result.selectedActivityName;
+          this.recommendedDayOfWeekText = result.recommendedDayOfWeekText;
+          this.selectedDayOfWeekText = result.selectedDayOfWeekText;
+          this.selectedDate = result.selectedDate;
+          this.recommendedDate = result.recommendedDate;
 
-        const selectedDate = dayjs(this.meetingDate);
-        const dayOfWeek = selectedDate.day();
-
-        if (dayOfWeek !== defaults.dayOfWeek) {
-          // 불일치 - 경고 대화상자 정보 설정
-          // 화면 표시용 이름 매핑
-          const displayNameMapping = {
-            현장치유팀사역: '두란노사역자모임',
-          };
-
-          this.selectedActivityName =
-            displayNameMapping[activity.name] || activity.name;
-          this.recommendedDayOfWeekText = dateTimeUtils.getDayOfWeekText(
-            defaults.dayOfWeek
-          );
-          this.selectedDayOfWeekText =
-            dateTimeUtils.getDayOfWeekText(dayOfWeek);
-          this.selectedDate = this.meetingDate;
-          this.recommendedDate = dateTimeUtils.getNearestPastDate(
-            defaults.dayOfWeek
-          );
-
-          // 다이얼로그를 바로 표시하지 않고 UI에만 반영
-          // 시각적 피드백을 위해 CSS 클래스 적용 (date-picker가 열려있을 때는 표시하지 않음)
+          // date-picker가 열려있지 않을 때만 경고 표시
           if (!this.meetingDateMenu) {
-            // 잘못된 요일 선택 경고 대화상자 표시
             this.dayOfWeekWarningDialog = true;
           }
-
-          return false;
         }
 
-        return true;
+        return result.isValid;
       },
 
       /**
@@ -1272,49 +1052,34 @@
 
       /**
        * 선택된 활동의 권장 요일을 반환하는 함수
-       * @returns {number|null} 권장 요일 (0-6) 또는 null
+       * @description activityValidation의 getRecommendedDayOfWeek 사용
        */
       getRecommendedDayOfWeek() {
-        if (!this.selectedActivity) return null;
-
-        const activity = this.activities.find(
-          (a) => a.id === this.selectedActivity
+        return getRecommendedDayOfWeek(
+          this.selectedActivity,
+          this.activities,
+          this.activityDefaults
         );
-        if (!activity || !this.activityDefaults[activity.name]) return null;
-
-        return this.activityDefaults[activity.name].dayOfWeek;
       },
 
       /**
        * 권장 요일 텍스트를 반환하는 함수
-       * @returns {string} 요일 텍스트 (예: "일요일")
+       * @description activityValidation의 getRecommendedDayOfWeekText 사용
        */
       getRecommendedDayOfWeekText() {
-        const dayOfWeek = this.getRecommendedDayOfWeek();
-        return dayOfWeek !== null
-          ? dateTimeUtils.getDayOfWeekText(dayOfWeek)
-          : '';
+        return getRecommendedDayOfWeekText(
+          this.selectedActivity,
+          this.activities,
+          this.activityDefaults
+        );
       },
 
       /**
        * 선택된 활동 이름을 반환하는 함수
-       * @returns {string} 활동 이름
+       * @description activityValidation의 getActivityName 사용
        */
       getActivityName() {
-        if (!this.selectedActivity) return '';
-
-        const activity = this.activities.find(
-          (a) => a.id === this.selectedActivity
-        );
-
-        if (!activity) return '';
-
-        // 화면 표시용 이름 매핑
-        const displayNameMapping = {
-          현장치유팀사역: '두란노사역자모임',
-        };
-
-        return displayNameMapping[activity.name] || activity.name;
+        return getActivityName(this.selectedActivity, this.activities);
       },
 
       /**
