@@ -1,6 +1,6 @@
 // AWS SDK 최적화: 필요한 모듈만 import (95 MB → ~5 MB)
 import S3 from 'aws-sdk/clients/s3';
-import { CognitoIdentityCredentials, Config } from 'aws-sdk';
+import { CognitoIdentityCredentials } from 'aws-sdk';
 
 export const AWSS3Ctrl = {
   data() {
@@ -17,20 +17,26 @@ export const AWSS3Ctrl = {
   },
   methods: {
     // AWS S3 인스턴스 설정
+    /**
+     * S3 인스턴스를 설정하고 Cognito Identity로 인증
+     * @description Cognito Identity Pool을 사용하여 임시 AWS credentials 획득
+     */
     async setS3() {
-      // AWS Config 설정 업데이트
-      const config = new Config({
-        region: this.bucketRegion,
-        credentials: new CognitoIdentityCredentials({
-          IdentityPoolId: this.IdentityPoolId,
-        }),
+      // Cognito Identity Credentials 생성
+      const credentials = new CognitoIdentityCredentials({
+        IdentityPoolId: this.IdentityPoolId,
       });
-      // S3 인스턴스 생성
-      this.s3 = await new S3({
-        ...config,
+
+      // S3 인스턴스 생성 (credentials와 region을 직접 전달)
+      this.s3 = new S3({
+        region: this.bucketRegion,
+        credentials: credentials,
         apiVersion: '2006-03-01',
         params: { Bucket: this.albumBucketName },
       });
+
+      // Cognito credentials를 먼저 획득 (비동기)
+      await credentials.getPromise();
     },
 
     // S3 인스턴스 초기화
