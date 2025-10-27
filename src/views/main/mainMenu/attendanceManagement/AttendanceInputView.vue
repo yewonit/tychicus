@@ -832,14 +832,27 @@
         });
 
         try {
-          const result = await this.s3CreateFile(filePath, file, true);
-          if (result) {
+          console.log('🔄 S3 업로드 시작:', {
+            filePath,
+            fileName,
+            fileSize: file.size,
+            fileType: file.type,
+          });
+
+          const result = await this.s3CreateFile(filePath, file);
+
+          console.log('✅ S3 업로드 결과:', result);
+
+          if (result && result.filePath) {
             return { url: result.filePath, fileName };
           } else {
-            throw new Error('이미지 업로드 결과가 없습니다.');
+            console.error('❌ S3 업로드 결과가 없습니다:', result);
+            throw new Error(
+              '이미지 업로드 결과가 없습니다. S3 업로드에 실패했습니다.'
+            );
           }
         } catch (error) {
-          console.error('이미지 업로드 실패:', error);
+          console.error('❌ 이미지 업로드 실패:', error);
           alert('이미지 업로드에 실패했습니다. 다시 시도해주세요.');
           return null;
         }

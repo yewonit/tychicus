@@ -39,28 +39,47 @@ export const AWSS3Ctrl = {
     },
 
     // S3에 파일 생성 (업로드)
+    /**
+     * S3에 파일을 업로드하는 함수
+     * @param {string} fileName - S3에 저장될 파일 경로/이름
+     * @param {File} fileObject - 업로드할 파일 객체
+     * @returns {Promise<{fileName: string, filePath: string}|null>} 업로드 결과 또는 null
+     */
     async s3CreateFile(fileName, fileObject) {
       let tempData = null;
-      await this.setS3(); // S3 인스턴스 설정
-      await this.s3
-        .upload({
-          Key: fileName,
-          Body: fileObject,
-          ACL: 'public-read', // 파일을 공개적으로 읽을 수 있게 설정
-        })
-        .promise()
-        .then((res) => {
-          tempData = {
-            fileName: res.Key,
-            filePath: res.Location,
-          };
-        })
-        .catch(() => {
-          alert(
-            '정보를 업로드하는데 실패하였습니다.(관리자 문의 : 010-3383-4177)'
-          );
+      try {
+        await this.setS3(); // S3 인스턴스 설정
+
+        console.log('🔄 S3 업로드 요청:', {
+          fileName,
+          fileSize: fileObject?.size,
+          fileType: fileObject?.type,
         });
-      this.clearS3(); // S3 인스턴스 초기화
+
+        const result = await this.s3
+          .upload({
+            Key: fileName,
+            Body: fileObject,
+            ACL: 'public-read', // 파일을 공개적으로 읽을 수 있게 설정
+          })
+          .promise();
+
+        tempData = {
+          fileName: result.Key,
+          filePath: result.Location,
+        };
+
+        console.log('✅ S3 업로드 성공:', tempData);
+      } catch (error) {
+        console.error('❌ S3 업로드 실패:', error);
+        alert(
+          '정보를 업로드하는데 실패하였습니다.(관리자 문의 : 010-3383-4177)'
+        );
+        // 에러 발생 시 null 반환
+        tempData = null;
+      } finally {
+        await this.clearS3(); // S3 인스턴스 초기화
+      }
       return tempData;
     },
 
