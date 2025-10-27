@@ -832,16 +832,7 @@
         });
 
         try {
-          console.log('🔄 S3 업로드 시작:', {
-            filePath,
-            fileName,
-            fileSize: file.size,
-            fileType: file.type,
-          });
-
           const result = await this.s3CreateFile(filePath, file);
-
-          console.log('✅ S3 업로드 결과:', result);
 
           if (result && result.filePath) {
             return { url: result.filePath, fileName };
