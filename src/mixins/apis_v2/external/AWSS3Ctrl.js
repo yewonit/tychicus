@@ -50,12 +50,6 @@ export const AWSS3Ctrl = {
       try {
         await this.setS3(); // S3 인스턴스 설정
 
-        console.log('🔄 S3 업로드 요청:', {
-          fileName,
-          fileSize: fileObject?.size,
-          fileType: fileObject?.type,
-        });
-
         const result = await this.s3
           .upload({
             Key: fileName,
@@ -68,8 +62,6 @@ export const AWSS3Ctrl = {
           fileName: result.Key,
           filePath: result.Location,
         };
-
-        console.log('✅ S3 업로드 성공:', tempData);
       } catch (error) {
         console.error('❌ S3 업로드 실패:', error);
         alert(
