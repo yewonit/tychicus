@@ -22,10 +22,18 @@ export const AWSS3Ctrl = {
      * @description Cognito Identity Pool을 사용하여 임시 AWS credentials 획득
      */
     async setS3() {
-      // Cognito Identity Credentials 생성
-      const credentials = new CognitoIdentityCredentials({
-        IdentityPoolId: this.IdentityPoolId,
-      });
+      // Cognito Identity Credentials 생성 (region 포함)
+      const credentials = new CognitoIdentityCredentials(
+        {
+          IdentityPoolId: this.IdentityPoolId,
+        },
+        {
+          region: this.bucketRegion,
+        }
+      );
+
+      // Cognito credentials를 먼저 획득 (비동기)
+      await credentials.getPromise();
 
       // S3 인스턴스 생성 (credentials와 region을 직접 전달)
       this.s3 = new S3({
@@ -34,9 +42,6 @@ export const AWSS3Ctrl = {
         apiVersion: '2006-03-01',
         params: { Bucket: this.albumBucketName },
       });
-
-      // Cognito credentials를 먼저 획득 (비동기)
-      await credentials.getPromise();
     },
 
     // S3 인스턴스 초기화
