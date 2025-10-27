@@ -1,6 +1,6 @@
 // AWS SDK 최적화: 필요한 모듈만 import (95 MB → ~5 MB)
 import S3 from 'aws-sdk/clients/s3';
-import { CognitoIdentityCredentials, Config } from 'aws-sdk';
+import { CognitoIdentityCredentials } from 'aws-sdk';
 
 export const AWSS3Ctrl = {
   data() {
@@ -17,17 +17,28 @@ export const AWSS3Ctrl = {
   },
   methods: {
     // AWS S3 인스턴스 설정
+    /**
+     * S3 인스턴스를 설정하고 Cognito Identity로 인증
+     * @description Cognito Identity Pool을 사용하여 임시 AWS credentials 획득
+     */
     async setS3() {
-      // AWS Config 설정 업데이트
-      const config = new Config({
-        region: this.bucketRegion,
-        credentials: new CognitoIdentityCredentials({
+      // Cognito Identity Credentials 생성 (region 포함)
+      const credentials = new CognitoIdentityCredentials(
+        {
           IdentityPoolId: this.IdentityPoolId,
-        }),
-      });
-      // S3 인스턴스 생성
-      this.s3 = await new S3({
-        ...config,
+        },
+        {
+          region: this.bucketRegion,
+        }
+      );
+
+      // Cognito credentials를 먼저 획득 (비동기)
+      await credentials.getPromise();
+
+      // S3 인스턴스 생성 (credentials와 region을 직접 전달)
+      this.s3 = new S3({
+        region: this.bucketRegion,
+        credentials: credentials,
         apiVersion: '2006-03-01',
         params: { Bucket: this.albumBucketName },
       });
@@ -39,28 +50,39 @@ export const AWSS3Ctrl = {
     },
 
     // S3에 파일 생성 (업로드)
+    /**
+     * S3에 파일을 업로드하는 함수
+     * @param {string} fileName - S3에 저장될 파일 경로/이름
+     * @param {File} fileObject - 업로드할 파일 객체
+     * @returns {Promise<{fileName: string, filePath: string}|null>} 업로드 결과 또는 null
+     */
     async s3CreateFile(fileName, fileObject) {
       let tempData = null;
-      await this.setS3(); // S3 인스턴스 설정
-      await this.s3
-        .upload({
-          Key: fileName,
-          Body: fileObject,
-          ACL: 'public-read', // 파일을 공개적으로 읽을 수 있게 설정
-        })
-        .promise()
-        .then((res) => {
-          tempData = {
-            fileName: res.Key,
-            filePath: res.Location,
-          };
-        })
-        .catch(() => {
-          alert(
-            '정보를 업로드하는데 실패하였습니다.(관리자 문의 : 010-3383-4177)'
-          );
-        });
-      this.clearS3(); // S3 인스턴스 초기화
+      try {
+        await this.setS3(); // S3 인스턴스 설정
+
+        const result = await this.s3
+          .upload({
+            Key: fileName,
+            Body: fileObject,
+            ACL: 'public-read', // 파일을 공개적으로 읽을 수 있게 설정
+          })
+          .promise();
+
+        tempData = {
+          fileName: result.Key,
+          filePath: result.Location,
+        };
+      } catch (error) {
+        console.error('❌ S3 업로드 실패:', error);
+        alert(
+          '정보를 업로드하는데 실패하였습니다.(관리자 문의 : 010-3383-4177)'
+        );
+        // 에러 발생 시 null 반환
+        tempData = null;
+      } finally {
+        await this.clearS3(); // S3 인스턴스 초기화
+      }
       return tempData;
     },
 
