@@ -1,5 +1,29 @@
 <template>
   <v-container fill-height fluid>
+    <!-- 로그아웃 버튼 영역 -->
+    <v-row
+      class="justify-end pa-4"
+      style="position: absolute; top: 0; right: 0; z-index: 10"
+    >
+      <v-menu offset-y left>
+        <template v-slot:activator="{ on, attrs }">
+          <v-btn icon large v-bind="attrs" v-on="on" color="primary">
+            <v-icon size="32">mdi-account-circle</v-icon>
+          </v-btn>
+        </template>
+        <v-list>
+          <v-list-item @click="handleLogout">
+            <v-list-item-icon>
+              <v-icon color="error">mdi-logout</v-icon>
+            </v-list-item-icon>
+            <v-list-item-content>
+              <v-list-item-title>로그아웃</v-list-item-title>
+            </v-list-item-content>
+          </v-list-item>
+        </v-list>
+      </v-menu>
+    </v-row>
+
     <v-row
       class="fill-height px-0 pb-15"
       align="center"
@@ -52,7 +76,7 @@
 
 <script>
   import { UserOrganizationsAndRolesCtrl } from '@/mixins/apis_v2/utility/UserOrganizationsAndRolesCtrl';
-  import { mapState } from 'vuex';
+  import { mapState, mapActions } from 'vuex';
 
   export default {
     name: 'ServiceSelectionView',
@@ -128,6 +152,33 @@
       };
     },
     methods: {
+      ...mapActions('auth', ['logout']),
+
+      /**
+       * 로그아웃 처리 함수
+       * - localStorage에 저장된 모든 인증 정보 삭제
+       * - Vuex store의 인증 상태 초기화
+       * - 로그인 페이지로 리다이렉트
+       */
+      handleLogout() {
+        try {
+          // 1. localStorage에서 인증 관련 정보 삭제
+          localStorage.removeItem('access_token');
+          localStorage.removeItem('refresh_token');
+          localStorage.removeItem('coramdeoAuth');
+
+          // 2. Vuex store의 인증 상태 초기화
+          this.logout();
+
+          // 3. 로그인 페이지로 리다이렉트
+          this.$router.push({ name: 'LoginView' });
+        } catch (error) {
+          console.error('로그아웃 중 오류 발생:', error);
+          // 오류가 발생해도 로그인 페이지로 이동
+          this.$router.push({ name: 'LoginView' });
+        }
+      },
+
       formatOrganizationName(name) {
         // '_' 기준으로 분리
         const parts = name.split('_');
