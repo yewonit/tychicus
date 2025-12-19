@@ -2,7 +2,41 @@
 
 import { register } from 'register-service-worker';
 
-// 앱 버전 체크 함수
+/**
+ * 캐시 클리어 함수
+ * @description
+ * 버전 업데이트 시 members API 관련 캐시를 강제로 삭제하여
+ * 사용자가 항상 최신 데이터를 받도록 보장
+ */
+async function clearMembersCache() {
+  try {
+    const cacheNames = await caches.keys();
+    const apiCaches = cacheNames.filter((name) => name.includes('api-cache'));
+
+    for (const cacheName of apiCaches) {
+      const cache = await caches.open(cacheName);
+      const requests = await cache.keys();
+
+      for (const request of requests) {
+        if (request.url.includes('/members')) {
+          await cache.delete(request);
+          console.log('🗑️ Members 캐시 삭제:', request.url);
+        }
+      }
+    }
+
+    console.log('✅ Members 캐시 클리어 완료');
+  } catch (error) {
+    console.error('❌ 캐시 클리어 중 오류:', error);
+  }
+}
+
+/**
+ * 앱 버전 체크 함수
+ * @description
+ * version.json을 확인하여 새 버전이 있으면 Service Worker 업데이트 트리거
+ * 버전이 변경되면 members 캐시를 클리어하여 최신 데이터 보장
+ */
 function checkForUpdates() {
   // 캐시 방지를 위해 쿼리 파라미터 추가
   fetch(`${process.env.BASE_URL}version.json?_=${new Date().getTime()}`)
@@ -11,6 +45,10 @@ function checkForUpdates() {
       // 로컬 저장소에 저장된 버전과 비교
       const currentVersion = localStorage.getItem('appVersion');
       if (currentVersion && currentVersion !== data.version) {
+        console.log(
+          `🔄 앱 버전 업데이트 감지: ${currentVersion} → ${data.version}`
+        );
+
         // 업데이트 알림 이벤트 발생
         window.dispatchEvent(
           new CustomEvent('updateAvailable', {
@@ -20,6 +58,9 @@ function checkForUpdates() {
             },
           })
         );
+
+        // members 캐시 강제 삭제
+        clearMembersCache();
 
         // 버전 변경 시 즉시 서비스 워커 업데이트 요청
         navigator.serviceWorker.getRegistration().then((registration) => {
