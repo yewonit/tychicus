@@ -45,13 +45,33 @@ module.exports = {
 
       // 런타임 캐싱 설정
       runtimeCaching: [
+        // 1. Members API는 항상 네트워크에서 최신 데이터 가져오기
+        {
+          urlPattern: new RegExp('.*/organizations/.*/members.*'),
+          handler: 'NetworkOnly',
+        },
+        // 2. 이미지 파일은 적극적으로 캐싱 (CacheFirst)
+        {
+          urlPattern: new RegExp('^https://.*\\.(png|jpg|jpeg|svg|gif|webp)$'),
+          handler: 'CacheFirst',
+          options: {
+            cacheName: 'image-cache',
+            expiration: {
+              maxEntries: 60,
+              maxAgeSeconds: 30 * 24 * 60 * 60, // 30일
+            },
+          },
+        },
+        // 3. 기타 API는 NetworkFirst로 최신 데이터 우선, 오프라인 대응
         {
           urlPattern: new RegExp('^https://'),
           handler: 'NetworkFirst',
           options: {
             cacheName: 'api-cache',
+            networkTimeoutSeconds: 10, // 10초 타임아웃
             expiration: {
-              maxAgeSeconds: 60 * 60, // 1시간 캐싱
+              maxAgeSeconds: 5 * 60, // 5분으로 단축 (기존 1시간에서 변경)
+              maxEntries: 50,
             },
           },
         },
