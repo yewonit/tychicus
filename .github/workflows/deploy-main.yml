@@ -28,14 +28,18 @@ jobs:
         run: |
           docker push ${{ secrets.DOCKER_HUB_USERNAME }}/tychicus:prod
 
-      - name: Install sshpass
-        run: sudo apt-get install -y sshpass
-
-      - name: Deploy
+      - name: Setup SSH Key
         run: |
-          sshpass -p ${{ secrets.DEV_MACHINE_SSH_PASSWORD }} ssh -o StrictHostKeyChecking=no -t ${{ secrets.DEV_MACHINE_SSH_USER }}@${{ secrets.DEV_MACHINE_SSH_HOST }} -p ${{ secrets.DEV_MACHINE_SSH_PORT }} << 'EOF'
-            docker rm -f tychicus-prod
-            docker rmi coramdeoyouth/tychicus:prod
-            docker pull coramdeoyouth/tychicus:prod
-            docker run -d -p 8081:80 --name tychicus-prod --network hephai-bridge --restart unless-stopped coramdeoyouth/tychicus:prod
+          mkdir -p ~/.ssh
+          echo "${{ secrets.AWS_SSH_PRIVATE_KEY }}" > ~/.ssh/id_rsa
+          chmod 600 ~/.ssh/id_rsa
+          ssh-keyscan -H ${{ secrets.AWS_SSH_FRONTEND_HOST }} >> ~/.ssh/known_hosts
+    
+      - name: Deploy to Docker Swarm on AWS EC2
+        run: |
+          ssh -i ~/.ssh/id_rsa -o StrictHostKeyChecking=no ${{ secrets.AWS_SSH_USER }}@${{ secrets.AWS_SSH_FRONTEND_HOST }} << 'EOF'
+            cd ~/src/deployment/ec2-deploy/frontend
+            docker compose pull tychicus-prod
+            docker compose up -d tychicus-prod
+            docker image prune -f
           EOF
