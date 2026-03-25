@@ -147,7 +147,7 @@ export const AuthCtrl = {
         const res = await axiosClient.auth.post('/login', requestData, {
           timeout: 8000, // 8초 타임아웃 설정
           headers: {
-            'Content-Type': 'application/x-www-form-urlencoded',
+            'Content-Type': 'application/json',
           },
         });
 
@@ -206,7 +206,7 @@ export const AuthCtrl = {
         const res = await axiosClient.auth.post('/refresh', requestData, {
           timeout: 8000, // 8초 타임아웃 설정
           headers: {
-            'Content-Type': 'application/x-www-form-urlencoded',
+            'Content-Type': 'application/json',
           },
         });
 
