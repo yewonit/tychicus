@@ -11,7 +11,7 @@
   },
   "dependencies": {
     "aws-sdk": "^2.1539.0",
-    "axios": "^1.6.5",
+    "axios": "^1.21.0",
     "core-js": "^3.8.3",
     "dayjs": "^1.11.18",
     "register-service-worker": "^1.7.2",
